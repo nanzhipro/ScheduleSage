@@ -1,2 +1,8 @@
 <key>LSUIElement</key>
-<true/> 
+<true/>
+<key>CFBundleLocalizations</key>
+<array>
+    <string>en</string>
+    <string>zh-Hans</string>
+    <string>ja</string>
+</array> 

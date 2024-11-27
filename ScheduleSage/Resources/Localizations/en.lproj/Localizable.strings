@@ -1,0 +1,13 @@
+// Status
+"remaining_uses" = "Remaining %d times";
+"upgrade_prompt" = "Upgrade to unlimited";
+"separator" = "｜";
+
+// Add Schedule Methods
+"add_schedule_title" = "Ways to Add Schedule";
+"clipboard_import" = "Import from Clipboard";
+"manual_input" = "Manual Input";
+"drag_image" = "Drag Image";
+
+// Actions
+"import_calendar" = "Import to Calendar"; 

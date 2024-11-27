@@ -17,9 +17,11 @@ struct PopoverView: View {
                         Image(systemName: "crown")
                             .foregroundColor(.secondary)
                     }
-                    Text("剩余 \(remainingUses) 次｜")
+                    Text(String(format: NSLocalizedString("remaining_uses", comment: ""), remainingUses))
                         .foregroundColor(.secondary)
-                    Text("升级获取无限次数")
+                    Text(NSLocalizedString("separator", comment: ""))
+                        .foregroundColor(.secondary)
+                    Text(NSLocalizedString("upgrade_prompt", comment: ""))
                         .foregroundColor(.blue)
                 }
                 .padding(.leading)
@@ -53,14 +55,23 @@ struct PopoverView: View {
                 }
                 .padding(.top, 40)
                 
-                Text("添加日程的方式")
+                Text(NSLocalizedString("add_schedule_title", comment: ""))
                     .font(.headline)
                 
                 // 三种添加方式
                 HStack(spacing: 40) {
-                    AddMethodButton(icon: "doc.on.clipboard", text: "从剪贴板导入")
-                    AddMethodButton(icon: "plus", text: "手动输入")
-                    AddMethodButton(icon: "square.and.arrow.down", text: "拖拽图片")
+                    AddMethodButton(
+                        icon: "doc.on.clipboard",
+                        text: NSLocalizedString("clipboard_import", comment: "")
+                    )
+                    AddMethodButton(
+                        icon: "plus",
+                        text: NSLocalizedString("manual_input", comment: "")
+                    )
+                    AddMethodButton(
+                        icon: "square.and.arrow.down",
+                        text: NSLocalizedString("drag_image", comment: "")
+                    )
                 }
                 .padding(.horizontal)
                 
@@ -68,7 +79,7 @@ struct PopoverView: View {
                 
                 // 导入按钮
                 Button(action: {}) {
-                    Text("导入到日历")
+                    Text(NSLocalizedString("import_calendar", comment: ""))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)

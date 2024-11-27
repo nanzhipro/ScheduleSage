@@ -1,0 +1,13 @@
+// Status
+"remaining_uses" = "残り %d 回";
+"upgrade_prompt" = "無制限にアップグレード";
+"separator" = "｜";
+
+// Add Schedule Methods
+"add_schedule_title" = "スケジュール追加方法";
+"clipboard_import" = "クリップボードから取込";
+"manual_input" = "手動入力";
+"drag_image" = "画像をドラッグ";
+
+// Actions
+"import_calendar" = "カレンダーに追加"; 

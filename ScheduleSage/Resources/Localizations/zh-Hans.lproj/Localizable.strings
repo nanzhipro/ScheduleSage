@@ -1,0 +1,13 @@
+// Status
+"remaining_uses" = "剩余 %d 次";
+"upgrade_prompt" = "升级获取无限次数";
+"separator" = "｜";
+
+// Add Schedule Methods
+"add_schedule_title" = "添加日程的方式";
+"clipboard_import" = "从剪贴板导入";
+"manual_input" = "手动输入";
+"drag_image" = "拖拽图片";
+
+// Actions
+"import_calendar" = "导入到日历"; 
