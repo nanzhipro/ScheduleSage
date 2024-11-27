@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 448">
+  <!-- Main Container -->
+  <rect x="0" y="30" width="440" height="418" rx="12" fill="#FFFFFF"
+    filter="drop-shadow(0 2px 8px rgba(0,0,0,0.12))" />
+
+  <!-- Header with crown icon and status -->
+  <rect x="24" y="54" width="392" height="44" rx="8" fill="#FFFFFF" />
+  <g transform="translate(36,66)">
+    <!-- Crown Icon -->
+    <circle cx="12" cy="12" r="12" fill="#F2F2F7" />
+    <path d="M6,16 L18,16 L16,10 L12,13 L8,10 L6,16" fill="none" stroke="#86868B" stroke-width="1.5" />
+    <path d="M12,8 L12,9" stroke="#86868B" stroke-width="1.5" stroke-linecap="round" />
+
+    <!-- Status Text -->
+    <text x="32" y="16" font-family="SF Pro Text" font-size="13" fill="#86868B">剩余 12 次｜</text>
+    <text x="112" y="16" font-family="SF Pro Text" font-size="13" fill="#007AFF">升级获取无限次数</text>
+  </g>
+
+  <!-- Add Button -->
+  <circle cx="392" cy="76" r="14" fill="#007AFF" />
+  <path d="M392,71 L392,81 M387,76 L397,76" stroke="#FFFFFF" stroke-width="1.5" />
+
+  <!-- Empty State Container -->
+  <rect x="24" y="122" width="392" height="234" rx="8" fill="#F8F8FA" />
+
+  <!-- Empty State Content -->
+  <!-- Calendar Icon -->
+  <circle cx="220" cy="182" r="40" fill="#F2F2F7" />
+  <path
+    d="M208,162 h24 a4,4 0 0 1 4,4 v28 a4,4 0 0 1 -4,4 h-24 a4,4 0 0 1 -4,-4 v-28 a4,4 0 0 1 4,-4 Z"
+    fill="none" stroke="#666666" stroke-width="2" />
+  <path d="M204,170 h32 M212,158 v8 M228,158 v8" stroke="#666666" stroke-width="2" />
+
+  <!-- Empty State Text -->
+  <text x="220" y="252" font-family="SF Pro Text" font-size="15" font-weight="500" fill="#000000"
+    text-anchor="middle">添加日程的方式</text>
+
+  <!-- Method Items with Manual Input Centered -->
+  <g transform="translate(24,272)">
+    <!-- Clipboard Method -->
+    <g transform="translate(80,0)">
+      <circle cx="20" cy="20" r="16" fill="#F2F2F7" />
+      <path d="M19,16 h10 M19,24 h10 M19,32 h6" stroke="#666666" stroke-width="1.5" />
+      <text x="20" y="52" font-family="SF Pro Text" font-size="13" fill="#666666"
+        text-anchor="middle">从剪贴板导入</text>
+    </g>
+
+    <!-- Manual Input Method (Centered) -->
+    <g transform="translate(196,0)">
+      <circle cx="20" cy="20" r="16" fill="#F2F2F7" />
+      <path d="M14,20 h12 M20,14 v12" stroke="#666666" stroke-width="1.5" />
+      <text x="20" y="52" font-family="SF Pro Text" font-size="13" fill="#666666"
+        text-anchor="middle">手动输入</text>
+    </g>
+
+    <!-- Drag Image Method -->
+    <g transform="translate(312,0)">
+      <circle cx="20" cy="20" r="16" fill="#F2F2F7" />
+      <rect x="12" y="12" width="16" height="16" rx="2" fill="none" stroke="#666666"
+        stroke-width="1.5" stroke-dasharray="2,2" />
+      <path d="M16,20 l4,4 l4,-4" stroke="#666666" stroke-width="1.5" />
+      <text x="20" y="52" font-family="SF Pro Text" font-size="13" fill="#666666"
+        text-anchor="middle">拖拽图片</text>
+    </g>
+  </g>
+
+  <!-- Import Button (Disabled) -->
+  <rect x="24" y="380" width="392" height="44" rx="8" fill="#007AFF" opacity="0.5" />
+  <text x="220" y="407" font-family="SF Pro Text" font-size="14" fill="#FFFFFF" text-anchor="middle">
+    导入到日历</text>
+</svg>
