@@ -17,7 +17,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // 配置 Popover
         popover = NSPopover()
-        popover.contentSize = NSSize(width: 392, height: 480)
+        popover.contentSize = NSSize(
+            width: ScheduleDesignSystem.Dimensions.containerWidth,
+            height: ScheduleDesignSystem.Dimensions.containerHeight
+        )
         popover.behavior = .transient
         popover.contentViewController = NSHostingController(rootView: PopoverView())
     }
