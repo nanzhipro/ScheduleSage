@@ -38,8 +38,10 @@ enum ScheduleDesignSystem {
         static let formLabel = Font.system(size: 13)
         static let buttonLabel = Font.system(size: 14)
         
-        // Event Title
+        // Event Related
         static let eventTitle = Font.system(size: 17, weight: .medium)
+        static let eventTime = Font.system(size: 15)
+        static let eventCount = Font.system(size: 13)
         
         // Status
         static let statusText = Font.system(size: 13)
@@ -49,45 +51,64 @@ enum ScheduleDesignSystem {
     
     // MARK: - Dimensions
     enum Dimensions {
-        // Container
+        // Container Sizes
         static let containerWidth: CGFloat = 440
-        static let containerHeight: CGFloat = 418
+        static let containerHeight: CGFloat = 543  // 原高度 418 增加 30%
         static let confirmPageHeight: CGFloat = 550
         
-        // Corners
+        // Corner Radii
         static let containerCornerRadius: CGFloat = 12
         static let cardCornerRadius: CGFloat = 8
         static let buttonCornerRadius: CGFloat = 8
         static let headerCornerRadius: CGFloat = 8
         
-        // Components
+        // Component Heights
         static let headerHeight: CGFloat = 44
         static let formFieldHeight: CGFloat = 44
         static let buttonHeight: CGFloat = 44
-        static let importButtonHeight: CGFloat = 44
+        static let listHeaderHeight: CGFloat = 44
         
-        // Icons
+        // Icon Sizes
         static let statusIconSize: CGFloat = 24
         static let methodIconSize: CGFloat = 32
         static let addButtonSize: CGFloat = 28
-        static let selectionIndicatorSize: CGFloat = 8
         static let crownIconSize: CGFloat = 24
-        
-        // Empty State
         static let emptyStateIconSize: CGFloat = 80
+        static let eventIconSize: CGFloat = 32
+        
+        // Event Card
+        static let eventCardHeight: CGFloat = 134
+        static let eventCardSpacing: CGFloat = 12
+        static let selectionIndicatorOuterSize: CGFloat = 16
+        static let selectionIndicatorInnerSize: CGFloat = 8
+        
+        // List Layout
+        static let listContentSpacing: CGFloat = 16
+        static let listVerticalPadding: CGFloat = 20
     }
     
     // MARK: - Spacing
     enum Spacing {
+        // General
         static let horizontal: CGFloat = 24
         static let vertical: CGFloat = 24
-        static let formFieldSpacing: CGFloat = 24
-        static let contentPadding: CGFloat = 16
         static let iconSpacing: CGFloat = 8
         static let elementSpacing: CGFloat = 16
         
+        // Form
+        static let formFieldSpacing: CGFloat = 24
+        static let contentPadding: CGFloat = 16
+        
         // Header
         static let headerHorizontalPadding: CGFloat = 24
+        
+        // Event Card
+        static let eventCardPadding: CGFloat = 20
+        static let eventIconSpacing: CGFloat = 16
+        
+        // List
+        static let listHeaderPadding: CGFloat = 24
+        static let listContentPadding: CGFloat = 24
     }
     
     // MARK: - Shadows

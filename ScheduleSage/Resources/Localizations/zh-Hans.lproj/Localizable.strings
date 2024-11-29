@@ -10,4 +10,9 @@
 "drag_image" = "拖拽图片";
 
 // Actions
-"import_calendar" = "导入到日历"; 
+"import_calendar" = "导入到日历";
+
+// Event List
+"detected_events" = "检测到 %d 个日程";
+"recurring" = "重复";
+  

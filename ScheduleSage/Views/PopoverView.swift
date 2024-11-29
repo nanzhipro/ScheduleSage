@@ -1,111 +1,78 @@
 import AppKit
 import SwiftUI
 
+// 日程添加页
 struct PopoverView: View {
+  @StateObject private var clipboardManager = ClipboardManager()
+  @State private var isDragging = false
   @State private var remainingUses: Int = 12
+  @State private var showEventList: Bool = false
 
   var body: some View {
+    ZStack {
+      if showEventList {
+        EventListView(
+          remainingUses: remainingUses,
+          events: PreviewData.events,
+          onUpgrade: { print("Upgrade tapped") },
+          onAdd: { showEventList = false },
+          onImport: { print("Import tapped") }
+        )
+        .transition(.asymmetric(
+          insertion: .move(edge: .trailing).combined(with: .opacity),
+          removal: .move(edge: .leading).combined(with: .opacity)
+        ))
+      } else {
+        addScheduleView
+          .transition(.asymmetric(
+            insertion: .move(edge: .leading).combined(with: .opacity),
+            removal: .move(edge: .trailing).combined(with: .opacity)
+          ))
+      }
+    }
+    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showEventList)
+    .onAppear {
+      clipboardManager.startMonitoring()
+    }
+    .onDisappear {
+      clipboardManager.stopMonitoring()
+    }
+  }
+
+  private var addScheduleView: some View {
     VStack(spacing: 0) {
       // 顶部状态栏
-      HStack {
-        // Pro 状态
-        HStack(spacing: ScheduleDesignSystem.Spacing.elementSpacing) {
-          ZStack {
-            Circle()
-              .fill(ScheduleDesignSystem.Colors.lightGray)
-              .frame(
-                width: ScheduleDesignSystem.Dimensions.crownIconSize,
-                height: ScheduleDesignSystem.Dimensions.crownIconSize
-              )
-            Image(systemName: "crown")
-              .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
-          }
-          Text(String(format: NSLocalizedString("remaining_uses", comment: ""), remainingUses))
-            .font(ScheduleDesignSystem.Typography.statusText)
-            .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-          Text(NSLocalizedString("separator", comment: ""))
-            .font(ScheduleDesignSystem.Typography.statusText)
-            .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-          Text(NSLocalizedString("upgrade_prompt", comment: ""))
-            .font(ScheduleDesignSystem.Typography.statusText)
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryBlue)
-        }
-        .padding(.leading, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
-
-        Spacer()
-
-        // 添加按钮
-        Button(action: {}) {
-          Image(systemName: "plus")
-            .foregroundColor(ScheduleDesignSystem.Colors.background)
-            .frame(
-              width: ScheduleDesignSystem.Dimensions.addButtonSize,
-              height: ScheduleDesignSystem.Dimensions.addButtonSize
-            )
-            .background(ScheduleDesignSystem.Colors.primaryBlue)
-            .clipShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .padding(.trailing, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
-      }
-      .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
-      .background(ScheduleDesignSystem.Colors.background)
-      .cornerRadius(ScheduleDesignSystem.Dimensions.headerCornerRadius)
-
+      statusBar
+      
       // 主要内容区域
       VStack(spacing: ScheduleDesignSystem.Spacing.vertical) {
+        Spacer()
+          .frame(height: ScheduleDesignSystem.Spacing.vertical * 2)
+        
         // 日历图标
-        ZStack {
-          Circle()
-            .fill(ScheduleDesignSystem.Colors.lightGray)
-            .frame(
-              width: ScheduleDesignSystem.Dimensions.emptyStateIconSize,
-              height: ScheduleDesignSystem.Dimensions.emptyStateIconSize
-            )
-          Image(systemName: "calendar")
-            .font(.system(size: 32))
-            .foregroundColor(ScheduleDesignSystem.Colors.iconGray)
-        }
-        .padding(.top, ScheduleDesignSystem.Spacing.vertical)
-
+        calendarIcon
+        
         Text(NSLocalizedString("add_schedule_title", comment: ""))
           .font(ScheduleDesignSystem.Typography.emptyStateTitle)
           .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-
+          .padding(.top, ScheduleDesignSystem.Spacing.vertical)
+        
         // 三种添加方式
-        HStack(spacing: ScheduleDesignSystem.Spacing.horizontal) {
-          AddMethodButton(
-            icon: "doc.on.clipboard",
-            text: NSLocalizedString("clipboard_import", comment: "")
-          )
-          AddMethodButton(
-            icon: "plus",
-            text: NSLocalizedString("manual_input", comment: "")
-          )
-          AddMethodButton(
-            icon: "square.and.arrow.down",
-            text: NSLocalizedString("drag_image", comment: "")
-          )
-        }
-        .padding(.horizontal, ScheduleDesignSystem.Spacing.horizontal)
-
+        addMethodButtons
+        
         Spacer()
-
+        
         // 导入按钮
-        Button(action: {}) {
-          Text(NSLocalizedString("import_calendar", comment: ""))
-            .font(ScheduleDesignSystem.Typography.buttonLabel)
-            .foregroundColor(ScheduleDesignSystem.Colors.background)
-            .frame(maxWidth: .infinity)
-            .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
-            .background(ScheduleDesignSystem.Colors.primaryBlue.opacity(0.5))
-            .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
-        }
-        .buttonStyle(.plain)
-        .padding(ScheduleDesignSystem.Layout.containerPadding)
+        importButton
       }
       .frame(maxWidth: .infinity)
-      .background(ScheduleDesignSystem.Colors.containerGray)
+      .background(
+        ScheduleDesignSystem.Colors.containerGray
+          .onDrop(
+            of: [.fileURL],
+            delegate: ImageDropDelegate(onDrop: handleImageDrop)
+          )
+      )
     }
     .frame(
       width: ScheduleDesignSystem.Dimensions.containerWidth,
@@ -113,12 +80,115 @@ struct PopoverView: View {
     )
     .background(ScheduleDesignSystem.Colors.background)
     .cornerRadius(ScheduleDesignSystem.Dimensions.containerCornerRadius)
-    .shadow(
-      color: ScheduleDesignSystem.Shadows.containerShadow.color,
-      radius: ScheduleDesignSystem.Shadows.containerShadow.radius,
-      x: ScheduleDesignSystem.Shadows.containerShadow.x,
-      y: ScheduleDesignSystem.Shadows.containerShadow.y
-    )
+  }
+
+  private var statusBar: some View {
+    HStack {
+      // Pro 状态栏内容
+      proStatus
+      Spacer()
+      addButton
+    }
+    .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
+    .background(ScheduleDesignSystem.Colors.background)
+    .cornerRadius(ScheduleDesignSystem.Dimensions.headerCornerRadius)
+  }
+
+  private var proStatus: some View {
+    HStack(spacing: ScheduleDesignSystem.Spacing.elementSpacing) {
+      ZStack {
+        Circle()
+          .fill(ScheduleDesignSystem.Colors.lightGray)
+          .frame(
+            width: ScheduleDesignSystem.Dimensions.crownIconSize,
+            height: ScheduleDesignSystem.Dimensions.crownIconSize
+          )
+        Image(systemName: "crown.fill")  // 使用 crown.fill 更接近视觉稿
+          .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+      }
+      Text(String(format: NSLocalizedString("remaining_uses", comment: ""), remainingUses))
+        .font(ScheduleDesignSystem.Typography.statusText)
+        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+      Text(NSLocalizedString("separator", comment: ""))
+        .font(ScheduleDesignSystem.Typography.statusText)
+        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+      Text(NSLocalizedString("upgrade_prompt", comment: ""))
+        .font(ScheduleDesignSystem.Typography.statusText)
+        .foregroundColor(ScheduleDesignSystem.Colors.primaryBlue)
+    }
+    .padding(.leading, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
+  }
+
+  private var calendarIcon: some View {
+    ZStack {
+      Circle()
+        .fill(ScheduleDesignSystem.Colors.lightGray)
+        .frame(
+          width: ScheduleDesignSystem.Dimensions.emptyStateIconSize,
+          height: ScheduleDesignSystem.Dimensions.emptyStateIconSize
+        )
+      Image(systemName: "calendar.badge.plus")  // 使用更合适的日历图标
+        .font(.system(size: 32))
+        .foregroundColor(ScheduleDesignSystem.Colors.iconGray)
+    }
+  }
+
+  private var addMethodButtons: some View {
+    HStack(spacing: ScheduleDesignSystem.Spacing.horizontal) {
+      AddMethodButton(
+        icon: "doc.text.fill",  // 更新图标
+        text: NSLocalizedString("clipboard_import", comment: "")
+      )
+      AddMethodButton(
+        icon: "square.and.pencil",  // 更新图标
+        text: NSLocalizedString("manual_input", comment: "")
+      )
+      AddMethodButton(
+        icon: "arrow.down.doc.fill",  // 更新图标
+        text: NSLocalizedString("drag_image", comment: "")
+      )
+    }
+    .padding(.horizontal, ScheduleDesignSystem.Spacing.horizontal)
+    .padding(.top, ScheduleDesignSystem.Spacing.vertical)
+  }
+
+  private func handleImageDrop(_ images: [NSImage]) {
+    guard let image = images.first else { return }
+    print("Processing dropped image: \(image.size)")
+  }
+
+  // MARK: - Private Views
+  private var addButton: some View {
+    Button(action: {
+      print("Add button tapped")
+    }) {
+      Image(systemName: "plus")
+        .foregroundColor(ScheduleDesignSystem.Colors.background)
+        .frame(
+          width: ScheduleDesignSystem.Dimensions.addButtonSize,
+          height: ScheduleDesignSystem.Dimensions.addButtonSize
+        )
+        .background(ScheduleDesignSystem.Colors.primaryBlue)
+        .clipShape(Circle())
+    }
+    .buttonStyle(.plain)
+    .padding(.trailing, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
+  }
+
+  private var importButton: some View {
+    Button(action: {
+      showEventList = true
+    }) {
+      Text(NSLocalizedString("import_calendar", comment: ""))
+        .font(ScheduleDesignSystem.Typography.buttonLabel)
+        .foregroundColor(ScheduleDesignSystem.Colors.background)
+        .frame(maxWidth: .infinity)
+        .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
+        .background(ScheduleDesignSystem.Colors.primaryBlue.opacity(0.5))
+        .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
+    }
+    .buttonStyle(.plain)
+    .padding(ScheduleDesignSystem.Layout.containerPadding)
   }
 }
 
