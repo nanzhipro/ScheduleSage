@@ -17,7 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let statusButton = statusItem.button {
-            statusButton.image = NSImage(systemSymbolName: "calendar", accessibilityDescription: "ScheduleSage")
+            statusButton.image = NSImage(systemSymbolName: "calendar.badge.plus", accessibilityDescription: "ScheduleSage")
             statusButton.action = #selector(togglePopover)
             statusButton.target = self
         }
