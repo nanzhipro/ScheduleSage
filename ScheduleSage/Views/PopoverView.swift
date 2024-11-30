@@ -3,19 +3,22 @@ import SwiftUI
 
 // 日程添加页
 struct PopoverView: View {
-  @StateObject private var clipboardManager = ClipboardManager()
-  @State private var isDragging = false
+  @EnvironmentObject private var viewModel: PopoverViewModel
   @State private var remainingUses: Int = 12
-  @State private var showEventList: Bool = false
 
   var body: some View {
+    mainContent
+      .withLoading()
+  }
+
+  private var mainContent: some View {
     ZStack {
-      if showEventList {
+      if viewModel.showEventList {
         EventListView(
           remainingUses: remainingUses,
           events: PreviewData.events,
           onUpgrade: { print("Upgrade tapped") },
-          onAdd: { showEventList = false },
+          onAdd: { viewModel.resetState() },
           onImport: { print("Import tapped") }
         )
         .transition(.asymmetric(
@@ -30,19 +33,23 @@ struct PopoverView: View {
           ))
       }
     }
-    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showEventList)
+    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.showEventList)
     .onAppear {
-      clipboardManager.startMonitoring()
-    }
-    .onDisappear {
-      clipboardManager.stopMonitoring()
+      viewModel.resetState()
     }
   }
 
   private var addScheduleView: some View {
     VStack(spacing: 0) {
       // 顶部状态栏
-      statusBar
+      HStack {
+        statusBar
+        Spacer()
+        closeButton
+      }
+      .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
+      .background(ScheduleDesignSystem.Colors.background)
+      .cornerRadius(ScheduleDesignSystem.Dimensions.headerCornerRadius)
       
       // 主要内容区域
       VStack(spacing: ScheduleDesignSystem.Spacing.vertical) {
@@ -51,6 +58,7 @@ struct PopoverView: View {
         
         // 日历图标
         calendarIcon
+          .modifier(DragAnimationModifier(animation: viewModel.dragAnimation))
         
         Text(NSLocalizedString("add_schedule_title", comment: ""))
           .font(ScheduleDesignSystem.Typography.emptyStateTitle)
@@ -70,7 +78,23 @@ struct PopoverView: View {
         ScheduleDesignSystem.Colors.containerGray
           .onDrop(
             of: [.fileURL],
-            delegate: ImageDropDelegate(onDrop: handleImageDrop)
+            delegate: ImageDropDelegate(
+              onDrop: { [weak viewModel] urls in
+                print("🔵 View - onDrop callback with \(urls.count) URLs")
+                viewModel?.handleDropped(urls)
+              },
+              onEntered: { [weak viewModel] in
+                print("🔵 View - onEntered callback")
+                viewModel?.handleDragEntered()
+              },
+              onExited: { [weak viewModel] in
+                print("🔵 View - onExited callback")
+                viewModel?.handleDragExited()
+              },
+              onOCRStateChange: { [weak viewModel] isProcessing in
+                viewModel?.isOCRProcessing = isProcessing
+              }
+            )
           )
       )
     }
@@ -177,7 +201,7 @@ struct PopoverView: View {
 
   private var importButton: some View {
     Button(action: {
-      showEventList = true
+      viewModel.showEventList = true
     }) {
       Text(NSLocalizedString("import_calendar", comment: ""))
         .font(ScheduleDesignSystem.Typography.buttonLabel)
@@ -189,6 +213,23 @@ struct PopoverView: View {
     }
     .buttonStyle(.plain)
     .padding(ScheduleDesignSystem.Layout.containerPadding)
+  }
+
+  private var closeButton: some View {
+    Button(action: {
+      NSApplication.shared.keyWindow?.close()
+    }) {
+      Image(systemName: "xmark")
+        .foregroundColor(ScheduleDesignSystem.Colors.background)
+        .frame(
+          width: ScheduleDesignSystem.Dimensions.addButtonSize,
+          height: ScheduleDesignSystem.Dimensions.addButtonSize
+        )
+        .background(ScheduleDesignSystem.Colors.secondaryGray)
+        .clipShape(Circle())
+    }
+    .buttonStyle(.plain)
+    .padding(.trailing, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
   }
 }
 
@@ -211,6 +252,34 @@ struct AddMethodButton: View {
       Text(text)
         .font(ScheduleDesignSystem.Typography.methodLabel)
         .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+    }
+  }
+}
+
+// 拖拽动画修饰器
+struct DragAnimationModifier: ViewModifier {
+  let animation: PopoverViewModel.DragAnimation
+  
+  func body(content: Content) -> some View {
+    switch animation {
+    case .none:
+      content
+    case .pulse:
+      content
+        .scaleEffect(1.1)
+        .animation(animation.animation, value: animation)
+    case .bounce:
+      content
+        .offset(y: -10)
+        .animation(animation.animation, value: animation)
+    case .glow:
+      content
+        .shadow(color: ScheduleDesignSystem.Colors.primaryBlue.opacity(0.5), radius: 20)
+        .animation(animation.animation, value: animation)
+    case .scale:
+      content
+        .scaleEffect(1.2)
+        .animation(animation.animation, value: animation)
     }
   }
 }

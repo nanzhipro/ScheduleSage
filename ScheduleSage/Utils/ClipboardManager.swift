@@ -1,31 +1,25 @@
 import AppKit
-import Combine
 
 class ClipboardManager: ObservableObject {
-    @Published var lastChangeCount: Int = NSPasteboard.general.changeCount
-    private var timer: Timer?
-    private let checkInterval: TimeInterval = 0.5
+    private let supportedImageExtensions = ["jpg", "jpeg", "png", "gif", "heic"]
     
-    func startMonitoring() {
-        timer = Timer.scheduledTimer(withTimeInterval: checkInterval, repeats: true) { [weak self] _ in
-            self?.checkClipboard()
-        }
-    }
-    
-    func stopMonitoring() {
-        timer?.invalidate()
-        timer = nil
-    }
-    
-    private func checkClipboard() {
+    func checkClipboard() -> ClipboardContent? {
         let pasteboard = NSPasteboard.general
-        guard pasteboard.changeCount != lastChangeCount else { return }
-        lastChangeCount = pasteboard.changeCount
         
-        if let url = pasteboard.string(forType: .string), URL(string: url) != nil {
-            print("Clipboard changed: URL detected - \(url)")
-        } else if let imageData = pasteboard.data(forType: .tiff) {
-            print("Clipboard changed: Image detected - \(imageData.count) bytes")
+        // 检查 URL
+        if let urlString = pasteboard.string(forType: .string),
+           let url = URL(string: urlString) {
+            return .url(url)
         }
+        
+        // 检查图片文件
+        if let urls = pasteboard.readObjects(forClasses: [NSURL.self]) as? [URL],
+           let imageURL = urls.first,
+           let fileExtension = imageURL.pathExtension.lowercased() as String?,
+           supportedImageExtensions.contains(fileExtension) {
+            return .image(imageURL)
+        }
+        
+        return nil
     }
 } 

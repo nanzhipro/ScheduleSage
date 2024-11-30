@@ -5,6 +5,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var popover: NSPopover!
     private var popoverViewModel: PopoverViewModel!
+    private var eventMonitor: Any?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupStatusItem()
@@ -29,7 +30,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             width: ScheduleDesignSystem.Dimensions.containerWidth,
             height: ScheduleDesignSystem.Dimensions.containerHeight
         )
-        popover.behavior = .transient
+        popover.behavior = .applicationDefined
         popover.contentViewController = NSHostingController(
             rootView: PopoverView()
                 .environmentObject(popoverViewModel)
@@ -37,8 +38,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func setupEventMonitor() {
-        NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            self?.dismissPopover()
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            if let window = NSApp.windows.first(where: { $0.isKeyWindow }),
+               !NSPointInRect(event.locationInWindow, window.frame) {
+                self?.dismissPopover()
+            }
         }
     }
     
@@ -49,11 +53,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 popoverViewModel.resetState()
                 popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+                
+                if let window = NSApp.windows.first(where: { $0.isKeyWindow }) {
+                    window.level = .floating
+                }
             }
         }
     }
     
     private func dismissPopover() {
         popover.performClose(nil)
+    }
+    
+    deinit {
+        if let monitor = eventMonitor {
+            NSEvent.removeMonitor(monitor)
+        }
     }
 } 

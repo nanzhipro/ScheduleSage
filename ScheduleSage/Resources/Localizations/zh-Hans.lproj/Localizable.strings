@@ -15,4 +15,9 @@
 // Event List
 "detected_events" = "检测到 %d 个日程";
 "recurring" = "重复";
+
+// Loading
+"loading_ocr" = "正在识别文字...";
+"loading_network" = "正在加载...";
+"loading_processing" = "正在处理...";
   
