@@ -24,7 +24,7 @@ struct LoadingIndicator: View {
                 Circle()
                     .trim(from: 0, to: 0.7)
                     .stroke(
-                        ScheduleDesignSystem.Colors.primaryBlue,
+                        ScheduleDesignSystem.Colors.primary,
                         lineWidth: strokeWidth
                     )
                     .frame(width: spinnerSize, height: spinnerSize)

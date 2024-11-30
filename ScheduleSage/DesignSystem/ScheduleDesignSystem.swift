@@ -1,27 +1,135 @@
 import SwiftUI
 
+// MARK: - Theme Type
+enum ThemeType {
+    case apple   // 苹果风格
+    case wechat  // 微信风格
+}
+
 // MARK: - Design System
 enum ScheduleDesignSystem {
+    // 当前主题
+    static var currentTheme: ThemeType = .wechat
+    
     // MARK: - Colors
     enum Colors {
+        // Brand Colors
+        static var primary: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "007AFF")  // 苹果蓝
+            case .wechat:
+                return Color(hex: "07C160")  // 微信绿
+            }
+        }
+        
+        static var primaryBackground: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "F2F2F7")
+            case .wechat:
+                return Color(hex: "F7F7F7")
+            }
+        }
+        
         // Base Colors
         static let background = Color.white
-        static let primaryBlue = Color(hex: "007AFF")
-        static let secondaryGray = Color(hex: "86868B")
-        static let lightGray = Color(hex: "F2F2F7")
-        static let containerGray = Color(hex: "F8F8FA")
-        static let borderGray = Color(hex: "E5E5E5")
-        static let success = Color(hex: "34C759")
+        
+        static var secondaryGray: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "86868B")
+            case .wechat:
+                return Color(hex: "9B9B9B")
+            }
+        }
+        
+        static var lightGray: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "F2F2F7")
+            case .wechat:
+                return Color(hex: "F7F7F7")
+            }
+        }
+        
+        static var containerGray: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "F8F8FA")
+            case .wechat:
+                return Color(hex: "F8F8F8")
+            }
+        }
+        
+        static var borderGray: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "E5E5E5")
+            case .wechat:
+                return Color(hex: "EBEDF0")
+            }
+        }
+        
+        static var success: Color { primary }
         
         // Text Colors
-        static let primaryText = Color.black
-        static let secondaryText = Color(hex: "86868B")
+        static var primaryText: Color {
+            switch currentTheme {
+            case .apple:
+                return .black
+            case .wechat:
+                return Color(hex: "2C2C2C")
+            }
+        }
+        
+        static var secondaryText: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "86868B")
+            case .wechat:
+                return Color(hex: "9B9B9B")
+            }
+        }
+        
+        static var tertiaryText: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "C7C7CC")
+            case .wechat:
+                return Color(hex: "BFBFBF")
+            }
+        }
         
         // Button Colors
-        static let cancelButtonBackground = Color(hex: "F5F5F5")
+        static var cancelButtonBackground: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "F5F5F5")
+            case .wechat:
+                return Color(hex: "F7F7F7")
+            }
+        }
         
         // Icon Colors
-        static let iconGray = Color(hex: "666666")
+        static var iconGray: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "666666")
+            case .wechat:
+                return Color(hex: "8F8F8F")
+            }
+        }
+        
+        // Link Colors
+        static var link: Color {
+            switch currentTheme {
+            case .apple:
+                return Color(hex: "007AFF")
+            case .wechat:
+                return Color(hex: "576B95")
+            }
+        }
     }
     
     // MARK: - Typography
@@ -30,17 +138,24 @@ enum ScheduleDesignSystem {
         static let headerTitle = Font.system(size: 17, weight: .medium)
         
         // Content
-        static let bodyLarge = Font.system(size: 15)
-        static let bodyRegular = Font.system(size: 13)
-        static let bodyMedium = Font.system(size: 13, weight: .medium)
+        static var bodyLarge = Font.system(size: 15)
+        static var bodyRegular: Font {
+            switch currentTheme {
+            case .apple:
+                return .system(size: 13)
+            case .wechat:
+                return .system(size: 14)
+            }
+        }
+        static let bodyMedium = Font.system(size: 14, weight: .medium)
         
         // Labels
-        static let formLabel = Font.system(size: 13)
-        static let buttonLabel = Font.system(size: 14)
+        static let formLabel = Font.system(size: 14)
+        static let buttonLabel = Font.system(size: 15)
         
         // Event Related
-        static let eventTitle = Font.system(size: 17, weight: .medium)
-        static let eventTime = Font.system(size: 15)
+        static let eventTitle = Font.system(size: 16, weight: .medium)
+        static let eventTime = Font.system(size: 14)
         static let eventCount = Font.system(size: 13)
         
         // Status
@@ -113,35 +228,59 @@ enum ScheduleDesignSystem {
     
     // MARK: - Shadows
     enum Shadows {
-        static let containerShadow = Shadow(
-            color: .black.opacity(0.12),
-            radius: 8,
-            x: 0,
-            y: 2
-        )
+        static var containerShadow: Shadow {
+            switch currentTheme {
+            case .apple:
+                return Shadow(
+                    color: .black.opacity(0.12),
+                    radius: 8,
+                    x: 0,
+                    y: 2
+                )
+            case .wechat:
+                return Shadow(
+                    color: .black.opacity(0.05),
+                    radius: 6,
+                    x: 0,
+                    y: 2
+                )
+            }
+        }
         
-        static let cardShadow = Shadow(
-            color: .black.opacity(0.05),
-            radius: 2,
-            x: 0,
-            y: 1
-        )
+        static var cardShadow: Shadow {
+            switch currentTheme {
+            case .apple:
+                return Shadow(
+                    color: .black.opacity(0.05),
+                    radius: 2,
+                    x: 0,
+                    y: 1
+                )
+            case .wechat:
+                return Shadow(
+                    color: .black.opacity(0.03),
+                    radius: 2,
+                    x: 0,
+                    y: 1
+                )
+            }
+        }
     }
     
     // MARK: - Layout
     enum Layout {
         static let formFieldPadding = EdgeInsets(
-            top: 20,
+            top: 16,    // 微信表单内边距
             leading: 16,
-            bottom: 20,
+            bottom: 16,
             trailing: 16
         )
         
         static let containerPadding = EdgeInsets(
-            top: 24,
-            leading: 24,
-            bottom: 24,
-            trailing: 24
+            top: 20,    // 微信容器内边距
+            leading: 20,
+            bottom: 20,
+            trailing: 20
         )
     }
 }
@@ -206,5 +345,12 @@ extension View {
                 RoundedRectangle(cornerRadius: ScheduleDesignSystem.Dimensions.cardCornerRadius)
                     .stroke(ScheduleDesignSystem.Colors.borderGray, lineWidth: 1)
             )
+    }
+}
+
+// 提供一个便捷的主题切换方法
+extension ScheduleDesignSystem {
+    static func switchTheme(to theme: ThemeType) {
+        currentTheme = theme
     }
 } 

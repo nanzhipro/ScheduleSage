@@ -138,7 +138,7 @@ struct PopoverView: View {
         .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
       Text(NSLocalizedString("upgrade_prompt", comment: ""))
         .font(ScheduleDesignSystem.Typography.statusText)
-        .foregroundColor(ScheduleDesignSystem.Colors.primaryBlue)
+        .foregroundColor(ScheduleDesignSystem.Colors.primary)
     }
     .padding(.leading, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
   }
@@ -192,7 +192,7 @@ struct PopoverView: View {
           width: ScheduleDesignSystem.Dimensions.addButtonSize,
           height: ScheduleDesignSystem.Dimensions.addButtonSize
         )
-        .background(ScheduleDesignSystem.Colors.primaryBlue)
+        .background(ScheduleDesignSystem.Colors.primary)
         .clipShape(Circle())
     }
     .buttonStyle(.plain)
@@ -208,7 +208,7 @@ struct PopoverView: View {
         .foregroundColor(ScheduleDesignSystem.Colors.background)
         .frame(maxWidth: .infinity)
         .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
-        .background(ScheduleDesignSystem.Colors.primaryBlue.opacity(0.5))
+        .background(ScheduleDesignSystem.Colors.primary.opacity(0.5))
         .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
     }
     .buttonStyle(.plain)
@@ -274,7 +274,7 @@ struct DragAnimationModifier: ViewModifier {
         .animation(animation.animation, value: animation)
     case .glow:
       content
-        .shadow(color: ScheduleDesignSystem.Colors.primaryBlue.opacity(0.5), radius: 20)
+        .shadow(color: ScheduleDesignSystem.Colors.primary.opacity(0.5), radius: 20)
         .animation(animation.animation, value: animation)
     case .scale:
       content

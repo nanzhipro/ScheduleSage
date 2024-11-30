@@ -94,7 +94,7 @@ struct EventListView: View {
                     .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
                 Text(NSLocalizedString("upgrade_prompt", comment: ""))
                     .font(ScheduleDesignSystem.Typography.statusText)
-                    .foregroundColor(ScheduleDesignSystem.Colors.primaryBlue)
+                    .foregroundColor(ScheduleDesignSystem.Colors.primary)
                     .onTapGesture(perform: onUpgrade)
             }
             .padding(.leading, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
@@ -111,7 +111,7 @@ struct EventListView: View {
                         width: ScheduleDesignSystem.Dimensions.addButtonSize,
                         height: ScheduleDesignSystem.Dimensions.addButtonSize
                     )
-                    .background(ScheduleDesignSystem.Colors.primaryBlue)
+                    .background(ScheduleDesignSystem.Colors.primary)
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -136,7 +136,7 @@ struct EventListView: View {
                 .foregroundColor(ScheduleDesignSystem.Colors.background)
                 .frame(maxWidth: .infinity)
                 .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
-                .background(ScheduleDesignSystem.Colors.primaryBlue)
+                .background(ScheduleDesignSystem.Colors.primary)
                 .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
         }
         .buttonStyle(.plain)
