@@ -5,8 +5,11 @@ class PopoverViewModel: ObservableObject {
     @Published var isDragging: Bool = false
     @Published var dragAnimation: DragAnimation = .none
     @Published var isOCRProcessing: Bool = false
+    @Published private(set) var canImport: Bool = false
     
     private let clipboardManager = ClipboardManager()
+    private let minimumLoadingDuration: TimeInterval = 1.2  // 最小加载时间
+    private var loadingStartTime: Date?
     
     enum DragAnimation {
         case none
@@ -41,6 +44,8 @@ class PopoverViewModel: ObservableObject {
         showEventList = false
         isDragging = false
         dragAnimation = .none
+        isOCRProcessing = false
+        canImport = false
         checkClipboardContent()
     }
     
@@ -57,22 +62,60 @@ class PopoverViewModel: ObservableObject {
     }
     
     func handleDropped(_ urls: [URL]) {
-        print("🔵 ViewModel - handleDropped started")
+        guard let url = urls.first else { return }
+        
+        // 记录开始时间
+        loadingStartTime = Date()
+        
+        // 显示加载状态
+        isOCRProcessing = true
+        LoadingManager.shared.show(.ocr)
+        
+        // 处理拖拽状态
         isDragging = false
         dragAnimation = .none
         
-        guard let url = urls.first else {
-            print("🔴 ViewModel - No URL provided")
-            return
-        }
-        
-        let absolutePath = url.path
-        print("🟢 ViewModel - Processing dropped image at: \(absolutePath)")
-        processDroppedImage(at: absolutePath)
+        // 处理图片
+        processDroppedImage(at: url.path)
     }
     
     private func processDroppedImage(at path: String) {
-        print("🟢 ViewModel - Ready to process image at path: \(path)")
-        // TODO: 实现图片处理逻辑
+        let ocrService = OCRService()
+        
+        ocrService.recognizeText(
+            from: path,
+            preferredLanguages: [.chinese, .english, .japanese]
+        ) { [weak self] result in
+            guard let self = self else { return }
+            
+            // 计算已经过的时间
+            let elapsedTime = Date().timeIntervalSince(self.loadingStartTime ?? Date())
+            
+            // 如果处理时间太短，添加延迟
+            let additionalDelay = max(0, self.minimumLoadingDuration - elapsedTime)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + additionalDelay) {
+                // 隐藏加载状态
+                self.isOCRProcessing = false
+                LoadingManager.shared.hide()
+                
+                // 处理结果
+                switch result {
+                case .success(let results):
+                    // 过滤出可靠的结果
+                    let reliableResults = results.filter { $0.isReliable }
+                    print("识别到 \(reliableResults.count) 条可靠文本")
+                    
+                    // 启用导入按钮
+                    if !reliableResults.isEmpty {
+                        self.canImport = true
+                    }
+                    
+                case .failure(let error):
+                    print("OCR 识别失败: \(error.localizedDescription)")
+                    self.canImport = false
+                }
+            }
+        }
     }
 } 

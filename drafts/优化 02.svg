@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="440" height="543" viewBox="0 0 440 543" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- 定义渐变和阴影 -->
+    <defs>
+        <linearGradient id="dragHover" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#F0F0F5" />
+            <stop offset="100%" stop-color="#F8F8FA" />
+        </linearGradient>
+        <filter id="dropShadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.12" />
+        </filter>
+    </defs>
+
+    <!-- 背景 -->
+    <rect width="440" height="543" rx="12" fill="white" filter="url(#dropShadow)" />
+
+    <!-- 顶部状态栏 保持不变 -->
+    <g id="status-bar">
+        <!-- 与默认状态相同 -->
+    </g>
+
+    <!-- 主要内容区域 - 拖拽状态 -->
+    <g transform="translate(0, 44)">
+        <!-- 内容区背景 - 高亮状态 -->
+        <rect y="0" width="440" height="455" fill="url(#dragHover)" />
+
+        <!-- 拖拽区域提示 - 激活状态 -->
+        <rect x="24" y="24" width="392" height="407" rx="8"
+            stroke="#007AFF" stroke-width="2" stroke-dasharray="4 4" fill="none">
+            <animate attributeName="stroke-dashoffset"
+                from="0" to="16"
+                dur="1s" repeatCount="indefinite" />
+        </rect>
+
+        <!-- 中心图标 - 放大状态 -->
+        <g transform="translate(220, 140)" text-anchor="middle">
+            <!-- 放大的日历图标 -->
+            <g transform="scale(1.1)">
+                <circle cx="0" cy="0" r="32" fill="#F2F2F7">
+                    <animate attributeName="r"
+                        values="32;34;32"
+                        dur="2s"
+                        repeatCount="indefinite" />
+                </circle>
+                <path d="M-16 -8h32v24h-32z M-12 -16v4 M12 -16v4 M-16 -4h32"
+                    stroke="#007AFF" stroke-width="1.5" fill="none" />
+            </g>
+
+            <!-- 提示文本 -->
+            <text y="80" font-family="SF Pro Display" font-size="15" font-weight="500"
+                fill="#007AFF">
+                释放以添加图片
+            </text>
+
+            <!-- 功能按钮组 - 半透明状态 -->
+            <g transform="translate(0, 140)" opacity="0.5">
+                <!-- 按钮组保持原样，但透明度降低 -->
+            </g>
+        </g>
+    </g>
+
+    <!-- 底部按钮 - 禁用状态 -->
+    <g transform="translate(24, 479)">
+        <rect width="392" height="44" rx="8" fill="#007AFF" opacity="0.5" />
+        <text x="196" y="27" font-family="SF Pro Text" font-size="15" fill="white"
+            text-anchor="middle">
+            导入到日历
+        </text>
+    </g>
+
+    <!-- 拖拽指示器 -->
+    <g transform="translate(220, 271.5)">
+        <circle r="40" fill="#007AFF" opacity="0.1" />
+        <circle r="32" fill="#007AFF" opacity="0.2" />
+        <path d="M-16 -8l16 16 16 -16" stroke="#007AFF" stroke-width="2" fill="none" />
+    </g>
+</svg>

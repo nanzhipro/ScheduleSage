@@ -52,51 +52,42 @@ struct PopoverView: View {
       .cornerRadius(ScheduleDesignSystem.Dimensions.headerCornerRadius)
       
       // 主要内容区域
-      VStack(spacing: ScheduleDesignSystem.Spacing.vertical) {
-        Spacer()
-          .frame(height: ScheduleDesignSystem.Spacing.vertical * 2)
-        
-        // 日历图标
-        calendarIcon
-          .modifier(DragAnimationModifier(animation: viewModel.dragAnimation))
-        
-        Text(NSLocalizedString("add_schedule_title", comment: ""))
-          .font(ScheduleDesignSystem.Typography.emptyStateTitle)
-          .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-          .padding(.top, ScheduleDesignSystem.Spacing.vertical)
-        
-        // 三种添加方式
-        addMethodButtons
-        
-        Spacer()
-        
-        // 导入按钮
-        importButton
+      DragDropArea(
+        isDragging: $viewModel.isDragging,
+        isOCRProcessing: $viewModel.isOCRProcessing,
+        onDrop: { urls in
+          viewModel.handleDropped(urls)
+        },
+        onDragEntered: {
+          viewModel.handleDragEntered()
+        },
+        onDragExited: {
+          viewModel.handleDragExited()
+        }
+      ) {
+        VStack(spacing: ScheduleDesignSystem.Spacing.vertical) {
+          Spacer()
+            .frame(height: ScheduleDesignSystem.Spacing.vertical * 2)
+          
+          // 日历图标
+          calendarIcon
+            .modifier(DragAnimationModifier(animation: viewModel.dragAnimation))
+          
+          Text(NSLocalizedString("add_schedule_title", comment: ""))
+            .font(ScheduleDesignSystem.Typography.emptyStateTitle)
+            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+            .padding(.top, ScheduleDesignSystem.Spacing.vertical)
+          
+          // 三种添加方式
+          addMethodButtons
+          
+          Spacer()
+          
+          // 导入按钮
+          importButton
+        }
+        .frame(maxWidth: .infinity)
       }
-      .frame(maxWidth: .infinity)
-      .background(
-        ScheduleDesignSystem.Colors.containerGray
-          .onDrop(
-            of: [.fileURL],
-            delegate: ImageDropDelegate(
-              onDrop: { [weak viewModel] urls in
-                print("🔵 View - onDrop callback with \(urls.count) URLs")
-                viewModel?.handleDropped(urls)
-              },
-              onEntered: { [weak viewModel] in
-                print("🔵 View - onEntered callback")
-                viewModel?.handleDragEntered()
-              },
-              onExited: { [weak viewModel] in
-                print("🔵 View - onExited callback")
-                viewModel?.handleDragExited()
-              },
-              onOCRStateChange: { [weak viewModel] isProcessing in
-                viewModel?.isOCRProcessing = isProcessing
-              }
-            )
-          )
-      )
     }
     .frame(
       width: ScheduleDesignSystem.Dimensions.containerWidth,
@@ -107,40 +98,37 @@ struct PopoverView: View {
   }
 
   private var statusBar: some View {
-    HStack {
-      // Pro 状态栏内容
-      proStatus
-      Spacer()
-      addButton
-    }
-    .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
-    .background(ScheduleDesignSystem.Colors.background)
-    .cornerRadius(ScheduleDesignSystem.Dimensions.headerCornerRadius)
-  }
-
-  private var proStatus: some View {
     HStack(spacing: ScheduleDesignSystem.Spacing.elementSpacing) {
-      ZStack {
-        Circle()
-          .fill(ScheduleDesignSystem.Colors.lightGray)
-          .frame(
-            width: ScheduleDesignSystem.Dimensions.crownIconSize,
-            height: ScheduleDesignSystem.Dimensions.crownIconSize
-          )
-        Image(systemName: "crown.fill")  // 使用 crown.fill 更接近视觉稿
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+      // Pro 状态
+      HStack(spacing: 8) {
+        // 皇冠图标
+        ZStack {
+          Circle()
+            .fill(ScheduleDesignSystem.Colors.lightGray)
+            .frame(
+              width: ScheduleDesignSystem.Dimensions.crownIconSize,
+              height: ScheduleDesignSystem.Dimensions.crownIconSize
+            )
+          Image(systemName: "crown.fill")
+            .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+        }
+        
+        // 剩余次数
+        Text(String(format: NSLocalizedString("remaining_uses", comment: ""), remainingUses))
+          .font(ScheduleDesignSystem.Typography.statusText)
+          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        
+        Text(NSLocalizedString("separator", comment: ""))
+          .font(ScheduleDesignSystem.Typography.statusText)
+          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        
+        // 升级按钮
+        upgradeButton
       }
-      Text(String(format: NSLocalizedString("remaining_uses", comment: ""), remainingUses))
-        .font(ScheduleDesignSystem.Typography.statusText)
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-      Text(NSLocalizedString("separator", comment: ""))
-        .font(ScheduleDesignSystem.Typography.statusText)
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-      Text(NSLocalizedString("upgrade_prompt", comment: ""))
-        .font(ScheduleDesignSystem.Typography.statusText)
-        .foregroundColor(ScheduleDesignSystem.Colors.primary)
+      
+      Spacer()
     }
-    .padding(.leading, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
+    .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
   }
 
   private var calendarIcon: some View {
@@ -160,19 +148,19 @@ struct PopoverView: View {
   private var addMethodButtons: some View {
     HStack(spacing: ScheduleDesignSystem.Spacing.horizontal) {
       AddMethodButton(
-        icon: "doc.text.fill",  // 更新图标
+        icon: "doc.text.fill",
         text: NSLocalizedString("clipboard_import", comment: "")
       )
       AddMethodButton(
-        icon: "square.and.pencil",  // 更新图标
+        icon: "square.and.pencil",
         text: NSLocalizedString("manual_input", comment: "")
       )
       AddMethodButton(
-        icon: "arrow.down.doc.fill",  // 更新图标
+        icon: "arrow.down.doc.fill",
         text: NSLocalizedString("drag_image", comment: "")
       )
     }
-    .padding(.horizontal, ScheduleDesignSystem.Spacing.horizontal)
+    .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
     .padding(.top, ScheduleDesignSystem.Spacing.vertical)
   }
 
@@ -208,51 +196,46 @@ struct PopoverView: View {
         .foregroundColor(ScheduleDesignSystem.Colors.background)
         .frame(maxWidth: .infinity)
         .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
-        .background(ScheduleDesignSystem.Colors.primary.opacity(0.5))
+        .background(
+          ScheduleDesignSystem.Colors.primary
+            .opacity(viewModel.canImport ? 1 : 0.5)
+        )
         .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
     }
     .buttonStyle(.plain)
-    .padding(ScheduleDesignSystem.Layout.containerPadding)
+    .disabled(!viewModel.canImport)
+    .withHoverEffect(scale: 1.02, brightness: viewModel.canImport ? 0.05 : 0)
+    .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
+    .padding(.bottom, ScheduleDesignSystem.Layout.containerPadding.bottom)
   }
 
   private var closeButton: some View {
     Button(action: {
       NSApplication.shared.keyWindow?.close()
     }) {
-      Image(systemName: "xmark")
-        .foregroundColor(ScheduleDesignSystem.Colors.background)
-        .frame(
-          width: ScheduleDesignSystem.Dimensions.addButtonSize,
-          height: ScheduleDesignSystem.Dimensions.addButtonSize
-        )
-        .background(ScheduleDesignSystem.Colors.secondaryGray)
-        .clipShape(Circle())
+      Image(systemName: "xmark.circle.fill")
+        .font(.system(size: 18))
+        .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+        .frame(width: 44, height: 44)
+        .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .padding(.trailing, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
+    .withHoverEffect(scale: 1.1)
+    .padding(.trailing, ScheduleDesignSystem.Layout.containerPadding.leading)
   }
-}
 
-struct AddMethodButton: View {
-  let icon: String
-  let text: String
-
-  var body: some View {
-    VStack {
-      ZStack {
-        Circle()
-          .fill(ScheduleDesignSystem.Colors.lightGray)
-          .frame(
-            width: ScheduleDesignSystem.Dimensions.methodIconSize,
-            height: ScheduleDesignSystem.Dimensions.methodIconSize
-          )
-        Image(systemName: icon)
-          .foregroundColor(ScheduleDesignSystem.Colors.iconGray)
+  private var upgradeButton: some View {
+    Button(action: { print("Upgrade tapped") }) {
+      HStack(spacing: 4) {
+        Image(systemName: "star.fill")
+          .font(.system(size: 12))
+        Text("升级 Pro")
+          .font(ScheduleDesignSystem.Typography.statusText)
       }
-      Text(text)
-        .font(ScheduleDesignSystem.Typography.methodLabel)
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+      .foregroundColor(ScheduleDesignSystem.Colors.primary)
     }
+    .buttonStyle(.plain)
+    .withHoverEffect(brightness: 0.1)
   }
 }
 

@@ -3,6 +3,8 @@ import SwiftUI
 struct LoadingIndicator: View {
     let type: LoadingType
     @State private var isAnimating = false
+    @State private var scale: CGFloat = 0.8
+    @State private var opacity: Double = 0
     
     private let animationDuration: Double = 1.0
     private let spinnerSize: CGFloat = 40
@@ -47,16 +49,27 @@ struct LoadingIndicator: View {
                     y: 4
                 )
         )
-        .onAppear(perform: startAnimation)
-    }
-    
-    private func startAnimation() {
-        withAnimation(
-            Animation
-                .linear(duration: animationDuration)
-                .repeatForever(autoreverses: false)
-        ) {
-            isAnimating = true
+        .scaleEffect(scale)
+        .opacity(opacity)
+        .onAppear {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                scale = 1.0
+                opacity = 1.0
+            }
+            
+            withAnimation(
+                Animation
+                    .linear(duration: animationDuration)
+                    .repeatForever(autoreverses: false)
+            ) {
+                isAnimating = true
+            }
+        }
+        .onDisappear {
+            withAnimation(.easeOut(duration: 0.2)) {
+                scale = 0.8
+                opacity = 0
+            }
         }
     }
 } 

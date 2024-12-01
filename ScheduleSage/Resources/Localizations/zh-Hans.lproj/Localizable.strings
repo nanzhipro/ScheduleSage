@@ -1,5 +1,5 @@
 // Status
-"remaining_uses" = "剩余 %d 次";
+"remaining_uses" = "剩余%d次";
 "upgrade_prompt" = "升级获取无限次数";
 "separator" = "｜";
 
@@ -10,7 +10,7 @@
 "drag_image" = "拖拽图片";
 
 // Actions
-"import_calendar" = "导入到日历";
+"import_calendar" = "导入日历";
 
 // Event List
 "detected_events" = "检测到 %d 个日程";

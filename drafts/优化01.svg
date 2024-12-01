@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="440" height="543" viewBox="0 0 440 543" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- 背景 -->
+    <rect width="440" height="543" rx="12" fill="white" />
+
+    <!-- 顶部状态栏 -->
+    <g id="status-bar">
+        <!-- 状态栏背景 -->
+        <rect width="440" height="44" rx="8" fill="white" />
+
+        <!-- Pro 状态组 -->
+        <g transform="translate(24, 10)">
+            <!-- 皇冠图标 -->
+            <circle cx="12" cy="12" r="12" fill="#F2F2F7" />
+            <path d="M8 14L12 7L16 14H8Z" fill="#86868B" />
+
+            <!-- 剩余次数 -->
+            <text x="32" y="17" font-family="SF Pro Text" font-size="13" fill="#86868B">
+                剩余12次
+            </text>
+
+            <!-- 分隔符 -->
+            <text x="90" y="17" font-family="SF Pro Text" font-size="13" fill="#86868B">
+                |
+            </text>
+
+            <!-- 升级按钮 -->
+            <text x="106" y="17" font-family="SF Pro Text" font-size="13" fill="#007AFF">
+                升级 Pro
+            </text>
+        </g>
+
+        <!-- 右侧按钮组 -->
+        <g transform="translate(388, 8)">
+            <!-- 关闭按钮 -->
+            <circle cx="14" cy="14" r="14" fill="#86868B" />
+            <path d="M10 10L18 18M18 10L10 18" stroke="white" stroke-width="1.5" />
+        </g>
+    </g>
+
+    <!-- 主要内容区域 -->
+    <g transform="translate(0, 44)">
+        <!-- 内容区背景 -->
+        <rect y="0" width="440" height="455" fill="#F8F8FA" />
+
+        <!-- 拖拽区域提示 -->
+        <rect x="24" y="24" width="392" height="407" rx="8"
+            stroke="#E5E5E5" stroke-width="2" stroke-dasharray="4 4" fill="none" />
+
+        <!-- 中心内容 -->
+        <g transform="translate(220, 140)" text-anchor="middle">
+            <!-- 日历图标 -->
+            <circle cx="0" cy="0" r="32" fill="#F2F2F7" />
+            <path d="M-16 -8h32v24h-32z M-12 -16v4 M12 -16v4 M-16 -4h32"
+                stroke="#86868B" stroke-width="1.5" fill="none" />
+
+            <!-- 标题文本 -->
+            <text y="80" font-family="SF Pro Display" font-size="15" font-weight="500"
+                fill="#000000">
+                添加日程的方式
+            </text>
+
+            <!-- 功能按钮组 -->
+            <g transform="translate(0, 140)">
+                <!-- 剪贴板导入 -->
+                <g transform="translate(-128, 0)">
+                    <circle r="16" fill="#F2F2F7" />
+                    <path d="M-8 -12h16v24h-16z" stroke="#86868B" stroke-width="1.5" fill="none" />
+                    <text y="48" font-family="SF Pro Text" font-size="13" fill="#86868B">
+                        从剪贴板导入
+                    </text>
+                </g>
+
+                <!-- 手动输入 -->
+                <g>
+                    <circle r="16" fill="#F2F2F7" />
+                    <path d="M-8 -8l16 16M-8 8l16 -16" stroke="#86868B" stroke-width="1.5" />
+                    <text y="48" font-family="SF Pro Text" font-size="13" fill="#86868B">
+                        手动输入
+                    </text>
+                </g>
+
+                <!-- 拖拽图片 -->
+                <g transform="translate(128, 0)">
+                    <circle r="16" fill="#F2F2F7" />
+                    <path d="M-8 -8v16h16v-16z M-4 0l4 4 4 -4" stroke="#86868B" stroke-width="1.5"
+                        fill="none" />
+                    <text y="48" font-family="SF Pro Text" font-size="13" fill="#86868B">
+                        拖拽图片
+                    </text>
+                </g>
+            </g>
+        </g>
+    </g>
+
+    <!-- 底部按钮 -->
+    <g transform="translate(24, 479)">
+        <rect width="392" height="44" rx="8" fill="#007AFF" />
+        <text x="196" y="27" font-family="SF Pro Text" font-size="15" fill="white"
+            text-anchor="middle">
+            导入到日历
+        </text>
+    </g>
+</svg>

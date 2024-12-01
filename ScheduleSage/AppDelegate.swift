@@ -8,7 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var eventMonitor: Any?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
-        ScheduleDesignSystem.switchTheme(to: .wechat)  // 切换到苹果风格
+        ScheduleDesignSystem.switchTheme(to: .apple)  // 切换到苹果风格
 
         setupStatusItem()
         setupPopover()

@@ -1,0 +1,33 @@
+<!-- 按钮 hover 状态 -->
+<g id="button-hover">
+    <!-- 普通按钮 hover -->
+    <rect width="392" height="44" rx="8" fill="#007AFF">
+        <animate attributeName="fill-opacity"
+            values="1;0.9;1"
+            dur="0.2s"
+            begin="mouseover"
+            end="mouseout" />
+    </rect>
+</g>
+
+<!-- 功能按钮 hover -->
+<g id="feature-button-hover">
+    <circle r="16" fill="#F2F2F7">
+        <animate attributeName="r"
+            values="16;17;16"
+            dur="0.2s"
+            begin="mouseover"
+            end="mouseout" />
+    </circle>
+</g>
+
+<!-- 关闭按钮 hover -->
+<g id="close-button-hover">
+    <circle r="14" fill="#86868B">
+        <animate attributeName="fill-opacity"
+            values="1;0.8;1"
+            dur="0.2s"
+            begin="mouseover"
+            end="mouseout" />
+    </circle>
+</g>
