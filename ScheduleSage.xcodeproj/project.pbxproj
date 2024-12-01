@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
+		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D57ADFDA2CF54D36000D9DB1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */,
+				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +79,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D56686A92CFC05D800EE1486 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D57ADFBD2CF54D34000D9DB1 = {
 			isa = PBXGroup;
 			children = (
 				D57ADFC82CF54D34000D9DB1 /* ScheduleSage */,
 				D57ADFDC2CF54D36000D9DB1 /* ScheduleSageTests */,
 				D57ADFE62CF54D36000D9DB1 /* ScheduleSageUITests */,
+				D56686A92CFC05D800EE1486 /* Frameworks */,
 				D57ADFC72CF54D34000D9DB1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +127,8 @@
 			);
 			name = ScheduleSage;
 			packageProductDependencies = (
+				D56686AA2CFC05D800EE1486 /* SwiftSoup */,
+				D56686B42CFC097A00EE1486 /* Kingfisher */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -197,6 +214,10 @@
 			);
 			mainGroup = D57ADFBD2CF54D34000D9DB1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				D56686B32CFC096F00EE1486 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
 			projectDirPath = "";
@@ -555,6 +576,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.6;
+			};
+		};
+		D56686B32CFC096F00EE1486 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D56686AA2CFC05D800EE1486 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		D56686B42CFC097A00EE1486 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D56686B32CFC096F00EE1486 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D57ADFBE2CF54D34000D9DB1 /* Project object */;
 }
