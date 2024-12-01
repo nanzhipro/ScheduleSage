@@ -15,11 +15,12 @@ struct PopoverView: View {
     ZStack {
       if viewModel.showEventList {
         EventListView(
-          remainingUses: remainingUses,
+          proStatus: viewModel.proStatus,
           events: PreviewData.events,
-          onUpgrade: { print("Upgrade tapped") },
+          onUpgrade: { viewModel.showUpgradeSheetAction() },
           onAdd: { viewModel.resetState() },
-          onImport: { print("Import tapped") }
+          onImport: { print("Import tapped") },
+          onBack: { viewModel.showEventList = false }
         )
         .transition(.asymmetric(
           insertion: .move(edge: .trailing).combined(with: .opacity),
@@ -97,36 +98,17 @@ struct PopoverView: View {
 
   private var statusBar: some View {
     HStack(spacing: ScheduleDesignSystem.Spacing.elementSpacing) {
-      // Pro 状态
-      HStack(spacing: 8) {
-        // 皇冠图标
-        ZStack {
-          Circle()
-            .fill(ScheduleDesignSystem.Colors.lightGray)
-            .frame(
-              width: ScheduleDesignSystem.Dimensions.crownIconSize,
-              height: ScheduleDesignSystem.Dimensions.crownIconSize
-            )
-          Image(systemName: "crown.fill")
-            .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
-        }
-        
-        // 剩余次数
-        Text(String(format: NSLocalizedString("remaining_uses", comment: ""), remainingUses))
-          .font(ScheduleDesignSystem.Typography.statusText)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        
-        Text(NSLocalizedString("separator", comment: ""))
-          .font(ScheduleDesignSystem.Typography.statusText)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        
-        // 升级按钮
-        upgradeButton
-      }
+      ProStatusView(
+        status: viewModel.proStatus,  // 从 ViewModel 获取状态
+        onUpgrade: { viewModel.showUpgradeSheetAction() },
+        style: .compact
+      )
       
       Spacer()
     }
-    .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
+    .padding(.horizontal, ScheduleDesignSystem.Layout.statusBarPadding.leading)
+    .padding(.top, ScheduleDesignSystem.Layout.statusBarPadding.top)
+    .padding(.bottom, ScheduleDesignSystem.Layout.statusBarPadding.bottom)
   }
 
   private var calendarIcon: some View {
@@ -169,7 +151,7 @@ struct PopoverView: View {
       )
     }
     .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
-    .padding(.top, ScheduleDesignSystem.Spacing.vertical)
+    .padding(.top, ScheduleDesignSystem.Spacing.vertical * 1.2)
   }
 
   private func handleImageDrop(_ images: [NSImage]) {
@@ -257,7 +239,7 @@ struct PopoverView: View {
         .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
         .multilineTextAlignment(.center)
     }
-    .padding(.top, ScheduleDesignSystem.Spacing.vertical)
+    .padding(.top, ScheduleDesignSystem.Spacing.vertical * 1.5)
   }
 }
 

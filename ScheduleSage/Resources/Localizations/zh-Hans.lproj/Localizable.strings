@@ -31,4 +31,13 @@
 "select_image_message" = "请选择要识别的图片";
 "image_import" = "导入图片";
 
+// Navigation
+"back_to_add" = "返回添加";
+
+// Pro Features
+"feature_unlimited_ocr" = "无限次数识别";
+"feature_unlimited_ocr_desc" = "无限制使用OCR文字识别功能";
+"upgrade_to_pro" = "升级到 Pro";
+"pro_expiry" = "会员有效期至：%@";
+
   

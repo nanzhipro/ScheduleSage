@@ -168,13 +168,16 @@ enum ScheduleDesignSystem {
         
         // 更新标题字体
         static let title = Font.system(size: 24, weight: .semibold)
+        
+        // 导航相关
+        static let navigationText = Font.system(size: 13, weight: .medium)
     }
     
     // MARK: - Dimensions
     enum Dimensions {
         // Container Sizes
         static let containerWidth: CGFloat = 440
-        static let containerHeight: CGFloat = 543  // 原高度 418 增加 30%
+        static let containerHeight: CGFloat = 563  // 增加 20 以适应更大的上边距
         static let confirmPageHeight: CGFloat = 550
         
         // Corner Radii
@@ -184,7 +187,7 @@ enum ScheduleDesignSystem {
         static let headerCornerRadius: CGFloat = 8
         
         // Component Heights
-        static let headerHeight: CGFloat = 44
+        static let headerHeight: CGFloat = 56  // 原来是 44，增加以适应更大的上边距
         static let formFieldHeight: CGFloat = 44
         static let buttonHeight: CGFloat = 44
         static let listHeaderHeight: CGFloat = 44
@@ -276,16 +279,24 @@ enum ScheduleDesignSystem {
     // MARK: - Layout
     enum Layout {
         static let formFieldPadding = EdgeInsets(
-            top: 16,    // 微信表单内边距
+            top: 16,
             leading: 16,
             bottom: 16,
             trailing: 16
         )
         
         static let containerPadding = EdgeInsets(
-            top: 20,    // 微信容器内边距
+            top: 40,    // 原来是 20，现在翻倍
             leading: 20,
             bottom: 20,
+            trailing: 20
+        )
+        
+        // 新增状态栏内边距
+        static let statusBarPadding = EdgeInsets(
+            top: 12,    // 状态栏专用上边距
+            leading: 20,
+            bottom: 8,
             trailing: 20
         )
     }

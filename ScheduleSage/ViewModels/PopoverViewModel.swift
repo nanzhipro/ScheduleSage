@@ -6,6 +6,8 @@ class PopoverViewModel: ObservableObject {
     @Published var dragAnimation: DragAnimation = .none
     @Published var isOCRProcessing: Bool = false
     @Published private(set) var canImport: Bool = false
+    @Published private(set) var proStatus: ProStatus
+    @Published var showUpgradeSheet = false
     
     private let clipboardManager = ClipboardManager()
     private let webExtractor = WebContentExtractor()
@@ -35,6 +37,10 @@ class PopoverViewModel: ObservableObject {
                 return Animation.easeInOut(duration: 0.5)
             }
         }
+    }
+    
+    init(proStatus: ProStatus = .free(remainingUses: 12)) {
+        self.proStatus = proStatus
     }
     
     func checkClipboardContent() {
@@ -274,6 +280,24 @@ class PopoverViewModel: ObservableObject {
                     self.canImport = false
                 }
             }
+        }
+    }
+    
+    func showUpgradeSheetAction() {
+        showUpgradeSheet = true
+    }
+    
+    // 检查是否可以执行特定操作
+    func canPerformAction(_ action: ProFeature.Action) -> Bool {
+        if proStatus.isPro { return true }
+        
+        switch action {
+        case .ocr:
+            return proStatus.remainingUses ?? 0 > 0
+        case .export:
+            return true  // 免费用户可以导出
+        case .advanced:
+            return false // 高级功能需要 Pro
         }
     }
 }

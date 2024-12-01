@@ -3,34 +3,37 @@ import SwiftUI
 // 日程列表页
 struct EventListView: View {
     // MARK: - Properties
-    let remainingUses: Int
+    let proStatus: ProStatus
     let events: [Event]
     let onUpgrade: () -> Void
     let onAdd: () -> Void
     let onImport: () -> Void
+    let onBack: () -> Void
     
     @State private var selectedEventIds: Set<String> = []
     
     // MARK: - Initialization
     init(
-        remainingUses: Int,
+        proStatus: ProStatus,
         events: [Event],
         onUpgrade: @escaping () -> Void,
         onAdd: @escaping () -> Void,
-        onImport: @escaping () -> Void
+        onImport: @escaping () -> Void,
+        onBack: @escaping () -> Void
     ) {
-        self.remainingUses = remainingUses
+        self.proStatus = proStatus
         self.events = events
         self.onUpgrade = onUpgrade
         self.onAdd = onAdd
         self.onImport = onImport
+        self.onBack = onBack
     }
     
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            // 顶部状态栏
-            statusBar
+            // 导航栏
+            navigationBar
             
             // 主要内容区域
             VStack(spacing: ScheduleDesignSystem.Dimensions.listContentSpacing) {
@@ -38,23 +41,7 @@ struct EventListView: View {
                 listHeaderView
                 
                 // 事件列表
-                ScrollView {
-                    LazyVStack(spacing: ScheduleDesignSystem.Dimensions.eventCardSpacing) {
-                        ForEach(events) { event in
-                            EventCard(
-                                title: event.title,
-                                time: event.time,
-                                location: event.location,
-                                isRecurring: event.isRecurring,
-                                calendar: event.calendar,
-                                isSelected: selectedEventIds.contains(event.id)
-                            ) {
-                                toggleEventSelection(event.id)
-                            }
-                        }
-                    }
-                    .padding(.bottom, ScheduleDesignSystem.Spacing.vertical)
-                }
+                eventListContent
             }
             .padding(.horizontal, ScheduleDesignSystem.Spacing.listContentPadding)
             .padding(.vertical, ScheduleDesignSystem.Dimensions.listVerticalPadding)
@@ -68,65 +55,67 @@ struct EventListView: View {
             height: ScheduleDesignSystem.Dimensions.containerHeight
         )
         .background(ScheduleDesignSystem.Colors.background)
-        .cornerRadius(ScheduleDesignSystem.Dimensions.containerCornerRadius)
     }
     
     // MARK: - Private Views
-    private var statusBar: some View {
+    private var navigationBar: some View {
         HStack {
-            // Pro 状态
-            HStack(spacing: ScheduleDesignSystem.Spacing.elementSpacing) {
-                ZStack {
-                    Circle()
-                        .fill(ScheduleDesignSystem.Colors.lightGray)
-                        .frame(
-                            width: ScheduleDesignSystem.Dimensions.crownIconSize,
-                            height: ScheduleDesignSystem.Dimensions.crownIconSize
-                        )
-                    Image(systemName: "crown")
-                        .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+            // 返回按钮
+            Button(action: onBack) {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 13, weight: .semibold))
+                    Text(NSLocalizedString("back_to_add", comment: ""))
+                        .font(ScheduleDesignSystem.Typography.navigationText)
                 }
-                Text(String(format: NSLocalizedString("remaining_uses", comment: ""), remainingUses))
-                    .font(ScheduleDesignSystem.Typography.statusText)
-                    .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-                Text(NSLocalizedString("separator", comment: ""))
-                    .font(ScheduleDesignSystem.Typography.statusText)
-                    .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-                Text(NSLocalizedString("upgrade_prompt", comment: ""))
-                    .font(ScheduleDesignSystem.Typography.statusText)
-                    .foregroundColor(ScheduleDesignSystem.Colors.primary)
-                    .onTapGesture(perform: onUpgrade)
+                .foregroundColor(ScheduleDesignSystem.Colors.primary)
             }
-            .padding(.leading, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
+            .buttonStyle(.plain)
+            .withHoverEffect()
             
             Spacer()
             
-            // 添加按钮
-            Button(action: {
-                print("Add schedule button tapped")
-            }) {
-                Image(systemName: "plus")
-                    .foregroundColor(ScheduleDesignSystem.Colors.background)
-                    .frame(
-                        width: ScheduleDesignSystem.Dimensions.addButtonSize,
-                        height: ScheduleDesignSystem.Dimensions.addButtonSize
-                    )
-                    .background(ScheduleDesignSystem.Colors.primary)
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .padding(.trailing, ScheduleDesignSystem.Spacing.headerHorizontalPadding)
+            // Pro 状态
+            ProStatusView(
+                status: proStatus,
+                onUpgrade: onUpgrade,
+                style: .compact
+            )
         }
         .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
+        .padding(.horizontal, ScheduleDesignSystem.Layout.statusBarPadding.leading)
+        .padding(.top, ScheduleDesignSystem.Layout.statusBarPadding.top)
+        .padding(.bottom, ScheduleDesignSystem.Layout.statusBarPadding.bottom)
         .background(ScheduleDesignSystem.Colors.background)
     }
     
+    private var eventListContent: some View {
+        ScrollView {
+            LazyVStack(spacing: ScheduleDesignSystem.Dimensions.eventCardSpacing) {
+                ForEach(events) { event in
+                    EventCard(
+                        title: event.title,
+                        time: event.time,
+                        location: event.location,
+                        isRecurring: event.isRecurring,
+                        calendar: event.calendar,
+                        isSelected: selectedEventIds.contains(event.id)
+                    ) {
+                        toggleEventSelection(event.id)
+                    }
+                }
+            }
+            .padding(.bottom, ScheduleDesignSystem.Spacing.vertical)
+        }
+    }
+    
     private var listHeaderView: some View {
-        Text(String(format: NSLocalizedString("detected_events", comment: ""), events.count))
-            .font(ScheduleDesignSystem.Typography.eventCount)
-            .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(height: ScheduleDesignSystem.Dimensions.listHeaderHeight)
+        HStack {
+            Text(String(format: NSLocalizedString("detected_events", comment: ""), events.count))
+                .font(ScheduleDesignSystem.Typography.eventCount)
+                .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        }
+        .frame(height: ScheduleDesignSystem.Dimensions.listHeaderHeight)
     }
     
     private var importButton: some View {
@@ -140,6 +129,7 @@ struct EventListView: View {
                 .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
         }
         .buttonStyle(.plain)
+        .withHoverEffect()
         .padding(ScheduleDesignSystem.Layout.containerPadding)
     }
     
@@ -158,11 +148,12 @@ struct EventListView: View {
 struct EventListView_Previews: PreviewProvider {
     static var previews: some View {
         EventListView(
-            remainingUses: 12,
+            proStatus: .free(remainingUses: 12),
             events: PreviewData.events,
             onUpgrade: {},
             onAdd: {},
-            onImport: {}
+            onImport: {},
+            onBack: {}
         )
     }
 }

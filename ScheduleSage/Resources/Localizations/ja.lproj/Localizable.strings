@@ -30,4 +30,13 @@
 "select_image" = "画像を選択";
 "select_image_message" = "認識する画像を選択してください";
 "image_import" = "画像をインポート";
+
+// Navigation
+"back_to_add" = "戻る";
+
+// Pro Features
+"feature_unlimited_ocr" = "無制限の認識機能";
+"feature_unlimited_ocr_desc" = "OCR文字認識を無制限に利用可能";
+"upgrade_to_pro" = "Proにアップグレード";
+"pro_expiry" = "有効期限：%@";
   

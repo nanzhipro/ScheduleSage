@@ -1,6 +1,6 @@
 // Status
-"remaining_uses" = "Remaining %d times";
-"upgrade_prompt" = "Upgrade to unlimited";
+"remaining_uses" = "%d Uses Left";
+"upgrade_prompt" = "Upgrade to Unlimited";
 "separator" = "｜";
 
 // Titles
@@ -30,4 +30,13 @@
 "select_image" = "Select Image";
 "select_image_message" = "Please select an image to recognize";
 "image_import" = "Import Image";
+
+// Navigation
+"back_to_add" = "Back";
+
+// Pro Features
+"feature_unlimited_ocr" = "Unlimited Recognition";
+"feature_unlimited_ocr_desc" = "Use OCR recognition without limits";
+"upgrade_to_pro" = "Upgrade to Pro";
+"pro_expiry" = "Pro expires on: %@";
  
