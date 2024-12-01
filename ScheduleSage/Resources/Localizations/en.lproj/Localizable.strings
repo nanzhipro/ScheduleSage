@@ -3,11 +3,31 @@
 "upgrade_prompt" = "Upgrade to unlimited";
 "separator" = "｜";
 
+// Titles
+"schedule_add_title" = "Smart Schedule Creation";
+"schedule_add_subtitle" = "Create schedules easily with clipboard, manual input, or image recognition";
+
 // Add Schedule Methods
 "add_schedule_title" = "Ways to Add Schedule";
-"clipboard_import" = "Import from Clipboard";
-"manual_input" = "Manual Input";
-"drag_image" = "Drag Image";
+"clipboard_import" = "From Clipboard";
+"manual_input" = "Manual Create";
+"image_import" = "Image Recognition";
 
 // Actions
-"import_calendar" = "Import to Calendar"; 
+"import_calendar" = "Import to Calendar";
+
+// Event List
+"detected_events" = "Detected %d Events";
+"recurring" = "Recurring";
+
+// Loading
+"loading_ocr" = "Recognizing text...";
+"loading_network" = "Loading...";
+"loading_processing" = "Processing...";
+"loading_url" = "Parsing webpage...";
+
+// Image Picker
+"select_image" = "Select Image";
+"select_image_message" = "Please select an image to recognize";
+"image_import" = "Import Image";
+ 

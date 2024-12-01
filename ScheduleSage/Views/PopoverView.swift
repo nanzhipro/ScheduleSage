@@ -67,16 +67,14 @@ struct PopoverView: View {
       ) {
         VStack(spacing: ScheduleDesignSystem.Spacing.vertical) {
           Spacer()
-            .frame(height: ScheduleDesignSystem.Spacing.vertical * 2)
+            .frame(height: ScheduleDesignSystem.Spacing.vertical)
           
           // 日历图标
           calendarIcon
             .modifier(DragAnimationModifier(animation: viewModel.dragAnimation))
           
-          Text(NSLocalizedString("add_schedule_title", comment: ""))
-            .font(ScheduleDesignSystem.Typography.emptyStateTitle)
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-            .padding(.top, ScheduleDesignSystem.Spacing.vertical)
+          // 更新后的标题部分
+          titleSection
           
           // 三种添加方式
           addMethodButtons
@@ -156,8 +154,18 @@ struct PopoverView: View {
         text: NSLocalizedString("manual_input", comment: "")
       )
       AddMethodButton(
-        icon: "arrow.down.doc.fill",
-        text: NSLocalizedString("drag_image", comment: "")
+        icon: "photo.fill",
+        text: NSLocalizedString("image_import", comment: ""),
+        action: {
+          ImagePicker(
+            onImageSelected: { url in
+              print("🔵 Image selected: \(url.path)")
+            },
+            onError: { error in
+              print("🔴 Image selection failed: \(error.localizedDescription)")
+            }
+          ).showPicker()
+        }
       )
     }
     .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
@@ -236,6 +244,20 @@ struct PopoverView: View {
     }
     .buttonStyle(.plain)
     .withHoverEffect(brightness: 0.1)
+  }
+
+  private var titleSection: some View {
+    VStack(spacing: 8) {
+      Text(NSLocalizedString("schedule_add_title", comment: ""))
+        .font(ScheduleDesignSystem.Typography.title)
+        .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+      
+      Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
+        .font(ScheduleDesignSystem.Typography.caption)
+        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        .multilineTextAlignment(.center)
+    }
+    .padding(.top, ScheduleDesignSystem.Spacing.vertical)
   }
 }
 

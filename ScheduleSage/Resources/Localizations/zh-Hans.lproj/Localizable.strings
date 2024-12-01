@@ -3,11 +3,15 @@
 "upgrade_prompt" = "升级获取无限次数";
 "separator" = "｜";
 
+// Titles
+"schedule_add_title" = "智能日程创建";
+"schedule_add_subtitle" = "支持剪贴板、手动输入和图片识别，轻松创建日程";
+
 // Add Schedule Methods
 "add_schedule_title" = "添加日程的方式";
-"clipboard_import" = "从剪贴板导入";
-"manual_input" = "手动输入";
-"drag_image" = "拖拽图片";
+"clipboard_import" = "剪贴板导入";
+"manual_input" = "手动创建";
+"image_import" = "图片识别";
 
 // Actions
 "import_calendar" = "导入日历";
@@ -21,4 +25,10 @@
 "loading_network" = "正在加载...";
 "loading_processing" = "正在处理...";
 "loading_url" = "正在解析网页...";
+
+// Image Picker
+"select_image" = "选择图片";
+"select_image_message" = "请选择要识别的图片";
+"image_import" = "导入图片";
+
   

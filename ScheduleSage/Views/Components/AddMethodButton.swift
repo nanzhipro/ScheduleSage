@@ -10,38 +10,35 @@ import SwiftUI
 struct AddMethodButton: View {
     let icon: String
     let text: String
-    @State private var isHovered = false
+    let action: (() -> Void)?
+    
+    init(
+        icon: String,
+        text: String,
+        action: (() -> Void)? = nil
+    ) {
+        self.icon = icon
+        self.text = text
+        self.action = action
+    }
     
     var body: some View {
-        VStack(spacing: 8) {
-            ZStack {
-                Circle()
-                    .fill(
-                        isHovered ? 
-                            ScheduleDesignSystem.Colors.lightGray.opacity(0.8) :
-                            ScheduleDesignSystem.Colors.lightGray
-                    )
-                    .frame(
-                        width: ScheduleDesignSystem.Dimensions.methodIconSize,
-                        height: ScheduleDesignSystem.Dimensions.methodIconSize
-                    )
+        Button(action: {
+            action?()
+        }) {
+            VStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 16))
-                    .foregroundColor(
-                        isHovered ?
-                            ScheduleDesignSystem.Colors.primary :
-                            ScheduleDesignSystem.Colors.iconGray
-                    )
+                    .font(.system(size: ScheduleDesignSystem.Dimensions.methodIconSize))
+                    .foregroundColor(ScheduleDesignSystem.Colors.iconGray)
+                
+                Text(text)
+                    .font(ScheduleDesignSystem.Typography.bodyRegular)
+                    .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
             }
-            Text(text)
-                .font(ScheduleDesignSystem.Typography.methodLabel)
-                .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+            .frame(maxWidth: .infinity)
         }
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.easeInOut(duration: 0.2), value: isHovered)
-        .onHover { hovering in
-            isHovered = hovering
-        }
+        .buttonStyle(.plain)
+        .withHoverEffect()
     }
 }
 

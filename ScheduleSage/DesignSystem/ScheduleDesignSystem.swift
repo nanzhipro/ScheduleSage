@@ -162,6 +162,12 @@ enum ScheduleDesignSystem {
         static let statusText = Font.system(size: 13)
         static let emptyStateTitle = Font.system(size: 15, weight: .medium)
         static let methodLabel = Font.system(size: 13)
+        
+        // 添加 caption 样式
+        static let caption = Font.system(size: 12, weight: .regular)
+        
+        // 更新标题字体
+        static let title = Font.system(size: 24, weight: .semibold)
     }
     
     // MARK: - Dimensions
