@@ -12,6 +12,7 @@ private enum EventCardConstants {
     static let selectionIndicatorOuterOpacity: Double = 0.1
 }
 
+// 日程卡片
 struct EventCard: View {
     // MARK: - Properties
     let title: String
@@ -28,13 +29,13 @@ struct EventCard: View {
             // 标题
             Text(title)
                 .font(.system(size: 17, weight: .medium))
-                .foregroundColor(.black)
+                .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
                 .lineLimit(1)
             
             // 时间
             Text(time)
                 .font(.system(size: 15))
-                .foregroundColor(Color(hex: "86868B"))
+                .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
                 .padding(.bottom, 12)
             
             // 图标行
@@ -60,13 +61,13 @@ struct EventCard: View {
         }
         .padding(EventCardConstants.cardPadding)
         .frame(height: EventCardConstants.cardHeight)
-        .background(Color.white)
+        .background(ScheduleDesignSystem.Colors.background)
         .cornerRadius(12)
         .shadow(
-            color: Color.black.opacity(0.05),
-            radius: 2,
-            x: 0,
-            y: 1
+            color: ScheduleDesignSystem.Shadows.cardShadow.color,
+            radius: ScheduleDesignSystem.Shadows.cardShadow.radius,
+            x: ScheduleDesignSystem.Shadows.cardShadow.x,
+            y: ScheduleDesignSystem.Shadows.cardShadow.y
         )
     }
 }
@@ -80,15 +81,15 @@ private struct EventIconLabel: View {
         HStack(spacing: 8) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: "F2F2F7"))
+                    .fill(ScheduleDesignSystem.Colors.lightGray)
                     .frame(width: EventCardConstants.iconSize,
                            height: EventCardConstants.iconSize)
                 Image(systemName: icon)
-                    .foregroundColor(Color(hex: "666666"))
+                    .foregroundColor(ScheduleDesignSystem.Colors.iconGray)
             }
             Text(text)
                 .font(.system(size: 13))
-                .foregroundColor(Color(hex: "86868B"))
+                .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
         }
     }
 }
@@ -99,7 +100,7 @@ private struct SelectionIndicator: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(Color(hex: "34C759").opacity(EventCardConstants.selectionIndicatorOuterOpacity))
+                .fill(ScheduleDesignSystem.Colors.success.opacity(EventCardConstants.selectionIndicatorOuterOpacity))
                 .frame(
                     width: EventCardConstants.selectionIndicatorSize,
                     height: EventCardConstants.selectionIndicatorSize
@@ -107,7 +108,7 @@ private struct SelectionIndicator: View {
             
             if isSelected {
                 Circle()
-                    .fill(Color(hex: "34C759"))
+                    .fill(ScheduleDesignSystem.Colors.success)
                     .frame(
                         width: EventCardConstants.selectionIndicatorInnerSize,
                         height: EventCardConstants.selectionIndicatorInnerSize
@@ -121,16 +122,34 @@ private struct SelectionIndicator: View {
 #if DEBUG
 struct EventCard_Previews: PreviewProvider {
     static var previews: some View {
-        EventCard(
-            title: "南知读书会第一期",
-            time: "3月25日 周一 14:00-16:00",
-            location: "知识星球",
-            isRecurring: true,
-            calendar: "工作",
-            isSelected: true,
-            onSelect: {}
-        )
-        .padding()
+        Group {
+            // 浅色模式预览
+            EventCard(
+                title: "南知读书会第一期",
+                time: "3月25日 周一 14:00-16:00",
+                location: "知识星球",
+                isRecurring: true,
+                calendar: "工作",
+                isSelected: true,
+                onSelect: {}
+            )
+            .padding()
+            .previewDisplayName("Light Mode")
+            
+            // 深色模式预览
+            EventCard(
+                title: "南知读书会第一期",
+                time: "3月25日 周一 14:00-16:00",
+                location: "知识星球",
+                isRecurring: true,
+                calendar: "工作",
+                isSelected: true,
+                onSelect: {}
+            )
+            .padding()
+            .preferredColorScheme(.dark)
+            .previewDisplayName("Dark Mode")
+        }
         .previewLayout(.sizeThatFits)
     }
 }

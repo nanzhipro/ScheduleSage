@@ -17,57 +17,59 @@ enum ScheduleDesignSystem {
         static var primary: Color {
             switch currentTheme {
             case .apple:
-                return Color(hex: "007AFF")  // 苹果蓝
+                return Color(light: "007AFF", dark: "0A84FF")  // 苹果蓝
             case .wechat:
-                return Color(hex: "07C160")  // 微信绿
+                return Color(light: "07C160", dark: "07C160")  // 微信绿
             }
         }
         
         static var primaryBackground: Color {
             switch currentTheme {
             case .apple:
-                return Color(hex: "F2F2F7")
+                return Color(light: "F2F2F7", dark: "1C1C1E")
             case .wechat:
-                return Color(hex: "F7F7F7")
+                return Color(light: "F7F7F7", dark: "1C1C1E")
             }
         }
         
         // Base Colors
-        static let background = Color.white
+        static var background: Color {
+            Color(light: "FFFFFF", dark: "000000")
+        }
         
         static var secondaryGray: Color {
             switch currentTheme {
             case .apple:
-                return Color(hex: "86868B")
+                return Color(light: "86868B", dark: "98989F")
             case .wechat:
-                return Color(hex: "9B9B9B")
+                return Color(light: "9B9B9B", dark: "98989F")
             }
         }
         
         static var lightGray: Color {
             switch currentTheme {
             case .apple:
-                return Color(hex: "F2F2F7")
+                return Color(light: "F2F2F7", dark: "2C2C2E")
             case .wechat:
-                return Color(hex: "F7F7F7")
+                return Color(light: "F7F7F7", dark: "2C2C2E")
             }
         }
         
         static var containerGray: Color {
             switch currentTheme {
             case .apple:
-                return Color(hex: "F8F8FA")
+                return Color(light: "F8F8FA", dark: "2C2C2E")
             case .wechat:
-                return Color(hex: "F8F8F8")
+                return Color(light: "F8F8F8", dark: "2C2C2E")
             }
         }
         
         static var borderGray: Color {
             switch currentTheme {
             case .apple:
-                return Color(hex: "E5E5E5")
+                return Color(light: "E5E5E5", dark: "38383A")
             case .wechat:
-                return Color(hex: "EBEDF0")
+                return Color(light: "EBEDF0", dark: "38383A")
             }
         }
         
@@ -77,27 +79,27 @@ enum ScheduleDesignSystem {
         static var primaryText: Color {
             switch currentTheme {
             case .apple:
-                return .black
+                return Color(light: "000000", dark: "FFFFFF")
             case .wechat:
-                return Color(hex: "2C2C2C")
+                return Color(light: "2C2C2C", dark: "FFFFFF")
             }
         }
         
         static var secondaryText: Color {
             switch currentTheme {
             case .apple:
-                return Color(hex: "86868B")
+                return Color(light: "86868B", dark: "98989F")
             case .wechat:
-                return Color(hex: "9B9B9B")
+                return Color(light: "9B9B9B", dark: "98989F")
             }
         }
         
         static var tertiaryText: Color {
             switch currentTheme {
             case .apple:
-                return Color(hex: "C7C7CC")
+                return Color(light: "C7C7CC", dark: "48484A")
             case .wechat:
-                return Color(hex: "BFBFBF")
+                return Color(light: "BFBFBF", dark: "48484A")
             }
         }
         
@@ -241,14 +243,14 @@ enum ScheduleDesignSystem {
             switch currentTheme {
             case .apple:
                 return Shadow(
-                    color: .black.opacity(0.12),
+                    color: .black.opacity(colorScheme == .dark ? 0.3 : 0.12),
                     radius: 8,
                     x: 0,
                     y: 2
                 )
             case .wechat:
                 return Shadow(
-                    color: .black.opacity(0.05),
+                    color: .black.opacity(colorScheme == .dark ? 0.3 : 0.05),
                     radius: 6,
                     x: 0,
                     y: 2
@@ -260,19 +262,24 @@ enum ScheduleDesignSystem {
             switch currentTheme {
             case .apple:
                 return Shadow(
-                    color: .black.opacity(0.05),
+                    color: .black.opacity(colorScheme == .dark ? 0.3 : 0.05),
                     radius: 2,
                     x: 0,
                     y: 1
                 )
             case .wechat:
                 return Shadow(
-                    color: .black.opacity(0.03),
+                    color: .black.opacity(colorScheme == .dark ? 0.3 : 0.03),
                     radius: 2,
                     x: 0,
                     y: 1
                 )
             }
+        }
+        
+        private static var colorScheme: ColorScheme {
+            @Environment(\.colorScheme) var colorScheme
+            return colorScheme
         }
     }
     
@@ -312,7 +319,27 @@ struct Shadow {
 
 // MARK: - Helper Extensions
 extension Color {
+    init(light: String, dark: String) {
+        let lightColor = NSColor(hex: light)
+        let darkColor = NSColor(hex: dark)
+        self.init(nsColor: NSColor(name: nil) { appearance in
+            switch appearance.name {
+            case .darkAqua, .vibrantDark, .accessibilityHighContrastDarkAqua:
+                return darkColor
+            default:
+                return lightColor
+            }
+        })
+    }
+    
     init(hex: String) {
+        self.init(nsColor: NSColor(hex: hex))
+    }
+}
+
+// MARK: - NSColor Extension
+extension NSColor {
+    convenience init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
@@ -329,11 +356,10 @@ extension Color {
         }
         
         self.init(
-            .sRGB,
-            red: Double(r) / 255,
+            calibratedRed: Double(r) / 255,
             green: Double(g) / 255,
             blue: Double(b) / 255,
-            opacity: Double(a) / 255
+            alpha: Double(a) / 255
         )
     }
 }
