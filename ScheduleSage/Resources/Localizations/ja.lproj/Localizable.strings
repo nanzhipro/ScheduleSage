@@ -39,4 +39,8 @@
 "feature_unlimited_ocr_desc" = "OCR文字認識を無制限に利用可能";
 "upgrade_to_pro" = "Proにアップグレード";
 "pro_expiry" = "有効期限：%@";
+
+// Settings Menu
+"settings_preferences" = "環境設定";
+"settings_quit" = "終了";
   

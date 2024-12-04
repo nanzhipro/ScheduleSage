@@ -7,8 +7,10 @@ struct PopoverView: View {
   @State private var remainingUses: Int = 12
 
   var body: some View {
-    mainContent
-      .withLoading()
+    VStack(spacing: 0) {
+      mainContent
+        .withLoading()
+    }
   }
 
   private var mainContent: some View {
@@ -46,7 +48,9 @@ struct PopoverView: View {
       HStack {
         statusBar
         Spacer()
-        closeButton
+        SettingsButton()
+          .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+          .frame(width: 44, height: 44)
       }
       .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
       .background(ScheduleDesignSystem.Colors.background)
@@ -197,21 +201,6 @@ struct PopoverView: View {
     .withHoverEffect(scale: 1.02, brightness: viewModel.canImport ? 0.05 : 0)
     .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
     .padding(.bottom, ScheduleDesignSystem.Layout.containerPadding.bottom)
-  }
-
-  private var closeButton: some View {
-    Button(action: {
-      NSApplication.shared.keyWindow?.close()
-    }) {
-      Image(systemName: "xmark.circle.fill")
-        .font(.system(size: 18))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
-        .frame(width: 44, height: 44)
-        .contentShape(Rectangle())
-    }
-    .buttonStyle(.plain)
-    .withHoverEffect(scale: 1.1)
-    .padding(.trailing, ScheduleDesignSystem.Layout.containerPadding.leading)
   }
 
   private var upgradeButton: some View {

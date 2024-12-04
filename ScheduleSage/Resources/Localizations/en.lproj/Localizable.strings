@@ -39,4 +39,8 @@
 "feature_unlimited_ocr_desc" = "Use OCR recognition without limits";
 "upgrade_to_pro" = "Upgrade to Pro";
 "pro_expiry" = "Pro expires on: %@";
+
+// Settings Menu
+"settings_preferences" = "Preferences";
+"settings_quit" = "Quit";
  

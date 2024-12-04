@@ -8,8 +8,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var eventMonitor: Any?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
-        ScheduleDesignSystem.switchTheme(to: .apple)  // 切换到苹果风格
-
+        ScheduleDesignSystem.switchTheme(to: .wechat)
+        
         setupStatusItem()
         setupPopover()
         setupEventMonitor()
@@ -65,6 +65,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func dismissPopover() {
         popover.performClose(nil)
+    }
+    
+    @objc private func showPreferences() {
+        print("打开首选项设置")
+        // TODO: 实现首选项页面
+    }
+    
+    @objc private func quitApp() {
+        NSApplication.shared.terminate(nil)
     }
     
     deinit {

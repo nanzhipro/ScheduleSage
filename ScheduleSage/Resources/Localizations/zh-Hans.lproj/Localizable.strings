@@ -40,4 +40,6 @@
 "upgrade_to_pro" = "升级到 Pro";
 "pro_expiry" = "会员有效期至：%@";
 
-  
+// 设置菜单
+"settings_preferences" = "首选项";
+"settings_quit" = "退出"; 

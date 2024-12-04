@@ -211,6 +211,9 @@ enum ScheduleDesignSystem {
         // List Layout
         static let listContentSpacing: CGFloat = 16
         static let listVerticalPadding: CGFloat = 20
+        
+        // Settings Button
+        static let settingsButtonSize: CGFloat = 22
     }
     
     // MARK: - Spacing
