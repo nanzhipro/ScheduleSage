@@ -133,73 +133,31 @@ class PopoverViewModel: ObservableObject {
     }
     
     private func performOCRProcessing(at path: String) async {
-        let ocrService = OCRService()
-        
-        return await withCheckedContinuation { continuation in
-            ocrService.recognizeText(
-                from: path,
-                preferredLanguages: [.chinese, .english, .japanese]
-            ) { [weak self] result in
-                guard let self = self else {
-                    continuation.resume()
-                    return
+        do {
+            let processor = OCRProcessor()
+            let results = try await processor.process(
+                imagePath: path,
+                progressHandler: { progress in
+                // 可以用来更新 UI 进度
+                print("OCR 处理进度: \(progress * 100)%")
                 }
-                
-                // 计算已经过的时间
-                let elapsedTime = Date().timeIntervalSince(self.loadingStartTime ?? Date())
-                let additionalDelay = max(0, self.minimumLoadingDuration - elapsedTime)
-                
-                // 延迟处理结果
-                DispatchQueue.main.asyncAfter(deadline: .now() + additionalDelay) {
-                    // 隐藏加载状态
-                    self.isOCRProcessing = false
-                    LoadingManager.shared.hide()
-                    
-                    // 处理结果
-                    switch result {
-                    case .success(let results):
-                        // 按语言分组输出结果
-                        let groupedResults = Dictionary(grouping: results) { $0.language }
-                        
-                        print("\n🟢 OCR 识别完成")
-                        print("----------------------------------------")
-                        
-                        // 按语言输出
-                        for (language, languageResults) in groupedResults {
-                            print("📝 语言: \(language.rawValue)")
-                            print("----------------------------------------")
-                            
-                            // 按置信度排序
-                            let sortedResults = languageResults
-                                .filter { $0.isReliable }
-                                .sorted { $0.confidence > $1.confidence }
-                            
-                            // 输出文本
-                            for result in sortedResults {
-                                print("文本: \(result.text)")
-                                print("置信度: \(String(format: "%.2f", result.confidence))")
-                                if let box = result.boundingBox {
-                                    print("位置: \(box)")
-                                }
-                                print("----------------------------------------")
-                            }
-                            
-                            // 输出统计
-                            print("可靠文本数量: \(sortedResults.count)")
-                            print("平均置信度: \(String(format: "%.2f", sortedResults.map { $0.confidence }.reduce(0, +) / Float(sortedResults.count)))")
-                            print("----------------------------------------\n")
-                        }
-                        
-                        // 更新 UI 状态
-                        self.canImport = !results.filter { $0.isReliable }.isEmpty
-                        
-                    case .failure(let error):
-                        print("🔴 OCR 识别失败: \(error.localizedDescription)")
-                        self.canImport = false
-                    }
-                    
-                    continuation.resume()
-                }
+            )
+            
+            // 获取所有识别文本
+            let allTexts = processor.getAllTexts(from: results)
+            
+            await MainActor.run {
+                self.isOCRProcessing = false
+                LoadingManager.shared.hide()
+                self.canImport = !allTexts.isEmpty
+            }
+            
+        } catch {
+            await MainActor.run {
+                self.isOCRProcessing = false
+                LoadingManager.shared.hide()
+                self.canImport = false
+                print("OCR 处理失败:", error)
             }
         }
     }

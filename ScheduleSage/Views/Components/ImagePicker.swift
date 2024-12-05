@@ -19,6 +19,18 @@ struct ImagePicker {
     let onImageSelected: (URL) -> Void
     let onError: ((Error) -> Void)?
     
+    private let processor: OCRProcessor
+    
+    init(
+        onImageSelected: @escaping (URL) -> Void,
+        onError: ((Error) -> Void)? = nil,
+        processor: OCRProcessor = OCRProcessor()
+    ) {
+        self.onImageSelected = onImageSelected
+        self.onError = onError
+        self.processor = processor
+    }
+    
     func showPicker() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
@@ -52,19 +64,18 @@ struct ImagePicker {
         // 首先通知选择完成
         onImageSelected(url)
         
-        // 然后进行 OCR 处理
-        let ocrService = OCRService()
-        
         print("开始处理选中的图片: \(url.path)")
         
-        ocrService.recognizeText(
-            from: url.path,
-            preferredLanguages: [.chinese, .english, .japanese]
+        processor.processWithCallback(
+            imagePath: url.path,
+            progressHandler: { progress in
+                print("OCR Progress: \(progress * 100)%")
+            }
         ) { result in
             switch result {
-            case .success(let ocrResults):
+            case .success(let results):
                 print("✅ OCR 识别成功:")
-                ocrResults.forEach { result in
+                results.forEach { result in
                     print("文本: \(result.text)")
                     print("置信度: \(result.confidence)")
                     print("语言: \(result.language)")

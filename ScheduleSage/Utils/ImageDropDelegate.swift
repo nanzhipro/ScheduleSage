@@ -7,20 +7,20 @@ struct ImageDropDelegate: DropDelegate {
     let onExited: () -> Void
     let onOCRStateChange: (Bool) -> Void
     
-    private let ocrService: OCRServiceProtocol
+    private let processor: OCRProcessor
     
     init(
         onDrop: @escaping ([URL]) -> Void,
         onEntered: @escaping () -> Void,
         onExited: @escaping () -> Void,
         onOCRStateChange: @escaping (Bool) -> Void,
-        ocrService: OCRServiceProtocol = OCRService()
+        processor: OCRProcessor = OCRProcessor()
     ) {
         self.onDrop = onDrop
         self.onEntered = onEntered
         self.onExited = onExited
         self.onOCRStateChange = onOCRStateChange
-        self.ocrService = ocrService
+        self.processor = processor
     }
     
     // 支持的图片类型
@@ -37,49 +37,25 @@ struct ImageDropDelegate: DropDelegate {
         // 显示加载指示器
         LoadingManager.shared.show(.ocr)
         
-        ocrService.recognizeText(
-            from: path,
-            preferredLanguages: [.chinese, .english, .japanese]
-        ) { result in
-            DispatchQueue.main.async {
-                // 隐藏加载指示器
-                LoadingManager.shared.hide()
-                
-                switch result {
-                case .success(let ocrResults):
-                    print("🟢 OCR - Recognition completed")
-                    print("🟢 OCR - Detected text:")
-                    print("----------------------------------------")
-                    
-                    // 按语言分组结果
-                    let groupedResults = Dictionary(grouping: ocrResults) { $0.language }
-                    
-                    // 按语言输出
-                    for (language, results) in groupedResults {
-                        print("📝 Language: \(language.rawValue)")
-                        print("----------------------------------------")
-                        
-                        // 合并同一语言的文本，按置信度排序
-                        let sortedResults = results.sorted { $0.confidence > $1.confidence }
-                        for result in sortedResults {
-                            print(result.text)
-                        }
-                        print("----------------------------------------\n")
+        processor.processWithCallback(
+            imagePath: path,
+            onStateChange: { isProcessing in
+                DispatchQueue.main.async {
+                    if !isProcessing {
+                        LoadingManager.shared.hide()
                     }
-                    
-                    // 输出完整文本
-                    print("📄 Complete Text:")
-                    print("----------------------------------------")
-                    let allText = ocrResults
-                        .sorted { $0.confidence > $1.confidence }
-                        .map { $0.text }
-                        .joined(separator: " ")
-                    print(allText)
-                    print("----------------------------------------")
-                    
-                case .failure(let error):
-                    print("🔴 OCR - Recognition failed: \(error.localizedDescription)")
+                    onOCRStateChange(isProcessing)
                 }
+            },
+            progressHandler: { progress in
+                print("OCR Progress: \(progress * 100)%")
+            }
+        ) { result in
+            switch result {
+            case .success(let results):
+                processor.printDetailedResults(results)
+            case .failure(let error):
+                print("🔴 OCR - Recognition failed: \(error.localizedDescription)")
             }
         }
     }
