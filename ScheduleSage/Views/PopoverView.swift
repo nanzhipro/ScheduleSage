@@ -24,16 +24,20 @@ struct PopoverView: View {
           onImport: { print("Import tapped") },
           onBack: { viewModel.showEventList = false }
         )
-        .transition(.asymmetric(
-          insertion: .move(edge: .trailing).combined(with: .opacity),
-          removal: .move(edge: .leading).combined(with: .opacity)
-        ))
+        .transition(
+          .asymmetric(
+            insertion: .move(edge: .trailing).combined(with: .opacity),
+            removal: .move(edge: .leading).combined(with: .opacity)
+          )
+        )
       } else {
         addScheduleView
-          .transition(.asymmetric(
-            insertion: .move(edge: .leading).combined(with: .opacity),
-            removal: .move(edge: .trailing).combined(with: .opacity)
-          ))
+          .transition(
+            .asymmetric(
+              insertion: .move(edge: .leading).combined(with: .opacity),
+              removal: .move(edge: .trailing).combined(with: .opacity)
+            )
+          )
       }
     }
     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.showEventList)
@@ -55,7 +59,7 @@ struct PopoverView: View {
       .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
       .background(ScheduleDesignSystem.Colors.background)
       .cornerRadius(ScheduleDesignSystem.Dimensions.headerCornerRadius)
-      
+
       // 主要内容区域
       DragDropArea(
         isDragging: $viewModel.isDragging,
@@ -73,19 +77,19 @@ struct PopoverView: View {
         VStack(spacing: ScheduleDesignSystem.Spacing.vertical) {
           Spacer()
             .frame(height: ScheduleDesignSystem.Spacing.vertical)
-          
+
           // 日历图标
           calendarIcon
             .modifier(DragAnimationModifier(animation: viewModel.dragAnimation))
-          
+
           // 更新后的标题部分
           titleSection
-          
+
           // 三种添加方式
           addMethodButtons
-          
+
           Spacer()
-          
+
           // 导入按钮
           importButton
         }
@@ -107,7 +111,7 @@ struct PopoverView: View {
         onUpgrade: { viewModel.showUpgradeSheetAction() },
         style: .compact
       )
-      
+
       Spacer()
     }
     .padding(.horizontal, ScheduleDesignSystem.Layout.statusBarPadding.leading)
@@ -222,7 +226,7 @@ struct PopoverView: View {
       Text(NSLocalizedString("schedule_add_title", comment: ""))
         .font(ScheduleDesignSystem.Typography.title)
         .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-      
+
       Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
         .font(ScheduleDesignSystem.Typography.caption)
         .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
@@ -235,7 +239,7 @@ struct PopoverView: View {
 // 拖拽动画修饰器
 struct DragAnimationModifier: ViewModifier {
   let animation: PopoverViewModel.DragAnimation
-  
+
   func body(content: Content) -> some View {
     switch animation {
     case .none:
