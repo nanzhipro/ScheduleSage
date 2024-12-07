@@ -2,7 +2,7 @@
 //  ScheduleSageApp.swift
 //  ScheduleSage
 //
-//  Created by 南朋友 on 2024/11/26.
+//  Created by 南朋友 on 2024-03-20.
 //
 
 import SwiftUI
@@ -13,7 +13,7 @@ struct ScheduleSageApp: App {
 
   var body: some Scene {
     Settings {
-      EmptyView()
+      SettingsView()
     }
   }
 }

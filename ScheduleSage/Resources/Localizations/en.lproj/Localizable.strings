@@ -43,4 +43,8 @@
 // Settings Menu
 "settings_preferences" = "Preferences";
 "settings_quit" = "Quit";
+"settings_tab_general" = "General";
+"settings_tab_advanced" = "Advanced";
+"settings_show_previews" = "Show Previews";
+"settings_font_size" = "Font Size";
  

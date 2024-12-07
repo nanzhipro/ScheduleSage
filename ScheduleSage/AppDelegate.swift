@@ -58,7 +58,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
 
         if let window = NSApp.windows.first(where: { $0.isKeyWindow }) {
-          window.level = .floating
+            window.level = .normal
         }
       }
     }
@@ -66,15 +66,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   private func dismissPopover() {
     popover.performClose(nil)
-  }
-
-  @objc private func showPreferences() {
-    print("打开首选项设置")
-    // TODO: 实现首选项页面
-  }
-
-  @objc private func quitApp() {
-    NSApplication.shared.terminate(nil)
   }
 
   deinit {

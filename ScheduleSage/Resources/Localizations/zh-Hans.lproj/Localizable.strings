@@ -42,4 +42,8 @@
 
 // 设置菜单
 "settings_preferences" = "首选项";
-"settings_quit" = "退出"; 
+"settings_quit" = "退出";
+"settings_tab_general" = "通用";
+"settings_tab_advanced" = "高级";
+"settings_show_previews" = "显示预览";
+"settings_font_size" = "字体大小"; 

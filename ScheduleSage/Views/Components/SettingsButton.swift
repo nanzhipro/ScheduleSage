@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct SettingsButton: View {
+  @Environment(\.openSettings) private var openSettings
+
   var body: some View {
     Menu {
-      Button(action: showPreferences) {
+      Button(action: { openSettings() }) {
         Label(
           NSLocalizedString("settings_preferences", comment: ""),
           systemImage: "gear"
@@ -28,20 +30,14 @@ struct SettingsButton: View {
         .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
       }
     } label: {
-      Image(systemName: "ellipsis.circle.fill")
+      Image(systemName: "ellipsis.circle")
         .font(.system(size: ScheduleDesignSystem.Dimensions.settingsButtonSize))
         .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
         .contentShape(Rectangle())
     }
     .menuStyle(BorderlessButtonMenuStyle())
     .menuIndicator(.hidden)
-    .withHoverEffect(scale: 1.1)
     .frame(width: 44, height: 44)
-  }
-
-  private func showPreferences() {
-    print("打开首选项设置")
-    // TODO: 实现首选项页面
   }
 
   private func quitApp() {
