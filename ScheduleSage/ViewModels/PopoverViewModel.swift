@@ -216,7 +216,7 @@ class PopoverViewModel: ObservableObject {
 
     // 获取所有文本
     let allTexts = processor.getAllTexts(from: results)
-    print("总计识别文本数: \(allTexts.count)")
+    print("总计识别文本数: \(allTexts)")
 
     // 检查是否有可用结果
     canImport = !allTexts.isEmpty
