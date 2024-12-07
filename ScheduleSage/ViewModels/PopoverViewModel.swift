@@ -9,6 +9,7 @@ class PopoverViewModel: ObservableObject {
   @Published private(set) var proStatus: ProStatus
   @Published var showUpgradeSheet = false
 
+  private let processor = OCRProcessor()
   private let clipboardManager = ClipboardManager()
   private let webExtractor = WebContentExtractor()
   private let minimumLoadingDuration: TimeInterval = 1.2  // 最小加载时间
@@ -44,59 +45,137 @@ class PopoverViewModel: ObservableObject {
   }
 
   func checkClipboardContent() {
-    if let content = clipboardManager.checkClipboard() {
-      switch content {
-      case .url(let url):
-        Task {
-          do {
-            if try await URLHeaderInspector.shared.isImageURL(url) {
-              await handleImageURL(url)
-            } else if try await URLHeaderInspector.shared.isHTMLPage(url) {
-              await handleURLContent(url)
-            } else {
-              print("⚠️ 不支持的 URL 类型")
-              await MainActor.run {
-                LoadingManager.shared.hide()
-                canImport = false
-              }
-            }
-          } catch {
-            print("⚠️ URL 处理失败")
-            await MainActor.run {
-              LoadingManager.shared.hide()
-              canImport = false
-            }
+    guard let content = clipboardManager.checkClipboard() else {
+      print("📋 剪贴板为空或内容无效")
+      return
+    }
+
+    switch content {
+    case .url(let url):
+      handleURLContent(url)
+    case .image(let url):
+      handleImageContent(url)
+    }
+  }
+
+  private func handleURLContent(_ url: URL) {
+    // 首先验证 URL 的有效性
+    guard let scheme = url.scheme?.lowercased(),
+      ["http", "https"].contains(scheme),
+      !url.absoluteString.isEmpty
+    else {
+      print("⚠️ 无效的 URL 格式: \(url)")
+      return
+    }
+
+    print("🔍 开始处理 URL: \(url)")
+
+    Task {
+      do {
+        await MainActor.run {
+          LoadingManager.shared.show(.processing)
+        }
+
+        if try await URLHeaderInspector.shared.isImageURL(url) {
+          print("🖼 检测到图片 URL")
+          await handleImageURL(url)
+        } else if try await URLHeaderInspector.shared.isHTMLPage(url) {
+          print("📄 检测到网页 URL")
+          await handleWebContent(url)
+        } else {
+          print("⚠️ 不支持的 URL 类型")
+          await MainActor.run {
+            LoadingManager.shared.hide()
+            canImport = false
           }
         }
-      case .image(let url):
-        loadingStartTime = Date()
-        isOCRProcessing = true
-        LoadingManager.shared.show(.ocr)
-        performOCRProcessing(at: url.path)
+      } catch {
+        print("❌ URL 处理失败: \(error.localizedDescription)")
+        await MainActor.run {
+          LoadingManager.shared.hide()
+          canImport = false
+        }
       }
     }
   }
 
-  private func handleURLContent(_ url: URL) async {
-    await MainActor.run {
-      LoadingManager.shared.show(.processing)
+  private func handleImageContent(_ url: URL) {
+    print("🖼 开始处理图片内容: \(url.path)")
+
+    guard FileManager.default.fileExists(atPath: url.path),
+      isValidImageExtension(url.pathExtension)
+    else {
+      print("⚠️ 无效的图片文件")
+      return
     }
+
+    // 确保在主线程更新 UI 状态
+    Task { @MainActor in
+      loadingStartTime = Date()
+      isOCRProcessing = true
+      LoadingManager.shared.show(.ocr)
+    }
+
+    Task {
+      do {
+        let results = try await processor.process(
+          imagePath: url.path,
+          progressHandler: { progress in
+            print("OCR Progress: \(progress * 100)%")
+          }
+        )
+
+        // 计算经过的时间和需要的额外延迟
+        let elapsedTime = Date().timeIntervalSince(loadingStartTime ?? Date())
+        let additionalDelay = max(0, minimumLoadingDuration - elapsedTime)
+
+        // 使用额外延迟来更新 UI
+        try await Task.sleep(nanoseconds: UInt64(additionalDelay * 1_000_000_000))
+
+        // 在主线程更新 UI 状态
+        await MainActor.run {
+          isOCRProcessing = false
+          LoadingManager.shared.hide()
+          handleOCRResults(results)
+        }
+
+      } catch {
+        print("❌ OCR 识别失败: \(error.localizedDescription)")
+        
+        // 在主线程更新错误状态
+        await MainActor.run {
+          isOCRProcessing = false
+          LoadingManager.shared.hide()
+          canImport = false
+        }
+      }
+
+      // 清理临时文件
+      do {
+        try FileManager.default.removeItem(atPath: url.path)
+      } catch {
+        print("⚠️ 临时文件清理失败")
+      }
+    }
+  }
+
+  private func handleWebContent(_ url: URL) async {
+    print("📄 开始提取网页内容: \(url)")
 
     do {
       let content = try await webExtractor.extract(from: url)
-      print("📄 提取网页内容: \(content.mainContent)")
+      print("✅ 网页内容提取成功")
 
       await MainActor.run {
         LoadingManager.shared.hide()
-        self.canImport = true
+        canImport = true
       }
-
     } catch {
-      print("🔴 URL 内容提取失败: \(error.localizedDescription)")
+      print("❌ 网页内容提取失败: \(error.localizedDescription)")
 
       await MainActor.run {
         LoadingManager.shared.hide()
-        self.canImport = false
+        canImport = false
       }
     }
   }
@@ -107,73 +186,40 @@ class PopoverViewModel: ObservableObject {
     }
 
     do {
-      let imagePath = try await imageFetcher.fetchImage(from: url)
-      print("📥 图片已下载")
-
-      loadingStartTime = Date()
+      let processor = OCRProcessor()
+      let results = try await processor.process(
+        imagePath: url.path,
+        progressHandler: { progress in
+          print("OCR Progress: \(progress * 100)%")
+        }
+      )
 
       await MainActor.run {
-        LoadingManager.shared.show(.ocr)
-        isOCRProcessing = true
+        // 处理识别结果
+        handleOCRResults(results)
+        LoadingManager.shared.hide()
+        canImport = true
       }
 
-      performOCRProcessing(at: imagePath)
-
     } catch {
-      print("🔴 图片下载失败: \(error.localizedDescription)")
-
+      print("🔴 Image OCR failed: \(error.localizedDescription)")
       await MainActor.run {
         LoadingManager.shared.hide()
-        isOCRProcessing = false
         canImport = false
       }
     }
   }
 
-  private func performOCRProcessing(at path: String) {
-    let ocrService = OCRService()
+  private func handleOCRResults(_ results: [OCRLanguage: [OCRResult]]) {
+    // 打印识别结果
+    processor.printDetailedResults(results)
 
-    ocrService.recognizeText(
-      from: path,
-      preferredLanguages: [.chinese, .english, .japanese]
-    ) { [weak self] result in
-      guard let self = self else { return }
+    // 获取所有文本
+    let allTexts = processor.getAllTexts(from: results)
+    print("总计识别文本数: \(allTexts.count)")
 
-      let elapsedTime = Date().timeIntervalSince(self.loadingStartTime ?? Date())
-      let additionalDelay = max(0, self.minimumLoadingDuration - elapsedTime)
-
-      DispatchQueue.main.asyncAfter(deadline: .now() + additionalDelay) {
-        self.isOCRProcessing = false
-        LoadingManager.shared.hide()
-
-        switch result {
-        case .success(let results):
-          // 打印识别结果
-          print("\n📝 OCR 识别结果:")
-          print("----------------------------------------")
-          for result in results {
-            print("[\(result.language.rawValue)] \(result.text) (置信度: \(String(format: "%.2f", result.confidence)))")
-          }
-          print("总计识别文本数: \(results.count)")
-          print("----------------------------------------\n")
-
-          // 过滤可靠结果
-          let reliableResults = results.filter { $0.isReliable }
-          self.canImport = !reliableResults.isEmpty
-
-        case .failure(let error):
-          print("🔴 OCR 识别失败: \(error.localizedDescription)")
-          self.canImport = false
-        }
-
-        // 清理临时文件
-        do {
-          try FileManager.default.removeItem(atPath: path)
-        } catch {
-          print("⚠️ 临时文件清理失败")
-        }
-      }
-    }
+    // 检查是否有可用结果
+    canImport = !allTexts.isEmpty
   }
 
   func resetState() {
@@ -198,15 +244,17 @@ class PopoverViewModel: ObservableObject {
   func handleDropped(_ urls: [URL]) {
     guard let url = urls.first else { return }
 
-    loadingStartTime = Date()
+    // 确保在主线程更新 UI 状态
+    Task { @MainActor in
+      loadingStartTime = Date()
+      isOCRProcessing = true
+      LoadingManager.shared.show(.ocr)
 
-    isOCRProcessing = true
-    LoadingManager.shared.show(.ocr)
+      isDragging = false
+      dragAnimation = .none
+    }
 
-    isDragging = false
-    dragAnimation = .none
-
-    performOCRProcessing(at: url.path)
+    handleImageContent(url)
   }
 
   func showUpgradeSheetAction() {
@@ -230,8 +278,12 @@ class PopoverViewModel: ObservableObject {
 // MARK: - Helper Extensions
 private extension String {
   var isImageURL: Bool {
-    let imageExtensions = ["jpg", "jpeg", "png", "gif", "heic"]
-    let pathExtension = (self as NSString).pathExtension.lowercased()
-    return imageExtensions.contains(pathExtension)
+    let pathExtension = (self as NSString).pathExtension
+    return ImageSupport.isSupported(extension: pathExtension)
   }
+}
+
+// MARK: - Helper Methods
+private func isValidImageExtension(_ extension: String) -> Bool {
+  ImageSupport.isSupported(extension: `extension`)
 }

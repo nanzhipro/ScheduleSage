@@ -1,8 +1,6 @@
 import AppKit
 
 class ClipboardManager: ObservableObject {
-  private let supportedImageExtensions = ["jpg", "jpeg", "png", "gif", "heic"]
-
   func checkClipboard() -> ClipboardContent? {
     let pasteboard = NSPasteboard.general
 
@@ -16,8 +14,7 @@ class ClipboardManager: ObservableObject {
     // 检查图片文件
     if let urls = pasteboard.readObjects(forClasses: [NSURL.self]) as? [URL],
       let imageURL = urls.first,
-      let fileExtension = imageURL.pathExtension.lowercased() as String?,
-      supportedImageExtensions.contains(fileExtension)
+      ImageSupport.isSupported(url: imageURL)
     {
       return .image(imageURL)
     }

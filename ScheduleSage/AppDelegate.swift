@@ -58,7 +58,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
 
         if let window = NSApp.windows.first(where: { $0.isKeyWindow }) {
-            window.level = .normal
+          window.level = .normal
         }
       }
     }

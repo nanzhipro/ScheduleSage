@@ -9,12 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ImagePicker {
-  private let supportedTypes = [
-    UTType.jpeg,
-    UTType.png,
-    UTType.gif,
-    UTType.heic,
-  ]
+  private let supportedTypes = ImageSupport.supportedUTTypes
 
   let onImageSelected: (URL) -> Void
   let onError: ((Error) -> Void)?
@@ -66,23 +61,19 @@ struct ImagePicker {
 
     print("开始处理选中的图片: \(url.path)")
 
-    processor.processWithCallback(
-      imagePath: url.path,
-      progressHandler: { progress in
-        print("OCR Progress: \(progress * 100)%")
-      }
-    ) { result in
-      switch result {
-      case .success(let results):
-        print("✅ OCR 识别成功:")
-        results.forEach { result in
-          print("文本: \(result.text)")
-          print("置信度: \(result.confidence)")
-          print("语言: \(result.language)")
-          print("---")
-        }
+    Task {
+      do {
+        let results = try await processor.process(
+          imagePath: url.path,
+          progressHandler: { progress in
+            print("OCR Progress: \(progress * 100)%")
+          }
+        )
 
-      case .failure(let error):
+        print("✅ OCR 识别成功:")
+        processor.printDetailedResults(results)
+
+      } catch {
         print("❌ OCR 识别失败: \(error.localizedDescription)")
         onError?(error)
       }

@@ -24,12 +24,7 @@ struct ImageDropDelegate: DropDelegate {
   }
 
   // 支持的图片类型
-  private let supportedTypes = [
-    UTType.jpeg,
-    UTType.png,
-    UTType.gif,
-    UTType.heic,
-  ]
+  private let supportedTypes = ImageSupport.supportedUTTypes
 
   private func processImageWithOCR(at path: String) {
     print("🔵 OCR - Starting text recognition for image at: \(path)")
@@ -37,25 +32,28 @@ struct ImageDropDelegate: DropDelegate {
     // 显示加载指示器
     LoadingManager.shared.show(.ocr)
 
-    processor.processWithCallback(
-      imagePath: path,
-      onStateChange: { isProcessing in
-        DispatchQueue.main.async {
-          if !isProcessing {
-            LoadingManager.shared.hide()
+    Task {
+      do {
+        // 更新处理状态
+        onOCRStateChange(true)
+
+        let results = try await processor.process(
+          imagePath: path,
+          progressHandler: { progress in
+            print("OCR Progress: \(progress * 100)%")
           }
-          onOCRStateChange(isProcessing)
-        }
-      },
-      progressHandler: { progress in
-        print("OCR Progress: \(progress * 100)%")
-      }
-    ) { result in
-      switch result {
-      case .success(let results):
+        )
+
         processor.printDetailedResults(results)
-      case .failure(let error):
+
+      } catch {
         print("🔴 OCR - Recognition failed: \(error.localizedDescription)")
+      }
+
+      // 完成后更新状态
+      DispatchQueue.main.async {
+        LoadingManager.shared.hide()
+        onOCRStateChange(false)
       }
     }
   }
@@ -92,7 +90,7 @@ struct ImageDropDelegate: DropDelegate {
           print("🔵 ImageDropDelegate - File extension: \(fileExtension)")
 
           // 验证是否是支持的图片类型
-          if ["jpg", "jpeg", "png", "gif", "heic"].contains(fileExtension) {
+          if ImageSupport.isSupported(extension: fileExtension) {
             print("🟢 ImageDropDelegate - Successfully got image URL: \(url.path)")
 
             // 执行 OCR
