@@ -2,7 +2,7 @@
 //  Item.swift
 //  ScheduleSage
 //
-//  Created by 南朋友 on 2024/11/26.
+//  Created by CursorAI on 2024/11/26.
 //
 
 import Foundation

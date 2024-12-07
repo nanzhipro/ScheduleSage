@@ -2,7 +2,7 @@
 //  ProStatus.swift
 //  ScheduleSage
 //
-//  Created by 南朋友 on 2024/03/26.
+//  Created by CursorAI on 2024/03/26.
 //
 
 import Foundation

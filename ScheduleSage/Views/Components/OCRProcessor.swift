@@ -2,7 +2,7 @@
 //  OCRProcessor.swift
 //  ScheduleSage
 //
-//  Created by 南朋友 on 2024-03-20.
+//  Created by CursorAI on 2024-03-20.
 //
 
 import Foundation
