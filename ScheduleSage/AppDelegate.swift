@@ -8,7 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private var eventMonitor: Any?
 
   func applicationDidFinishLaunching(_ notification: Notification) {
-    ScheduleDesignSystem.switchTheme(to: .apple)
+      ScheduleDesignSystem.switchTheme(to: .apple)
 
     setupStatusItem()
     setupPopover()

@@ -26,15 +26,15 @@ enum ScheduleDesignSystem {
     static var primaryBackground: Color {
       switch currentTheme {
       case .apple:
-        return Color(light: "F2F2F7", dark: "1C1C1E")
+        return Color(light: "F5F5F7", dark: "242424")
       case .wechat:
-        return Color(light: "F7F7F7", dark: "1C1C1E")
+        return Color(light: "F7F7F7", dark: "242424")
       }
     }
 
     // Base Colors
     static var background: Color {
-      Color(light: "FFFFFF", dark: "000000")
+      Color(light: "FFFFFF", dark: "1E1E1E")
     }
 
     static var secondaryGray: Color {
@@ -58,18 +58,18 @@ enum ScheduleDesignSystem {
     static var containerGray: Color {
       switch currentTheme {
       case .apple:
-        return Color(light: "F8F8FA", dark: "2C2C2E")
+        return Color(light: "F8F8FA", dark: "333333")
       case .wechat:
-        return Color(light: "F8F8F8", dark: "2C2C2E")
+        return Color(light: "F8F8F8", dark: "333333")
       }
     }
 
     static var borderGray: Color {
       switch currentTheme {
       case .apple:
-        return Color(light: "E5E5E5", dark: "38383A")
+        return Color(light: "E5E5E5", dark: "424242")
       case .wechat:
-        return Color(light: "EBEDF0", dark: "38383A")
+        return Color(light: "EBEDF0", dark: "424242")
       }
     }
 
@@ -130,6 +130,46 @@ enum ScheduleDesignSystem {
         return Color(hex: "007AFF")
       case .wechat:
         return Color(hex: "576B95")
+      }
+    }
+
+    // 主要背景色
+    static var secondaryBackground: Color {
+      switch currentTheme {
+      case .apple:
+        return Color(light: "FFFFFF", dark: "2C2C2C")
+      case .wechat:
+        return Color(light: "FFFFFF", dark: "2C2C2C")
+      }
+    }
+
+    // 卡片背景色
+    static var cardBackground: Color {
+      switch currentTheme {
+      case .apple:
+        return Color(light: "FFFFFF", dark: "2A2A2A")
+      case .wechat:
+        return Color(light: "FFFFFF", dark: "2A2A2A")
+      }
+    }
+
+    // 悬停状态背景色
+    static var hoverBackground: Color {
+      switch currentTheme {
+      case .apple:
+        return Color(light: "F5F5F7", dark: "3A3A3A")
+      case .wechat:
+        return Color(light: "F7F7F7", dark: "3A3A3A")
+      }
+    }
+
+    // 分割线颜色
+    static var separator: Color {
+      switch currentTheme {
+      case .apple:
+        return Color(light: "E5E5E5", dark: "3D3D3D")
+      case .wechat:
+        return Color(light: "EBEDF0", dark: "3D3D3D")
       }
     }
   }
