@@ -141,7 +141,7 @@ class PopoverViewModel: ObservableObject {
 
       } catch {
         print("❌ OCR 识别失败: \(error.localizedDescription)")
-        
+
         // 在主线程更新错误状态
         await MainActor.run {
           isOCRProcessing = false
