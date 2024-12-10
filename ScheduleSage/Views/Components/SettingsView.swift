@@ -1,10 +1,3 @@
-//
-//  SettingsView.swift
-//  ScheduleSage
-//
-//  Created by CursorAI on 2024-03-20.
-//
-
 import SwiftUI
 
 public struct SettingsView: View {
@@ -13,6 +6,11 @@ public struct SettingsView: View {
   @AppStorage("autoStart") private var autoStart = false
   @AppStorage("showPreviews") private var showPreviews = true
   @AppStorage("fontSize") private var fontSize: Double = 28
+  @AppStorage("language") private var language = "English"
+  @AppStorage("theme") private var theme = "Apple"
+  @AppStorage("feedbackDescription") private var feedbackDescription = ""
+  @AppStorage("feedbackScreenshot") private var feedbackScreenshot: Data?
+  @AppStorage("feedbackEmail") private var feedbackEmail = ""
 
   public init() {}
 
@@ -33,8 +31,16 @@ public struct SettingsView: View {
             systemImage: "star.fill"
           )
         }
+
+      feedbackSettings
+        .tabItem {
+          Label(
+            NSLocalizedString("settings_tab_feedback", comment: ""),
+            systemImage: "envelope.fill"
+          )
+        }
     }
-    .frame(width: 375, height: 150)
+    .frame(width: 375, height: 300)
   }
 
   private var generalSettings: some View {
@@ -43,6 +49,14 @@ public struct SettingsView: View {
         Toggle(NSLocalizedString("settings_notifications", comment: ""), isOn: $enableNotifications)
         Toggle(NSLocalizedString("settings_dark_mode", comment: ""), isOn: $darkMode)
         Toggle(NSLocalizedString("settings_auto_start", comment: ""), isOn: $autoStart)
+      }
+
+      Section {
+        Picker(NSLocalizedString("settings_language", comment: ""), selection: $language) {
+          Text("English").tag("English")
+          Text("Chinese").tag("Chinese")
+          Text("Japanese").tag("Japanese")
+        }
       }
 
       Section {
@@ -68,9 +82,57 @@ public struct SettingsView: View {
           Slider(value: $fontSize, in: 12...48)
         }
       }
+
+      Section {
+        Picker(NSLocalizedString("settings_theme", comment: ""), selection: $theme) {
+          Text("Apple").tag("Apple")
+          Text("WeChat").tag("WeChat")
+        }
+      }
     }
     .formStyle(.grouped)
     .padding()
+  }
+
+  private var feedbackSettings: some View {
+    Form {
+      Section(header: Text(NSLocalizedString("settings_feedback_description", comment: ""))) {
+        TextEditor(text: $feedbackDescription)
+          .frame(height: 100)
+      }
+
+      Section(header: Text(NSLocalizedString("settings_feedback_screenshot", comment: ""))) {
+        Button(action: selectScreenshot) {
+          Text(NSLocalizedString("settings_feedback_select_screenshot", comment: ""))
+        }
+      }
+
+      Section(header: Text(NSLocalizedString("settings_feedback_email", comment: ""))) {
+        TextField(NSLocalizedString("settings_feedback_email_placeholder", comment: ""), text: $feedbackEmail)
+          .keyboardType(.emailAddress)
+      }
+
+      Section {
+        Button(action: submitFeedback) {
+          Text(NSLocalizedString("settings_feedback_submit", comment: ""))
+        }
+      }
+    }
+    .formStyle(.grouped)
+    .padding()
+  }
+
+  private func selectScreenshot() {
+    let panel = NSOpenPanel()
+    panel.allowedFileTypes = ["png", "jpg", "jpeg"]
+    panel.allowsMultipleSelection = false
+    if panel.runModal() == .OK, let url = panel.url, let data = try? Data(contentsOf: url) {
+      feedbackScreenshot = data
+    }
+  }
+
+  private func submitFeedback() {
+    // Implement feedback submission logic here
   }
 }
 

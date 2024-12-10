@@ -441,4 +441,8 @@ extension ScheduleDesignSystem {
   static func switchTheme(to theme: ThemeType) {
     currentTheme = theme
   }
+
+  static func switchLanguage(to language: String) {
+    // Implement language switching logic here
+  }
 }

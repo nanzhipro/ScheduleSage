@@ -13,6 +13,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     setupStatusItem()
     setupPopover()
     setupEventMonitor()
+    updateAutoStartSetting()
   }
 
   private func setupStatusItem() {
@@ -72,5 +73,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     if let monitor = eventMonitor {
       NSEvent.removeMonitor(monitor)
     }
+  }
+
+  private func updateAutoStartSetting() {
+    let autoStartEnabled = UserDefaults.standard.bool(forKey: "autoStart")
+    let launcherAppId = "com.yourcompany.ScheduleSageLauncher"
+
+    if autoStartEnabled {
+      SMLoginItemSetEnabled(launcherAppId as CFString, true)
+    } else {
+      SMLoginItemSetEnabled(launcherAppId as CFString, false)
+    }
+  }
+
+  private func handleFeedbackSubmission(description: String, screenshot: Data?, email: String) {
+    // Implement feedback submission logic here
   }
 }
