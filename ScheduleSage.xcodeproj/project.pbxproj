@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
+		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */,
 				D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */,
 				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
 			);
@@ -129,6 +131,7 @@
 			packageProductDependencies = (
 				D56686AA2CFC05D800EE1486 /* SwiftSoup */,
 				D56686B42CFC097A00EE1486 /* Kingfisher */,
+				D57A1BC12D275D10000BAC44 /* Alamofire */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -217,6 +220,7 @@
 			packageReferences = (
 				D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				D56686B32CFC096F00EE1486 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -578,6 +582,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
 		D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
@@ -606,6 +618,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D56686B32CFC096F00EE1486 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		D57A1BC12D275D10000BAC44 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

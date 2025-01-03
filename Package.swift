@@ -8,14 +8,16 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.1"),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.0.0")
+        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.0.0"),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.0.0")
     ],
     targets: [
         .target(
             name: "ScheduleSage",
             dependencies: [
                 "SwiftSoup",
-                "Kingfisher"
+                "Kingfisher",
+                "Alamofire"
             ]
         ),
         .testTarget(
