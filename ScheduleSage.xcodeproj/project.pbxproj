@@ -10,6 +10,7 @@
 		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
 		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
+		D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */ = {isa = PBXBuildFile; productRef = D5F11BF32D28C592007A225F /* SwiftWebCrawler */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 			files = (
 				D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */,
 				D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */,
+				D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */,
 				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -132,6 +134,7 @@
 				D56686AA2CFC05D800EE1486 /* SwiftSoup */,
 				D56686B42CFC097A00EE1486 /* Kingfisher */,
 				D57A1BC12D275D10000BAC44 /* Alamofire */,
+				D5F11BF32D28C592007A225F /* SwiftWebCrawler */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -221,6 +224,7 @@
 				D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				D56686B32CFC096F00EE1486 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -436,7 +440,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tiwenlab.ScheduleSage;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tiwenlab.schedulesage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -465,7 +469,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tiwenlab.ScheduleSage;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tiwenlab.schedulesage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -606,6 +610,14 @@
 				minimumVersion = 8.1.1;
 			};
 		};
+		D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nanzhipro/SwiftWebCrawler.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -623,6 +635,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		D5F11BF32D28C592007A225F /* SwiftWebCrawler */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */;
+			productName = SwiftWebCrawler;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

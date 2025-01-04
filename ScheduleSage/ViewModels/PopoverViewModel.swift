@@ -1,4 +1,6 @@
 import SwiftUI
+import SwiftWebCrawler
+import OSLog
 
 // MARK: - PopoverViewModel
 class PopoverViewModel: ObservableObject {
@@ -14,10 +16,20 @@ class PopoverViewModel: ObservableObject {
     @Published var isLLMProcessing = false
     
     // MARK: - Private Properties
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PopoverViewModel")
     private let processor = OCRProcessor()
     private let clipboardManager = ClipboardManager()
-    private let webExtractor = WebContentExtractor()
-    private let imageFetcher = ImageFetcher()
+    private var promptViewModel: PromptViewModel!
+    private let webCrawler: WebCrawler = {
+        let config = CrawlerConfiguration(
+            obeyRobotsTxt: false,
+            userAgent: "ScheduleSage/1.0",
+            minRequestInterval: 1.0,
+            proxy: nil,
+            maxConcurrentTasks: 3
+        )
+        return WebCrawler(configuration: config)
+    }()
     private let llmService = LLMService.shared
     private let minimumLoadingDuration: TimeInterval = 1.2
     private var loadingStartTime: Date?
@@ -25,6 +37,13 @@ class PopoverViewModel: ObservableObject {
     // MARK: - Initialization
     init(proStatus: ProStatus = .free(remainingUses: 12)) {
         self.proStatus = proStatus
+        Task { @MainActor in
+            logger.info("Initializing PromptViewModel...")
+            self.promptViewModel = PromptViewModel()
+            await promptViewModel.loadInitialPrompt()
+            await promptViewModel.refreshPrompt()
+            logger.info("PromptViewModel initialization completed")
+        }
     }
 }
 
@@ -49,19 +68,23 @@ extension PopoverViewModel {
 extension PopoverViewModel {
     func checkClipboardContent() {
         guard let content = clipboardManager.checkClipboard() else {
-            print("📋 剪贴板为空或内容无效")
+            logger.notice("Clipboard is empty or contains invalid content")
             return
         }
         
         switch content {
-        case .url(let url): handleURLContent(url)
-        case .image(let url): handleImageContent(url)
+        case .url(let url):
+            logger.debug("URL content detected: \(url.absoluteString)")
+            handleURLContent(url)
+        case .image(let url):
+            logger.debug("Image content detected: \(url.path)")
+            handleImageContent(url)
         }
     }
     
     private func handleURLContent(_ url: URL) {
         guard url.isValidWebURL else {
-            print("⚠️ 无效的 URL 格式: \(url)")
+            self.logger.error("Invalid URL format: \(url.absoluteString)")
             return
         }
         
@@ -70,14 +93,17 @@ extension PopoverViewModel {
             
             do {
                 if try await URLHeaderInspector.shared.isImageURL(url) {
-                    await handleImageURL(url)
+                    self.logger.info("Processing URL as image: \(url.absoluteString)")
+                    await self.handleImageURL(url)
                 } else if try await URLHeaderInspector.shared.isHTMLPage(url) {
-                    await handleWebContent(url)
+                    self.logger.info("Processing URL as webpage: \(url.absoluteString)")
+                    await self.handleWebContent(url)
                 } else {
-                    await updateState(loading: false, canImport: false)
+                    self.logger.notice("Unsupported content type at URL: \(url.absoluteString)")
+                    await self.updateState(loading: false, canImport: false)
                 }
             } catch {
-                await handleError(error)
+                await self.handleError(error)
             }
         }
     }
@@ -85,54 +111,71 @@ extension PopoverViewModel {
 
 // MARK: - Content Processing
 extension PopoverViewModel {
+    private func handleWebContent(_ url: URL) async {
+        do {
+            self.logger.info("Starting web content processing for: \(url.absoluteString)")
+            await MainActor.run { 
+                self.isLLMProcessing = true
+                LoadingManager.shared.show(.processing) 
+            }
+            
+            // Fetch web content
+            let results = await self.webCrawler.crawlBatch(urls: [url.absoluteString])
+            guard let result = results[url.absoluteString] else {
+                self.logger.error("No crawl results for URL: \(url.absoluteString)")
+                throw PromptError.invalidResponse
+            }
+            
+            // Process crawl result
+            let contentText = try result.get()
+            self.logger.debug("Successfully crawled content length: \(contentText.count) characters")
+            
+            // Process with LLM
+            let basePrompt = await self.promptViewModel.getPromptContent()
+            let prompt = String(format: basePrompt, contentText)
+            self.logger.info("Sending content to LLM for processing，prompt: \(prompt)")
+            
+            let response = try await self.llmService.chat(content: prompt)
+            self.logger.debug("Received LLM response content: \(response.content)")
+            
+            await MainActor.run {
+                self.llmResponse = response.content
+                self.isLLMProcessing = false
+                LoadingManager.shared.hide()
+                self.canImport = true
+            }
+            
+            self.logger.info("Web content processing completed successfully")
+        } catch {
+            self.logger.error("Web content processing failed: \(error.localizedDescription)")
+            await self.handleError(error)
+        }
+    }
+    
     private func handleImageContent(_ url: URL) {
         guard url.isValidImageFile else {
-            print("⚠️ 无效的图片文件")
+            logger.error("Invalid image file: \(url.path)")
             return
         }
         
         Task {
+            logger.info("Starting OCR processing for image: \(url.path)")
             await startOCRProcessing()
             
             do {
                 let results = try await processor.process(imagePath: url.path) { progress in
-                    print("OCR Progress: \(progress * 100)%")
+                    self.logger.debug("OCR Progress: \(Int(progress * 100))%")
                 }
                 
                 await completeOCRProcessing(with: results)
+                logger.info("OCR processing completed successfully")
             } catch {
+                logger.error("OCR processing failed: \(error.localizedDescription)")
                 await handleError(error)
             }
             
             try? FileManager.default.removeItem(atPath: url.path)
-        }
-    }
-    
-    private func handleWebContent(_ url: URL) async {
-        do {
-            let content = try await webExtractor.extract(from: url)
-            print("🌐 网页内容: \(content.mainContent)")
-            
-            await MainActor.run { 
-                isLLMProcessing = true
-                LoadingManager.shared.show(.processing) 
-            }
-            
-            // 构建提示语
-            let prompt = "你好，杭州"
-            
-            // 调用 LLM 服务
-            let response = try await llmService.chat(content: prompt)
-            print("🤖 LLM 响应: \(response.content)")
-            
-            await MainActor.run {
-                llmResponse = response.content
-                isLLMProcessing = false
-                LoadingManager.shared.hide()
-                canImport = true
-            }
-        } catch {
-            await handleError(error)
+            logger.debug("Temporary image file removed")
         }
     }
     
@@ -187,8 +230,13 @@ extension PopoverViewModel {
     }
     
     private func handleError(_ error: Error) async {
-        print("❌ 处理失败: \(error.localizedDescription)")
-        await updateState(loading: false, canImport: false)
+        logger.error("Operation failed: \(error.localizedDescription)")
+        await MainActor.run {
+            isOCRProcessing = false
+            isLLMProcessing = false
+            LoadingManager.shared.hide()
+            canImport = false
+        }
     }
 }
 

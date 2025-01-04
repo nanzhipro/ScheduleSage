@@ -1,5 +1,5 @@
 {
-  "originHash" : "35ea8503697ec0b826d7df5640631187e938da785f43cabd8490adb70597e226",
+  "originHash" : "43eff72db120a44bddedb6da68c3c3503458c3d4439026b06eb1d81246545387",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "0837db354faf9c9deb710dc597046edaadf5360f",
         "version" : "2.7.6"
+      }
+    },
+    {
+      "identity" : "swiftwebcrawler",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nanzhipro/SwiftWebCrawler.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "1fac9bd7a2cbdd9535f8aff2b9331c5c81a3c0d1"
       }
     }
   ],

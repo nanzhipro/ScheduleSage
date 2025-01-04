@@ -9,7 +9,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.1"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.0.0"),
-        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.0.0")
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.0.0"),
+        .package(url: "https://github.com/nanzhipro/SwiftWebCrawler.git", branch: "main")
     ],
     targets: [
         .target(
@@ -17,7 +18,8 @@ let package = Package(
             dependencies: [
                 "SwiftSoup",
                 "Kingfisher",
-                "Alamofire"
+                "Alamofire",
+                "SwiftWebCrawler"
             ]
         ),
         .testTarget(
