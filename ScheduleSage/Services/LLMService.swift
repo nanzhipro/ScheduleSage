@@ -9,7 +9,7 @@ import Foundation
 import Alamofire
 
 public class LLMService {
-  private let baseURL = "http://localhost:8080/api/v1"
+  private let apiConfig = APIConfig.shared
   
   public static let shared = LLMService()
   private init() {}
@@ -20,7 +20,7 @@ public class LLMService {
     let request = LLMRequest(messages: [message], config: config)
     
     return try await AF.request(
-      "\(baseURL)/llm/chat",
+      apiConfig.llmEndpoint,
       method: .post,
       parameters: request,
       encoder: JSONParameterEncoder(encoder: {
@@ -35,7 +35,7 @@ public class LLMService {
   
   public func chatWithCustomConfig(request: LLMRequest) async throws -> LLMResponse {
     return try await AF.request(
-      "\(baseURL)/llm/chat",
+      apiConfig.llmEndpoint,
       method: .post,
       parameters: request,
       encoder: JSONParameterEncoder(encoder: {

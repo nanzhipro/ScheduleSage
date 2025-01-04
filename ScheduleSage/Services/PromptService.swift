@@ -28,7 +28,7 @@ enum PromptError: LocalizedError {
 // MARK: - PromptService
 actor PromptService {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PromptService")
-    private let baseURL = "http://localhost:8080/api"
+    private let apiConfig = APIConfig.shared
     private let userDefaults = UserDefaults.standard
     private let promptKey = "stored_prompt"
     
@@ -37,7 +37,7 @@ actor PromptService {
         logger.info("Initiating fetch for latest prompt...")
         
         let currentVersion = getCurrentVersion()
-        let url = URL(string: "\(baseURL)/prompts?version=\(currentVersion)")!
+        let url = URL(string: "\(apiConfig.promptsEndpoint)?version=\(currentVersion)")!
         
         do {
             let (data, response) = try await URLSession.shared.data(from: url)

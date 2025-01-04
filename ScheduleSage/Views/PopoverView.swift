@@ -137,7 +137,10 @@ struct PopoverView: View {
     HStack(spacing: ScheduleDesignSystem.Spacing.horizontal) {
       AddMethodButton(
         icon: "doc.text.fill",
-        text: NSLocalizedString("clipboard_import", comment: "")
+        text: NSLocalizedString("clipboard_import", comment: ""),
+        action: {
+          self.viewModel.checkClipboardContent()
+        }
       )
       AddMethodButton(
         icon: "square.and.pencil",
