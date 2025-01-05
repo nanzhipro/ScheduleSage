@@ -44,3 +44,7 @@
 "settings_preferences" = "環境設定";
 "settings_quit" = "終了";
   
+// Calendar Manager
+"calendar.error.access_denied" = "カレンダーへのアクセスが拒否されました。システム設定でカレンダーへのアクセスを有効にしてください。";
+"calendar.error.unknown_status" = "不明な権限状態です。";
+"calendar.error.create_failed" = "カレンダーの作成またはアクセスに失敗しました。";

@@ -1,0 +1,5 @@
+/* App Name */
+CFBundleDisplayName = "日程助手";
+
+/* Calendar Usage Description */
+NSCalendarsUsageDescription = "此应用需要访问您的日历以创建和管理事件。"; 

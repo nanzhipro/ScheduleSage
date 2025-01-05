@@ -1,0 +1,5 @@
+/* App Name */
+CFBundleDisplayName = "スケジュールセージ";
+
+/* Calendar Usage Description */
+NSCalendarsUsageDescription = "このアプリは、予定の作成と管理のためにカレンダーへのアクセスが必要です。"; 

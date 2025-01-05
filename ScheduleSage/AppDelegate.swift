@@ -7,6 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private var popoverViewModel: PopoverViewModel!
   private var eventMonitor: Any?
   private let logger = LoggerService()
+  private let calendarManager = CalendarManager()
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     ScheduleDesignSystem.switchTheme(to: .wechat)
@@ -17,6 +18,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     setupEventMonitor()
     
     popoverViewModel.resetState()
+
+    // 请求日历权限
+    requestCalendarAccess()
   }
 
   private func setupStatusItem() {
@@ -70,6 +74,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   private func dismissPopover() {
     popover.performClose(nil)
+  }
+
+  private func requestCalendarAccess() {
+    calendarManager.requestAccess { [weak self] granted, error in
+      if let error = error {
+        print("Calendar access error: \(error.localizedDescription)")
+        return
+      }
+      
+      if granted {
+        print("Calendar access granted")
+      } else {
+        print("Calendar access denied")
+      }
+    }
   }
 
   deinit {
