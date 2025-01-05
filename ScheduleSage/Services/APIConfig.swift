@@ -17,8 +17,8 @@ enum APIEnvironment {
     var baseURL: String {
         switch self {
         case .development: return "http://localhost:8080"
-        case .staging: return "https://staging-api.schedulesage.app"
-        case .production: return "https://api.schedulesage.app"
+        case .staging: return "https://www.tiwenlab.com/api"
+        case .production: return "https://www.tiwenlab.com/api"
         }
     }
 }

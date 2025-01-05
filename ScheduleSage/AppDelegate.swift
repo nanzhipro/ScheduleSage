@@ -6,9 +6,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private var popover: NSPopover!
   private var popoverViewModel: PopoverViewModel!
   private var eventMonitor: Any?
+  private let logger = LoggerService()
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     ScheduleDesignSystem.switchTheme(to: .wechat)
+    logger.logInfo("AppDelegate did finish launching")
 
     setupStatusItem()
     setupPopover()

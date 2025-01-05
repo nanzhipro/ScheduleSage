@@ -11,6 +11,7 @@
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
 		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
 		D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */ = {isa = PBXBuildFile; productRef = D5F11BF32D28C592007A225F /* SwiftWebCrawler */; };
+		D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,7 @@
 				D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */,
 				D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */,
 				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
+				D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,6 +137,7 @@
 				D56686B42CFC097A00EE1486 /* Kingfisher */,
 				D57A1BC12D275D10000BAC44 /* Alamofire */,
 				D5F11BF32D28C592007A225F /* SwiftWebCrawler */,
+				D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -225,6 +228,7 @@
 				D56686B32CFC096F00EE1486 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */,
+				D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -618,6 +622,14 @@
 				kind = branch;
 			};
 		};
+		D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CocoaLumberjack/CocoaLumberjack.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.8.5;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -640,6 +652,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */;
 			productName = SwiftWebCrawler;
+		};
+		D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */;
+			productName = CocoaLumberjackSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
