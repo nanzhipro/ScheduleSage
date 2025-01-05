@@ -86,11 +86,11 @@ extension OCRProcessor {
   /// - Parameter results: OCR 结果
   func printDetailedResults(_ results: [OCRLanguage: [OCRResult]]) {
     queue.async {
-      print("🟢 OCR - Recognition completed")
+      print("OCR: Recognition completed successfully")
       print("----------------------------------------")
 
       for (language, languageResults) in results {
-        print("📝 Language: \(language.rawValue)")
+        print("OCR: Detected language - \(language.rawValue)")
         print("----------------------------------------")
 
         for result in languageResults.sorted(by: { $0.confidence > $1.confidence }) {

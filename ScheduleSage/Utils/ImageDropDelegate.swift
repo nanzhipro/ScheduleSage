@@ -27,7 +27,7 @@ struct ImageDropDelegate: DropDelegate {
   private let supportedTypes = ImageSupport.supportedUTTypes
 
   private func processImageWithOCR(at path: String) {
-    print("🔵 OCR - Starting text recognition for image at: \(path)")
+    print("OCR: Starting text recognition for image at: \(path)")
 
     // 显示加载指示器
     LoadingManager.shared.show(.ocr)
@@ -47,7 +47,7 @@ struct ImageDropDelegate: DropDelegate {
         processor.printDetailedResults(results)
 
       } catch {
-        print("🔴 OCR - Recognition failed: \(error.localizedDescription)")
+        print("OCR: Recognition failed - \(error.localizedDescription)")
       }
 
       // 完成后更新状态
@@ -59,74 +59,74 @@ struct ImageDropDelegate: DropDelegate {
   }
 
   func performDrop(info: DropInfo) -> Bool {
-    print("🔵 ImageDropDelegate - performDrop started")
+    print("ImageDropDelegate: Starting performDrop")
 
     // 获取所有拖拽项
     let providers = info.itemProviders(for: [.fileURL])
-    print("🔵 ImageDropDelegate - Found \(providers.count) providers")
+    print("ImageDropDelegate: Found \(providers.count) providers")
 
     for provider in providers {
-      print("🔵 ImageDropDelegate - Processing provider: \(provider)")
+      print("ImageDropDelegate: Processing provider: \(provider)")
 
       // 检查是否是文件 URL
       if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-        print("🔵 ImageDropDelegate - Provider has file URL")
+        print("ImageDropDelegate: Provider contains file URL")
 
         provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
           if let error = error {
-            print("🔴 ImageDropDelegate - Error loading item: \(error)")
+            print("ImageDropDelegate: Error loading item - \(error)")
             return
           }
 
           guard let urlData = item as? Data,
             let url = URL(dataRepresentation: urlData, relativeTo: nil)
           else {
-            print("🔴 ImageDropDelegate - Failed to get URL from item")
+            print("ImageDropDelegate: Failed to extract URL from item")
             return
           }
 
           // 检查文件扩展名
           let fileExtension = url.pathExtension.lowercased()
-          print("🔵 ImageDropDelegate - File extension: \(fileExtension)")
+          print("ImageDropDelegate: File extension detected - \(fileExtension)")
 
           // 验证是否是支持的图片类型
           if ImageSupport.isSupported(extension: fileExtension) {
-            print("🟢 ImageDropDelegate - Successfully got image URL: \(url.path)")
+            print("ImageDropDelegate: Successfully obtained image URL - \(url.path)")
 
             // 执行 OCR
             processImageWithOCR(at: url.path)
 
             DispatchQueue.main.async {
-              print("🟢 ImageDropDelegate - Calling onDrop with URL")
+              print("ImageDropDelegate: Initiating onDrop callback with URL")
               onDrop([url])
             }
           } else {
-            print("🔴 ImageDropDelegate - Unsupported file type: \(fileExtension)")
+            print("ImageDropDelegate: Unsupported file type - \(fileExtension)")
           }
         }
         return true
       } else {
-        print("🔴 ImageDropDelegate - Provider does not have file URL")
+        print("ImageDropDelegate: Provider lacks file URL")
       }
     }
 
-    print("🔴 ImageDropDelegate - No valid providers found")
+    print("ImageDropDelegate: No valid providers available")
     return false
   }
 
   func validateDrop(info: DropInfo) -> Bool {
     let isValid = info.hasItemsConforming(to: [.fileURL])
-    print("🔵 ImageDropDelegate - validateDrop: \(isValid)")
+    print("ImageDropDelegate: Validation result - \(isValid)")
     return isValid
   }
 
   func dropEntered(info: DropInfo) {
-    print("🔵 ImageDropDelegate - dropEntered")
+    print("ImageDropDelegate: Drop entered")
     onEntered()
   }
 
   func dropExited(info: DropInfo) {
-    print("🔵 ImageDropDelegate - dropExited")
+    print("ImageDropDelegate: Drop exited")
     onExited()
   }
 }

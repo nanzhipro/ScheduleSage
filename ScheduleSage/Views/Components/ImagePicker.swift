@@ -59,7 +59,7 @@ struct ImagePicker {
     // 首先通知选择完成
     onImageSelected(url)
 
-    print("开始处理选中的图片: \(url.path)")
+    print("Processing selected image: \(url.path)")
 
     Task {
       do {
@@ -70,11 +70,11 @@ struct ImagePicker {
           }
         )
 
-        print("✅ OCR 识别成功:")
+        print("OCR: Recognition completed successfully")
         processor.printDetailedResults(results)
 
       } catch {
-        print("❌ OCR 识别失败: \(error.localizedDescription)")
+        print("OCR: Recognition failed - \(error.localizedDescription)")
         onError?(error)
       }
     }
