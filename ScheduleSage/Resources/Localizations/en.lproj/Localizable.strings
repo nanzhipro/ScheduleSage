@@ -52,3 +52,4 @@
 "calendar.error.access_denied" = "Calendar access denied. Please enable calendar access in System Settings.";
 "calendar.error.unknown_status" = "Unknown permission status.";
 "calendar.error.create_failed" = "Failed to create or access calendar.";
+"calendar.error.color_generation_failed" = "Failed to generate calendar color";

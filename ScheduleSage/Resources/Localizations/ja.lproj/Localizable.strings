@@ -48,3 +48,4 @@
 "calendar.error.access_denied" = "カレンダーへのアクセスが拒否されました。システム設定でカレンダーへのアクセスを有効にしてください。";
 "calendar.error.unknown_status" = "不明な権限状態です。";
 "calendar.error.create_failed" = "カレンダーの作成またはアクセスに失敗しました。";
+"calendar.error.color_generation_failed" = "カレンダーの色の生成に失敗しました";
