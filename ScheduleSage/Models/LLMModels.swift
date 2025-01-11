@@ -116,7 +116,7 @@ public struct LLMRequest: Codable, Sendable {
 
 /// LLM 响应结构
 public struct LLMResponse: Codable, Sendable {
-  public let content: String
+  public let content: String // JSON Model
   public let requestId: String
 
   public init(content: String, requestId: String) {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D55454912D3225130086A832 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = D55454902D3225130086A832 /* SwiftDate */; };
 		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
 		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
@@ -62,6 +63,7 @@
 			files = (
 				D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */,
 				D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */,
+				D55454912D3225130086A832 /* SwiftDate in Frameworks */,
 				D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */,
 				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
 				D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */,
@@ -138,6 +140,7 @@
 				D57A1BC12D275D10000BAC44 /* Alamofire */,
 				D5F11BF32D28C592007A225F /* SwiftWebCrawler */,
 				D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */,
+				D55454902D3225130086A832 /* SwiftDate */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -229,6 +232,7 @@
 				D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */,
 				D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
+				D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -598,6 +602,14 @@
 				minimumVersion = 5.10.2;
 			};
 		};
+		D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/malcommac/SwiftDate";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
 		D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
@@ -633,6 +645,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		D55454902D3225130086A832 /* SwiftDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */;
+			productName = SwiftDate;
+		};
 		D56686AA2CFC05D800EE1486 /* SwiftSoup */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */;

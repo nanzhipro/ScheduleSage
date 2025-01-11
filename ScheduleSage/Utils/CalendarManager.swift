@@ -7,6 +7,8 @@
 
 import EventKit
 import Foundation
+import AppKit
+import SwiftDate
 
 /// 日历管理器
 public final class CalendarManager {
@@ -96,17 +98,18 @@ private extension CalendarManager {
   
   /// 创建事件的内部实现
   func createEventInternal(from model: CalendarEvent) async throws {
-    guard let calendar = try await getOrCreateCalendar(named: model.calendarName) else {
+    guard let calendar = try await getOrCreateCalendar(named: model.calendar) else {
       throw CalendarError.createFailed
     }
     
     let event = EKEvent(eventStore: eventStore)
     event.calendar = calendar
     event.title = model.title
-    event.startDate = model.startDate
-    event.endDate = model.endDate
+    event.startDate = model.startDate.toDate()?.date ?? Date()
+    event.endDate = model.endDate.toDate()?.date ?? Date()
     event.location = model.location
-    event.url = model.detailURL
+    event.url = URL.init(string: model.url)
+    event.notes = model.notes
     
     try eventStore.save(event, span: .thisEvent)
   }

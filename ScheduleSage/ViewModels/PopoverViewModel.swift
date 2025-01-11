@@ -33,6 +33,7 @@ class PopoverViewModel: ObservableObject {
     private let llmService = LLMService.shared
     private let minimumLoadingDuration: TimeInterval = 1.2
     private var loadingStartTime: Date?
+    private let calendarManager = CalendarManager()
     
     // MARK: - Initialization
     init(proStatus: ProStatus = .free(remainingUses: 12)) {
@@ -130,14 +131,29 @@ extension PopoverViewModel {
             let contentText = try result.get()
             self.logger.debug("Successfully crawled content length: \(contentText.count) characters")
             
-            // Process with LLM
-            let basePrompt = await self.promptViewModel.getPromptContent()
-            let prompt = String(format: basePrompt, contentText)
-            self.logger.info("Sending content to LLM for processing，prompt: \(prompt)")
+            // 获取日历名称列表
+            let calendarNames = await getCalendarNames()
+            
+            // 构建完整的提示词
+            let prompt = try await buildPromptWithContent(contentText, calendarNames: calendarNames)
+            
+            self.logger.info("Sending content to LLM for processing, prompt: \(prompt)")
             
             let response = try await self.llmService.chat(content: prompt)
             self.logger.debug("Received LLM response content: \(response.content)")
             
+            // 将 LLM 响应内容转换为 CalendarEvent 模型
+            if let event = CalendarEvent.from(llmResponse: response.content, logger: self.logger) {
+                self.logger.info("Successfully parsed LLM response to CalendarEvent")
+                
+                // 将事件添加到日历
+                try await self.calendarManager.createEvent(from: event)
+                self.logger.info("Successfully created calendar event")
+            } else {
+                self.logger.error("Failed to parse LLM response to CalendarEvent")
+                throw PromptError.invalidResponse
+            }
+
             await MainActor.run {
                 self.llmResponse = response.content
                 self.isLLMProcessing = false
@@ -302,5 +318,49 @@ private extension URL {
     var isValidImageFile: Bool {
         FileManager.default.fileExists(atPath: path) && 
         ImageSupport.isSupported(extension: pathExtension)
+    }
+}
+
+// MARK: - Private Helper Methods
+private extension PopoverViewModel {
+    func getCalendarNames() async -> [String] {
+        do {
+            // 请求日历访问权限
+            guard try await calendarManager.requestAccess() else {
+                logger.error("Calendar access denied")
+                return []
+            }
+            
+            // 获取所有日历名称
+            let calendarNames = calendarManager.getAllCalendarNames()
+            logger.debug("Retrieved calendar names: \(calendarNames)")
+            return calendarNames
+            
+        } catch {
+            logger.error("Failed to get calendar names: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    private func buildPromptWithContent(_ content: String, calendarNames: [String]) async throws -> String {
+        // 获取基础提示词
+        let basePrompt = await promptViewModel.getPromptContent()
+        
+        // 构建日历名称列表字符串
+        let calendarList = calendarNames.isEmpty ? "Default Calendar" : calendarNames.joined(separator: ", ")
+        
+        // 替换占位符
+        let promptWithCalendars = basePrompt.replacingOccurrences(
+            of: "CALENDAR_NAMES_LIST",
+            with: calendarList
+        )
+        
+        // 替换内容占位符
+        let finalPrompt = promptWithCalendars.replacingOccurrences(
+            of: "PLACEHOLDER_TEXT",
+            with: content
+        )
+        
+        return finalPrompt
     }
 }

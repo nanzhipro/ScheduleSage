@@ -76,18 +76,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     popover.performClose(nil)
   }
 
+  // TODO: 增加一个启动引导页面
   private func requestCalendarAccess() {
-    calendarManager.requestAccess { [weak self] granted, error in
-      if let error = error {
-        print("Calendar access error: \(error.localizedDescription)")
-        return
-      }
-      
-      if granted {
-        print("Calendar access granted")
-      } else {
-        print("Calendar access denied")
-      }
+    // 创建异步任务
+    Task { @MainActor in
+        do {
+            let granted = try await calendarManager.requestAccess()
+            
+            if granted {
+                self.logger.logInfo("Calendar access granted")
+                // Update UI state if needed
+            } else {
+                self.logger.logWarn("Calendar access denied")
+                // Show alert or update UI state
+            }
+        } catch {
+            self.logger.logError("Calendar access error: \(error.localizedDescription)")
+        }
     }
   }
 
