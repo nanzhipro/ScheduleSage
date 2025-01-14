@@ -291,7 +291,7 @@ enum ScheduleDesignSystem {
 
   // MARK: - Shadows
   enum Shadows {
-    static var containerShadow: Shadow {
+    static func containerShadow(colorScheme: ColorScheme) -> Shadow {
       switch currentTheme {
       case .apple:
         return Shadow(
@@ -310,7 +310,7 @@ enum ScheduleDesignSystem {
       }
     }
 
-    static var cardShadow: Shadow {
+    static func cardShadow(colorScheme: ColorScheme) -> Shadow {
       switch currentTheme {
       case .apple:
         return Shadow(
@@ -327,11 +327,6 @@ enum ScheduleDesignSystem {
           y: 1
         )
       }
-    }
-
-    private static var colorScheme: ColorScheme {
-      @Environment(\.colorScheme) var colorScheme
-      return colorScheme
     }
   }
 
@@ -424,12 +419,7 @@ extension View {
     self
       .background(ScheduleDesignSystem.Colors.background)
       .cornerRadius(ScheduleDesignSystem.Dimensions.cardCornerRadius)
-      .shadow(
-        color: ScheduleDesignSystem.Shadows.cardShadow.color,
-        radius: ScheduleDesignSystem.Shadows.cardShadow.radius,
-        x: ScheduleDesignSystem.Shadows.cardShadow.x,
-        y: ScheduleDesignSystem.Shadows.cardShadow.y
-      )
+      .modifier(CardShadowModifier())
   }
 
   func scheduleFormFieldStyle() -> some View {
@@ -442,6 +432,20 @@ extension View {
         RoundedRectangle(cornerRadius: ScheduleDesignSystem.Dimensions.cardCornerRadius)
           .stroke(ScheduleDesignSystem.Colors.borderGray, lineWidth: 1)
       )
+  }
+}
+
+// MARK: - Shadow Modifier
+private struct CardShadowModifier: ViewModifier {
+  @Environment(\.colorScheme) var colorScheme
+  
+  func body(content: Content) -> some View {
+    content.shadow(
+      color: ScheduleDesignSystem.Shadows.cardShadow(colorScheme: colorScheme).color,
+      radius: ScheduleDesignSystem.Shadows.cardShadow(colorScheme: colorScheme).radius,
+      x: ScheduleDesignSystem.Shadows.cardShadow(colorScheme: colorScheme).x,
+      y: ScheduleDesignSystem.Shadows.cardShadow(colorScheme: colorScheme).y
+    )
   }
 }
 

@@ -16,15 +16,9 @@ struct PopoverView: View {
   
   var body: some View {
     VStack(spacing: 0) {
-      contentView
+      AddScheduleView(viewModel: viewModel)
         .withLoading()
-    }
-  }
-  
-  private var contentView: some View {
-    ZStack {
-      Group {
-        if viewModel.showEventList {
+        .sheet(isPresented: $viewModel.showEventList) {
           EventListView(
             proStatus: viewModel.proStatus,
             events: viewModel.parsedEvents,
@@ -33,13 +27,13 @@ struct PopoverView: View {
             onImport: viewModel.importToCalendar,
             onBack: { viewModel.showEventList = false }
           )
-        } else {
-          AddScheduleView(viewModel: viewModel)
         }
-      }
-      .transition(horizontalTransition(showingList: viewModel.showEventList))
     }
-    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.showEventList)
+    .toast(
+      isPresented: $viewModel.showToast,
+      type: viewModel.toastType,
+      message: viewModel.toastMessage
+    )
     .toast(
       isPresented: .init(
         get: { viewModel.importStatus != .none },
@@ -71,13 +65,6 @@ struct PopoverView: View {
     case .importing, .none:
       return ""
     }
-  }
-  
-  private func horizontalTransition(showingList: Bool) -> AnyTransition {
-    .asymmetric(
-      insertion: .move(edge: showingList ? .trailing : .leading).combined(with: .opacity),
-      removal: .move(edge: showingList ? .leading : .trailing).combined(with: .opacity)
-    )
   }
 }
 

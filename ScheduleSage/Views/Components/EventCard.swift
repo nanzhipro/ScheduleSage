@@ -58,12 +58,7 @@ struct EventCard: View {
     .frame(height: EventCardConstants.cardHeight)
     .background(ScheduleDesignSystem.Colors.background)
     .cornerRadius(12)
-    .shadow(
-      color: ScheduleDesignSystem.Shadows.cardShadow.color,
-      radius: ScheduleDesignSystem.Shadows.cardShadow.radius,
-      x: ScheduleDesignSystem.Shadows.cardShadow.x,
-      y: ScheduleDesignSystem.Shadows.cardShadow.y
-    )
+    .scheduleCardStyle()
   }
 }
 

@@ -123,6 +123,7 @@ public struct ToastContainer<Content: View>: View {
             
             if isPresented {
                 VStack {
+                    Spacer()
                     ToastView(configuration: configuration)
                         .transition(.move(edge: .top).combined(with: .opacity))
                         .onAppear {
@@ -134,7 +135,6 @@ public struct ToastContainer<Content: View>: View {
                         }
                     Spacer()
                 }
-                .padding(.top, 20)
             }
         }
         .animation(.spring(response: 0.3), value: isPresented)

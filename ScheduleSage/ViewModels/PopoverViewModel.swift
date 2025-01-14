@@ -16,6 +16,9 @@ class PopoverViewModel: ObservableObject {
     @Published var isLLMProcessing = false
     @Published var parsedEvents: [CalendarEvent] = []
     @Published var importStatus: ImportStatus = .none
+    @Published var showToast = false
+    @Published var toastMessage = ""
+    @Published var toastType: ToastType = .success
     
     // MARK: - Import Status
     enum ImportStatus: Equatable {
@@ -96,7 +99,7 @@ extension PopoverViewModel {
 extension PopoverViewModel {
     func checkClipboardContent() {
         guard let content = clipboardManager.checkClipboard() else {
-            logger.notice("Clipboard is empty or contains invalid content")
+            showInvalidURLToast()
             return
         }
         
@@ -110,9 +113,20 @@ extension PopoverViewModel {
         }
     }
     
+    private func showInvalidURLToast() {
+        showToast = false
+        toastType = .error
+        toastMessage = NSLocalizedString("invalid_clipboard_url", comment: "")
+        
+        DispatchQueue.main.async {
+            self.showToast = true
+        }
+    }
+    
     private func handleURLContent(_ url: URL) {
         guard url.isValidWebURL else {
             self.logger.error("Invalid URL format: \(url.absoluteString)")
+            showInvalidURLToast()
             return
         }
         
@@ -129,9 +143,11 @@ extension PopoverViewModel {
                 } else {
                     self.logger.notice("Unsupported content type at URL: \(url.absoluteString)")
                     await self.updateState(loading: false, canImport: false)
+                    showInvalidURLToast()
                 }
             } catch {
                 await self.handleError(error)
+                showInvalidURLToast()
             }
         }
     }
@@ -318,7 +334,7 @@ extension PopoverViewModel {
         canImport = false
         parsedEvents.removeAll()
         importStatus = .none
-        checkClipboardContent()
+        // checkClipboardContent()
     }
 }
 

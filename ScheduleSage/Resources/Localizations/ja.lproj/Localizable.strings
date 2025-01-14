@@ -54,3 +54,6 @@
 "import_started" = "予定のインポートを開始しています...";
 "import_success" = "予定のインポートが完了しました";
 "import_in_progress" = "予定をインポート中...";
+
+// Invalid Clipboard URL
+"invalid_clipboard_url" = "ウェブページのURLをコピーしてから、もう一度インポートしてください";
