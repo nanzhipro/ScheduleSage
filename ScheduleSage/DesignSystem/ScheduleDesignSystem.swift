@@ -75,6 +75,15 @@ enum ScheduleDesignSystem {
 
     static var success: Color { primary }
 
+    static var error: Color {
+      switch currentTheme {
+      case .apple:
+        return Color(light: "FF3B30", dark: "FF453A")  // Apple 系统红色
+      case .wechat:
+        return Color(light: "FA5151", dark: "FA5151")  // WeChat 系统红色
+      }
+    }
+
     // Text Colors
     static var primaryText: Color {
       switch currentTheme {

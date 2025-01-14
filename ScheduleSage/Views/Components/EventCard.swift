@@ -18,7 +18,6 @@ struct EventCard: View {
   let title: String
   let time: String
   let location: String?
-  let isRecurring: Bool
   let calendar: String?
   let isSelected: Bool
   let onSelect: () -> Void
@@ -42,10 +41,6 @@ struct EventCard: View {
       HStack(spacing: EventCardConstants.iconSpacing) {
         if let location = location {
           EventIconLabel(icon: "location.fill", text: location)
-        }
-
-        if isRecurring {
-          EventIconLabel(icon: "arrow.2.circlepath", text: NSLocalizedString("recurring", comment: ""))
         }
 
         if let calendar = calendar {
@@ -130,7 +125,6 @@ struct EventCard_Previews: PreviewProvider {
         title: "南知读书会第一期",
         time: "3月25日 周一 14:00-16:00",
         location: "知识星球",
-        isRecurring: true,
         calendar: "工作",
         isSelected: true,
         onSelect: {}
@@ -143,7 +137,6 @@ struct EventCard_Previews: PreviewProvider {
         title: "南知读书会第一期",
         time: "3月25日 周一 14:00-16:00",
         location: "知识星球",
-        isRecurring: true,
         calendar: "工作",
         isSelected: true,
         onSelect: {}

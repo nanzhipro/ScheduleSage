@@ -16,8 +16,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     setupStatusItem()
     setupPopover()
     setupEventMonitor()
-    
-    popoverViewModel.resetState()
 
     // 请求日历权限
     requestCalendarAccess()
@@ -62,7 +60,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       if popover.isShown {
         dismissPopover()
       } else {
-        popoverViewModel.resetState()
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
 
         if let window = NSApp.windows.first(where: { $0.isKeyWindow }) {

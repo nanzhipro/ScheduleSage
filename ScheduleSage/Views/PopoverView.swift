@@ -8,7 +8,9 @@
 import AppKit
 import SwiftUI
 
-// 日程添加页面
+/**
+ 日程添加页面
+ */
 struct PopoverView: View {
   @EnvironmentObject private var viewModel: PopoverViewModel
   
@@ -25,10 +27,10 @@ struct PopoverView: View {
         if viewModel.showEventList {
           EventListView(
             proStatus: viewModel.proStatus,
-            events: PreviewData.events,
+            events: viewModel.parsedEvents,
             onUpgrade: viewModel.showUpgradeSheetAction,
             onAdd: viewModel.resetState,
-            onImport: { print("Import tapped") },
+            onImport: viewModel.importToCalendar,
             onBack: { viewModel.showEventList = false }
           )
         } else {
@@ -38,7 +40,37 @@ struct PopoverView: View {
       .transition(horizontalTransition(showingList: viewModel.showEventList))
     }
     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.showEventList)
+    .toast(
+      isPresented: .init(
+        get: { viewModel.importStatus != .none },
+        set: { if !$0 { viewModel.importStatus = .none } }
+      ),
+      type: toastType,
+      message: toastMessage
+    )
     .onAppear(perform: viewModel.resetState)
+  }
+  
+  private var toastType: ToastType {
+    switch viewModel.importStatus {
+    case .success:
+      return .success
+    case .failure:
+      return .error
+    case .importing, .none:
+      return .success
+    }
+  }
+  
+  private var toastMessage: String {
+    switch viewModel.importStatus {
+    case .success:
+      return NSLocalizedString("import_success", comment: "")
+    case .failure(let error):
+      return error.localizedDescription
+    case .importing, .none:
+      return ""
+    }
   }
   
   private func horizontalTransition(showingList: Bool) -> AnyTransition {

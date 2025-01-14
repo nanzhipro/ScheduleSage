@@ -49,3 +49,8 @@
 "calendar.error.unknown_status" = "不明な権限状態です。";
 "calendar.error.create_failed" = "カレンダーの作成またはアクセスに失敗しました。";
 "calendar.error.color_generation_failed" = "カレンダーの色の生成に失敗しました";
+
+// Import Status
+"import_started" = "予定のインポートを開始しています...";
+"import_success" = "予定のインポートが完了しました";
+"import_in_progress" = "予定をインポート中...";

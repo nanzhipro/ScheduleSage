@@ -53,3 +53,8 @@
 "calendar.error.unknown_status" = "Unknown permission status.";
 "calendar.error.create_failed" = "Failed to create or access calendar.";
 "calendar.error.color_generation_failed" = "Failed to generate calendar color";
+
+// Import Status
+"import_started" = "Starting to import events...";
+"import_success" = "Events imported successfully";
+"import_in_progress" = "Importing events...";

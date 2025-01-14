@@ -53,3 +53,8 @@
 "calendar.error.unknown_status" = "未知的权限状态。";
 "calendar.error.create_failed" = "无法获取或创建日历。";
 "calendar.error.color_generation_failed" = "生成日历颜色失败";
+
+// Import Status
+"import_started" = "开始导入日程...";
+"import_success" = "日程导入成功";
+"import_in_progress" = "正在导入日程...";

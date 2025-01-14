@@ -14,6 +14,33 @@ class PopoverViewModel: ObservableObject {
     @Published private(set) var proStatus: ProStatus
     @Published var llmResponse: String = ""
     @Published var isLLMProcessing = false
+    @Published var parsedEvents: [CalendarEvent] = []
+    @Published var importStatus: ImportStatus = .none
+    
+    // MARK: - Import Status
+    enum ImportStatus: Equatable {
+        case none
+        case importing
+        case success
+        case failure(Error)
+        
+        static func == (lhs: ImportStatus, rhs: ImportStatus) -> Bool {
+            switch (lhs, rhs) {
+            case (.none, .none):
+                return true
+            case (.importing, .importing):
+                return true
+            case (.success, .success):
+                return true
+            case (.failure, .failure):
+                // 注意：这里我们只比较是否都是失败状态，不比较具体错误
+                // 因为 Error 协议没有遵循 Equatable
+                return true
+            default:
+                return false
+            }
+        }
+    }
     
     // MARK: - Private Properties
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PopoverViewModel")
@@ -146,19 +173,21 @@ extension PopoverViewModel {
             if let event = CalendarEvent.from(llmResponse: response.content, logger: self.logger) {
                 self.logger.info("Successfully parsed LLM response to CalendarEvent")
                 
-                // 将事件添加到日历
-                try await self.calendarManager.createEvent(from: event)
-                self.logger.info("Successfully created calendar event")
+                await MainActor.run {
+                    // 清空现有事件列表
+                    self.parsedEvents.removeAll()
+                    // 添加新解析的事件
+                    self.parsedEvents.append(event)
+                    self.llmResponse = response.content
+                    self.isLLMProcessing = false
+                    LoadingManager.shared.hide()
+                    self.canImport = true
+                    // 显示事件列表
+                    self.showEventList = true
+                }
             } else {
                 self.logger.error("Failed to parse LLM response to CalendarEvent")
                 throw PromptError.invalidResponse
-            }
-
-            await MainActor.run {
-                self.llmResponse = response.content
-                self.isLLMProcessing = false
-                LoadingManager.shared.hide()
-                self.canImport = true
             }
             
             self.logger.info("Web content processing completed successfully")
@@ -287,6 +316,8 @@ extension PopoverViewModel {
         dragAnimation = .none
         isOCRProcessing = false
         canImport = false
+        parsedEvents.removeAll()
+        importStatus = .none
         checkClipboardContent()
     }
 }
@@ -362,5 +393,60 @@ private extension PopoverViewModel {
         )
         
         return finalPrompt
+    }
+}
+
+// MARK: - Calendar Import
+extension PopoverViewModel {
+    func importToCalendar() {
+        Task {
+            await MainActor.run {
+                importStatus = .importing
+                LoadingManager.shared.show(.processing)
+            }
+            
+            do {
+                // 请求日历访问权限
+                guard try await calendarManager.requestAccess() else {
+                    throw CalendarError.accessDenied
+                }
+                
+                // 导入所有事件
+                for event in parsedEvents {
+                    try await calendarManager.createEvent(from: event)
+                }
+                
+                await MainActor.run {
+                    importStatus = .success
+                    LoadingManager.shared.hide()
+                    // 延迟重置状态，让用户看到成功提示
+                    Task {
+                        try? await Task.sleep(nanoseconds: 2_000_000_000)  // 2秒后
+                        await MainActor.run {
+                            resetState()
+                        }
+                    }
+                }
+                
+            } catch {
+                logger.error("Failed to import events: \(error.localizedDescription)")
+                await MainActor.run {
+                    importStatus = .failure(error)
+                    LoadingManager.shared.hide()
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Calendar Error
+enum CalendarError: LocalizedError {
+    case accessDenied
+    
+    var errorDescription: String? {
+        switch self {
+        case .accessDenied:
+            return NSLocalizedString("calendar_access_denied", comment: "")
+        }
     }
 }

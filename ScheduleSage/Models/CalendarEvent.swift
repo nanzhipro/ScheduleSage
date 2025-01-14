@@ -23,9 +23,10 @@ import OSLog
 ///   "remarks": "如有不确定的信息，请在此注明"
 /// }
 /// ```
-public struct CalendarEvent: Codable {
+public struct CalendarEvent: Codable, Identifiable {
     // MARK: - Properties
     
+    public var id: String { eventIdentifier }  // 实现 Identifiable 协议
     let title: String
     let location: String
     let notes: String
@@ -36,6 +37,22 @@ public struct CalendarEvent: Codable {
     let status: String
     let eventIdentifier: String
     let remarks: String
+    
+    // MARK: - Computed Properties
+    
+    /// 格式化后的时间显示
+    public var time: String {
+        guard let start = parsedStartDate,
+              let end = parsedEndDate else {
+            return ""
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        
+        return "\(formatter.string(from: start)) - \(formatter.string(from: end))"
+    }
     
     // MARK: - Coding Keys
     

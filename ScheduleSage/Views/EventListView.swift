@@ -1,21 +1,33 @@
+//
+//  EventListView.swift
+//  ScheduleSage
+//
+//  Created by CursorAI on 2024-03-20.
+//
+
 import SwiftUI
 
-// 日程列表页
+/**
+ 日程列表页
+ */
 struct EventListView: View {
   // MARK: - Properties
   let proStatus: ProStatus
-  let events: [Event]
+  let events: [CalendarEvent]
   let onUpgrade: () -> Void
   let onAdd: () -> Void
   let onImport: () -> Void
   let onBack: () -> Void
 
   @State private var selectedEventIds: Set<String> = []
+  @State private var showToast = false
+  @State private var toastType: ToastType = .success
+  @State private var toastMessage: String = ""
 
   // MARK: - Initialization
   init(
     proStatus: ProStatus,
-    events: [Event],
+    events: [CalendarEvent],
     onUpgrade: @escaping () -> Void,
     onAdd: @escaping () -> Void,
     onImport: @escaping () -> Void,
@@ -55,6 +67,12 @@ struct EventListView: View {
       height: ScheduleDesignSystem.Dimensions.containerHeight
     )
     .background(ScheduleDesignSystem.Colors.background)
+    .toast(
+      isPresented: $showToast,
+      type: toastType,
+      message: toastMessage,
+      duration: 2.0
+    )
   }
 
   // MARK: - Private Views
@@ -97,11 +115,10 @@ struct EventListView: View {
             title: event.title,
             time: event.time,
             location: event.location,
-            isRecurring: event.isRecurring,
             calendar: event.calendar,
-            isSelected: selectedEventIds.contains(event.id)
+            isSelected: selectedEventIds.contains(event.eventIdentifier)
           ) {
-            toggleEventSelection(event.id)
+            toggleEventSelection(event.eventIdentifier)
           }
         }
       }
@@ -119,7 +136,10 @@ struct EventListView: View {
   }
 
   private var importButton: some View {
-    Button(action: onImport) {
+    Button(action: {
+      showImportToast()
+      onImport()
+    }) {
       Text(NSLocalizedString("import_calendar", comment: ""))
         .font(ScheduleDesignSystem.Typography.buttonLabel)
         .foregroundColor(ScheduleDesignSystem.Colors.background)
@@ -134,11 +154,44 @@ struct EventListView: View {
   }
 
   // MARK: - Private Methods
-  private func toggleEventSelection(_ id: String) {
-    if selectedEventIds.contains(id) {
-      selectedEventIds.remove(id)
+  private func toggleEventSelection(_ eventIdentifier: String) {
+    if selectedEventIds.contains(eventIdentifier) {
+      selectedEventIds.remove(eventIdentifier)
     } else {
-      selectedEventIds.insert(id)
+      selectedEventIds.insert(eventIdentifier)
+    }
+  }
+
+  private func showImportToast() {
+    // 先隐藏之前的 Toast（如果有）
+    showToast = false
+    
+    // 延迟一帧后显示新的 Toast，确保动画正确
+    DispatchQueue.main.async {
+      toastType = .success
+      toastMessage = NSLocalizedString("import_started", comment: "")
+      showToast = true
+    }
+  }
+
+  private func updateToastForImportStatus(_ status: PopoverViewModel.ImportStatus) {
+    showToast = false
+    
+    DispatchQueue.main.async {
+      switch status {
+      case .success:
+        toastType = .success
+        toastMessage = NSLocalizedString("import_success", comment: "")
+      case .failure(let error):
+        toastType = .error
+        toastMessage = error.localizedDescription
+      case .importing:
+        toastType = .success
+        toastMessage = NSLocalizedString("import_in_progress", comment: "")
+      case .none:
+        return
+      }
+      showToast = true
     }
   }
 }
@@ -149,7 +202,7 @@ struct EventListView_Previews: PreviewProvider {
   static var previews: some View {
     EventListView(
       proStatus: .free(remainingUses: 12),
-      events: PreviewData.events,
+      events: [],
       onUpgrade: {},
       onAdd: {},
       onImport: {},
