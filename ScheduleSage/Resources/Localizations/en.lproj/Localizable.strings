@@ -60,3 +60,8 @@
 "import_in_progress" = "Importing events...";
 
 "invalid_clipboard_url" = "Please copy a valid webpage URL first, then try importing again.";
+
+// Manual Input
+"manual_input.placeholder" = "Please describe and enter your schedule details.";
+"manual_input.recognize" = "Recognize";
+"manual_input.window_title" = "Create Schedule Manually";

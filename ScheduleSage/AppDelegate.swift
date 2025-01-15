@@ -31,7 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
   }
 
-  private func setupPopover() {
+    @MainActor private func setupPopover() {
     popoverViewModel = PopoverViewModel()
     popover = NSPopover()
     popover.contentSize = NSSize(
