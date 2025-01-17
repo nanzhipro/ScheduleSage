@@ -57,3 +57,8 @@
 
 // Invalid Clipboard URL
 "invalid_clipboard_url" = "ウェブページのURLをコピーしてから、もう一度インポートしてください";
+
+// Manual Schedule Input
+"manual_input_title" = "手動入力";
+"recognize_button" = "認識";
+"schedule_input_placeholder" = "スケジュールの詳細を記入してください";

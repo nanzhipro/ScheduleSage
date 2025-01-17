@@ -1,10 +1,11 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
-  private var statusItem: NSStatusItem!
-  private var popover: NSPopover!
-  private var popoverViewModel: PopoverViewModel!
+  private var statusItem: NSStatusItem?
+  private var popover: NSPopover?
+  private var viewModel: PopoverViewModel?
   private var eventMonitor: Any?
   private let logger = LoggerService()
   private let calendarManager = CalendarManager()
@@ -13,36 +14,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     ScheduleDesignSystem.switchTheme(to: .wechat)
     logger.logInfo("AppDelegate did finish launching")
 
-    setupStatusItem()
-    setupPopover()
-    setupEventMonitor()
+    Task {
+      self.viewModel = PopoverViewModel()
+      
+      setupStatusItem()
+      setupPopover()
+      setupEventMonitor()
 
-    // 请求日历权限
-    requestCalendarAccess()
+      // 请求日历权限
+      requestCalendarAccess()
+    }
   }
 
   private func setupStatusItem() {
     statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
-    if let statusButton = statusItem.button {
-      statusButton.image = NSImage(systemSymbolName: "calendar.badge.plus", accessibilityDescription: "ScheduleSage")
-      statusButton.action = #selector(togglePopover)
-      statusButton.target = self
+    if let button = statusItem?.button {
+      button.image = NSImage(systemSymbolName: "calendar.badge.plus", accessibilityDescription: "ScheduleSage")
+      button.action = #selector(togglePopover)
+      button.target = self
     }
   }
 
   private func setupPopover() {
-    popoverViewModel = PopoverViewModel()
-    popover = NSPopover()
-    popover.contentSize = NSSize(
-      width: ScheduleDesignSystem.Dimensions.containerWidth,
-      height: ScheduleDesignSystem.Dimensions.containerHeight
-    )
-    popover.behavior = .applicationDefined
-    popover.contentViewController = NSHostingController(
-      rootView: PopoverView()
-        .environmentObject(popoverViewModel)
-    )
+    guard let viewModel = viewModel else { return }
+    
+    let contentView = PopoverView()
+        .environmentObject(viewModel)
+    
+    let popover = NSPopover()
+    popover.contentSize = NSSize(width: 400, height: 600)
+    popover.behavior = .transient
+    popover.contentViewController = NSHostingController(rootView: contentView)
+    self.popover = popover
   }
 
   private func setupEventMonitor() {
@@ -56,11 +60,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   @objc func togglePopover() {
-    if let button = statusItem.button {
-      if popover.isShown {
+    if let button = statusItem?.button {
+      if popover?.isShown ?? false {
         dismissPopover()
       } else {
-        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
 
         if let window = NSApp.windows.first(where: { $0.isKeyWindow }) {
           window.level = .normal
@@ -70,7 +74,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   private func dismissPopover() {
-    popover.performClose(nil)
+    popover?.performClose(nil)
   }
 
   // TODO: 增加一个启动引导页面

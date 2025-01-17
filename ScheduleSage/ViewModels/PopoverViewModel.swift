@@ -3,6 +3,7 @@ import SwiftWebCrawler
 import OSLog
 
 // MARK: - PopoverViewModel
+@MainActor
 class PopoverViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var showEventList = false
@@ -10,6 +11,7 @@ class PopoverViewModel: ObservableObject {
     @Published var dragAnimation: DragAnimation = .none
     @Published var isOCRProcessing = false
     @Published var showUpgradeSheet = false
+    @Published var showManualInputSheet = false
     @Published private(set) var canImport = false
     @Published private(set) var proStatus: ProStatus
     @Published var llmResponse: String = ""
@@ -49,7 +51,7 @@ class PopoverViewModel: ObservableObject {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PopoverViewModel")
     private let processor = OCRProcessor()
     private let clipboardManager = ClipboardManager()
-    private var promptViewModel: PromptViewModel!
+    private var promptViewModel: PromptViewModel
     private let webCrawler: WebCrawler = {
         let config = CrawlerConfiguration(
             obeyRobotsTxt: false,
@@ -64,16 +66,30 @@ class PopoverViewModel: ObservableObject {
     private let minimumLoadingDuration: TimeInterval = 1.2
     private var loadingStartTime: Date?
     private let calendarManager = CalendarManager()
+    let llmProcessor: LLMEventProcessor
     
     // MARK: - Initialization
     init(proStatus: ProStatus = .free(remainingUses: 12)) {
         self.proStatus = proStatus
-        Task { @MainActor in
-            logger.info("Initializing PromptViewModel...")
-            self.promptViewModel = PromptViewModel()
+        self.promptViewModel = PromptViewModel()
+        self.llmProcessor = DefaultLLMEventProcessor(promptViewModel: self.promptViewModel)
+        
+        Task {
+            logger.info("Loading initial prompt...")
             await promptViewModel.loadInitialPrompt()
             await promptViewModel.refreshPrompt()
-            logger.info("PromptViewModel initialization completed")
+            logger.info("Initialization completed")
+        }
+    }
+    
+    // MARK: - Window State Handling
+    func handlePopoverDisappear() {
+        // 确保所有 sheet 和状态都被重置
+        Task { @MainActor in
+            showManualInputSheet = false
+            showEventList = false
+            showUpgradeSheet = false
+            resetState()
         }
     }
 }
@@ -157,58 +173,30 @@ extension PopoverViewModel {
 extension PopoverViewModel {
     private func handleWebContent(_ url: URL) async {
         do {
-            self.logger.info("Starting web content processing for: \(url.absoluteString)")
             await MainActor.run { 
                 self.isLLMProcessing = true
                 LoadingManager.shared.show(.processing) 
             }
             
-            // Fetch web content
             let results = await self.webCrawler.crawlBatch(urls: [url.absoluteString])
             guard let result = results[url.absoluteString] else {
-                self.logger.error("No crawl results for URL: \(url.absoluteString)")
                 throw PromptError.invalidResponse
             }
             
-            // Process crawl result
             let contentText = try result.get()
-            self.logger.debug("Successfully crawled content length: \(contentText.count) characters")
+            let events = try await llmProcessor.processContent(contentText)
             
-            // 获取日历名称列表
-            let calendarNames = await getCalendarNames()
-            
-            // 构建完整的提示词
-            let prompt = try await buildPromptWithContent(contentText, calendarNames: calendarNames)
-            
-            self.logger.info("Sending content to LLM for processing, prompt: \(prompt)")
-            
-            let response = try await self.llmService.chat(content: prompt)
-            self.logger.debug("Received LLM response content: \(response.content)")
-            
-            // 将 LLM 响应内容转换为 CalendarEvent 模型
-            if let event = CalendarEvent.from(llmResponse: response.content, logger: self.logger) {
-                self.logger.info("Successfully parsed LLM response to CalendarEvent")
-                
-                await MainActor.run {
-                    // 清空现有事件列表
-                    self.parsedEvents.removeAll()
-                    // 添加新解析的事件
-                    self.parsedEvents.append(event)
-                    self.llmResponse = response.content
-                    self.isLLMProcessing = false
-                    LoadingManager.shared.hide()
-                    self.canImport = true
-                    // 显示事件列表
-                    self.showEventList = true
-                }
-            } else {
-                self.logger.error("Failed to parse LLM response to CalendarEvent")
-                throw PromptError.invalidResponse
+            await MainActor.run {
+                self.parsedEvents = events
+                self.isLLMProcessing = false
+                LoadingManager.shared.hide()
+                self.canImport = true
+                self.showEventList = true
             }
             
-            self.logger.info("Web content processing completed successfully")
+            logger.info("Web content processing completed successfully")
         } catch {
-            self.logger.error("Web content processing failed: \(error.localizedDescription)")
+            logger.error("Web content processing failed: \(error.localizedDescription)")
             await self.handleError(error)
         }
     }
@@ -334,6 +322,7 @@ extension PopoverViewModel {
         canImport = false
         parsedEvents.removeAll()
         importStatus = .none
+        showManualInputSheet = false
         // checkClipboardContent()
     }
 }

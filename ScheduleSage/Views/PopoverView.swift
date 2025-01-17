@@ -9,7 +9,7 @@ import AppKit
 import SwiftUI
 
 /**
- 日程添加页面
+ 日程主页面
  */
 struct PopoverView: View {
   @EnvironmentObject private var viewModel: PopoverViewModel
@@ -43,6 +43,9 @@ struct PopoverView: View {
       message: toastMessage
     )
     .onAppear(perform: viewModel.resetState)
+    .onDisappear {
+      viewModel.handlePopoverDisappear()
+    }
   }
   
   private var toastType: ToastType {
@@ -195,8 +198,15 @@ private struct AddMethodSection: View {
       
       AddMethodButton(
         icon: "square.and.pencil",
-        text: NSLocalizedString("manual_input", comment: "")
+        text: NSLocalizedString("manual_input", comment: ""),
+        action: { viewModel.showManualInputSheet = true }
       )
+      .sheet(isPresented: $viewModel.showManualInputSheet) {
+        ManualScheduleInputView(
+          isPresented: $viewModel.showManualInputSheet,
+          llmProcessor: viewModel.llmProcessor
+        )
+      }
       
       AddMethodButton(
         icon: "photo.fill",
