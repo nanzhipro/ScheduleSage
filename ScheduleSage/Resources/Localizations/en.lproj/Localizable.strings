@@ -49,10 +49,12 @@
 "settings_font_size" = "Font Size";
  
 // Calendar Manager
-"calendar.error.access_denied" = "Calendar access denied. Please enable calendar access in System Settings.";
-"calendar.error.unknown_status" = "Unknown permission status.";
-"calendar.error.create_failed" = "Failed to create or access calendar.";
-"calendar.error.color_generation_failed" = "Failed to generate calendar color";
+"calendar.error.access_denied" = "Calendar access denied. Please grant access in System Settings.";
+"calendar.error.write_only_access" = "Write-only access to calendar is not sufficient.";
+"calendar.error.unknown_status" = "Unknown calendar permission status.";
+"calendar.error.color_generation_failed" = "Failed to generate calendar color.";
+"calendar.error.create_failed" = "Failed to create calendar event.";
+"calendar.error.invalid_date_format" = "Invalid date format in event. Please check the date and time.";
 
 // Import Status
 "import_started" = "Starting to import events...";

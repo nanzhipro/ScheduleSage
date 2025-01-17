@@ -1,5 +1,5 @@
 // Status
-"remaining_uses" = "残り %d 回";
+"remaining_uses" = "残り%d回";
 "upgrade_prompt" = "無制限にアップグレード";
 "separator" = "｜";
 
@@ -17,7 +17,7 @@
 "import_calendar" = "カレンダーに追加";
 
 // Event List
-"detected_events" = "%d 件のスケジュールを検出";
+"detected_events" = "%d件のイベントを検出";
 "recurring" = "繰り返し";
 
 // Loading
@@ -35,30 +35,35 @@
 "back_to_add" = "戻る";
 
 // Pro Features
-"feature_unlimited_ocr" = "無制限の認識機能";
-"feature_unlimited_ocr_desc" = "OCR文字認識を無制限に利用可能";
+"feature_unlimited_ocr" = "無制限の認識";
+"feature_unlimited_ocr_desc" = "OCR認識を無制限に使用可能";
 "upgrade_to_pro" = "Proにアップグレード";
-"pro_expiry" = "有効期限：%@";
+"pro_expiry" = "Pro有効期限：%@";
 
 // Settings Menu
 "settings_preferences" = "環境設定";
 "settings_quit" = "終了";
-  
+"settings_tab_general" = "一般";
+"settings_tab_advanced" = "詳細";
+"settings_show_previews" = "プレビューを表示";
+"settings_font_size" = "フォントサイズ";
+
 // Calendar Manager
-"calendar.error.access_denied" = "カレンダーへのアクセスが拒否されました。システム設定でカレンダーへのアクセスを有効にしてください。";
-"calendar.error.unknown_status" = "不明な権限状態です。";
-"calendar.error.create_failed" = "カレンダーの作成またはアクセスに失敗しました。";
-"calendar.error.color_generation_failed" = "カレンダーの色の生成に失敗しました";
+"calendar.error.access_denied" = "カレンダーへのアクセスが拒否されました。システム設定でアクセスを許可してください。";
+"calendar.error.write_only_access" = "書き込み専用のアクセス権では不十分です。完全なアクセス権が必要です。";
+"calendar.error.unknown_status" = "不明なカレンダー権限状態です。";
+"calendar.error.color_generation_failed" = "カレンダーの色の生成に失敗しました。";
+"calendar.error.create_failed" = "カレンダーイベントの作成に失敗しました。";
+"calendar.error.invalid_date_format" = "イベントの日付形式が無効です。日付と時刻を確認してください。";
 
 // Import Status
-"import_started" = "予定のインポートを開始しています...";
-"import_success" = "予定のインポートが完了しました";
-"import_in_progress" = "予定をインポート中...";
+"import_started" = "イベントのインポートを開始...";
+"import_success" = "イベントのインポートが完了しました";
+"import_in_progress" = "イベントをインポート中...";
 
-// Invalid Clipboard URL
-"invalid_clipboard_url" = "ウェブページのURLをコピーしてから、もう一度インポートしてください";
+"invalid_clipboard_url" = "有効なウェブページのURLをコピーしてから、再度インポートしてください。";
 
 // Manual Schedule Input
 "manual_input_title" = "手動入力";
 "recognize_button" = "認識";
-"schedule_input_placeholder" = "スケジュールの詳細を記入してください";
+"schedule_input_placeholder" = "スケジュールの詳細を入力してください";

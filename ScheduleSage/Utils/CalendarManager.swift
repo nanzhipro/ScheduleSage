@@ -102,13 +102,19 @@ private extension CalendarManager {
       throw CalendarError.createFailed
     }
     
+    // 验证日期转换
+    guard let startDate = model.startDate.toDate()?.date,
+          let endDate = model.endDate.toDate()?.date else {
+      throw CalendarError.invalidDateFormat
+    }
+    
     let event = EKEvent(eventStore: eventStore)
     event.calendar = calendar
     event.title = model.title
-    event.startDate = model.startDate.toDate()?.date ?? Date()
-    event.endDate = model.endDate.toDate()?.date ?? Date()
+    event.startDate = startDate
+    event.endDate = endDate
     event.location = model.location
-    event.url = URL.init(string: model.url)
+    event.url = URL(string: model.url)
     event.notes = model.notes
     
     try eventStore.save(event, span: .thisEvent)
@@ -197,6 +203,7 @@ extension CalendarManager {
     case unknownStatus
     case colorGenerationFailed
     case createFailed
+    case invalidDateFormat
     
     var errorDescription: String? {
       switch self {
@@ -215,6 +222,9 @@ extension CalendarManager {
       case .createFailed:
         return NSLocalizedString("calendar.error.create_failed",
                                comment: "Error message when calendar creation fails")
+      case .invalidDateFormat:
+        return NSLocalizedString("calendar.error.invalid_date_format",
+                               comment: "Error message when date format is invalid")
       }
     }
   }

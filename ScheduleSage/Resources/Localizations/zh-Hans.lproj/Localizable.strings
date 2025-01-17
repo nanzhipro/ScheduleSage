@@ -49,10 +49,12 @@
 "settings_font_size" = "字体大小"; 
 
 // Calendar Manager
-"calendar.error.access_denied" = "日历访问被拒绝。请在系统设置中启用日历权限。";
-"calendar.error.unknown_status" = "未知的权限状态。";
-"calendar.error.create_failed" = "无法获取或创建日历。";
-"calendar.error.color_generation_failed" = "生成日历颜色失败";
+"calendar.error.access_denied" = "日历访问被拒绝，请在系统设置中授予访问权限。";
+"calendar.error.write_only_access" = "仅写入权限不足，需要完整的日历访问权限。";
+"calendar.error.unknown_status" = "未知的日历权限状态。";
+"calendar.error.color_generation_failed" = "生成日历颜色失败。";
+"calendar.error.create_failed" = "创建日历事件失败。";
+"calendar.error.invalid_date_format" = "事件日期格式无效，请检查日期和时间。";
 
 // Import Status
 "import_started" = "开始导入日程...";

@@ -204,7 +204,11 @@ private struct AddMethodSection: View {
       .sheet(isPresented: $viewModel.showManualInputSheet) {
         ManualScheduleInputView(
           isPresented: $viewModel.showManualInputSheet,
-          llmProcessor: viewModel.llmProcessor
+          llmProcessor: viewModel.llmProcessor,
+          onEventsProcessed: { events in
+            viewModel.parsedEvents = events
+            viewModel.showEventList = true
+          }
         )
       }
       
