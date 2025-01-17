@@ -43,9 +43,6 @@ struct PopoverView: View {
       message: toastMessage
     )
     .onAppear(perform: viewModel.resetState)
-    .onDisappear {
-      NotificationCenter.default.post(name: .mainWindowWillClose, object: nil)
-    }
   }
   
   private var toastType: ToastType {
@@ -187,7 +184,6 @@ private struct TitleSection: View {
 // MARK: - Add Method Section
 private struct AddMethodSection: View {
   @ObservedObject var viewModel: PopoverViewModel
-  @State private var showManualInput = false
   
   var body: some View {
     HStack(spacing: ScheduleDesignSystem.Spacing.horizontal) {
@@ -199,14 +195,8 @@ private struct AddMethodSection: View {
       
       AddMethodButton(
         icon: "square.and.pencil",
-        text: NSLocalizedString("manual_input", comment: ""),
-        action: {
-          showManualInput = true
-        }
+        text: NSLocalizedString("manual_input", comment: "")
       )
-      .sheet(isPresented: $showManualInput) {
-        ManualInputWindow()
-      }
       
       AddMethodButton(
         icon: "photo.fill",
@@ -277,9 +267,4 @@ private struct AnimatedContentModifier: ViewModifier {
       )
       .animation(.spring(response: 0.3, dampingFraction: 0.8), value: animation)
   }
-}
-
-// MARK: - Notification Names
-extension Notification.Name {
-    static let mainWindowWillClose = Notification.Name("mainWindowWillClose")
 }

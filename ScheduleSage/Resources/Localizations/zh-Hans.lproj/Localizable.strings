@@ -60,8 +60,3 @@
 "import_in_progress" = "正在导入日程...";
 
 "invalid_clipboard_url" = "请先拷贝网页地址 URL 后，继续导入";
-
-// Manual Input
-"manual_input.placeholder" = "请描述并输入你的日程详细内容";
-"manual_input.recognize" = "识别";
-"manual_input.window_title" = "手动创建日程";
