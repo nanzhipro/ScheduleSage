@@ -18,6 +18,7 @@
 
 // Event List
 "detected_events" = "检测到 %d 个日程";
+"selected_events" = "已选择 %d 个日程";
 "recurring" = "重复";
 
 // Loading
@@ -58,7 +59,7 @@
 
 // Import Status
 "import_started" = "开始导入日程...";
-"import_success" = "日程导入成功";
+"import_success" = "日程已成功添加到日历";
 "import_in_progress" = "正在导入日程...";
 
 "invalid_clipboard_url" = "请先拷贝网页地址 URL 后，继续导入";
@@ -67,3 +68,17 @@
 "manual_input_title" = "手动输入";
 "recognize_button" = "识别";
 "schedule_input_placeholder" = "请描述并输入你的日程详细内容";
+
+// LLM Errors
+"llm_invalid_response" = "无法处理响应内容，请重试";
+"llm_parsing_failed" = "日程信息解析失败，请检查输入内容后重试";
+"llm_missing_fields" = "缺少必要的日程信息：%@，请补充完整信息后重试";
+
+// Event Fields
+"event_field_title" = "日程主题";
+"event_field_start_date" = "开始时间";
+"event_field_end_date" = "结束时间";
+"event_field_location" = "地点";
+"event_field_notes" = "备注";
+"event_field_url" = "链接";
+"event_field_calendar" = "日历";

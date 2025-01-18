@@ -129,21 +129,22 @@ private struct AddScheduleContent: View {
   @ObservedObject var viewModel: PopoverViewModel
   
   var body: some View {
-    VStack(spacing: ScheduleDesignSystem.Spacing.vertical) {
+    VStack(spacing: 0) {
       Spacer()
-        .frame(height: ScheduleDesignSystem.Spacing.vertical)
+        .frame(height: ScheduleDesignSystem.Spacing.vertical * 2)
       
       CalendarIcon(animation: viewModel.dragAnimation)
+        .padding(.bottom, ScheduleDesignSystem.Spacing.vertical * 1.5)
       
       TitleSection()
+        .padding(.bottom, ScheduleDesignSystem.Spacing.vertical * 2)
       
       AddMethodSection(viewModel: viewModel)
       
       Spacer()
-      
-      ImportButton(viewModel: viewModel)
     }
     .frame(maxWidth: .infinity)
+    .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
   }
 }
 
@@ -180,7 +181,6 @@ private struct TitleSection: View {
         .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
         .multilineTextAlignment(.center)
     }
-    .padding(.top, ScheduleDesignSystem.Spacing.vertical * 1.5)
   }
 }
 
@@ -227,33 +227,6 @@ private struct AddMethodSection: View {
         }
       )
     }
-    .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
-    .padding(.top, ScheduleDesignSystem.Spacing.vertical * 1.2)
-  }
-}
-
-// MARK: - Import Button
-private struct ImportButton: View {
-  @ObservedObject var viewModel: PopoverViewModel
-  
-  var body: some View {
-    Button(action: { viewModel.showEventList = true }) {
-      Text(NSLocalizedString("import_calendar", comment: ""))
-        .font(ScheduleDesignSystem.Typography.buttonLabel)
-        .foregroundColor(ScheduleDesignSystem.Colors.background)
-        .frame(maxWidth: .infinity)
-        .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
-        .background(
-          ScheduleDesignSystem.Colors.primary
-            .opacity(viewModel.canImport ? 1 : 0.5)
-        )
-        .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
-    }
-    .buttonStyle(.plain)
-    .disabled(!viewModel.canImport)
-    .withHoverEffect(scale: 1.02, brightness: viewModel.canImport ? 0.05 : 0)
-    .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
-    .padding(.bottom, ScheduleDesignSystem.Layout.containerPadding.bottom)
   }
 }
 

@@ -18,6 +18,7 @@
 
 // Event List
 "detected_events" = "Detected %d Events";
+"selected_events" = "%d Events Selected";
 "recurring" = "Recurring";
 
 // Loading
@@ -58,7 +59,7 @@
 
 // Import Status
 "import_started" = "Starting to import events...";
-"import_success" = "Events imported successfully";
+"import_success" = "Successfully added to your calendar";
 "import_in_progress" = "Importing events...";
 
 "invalid_clipboard_url" = "Please copy a valid webpage URL first, then try importing again.";
@@ -67,3 +68,17 @@
 "manual_input_title" = "Manual Input";
 "recognize_button" = "Recognize";
 "schedule_input_placeholder" = "Please describe and enter your schedule details.";
+
+// LLM Errors
+"llm_invalid_response" = "Unable to process the response. Please try again.";
+"llm_parsing_failed" = "Failed to parse the schedule information. Please check your input and try again.";
+"llm_missing_fields" = "Missing required schedule information: %@. Please provide complete details.";
+
+// Event Fields
+"event_field_title" = "event title";
+"event_field_start_date" = "start time";
+"event_field_end_date" = "end time";
+"event_field_location" = "location";
+"event_field_notes" = "notes";
+"event_field_url" = "URL";
+"event_field_calendar" = "calendar";

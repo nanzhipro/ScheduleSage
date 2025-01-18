@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-/**
- 日程列表页
- */
 struct EventListView: View {
   // MARK: - Properties
   let proStatus: ProStatus
@@ -24,42 +21,13 @@ struct EventListView: View {
   @State private var toastType: ToastType = .success
   @State private var toastMessage: String = ""
 
-  // MARK: - Initialization
-  init(
-    proStatus: ProStatus,
-    events: [CalendarEvent],
-    onUpgrade: @escaping () -> Void,
-    onAdd: @escaping () -> Void,
-    onImport: @escaping () -> Void,
-    onBack: @escaping () -> Void
-  ) {
-    self.proStatus = proStatus
-    self.events = events
-    self.onUpgrade = onUpgrade
-    self.onAdd = onAdd
-    self.onImport = onImport
-    self.onBack = onBack
-  }
+  private var hasSelectedEvents: Bool { !selectedEventIds.isEmpty }
 
   // MARK: - Body
   var body: some View {
     VStack(spacing: 0) {
-      // 导航栏
       navigationBar
-
-      // 主要内容区域
-      VStack(spacing: ScheduleDesignSystem.Dimensions.listContentSpacing) {
-        // 列表头部
-        listHeaderView
-
-        // 事件列表
-        eventListContent
-      }
-      .padding(.horizontal, ScheduleDesignSystem.Spacing.listContentPadding)
-      .padding(.vertical, ScheduleDesignSystem.Dimensions.listVerticalPadding)
-      .background(ScheduleDesignSystem.Colors.containerGray)
-
-      // 导入按钮
+      contentArea
       importButton
     }
     .frame(
@@ -74,40 +42,71 @@ struct EventListView: View {
       duration: 2.0
     )
   }
+}
 
-  // MARK: - Private Views
-  private var navigationBar: some View {
+// MARK: - View Components
+private extension EventListView {
+  var navigationBar: some View {
     HStack {
-      // 返回按钮
-      Button(action: onBack) {
-        HStack(spacing: 4) {
-          Image(systemName: "chevron.left")
-            .font(.system(size: 13, weight: .semibold))
-          Text(NSLocalizedString("back_to_add", comment: ""))
-            .font(ScheduleDesignSystem.Typography.navigationText)
-        }
-        .foregroundColor(ScheduleDesignSystem.Colors.primary)
-      }
-      .buttonStyle(.plain)
-      .withHoverEffect()
-
+      backButton
       Spacer()
-
-      // Pro 状态
-      ProStatusView(
-        status: proStatus,
-        onUpgrade: onUpgrade,
-        style: .compact
-      )
+      proStatusView
     }
     .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
     .padding(.horizontal, ScheduleDesignSystem.Layout.statusBarPadding.leading)
-    .padding(.top, ScheduleDesignSystem.Layout.statusBarPadding.top)
-    .padding(.bottom, ScheduleDesignSystem.Layout.statusBarPadding.bottom)
+    .padding(.vertical, ScheduleDesignSystem.Layout.statusBarPadding.top)
     .background(ScheduleDesignSystem.Colors.background)
   }
-
-  private var eventListContent: some View {
+  
+  var backButton: some View {
+    Button(action: onBack) {
+      HStack(spacing: 4) {
+        Image(systemName: "chevron.left")
+          .font(.system(size: 13, weight: .semibold))
+        Text(NSLocalizedString("back_to_add", comment: ""))
+          .font(ScheduleDesignSystem.Typography.navigationText)
+      }
+      .foregroundColor(ScheduleDesignSystem.Colors.primary)
+    }
+    .buttonStyle(.plain)
+    .withHoverEffect()
+  }
+  
+  var proStatusView: some View {
+    ProStatusView(
+      status: proStatus,
+      onUpgrade: onUpgrade,
+      style: .compact
+    )
+  }
+  
+  var contentArea: some View {
+    VStack(spacing: ScheduleDesignSystem.Dimensions.listContentSpacing) {
+      listHeader
+      eventList
+    }
+    .padding(.horizontal, ScheduleDesignSystem.Spacing.listContentPadding)
+    .padding(.vertical, ScheduleDesignSystem.Dimensions.listVerticalPadding)
+    .background(ScheduleDesignSystem.Colors.containerGray)
+  }
+  
+  var listHeader: some View {
+    HStack {
+      Text(String(format: NSLocalizedString("detected_events", comment: ""), events.count))
+        .font(ScheduleDesignSystem.Typography.eventCount)
+        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+      
+      if hasSelectedEvents {
+        Text("·").foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        Text(String(format: NSLocalizedString("selected_events", comment: ""), selectedEventIds.count))
+          .font(ScheduleDesignSystem.Typography.eventCount)
+          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+      }
+    }
+    .frame(height: ScheduleDesignSystem.Dimensions.listHeaderHeight)
+  }
+  
+  var eventList: some View {
     ScrollView {
       LazyVStack(spacing: ScheduleDesignSystem.Dimensions.eventCardSpacing) {
         ForEach(events) { event in
@@ -125,73 +124,63 @@ struct EventListView: View {
       .padding(.bottom, ScheduleDesignSystem.Spacing.vertical)
     }
   }
-
-  private var listHeaderView: some View {
-    HStack {
-      Text(String(format: NSLocalizedString("detected_events", comment: ""), events.count))
-        .font(ScheduleDesignSystem.Typography.eventCount)
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-    }
-    .frame(height: ScheduleDesignSystem.Dimensions.listHeaderHeight)
-  }
-
-  private var importButton: some View {
-    Button(action: {
-      showImportToast()
-      onImport()
-    }) {
+  
+  var importButton: some View {
+    Button(action: handleImport) {
       Text(NSLocalizedString("import_calendar", comment: ""))
         .font(ScheduleDesignSystem.Typography.buttonLabel)
         .foregroundColor(ScheduleDesignSystem.Colors.background)
-        .frame(maxWidth: .infinity)
-        .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
-        .background(ScheduleDesignSystem.Colors.primary)
+        .frame(
+          maxWidth: .infinity,
+          minHeight: ScheduleDesignSystem.Dimensions.buttonHeight
+        )
+        .background(buttonBackground)
         .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
     }
     .buttonStyle(.plain)
-    .withHoverEffect()
+    .withHoverEffect(
+      scale: hasSelectedEvents ? 1.02 : 1.0,
+      brightness: hasSelectedEvents ? 0.05 : 0
+    )
+    .disabled(!hasSelectedEvents)
     .padding(ScheduleDesignSystem.Layout.containerPadding)
   }
+  
+  var buttonBackground: some View {
+    ScheduleDesignSystem.Colors.primary
+      .opacity(hasSelectedEvents ? 1 : 0.5)
+  }
+}
 
-  // MARK: - Private Methods
-  private func toggleEventSelection(_ eventIdentifier: String) {
+// MARK: - Actions
+private extension EventListView {
+  func handleImport() {
+    guard hasSelectedEvents else { return }
+    showImportStartedToast()
+    onImport()
+  }
+  
+  func toggleEventSelection(_ eventIdentifier: String) {
     if selectedEventIds.contains(eventIdentifier) {
       selectedEventIds.remove(eventIdentifier)
     } else {
       selectedEventIds.insert(eventIdentifier)
     }
   }
-
-  private func showImportToast() {
-    // 先隐藏之前的 Toast（如果有）
+  
+  func showImportStartedToast() {
     showToast = false
-    
-    // 延迟一帧后显示新的 Toast，确保动画正确
     DispatchQueue.main.async {
       toastType = .success
-      toastMessage = NSLocalizedString("import_started", comment: "")
+      toastMessage = NSLocalizedString("import_success", comment: "")
       showToast = true
-    }
-  }
-
-  private func updateToastForImportStatus(_ status: PopoverViewModel.ImportStatus) {
-    showToast = false
-    
-    DispatchQueue.main.async {
-      switch status {
-      case .success:
+      
+      // 2秒后显示导入成功提示
+      DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
         toastType = .success
         toastMessage = NSLocalizedString("import_success", comment: "")
-      case .failure(let error):
-        toastType = .error
-        toastMessage = error.localizedDescription
-      case .importing:
-        toastType = .success
-        toastMessage = NSLocalizedString("import_in_progress", comment: "")
-      case .none:
-        return
+        showToast = true
       }
-      showToast = true
     }
   }
 }

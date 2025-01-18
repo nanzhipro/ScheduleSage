@@ -16,6 +16,7 @@ public enum LLMEventProcessorError: LocalizedError {
     case invalidResponse
     case processingFailed(Error)
     case parsingFailed
+    case missingRequiredFields([String])
     
     public var errorDescription: String? {
         switch self {
@@ -25,6 +26,11 @@ public enum LLMEventProcessorError: LocalizedError {
             return error.localizedDescription
         case .parsingFailed:
             return NSLocalizedString("llm_parsing_failed", comment: "")
+        case .missingRequiredFields(let fields):
+            return String(
+                format: NSLocalizedString("llm_missing_fields", comment: ""),
+                fields.joined(separator: ", ")
+            )
         }
     }
 }
@@ -58,7 +64,28 @@ public class DefaultLLMEventProcessor: LLMEventProcessor {
             throw LLMEventProcessorError.parsingFailed
         }
         
+        try validateRequiredFields(event)
+        
         return [event]
+    }
+    
+    private func validateRequiredFields(_ event: CalendarEvent) throws {
+        var missingFields: [String] = []
+        
+        if event.title.isEmpty {
+            missingFields.append(CalendarEvent.displayName(for: "title"))
+        }
+        if event.startDate.isEmpty {
+            missingFields.append(CalendarEvent.displayName(for: "startDate"))
+        }
+        if event.endDate.isEmpty {
+            missingFields.append(CalendarEvent.displayName(for: "endDate"))
+        }
+        
+        if !missingFields.isEmpty {
+            logger.error("Missing required fields: \(missingFields.joined(separator: ", "))")
+            throw LLMEventProcessorError.missingRequiredFields(missingFields)
+        }
     }
     
     private func getCalendarNames() async -> [String] {

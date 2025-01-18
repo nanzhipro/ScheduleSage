@@ -38,6 +38,23 @@ public struct CalendarEvent: Codable, Identifiable {
     let eventIdentifier: String
     let remarks: String
     
+    // MARK: - Field Display Names
+    
+    static let fieldDisplayNames: [String: String] = [
+        "title": NSLocalizedString("event_field_title", comment: "Event title field name"),
+        "startDate": NSLocalizedString("event_field_start_date", comment: "Event start date field name"),
+        "endDate": NSLocalizedString("event_field_end_date", comment: "Event end date field name"),
+        "location": NSLocalizedString("event_field_location", comment: "Event location field name"),
+        "notes": NSLocalizedString("event_field_notes", comment: "Event notes field name"),
+        "url": NSLocalizedString("event_field_url", comment: "Event URL field name"),
+        "calendar": NSLocalizedString("event_field_calendar", comment: "Event calendar field name")
+    ]
+    
+    /// 获取字段的显示名称
+    static func displayName(for field: String) -> String {
+        return fieldDisplayNames[field] ?? field
+    }
+    
     // MARK: - Computed Properties
     
     /// 格式化后的时间显示

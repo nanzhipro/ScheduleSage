@@ -11,24 +11,6 @@ import SwiftUI
 public enum ToastType {
     case success
     case error
-    
-    var icon: String {
-        switch self {
-        case .success:
-            return "checkmark.circle.fill"
-        case .error:
-            return "exclamationmark.circle.fill"
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .success:
-            return ScheduleDesignSystem.Colors.success
-        case .error:
-            return ScheduleDesignSystem.Colors.error
-        }
-    }
 }
 
 // MARK: - Toast Configuration
@@ -37,11 +19,7 @@ public struct ToastConfiguration {
     let message: String
     let duration: TimeInterval
     
-    public init(
-        type: ToastType,
-        message: String,
-        duration: TimeInterval = 2.0
-    ) {
+    public init(type: ToastType, message: String, duration: TimeInterval = 2.0) {
         self.type = type
         self.message = message
         self.duration = duration
@@ -50,62 +28,43 @@ public struct ToastConfiguration {
 
 // MARK: - Toast View
 public struct ToastView: View {
-    // MARK: - Constants
-    private enum Constants {
-        static let maxWidth: CGFloat = 300
-        static let horizontalPadding: CGFloat = 16
-        static let verticalPadding: CGFloat = 12
-        static let cornerRadius: CGFloat = 8
-        static let iconSize: CGFloat = 20
-        static let spacing: CGFloat = 8
-        static let shadowRadius: CGFloat = 10
-        static let shadowOpacity: Double = 0.1
-    }
-    
-    // MARK: - Properties
     private let configuration: ToastConfiguration
     
-    // MARK: - Initialization
     public init(configuration: ToastConfiguration) {
         self.configuration = configuration
     }
     
-    // MARK: - Body
     public var body: some View {
-        HStack(spacing: Constants.spacing) {
-            // Icon
-            Image(systemName: configuration.type.icon)
-                .font(.system(size: Constants.iconSize))
+        HStack(spacing: 8) {
+            Image(systemName: configuration.type == .success ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+                .font(.system(size: 20))
                 .foregroundColor(.white)
             
-            // Message
             Text(configuration.message)
-                .font(.system(size: 15))
+                .font(ScheduleDesignSystem.Typography.bodyRegular)
                 .foregroundColor(.white)
                 .lineLimit(2)
         }
-        .padding(.horizontal, Constants.horizontalPadding)
-        .padding(.vertical, Constants.verticalPadding)
-        .background(configuration.type.color)
-        .cornerRadius(Constants.cornerRadius)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(configuration.type == .success ? ScheduleDesignSystem.Colors.success : ScheduleDesignSystem.Colors.error)
+        .cornerRadius(ScheduleDesignSystem.Dimensions.cardCornerRadius)
         .shadow(
-            color: Color.black.opacity(Constants.shadowOpacity),
-            radius: Constants.shadowRadius,
+            color: Color.black.opacity(0.1),
+            radius: 10,
             x: 0,
             y: 4
         )
-        .frame(maxWidth: Constants.maxWidth)
+        .frame(maxWidth: 300)
     }
 }
 
 // MARK: - Toast Container
 public struct ToastContainer<Content: View>: View {
-    // MARK: - Properties
     @Binding private var isPresented: Bool
     private let configuration: ToastConfiguration
     private let content: Content
     
-    // MARK: - Initialization
     public init(
         isPresented: Binding<Bool>,
         configuration: ToastConfiguration,
@@ -116,7 +75,6 @@ public struct ToastContainer<Content: View>: View {
         self.content = content()
     }
     
-    // MARK: - Body
     public var body: some View {
         ZStack {
             content
@@ -125,7 +83,7 @@ public struct ToastContainer<Content: View>: View {
                 VStack {
                     Spacer()
                     ToastView(configuration: configuration)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .transition(.moveAndFade())
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + configuration.duration) {
                                 withAnimation(.spring(response: 0.3)) {
@@ -141,7 +99,7 @@ public struct ToastContainer<Content: View>: View {
     }
 }
 
-// MARK: - View Extension
+// MARK: - View Extensions
 public extension View {
     func toast(
         isPresented: Binding<Bool>,
@@ -149,17 +107,18 @@ public extension View {
         message: String,
         duration: TimeInterval = 2.0
     ) -> some View {
-        let configuration = ToastConfiguration(
-            type: type,
-            message: message,
-            duration: duration
-        )
-        return ToastContainer(
+        ToastContainer(
             isPresented: isPresented,
-            configuration: configuration
+            configuration: .init(type: type, message: message, duration: duration)
         ) {
             self
         }
+    }
+}
+
+private extension AnyTransition {
+    static func moveAndFade() -> AnyTransition {
+        .move(edge: .top).combined(with: .opacity)
     }
 }
 
@@ -168,25 +127,12 @@ public extension View {
 struct ToastView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            // Success Toast
-            ToastView(
-                configuration: .init(
-                    type: .success,
-                    message: "操作成功完成"
-                )
-            )
-            .previewDisplayName("Success Toast")
+            ToastView(configuration: .init(type: .success, message: "操作成功完成"))
+                .previewDisplayName("Success Toast")
             
-            // Error Toast with Long Message
-            ToastView(
-                configuration: .init(
-                    type: .error,
-                    message: "发生错误：无法完成操作，请检查网络连接并重试。如果问题持续存在，请联系支持团队。"
-                )
-            )
-            .previewDisplayName("Error Toast with Long Message")
+            ToastView(configuration: .init(type: .error, message: "发生错误，请重试"))
+                .previewDisplayName("Error Toast")
             
-            // Toast Container Demo
             DemoView()
                 .previewDisplayName("Toast Container Demo")
         }
@@ -195,7 +141,6 @@ struct ToastView_Previews: PreviewProvider {
     }
 }
 
-// Demo View for Preview
 private struct DemoView: View {
     @State private var showToast = false
     
@@ -206,11 +151,7 @@ private struct DemoView: View {
             }
         }
         .frame(width: 300, height: 200)
-        .toast(
-            isPresented: $showToast,
-            type: .success,
-            message: "这是一个测试消息"
-        )
+        .toast(isPresented: $showToast, type: .success, message: "这是一个测试消息")
     }
 }
 #endif 

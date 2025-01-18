@@ -18,6 +18,7 @@
 
 // Event List
 "detected_events" = "%d件のイベントを検出";
+"selected_events" = "%d件のイベントを選択中";
 "recurring" = "繰り返し";
 
 // Loading
@@ -58,7 +59,7 @@
 
 // Import Status
 "import_started" = "イベントのインポートを開始...";
-"import_success" = "イベントのインポートが完了しました";
+"import_success" = "カレンダーへの追加が完了しました";
 "import_in_progress" = "イベントをインポート中...";
 
 "invalid_clipboard_url" = "有効なウェブページのURLをコピーしてから、再度インポートしてください。";
@@ -67,3 +68,17 @@
 "manual_input_title" = "手動入力";
 "recognize_button" = "認識";
 "schedule_input_placeholder" = "スケジュールの詳細を入力してください";
+
+// LLM Errors
+"llm_invalid_response" = "応答を処理できません。もう一度お試しください。";
+"llm_parsing_failed" = "スケジュール情報の解析に失敗しました。入力内容を確認して再度お試しください。";
+"llm_missing_fields" = "必要なスケジュール情報が不足しています：%@。詳細情報を入力してください。";
+
+// Event Fields
+"event_field_title" = "予定タイトル";
+"event_field_start_date" = "開始時間";
+"event_field_end_date" = "終了時間";
+"event_field_location" = "場所";
+"event_field_notes" = "メモ";
+"event_field_url" = "URL";
+"event_field_calendar" = "カレンダー";

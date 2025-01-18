@@ -7,13 +7,17 @@
 
 import SwiftUI
 
+/**
+ 手动输入日程页
+ */
 struct ManualScheduleInputView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var isPresented: Bool
     @State private var inputText = ""
     @State private var isProcessing = false
-    @State private var showError = false
-    @State private var errorMessage = ""
+    @State private var showToast = false
+    @State private var toastType: ToastType = .error
+    @State private var toastMessage = ""
     @State private var navigateToEventList = false
     @State private var processedEvents: [CalendarEvent] = []
     @FocusState private var isFocused: Bool
@@ -41,7 +45,11 @@ struct ManualScheduleInputView: View {
             }
             .frame(width: 440, height: 360)
             .background(ScheduleDesignSystem.Colors.background)
-            .errorAlert(isPresented: $showError, message: errorMessage)
+            .toast(
+                isPresented: $showToast,
+                type: toastType,
+                message: toastMessage
+            )
             .navigationDestination(isPresented: $navigateToEventList) {
                 EventListView(
                     proStatus: .free(remainingUses: 12),
@@ -64,8 +72,9 @@ struct ManualScheduleInputView: View {
             onEventsProcessed(processedEvents)
             isPresented = false
         } catch {
-            errorMessage = error.localizedDescription
-            showError = true
+            toastType = .error
+            toastMessage = error.localizedDescription
+            showToast = true
         }
         
         isProcessing = false
@@ -162,20 +171,6 @@ private struct CloseButton: View {
         }
         .buttonStyle(.plain)
         .withHoverEffect()
-    }
-}
-
-// MARK: - View Extensions
-private extension View {
-    func errorAlert(isPresented: Binding<Bool>, message: String) -> some View {
-        alert(NSLocalizedString("error_title", comment: ""),
-              isPresented: isPresented) {
-            Button(NSLocalizedString("ok_button", comment: "")) {
-                isPresented.wrappedValue = false
-            }
-        } message: {
-            Text(message)
-        }
     }
 }
 
