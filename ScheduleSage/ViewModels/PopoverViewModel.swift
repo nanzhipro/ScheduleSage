@@ -184,17 +184,31 @@ extension PopoverViewModel {
             }
             
             let contentText = try result.get()
-            let events = try await llmProcessor.processContent(contentText)
             
-            await MainActor.run {
-                self.parsedEvents = events
-                self.isLLMProcessing = false
-                LoadingManager.shared.hide()
-                self.canImport = true
-                self.showEventList = true
+            do {
+                let events = try await llmProcessor.processContent(contentText)
+                
+                await MainActor.run {
+                    self.parsedEvents = events
+                    self.isLLMProcessing = false
+                    LoadingManager.shared.hide()
+                    self.canImport = true
+                    self.showEventList = true
+                }
+                
+                logger.info("Web content processing completed successfully")
+            } catch let error as LLMEventProcessorError {
+                logger.error("LLM processing failed: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.isLLMProcessing = false
+                    LoadingManager.shared.hide()
+                    self.showToast = false
+                    self.toastType = .error
+                    self.toastMessage = error.localizedDescription
+                    self.showToast = true
+                }
             }
             
-            logger.info("Web content processing completed successfully")
         } catch {
             logger.error("Web content processing failed: \(error.localizedDescription)")
             await self.handleError(error)
