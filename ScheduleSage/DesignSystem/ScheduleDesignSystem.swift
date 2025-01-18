@@ -4,6 +4,7 @@ import SwiftUI
 enum ThemeType {
   case apple  // 苹果风格
   case wechat  // 微信风格
+  case airbnb  // Airbnb风格
 }
 
 // MARK: - Design System
@@ -20,6 +21,8 @@ enum ScheduleDesignSystem {
         return Color(light: "007AFF", dark: "0A84FF")  // 苹果蓝
       case .wechat:
         return Color(light: "07C160", dark: "07C160")  // 微信绿
+      case .airbnb:
+        return Color(light: "FF5A5F", dark: "FF5A5F")  // Airbnb珊瑚红
       }
     }
 
@@ -29,12 +32,19 @@ enum ScheduleDesignSystem {
         return Color(light: "F5F5F7", dark: "242424")
       case .wechat:
         return Color(light: "F7F7F7", dark: "242424")
+      case .airbnb:
+        return Color(light: "F7F7F7", dark: "1D1D1D")
       }
     }
 
     // Base Colors
     static var background: Color {
-      Color(light: "FFFFFF", dark: "1E1E1E")
+      switch currentTheme {
+      case .apple, .wechat:
+        return Color(light: "FFFFFF", dark: "1E1E1E")
+      case .airbnb:
+        return Color(light: "FFFFFF", dark: "222222")
+      }
     }
 
     static var secondaryGray: Color {
@@ -43,6 +53,8 @@ enum ScheduleDesignSystem {
         return Color(light: "86868B", dark: "98989F")
       case .wechat:
         return Color(light: "9B9B9B", dark: "98989F")
+      case .airbnb:
+        return Color(light: "717171", dark: "B0B0B0")
       }
     }
 
@@ -52,6 +64,8 @@ enum ScheduleDesignSystem {
         return Color(light: "F2F2F7", dark: "2C2C2E")
       case .wechat:
         return Color(light: "F7F7F7", dark: "2C2C2E")
+      case .airbnb:
+        return Color(light: "F7F7F7", dark: "2D2D2D")
       }
     }
 
@@ -61,6 +75,8 @@ enum ScheduleDesignSystem {
         return Color(light: "F8F8FA", dark: "333333")
       case .wechat:
         return Color(light: "F8F8F8", dark: "333333")
+      case .airbnb:
+        return Color(light: "F8F8F8", dark: "2A2A2A")
       }
     }
 
@@ -70,17 +86,28 @@ enum ScheduleDesignSystem {
         return Color(light: "E5E5E5", dark: "424242")
       case .wechat:
         return Color(light: "EBEDF0", dark: "424242")
+      case .airbnb:
+        return Color(light: "DDDDDD", dark: "3D3D3D")
       }
     }
 
-    static var success: Color { primary }
+    static var success: Color {
+      switch currentTheme {
+      case .apple, .wechat:
+        return primary
+      case .airbnb:
+        return Color(light: "008A05", dark: "00A306")
+      }
+    }
 
     static var error: Color {
       switch currentTheme {
       case .apple:
-        return Color(light: "FF3B30", dark: "FF453A")  // Apple 系统红色
+        return Color(light: "FF3B30", dark: "FF453A")
       case .wechat:
-        return Color(light: "FA5151", dark: "FA5151")  // WeChat 系统红色
+        return Color(light: "FA5151", dark: "FA5151")
+      case .airbnb:
+        return Color(light: "C13515", dark: "E31C1C")
       }
     }
 
@@ -91,6 +118,8 @@ enum ScheduleDesignSystem {
         return Color(light: "000000", dark: "FFFFFF")
       case .wechat:
         return Color(light: "2C2C2C", dark: "FFFFFF")
+      case .airbnb:
+        return Color(light: "222222", dark: "FFFFFF")
       }
     }
 
@@ -100,6 +129,8 @@ enum ScheduleDesignSystem {
         return Color(light: "86868B", dark: "98989F")
       case .wechat:
         return Color(light: "9B9B9B", dark: "98989F")
+      case .airbnb:
+        return Color(light: "717171", dark: "A0A0A0")
       }
     }
 
@@ -109,6 +140,8 @@ enum ScheduleDesignSystem {
         return Color(light: "C7C7CC", dark: "48484A")
       case .wechat:
         return Color(light: "BFBFBF", dark: "48484A")
+      case .airbnb:
+        return Color(light: "BFBFBF", dark: "4A4A4A")
       }
     }
 
@@ -118,6 +151,8 @@ enum ScheduleDesignSystem {
       case .apple:
         return Color(hex: "F5F5F5")
       case .wechat:
+        return Color(hex: "F7F7F7")
+      case .airbnb:
         return Color(hex: "F7F7F7")
       }
     }
@@ -129,6 +164,8 @@ enum ScheduleDesignSystem {
         return Color(hex: "666666")
       case .wechat:
         return Color(hex: "8F8F8F")
+      case .airbnb:
+        return Color(hex: "717171")
       }
     }
 
@@ -139,6 +176,8 @@ enum ScheduleDesignSystem {
         return Color(hex: "007AFF")
       case .wechat:
         return Color(hex: "576B95")
+      case .airbnb:
+        return Color(hex: "FF5A5F")
       }
     }
 
@@ -148,6 +187,8 @@ enum ScheduleDesignSystem {
       case .apple:
         return Color(light: "FFFFFF", dark: "2C2C2C")
       case .wechat:
+        return Color(light: "FFFFFF", dark: "2C2C2C")
+      case .airbnb:
         return Color(light: "FFFFFF", dark: "2C2C2C")
       }
     }
@@ -159,6 +200,8 @@ enum ScheduleDesignSystem {
         return Color(light: "FFFFFF", dark: "2A2A2A")
       case .wechat:
         return Color(light: "FFFFFF", dark: "2A2A2A")
+      case .airbnb:
+        return Color(light: "FFFFFF", dark: "2A2A2A")
       }
     }
 
@@ -169,6 +212,8 @@ enum ScheduleDesignSystem {
         return Color(light: "F5F5F7", dark: "3A3A3A")
       case .wechat:
         return Color(light: "F7F7F7", dark: "3A3A3A")
+      case .airbnb:
+        return Color(light: "F8F8F8", dark: "3A3A3A")
       }
     }
 
@@ -179,6 +224,8 @@ enum ScheduleDesignSystem {
         return Color(light: "E5E5E5", dark: "3D3D3D")
       case .wechat:
         return Color(light: "EBEDF0", dark: "3D3D3D")
+      case .airbnb:
+        return Color(light: "EBEBEB", dark: "3D3D3D")
       }
     }
   }
@@ -194,7 +241,7 @@ enum ScheduleDesignSystem {
       switch currentTheme {
       case .apple:
         return .system(size: 13)
-      case .wechat:
+      case .wechat, .airbnb:
         return .system(size: 14)
       }
     }
@@ -307,6 +354,13 @@ enum ScheduleDesignSystem {
           x: 0,
           y: 2
         )
+      case .airbnb:
+        return Shadow(
+          color: .black.opacity(colorScheme == .dark ? 0.35 : 0.08),
+          radius: 15,
+          x: 0,
+          y: 5
+        )
       }
     }
 
@@ -325,6 +379,13 @@ enum ScheduleDesignSystem {
           radius: 2,
           x: 0,
           y: 1
+        )
+      case .airbnb:
+        return Shadow(
+          color: .black.opacity(colorScheme == .dark ? 0.35 : 0.06),
+          radius: 8,
+          x: 0,
+          y: 3
         )
       }
     }
