@@ -218,6 +218,12 @@ extension PopoverViewModel {
     private func handleImageContent(_ url: URL) {
         guard url.isValidImageFile else {
             logger.error("Invalid image file: \(url.path)")
+            Task { @MainActor in
+                self.showToast = false
+                self.toastType = .error
+                self.toastMessage = NSLocalizedString("invalid_image_format", comment: "")
+                self.showToast = true
+            }
             return
         }
         
@@ -235,8 +241,7 @@ extension PopoverViewModel {
                 await handleError(error)
             }
             
-            try? FileManager.default.removeItem(atPath: url.path)
-            logger.debug("Temporary image file removed")
+            logger.debug("OCR processing completed")
         }
     }
     
@@ -274,7 +279,46 @@ extension PopoverViewModel {
             
             isOCRProcessing = false
             LoadingManager.shared.hide()
-            canImport = !allTexts.isEmpty
+            
+            // 如果有识别到文本，开始 LLM 处理
+            if !allTexts.isEmpty {
+                // 将所有文本合并为一个字符串，用换行符分隔
+                let combinedText = allTexts.joined(separator: "\n")
+                Task {
+                    await processWithLLM(combinedText)
+                }
+            }
+        }
+    }
+    
+    private func processWithLLM(_ content: String) async {
+        await MainActor.run {
+            isLLMProcessing = true
+            LoadingManager.shared.show(.processing)
+        }
+        
+        do {
+            let events = try await llmProcessor.processContent(content)
+            
+            await MainActor.run {
+                self.parsedEvents = events
+                self.isLLMProcessing = false
+                LoadingManager.shared.hide()
+                self.canImport = true
+                self.showEventList = true
+            }
+            
+            logger.info("LLM processing completed successfully with \(events.count) events")
+        } catch {
+            logger.error("LLM processing failed: \(error.localizedDescription)")
+            await MainActor.run {
+                self.isLLMProcessing = false
+                LoadingManager.shared.hide()
+                self.showToast = false
+                self.toastType = .error
+                self.toastMessage = error.localizedDescription
+                self.showToast = true
+            }
         }
     }
     
@@ -314,6 +358,19 @@ extension PopoverViewModel {
     
     func handleDropped(_ urls: [URL]) {
         guard let url = urls.first else { return }
+        
+        // 先检查文件格式
+        guard url.isValidImageFile else {
+            logger.error("Invalid image file dropped: \(url.path)")
+            Task { @MainActor in
+                self.showToast = false
+                self.toastType = .error
+                self.toastMessage = NSLocalizedString("invalid_image_format", comment: "")
+                self.showToast = true
+            }
+            return
+        }
+        
         Task { @MainActor in
             loadingStartTime = Date()
             isOCRProcessing = true

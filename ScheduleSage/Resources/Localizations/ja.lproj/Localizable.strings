@@ -82,3 +82,6 @@
 "event_field_notes" = "メモ";
 "event_field_url" = "URL";
 "event_field_calendar" = "カレンダー";
+
+/* Image format error message */
+"invalid_image_format" = "サポートされていない画像形式です。PNG、WEBP、またはJPG形式のファイルをご使用ください。";

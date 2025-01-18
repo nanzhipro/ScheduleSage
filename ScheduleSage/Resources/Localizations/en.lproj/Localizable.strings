@@ -82,3 +82,6 @@
 "event_field_notes" = "notes";
 "event_field_url" = "URL";
 "event_field_calendar" = "calendar";
+
+/* Image format error message */
+"invalid_image_format" = "Unsupported image format. Please use PNG, WEBP, or JPG files.";

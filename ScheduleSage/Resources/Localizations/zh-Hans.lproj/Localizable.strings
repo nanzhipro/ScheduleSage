@@ -82,3 +82,6 @@
 "event_field_notes" = "备注";
 "event_field_url" = "链接";
 "event_field_calendar" = "日历";
+
+/* Image format error message */
+"invalid_image_format" = "不支持的图片格式。请使用 PNG、WEBP 或 JPG 格式的图片文件。";

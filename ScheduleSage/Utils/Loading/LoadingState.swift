@@ -20,6 +20,7 @@ enum LoadingType {
   }
 }
 
+@MainActor
 class LoadingManager: ObservableObject {
   static let shared = LoadingManager()
 
@@ -29,11 +30,15 @@ class LoadingManager: ObservableObject {
   private init() {}
 
   func show(_ type: LoadingType = .processing) {
-    isLoading = true
-    loadingType = type
+    Task { @MainActor in
+      isLoading = true
+      loadingType = type
+    }
   }
 
   func hide() {
-    isLoading = false
+    Task { @MainActor in
+      isLoading = false
+    }
   }
 }

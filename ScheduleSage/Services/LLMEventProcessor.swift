@@ -79,9 +79,9 @@ public class DefaultLLMEventProcessor: LLMEventProcessor {
             missingFields.append(CalendarEvent.displayName(for: "startDate"))
         }
         // TODO: 有些活动是没有结束时间的，这个要考虑一下如何处理
-        if event.endDate.isEmpty {
-            missingFields.append(CalendarEvent.displayName(for: "endDate"))
-        }
+        // if event.endDate.isEmpty {
+        //     missingFields.append(CalendarEvent.displayName(for: "endDate"))
+        // }
         
         if !missingFields.isEmpty {
             logger.error("Missing required fields: \(missingFields.joined(separator: ", "))")
