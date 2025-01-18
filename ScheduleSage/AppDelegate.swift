@@ -11,7 +11,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private let calendarManager = CalendarManager()
 
   func applicationDidFinishLaunching(_ notification: Notification) {
-      ScheduleDesignSystem.switchTheme(to: .airbnb)
+      ScheduleDesignSystem.switchTheme(to: .wechat)
     logger.logInfo("AppDelegate did finish launching")
 
     Task {
