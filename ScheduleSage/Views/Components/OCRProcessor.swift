@@ -38,29 +38,22 @@ final class OCRProcessor {
 
     progressHandler?(0.2)
 
-    return try await withCheckedThrowingContinuation { continuation in
-      ocrService.recognizeText(
-        from: imagePath,
-        preferredLanguages: languages
-      ) { result in
-        progressHandler?(0.8)
+    // 执行 OCR 识别
+    let results = try await ocrService.recognizeText(
+      from: imagePath,
+      preferredLanguages: languages
+    )
 
-        switch result {
-        case .success(let results):
-          // 按语言分组
-          let groupedResults = Dictionary(
-            grouping: results,
-            by: { $0.language }
-          )
+    progressHandler?(0.8)
 
-          progressHandler?(1.0)
-          continuation.resume(returning: groupedResults)
+    // 按语言分组
+    let groupedResults = Dictionary(
+      grouping: results,
+      by: { $0.language }
+    )
 
-        case .failure(let error):
-          continuation.resume(throwing: error)
-        }
-      }
-    }
+    progressHandler?(1.0)
+    return groupedResults
   }
 
   /// 获取指定语言的文本结果

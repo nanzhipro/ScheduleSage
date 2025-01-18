@@ -1,113 +1,93 @@
 import AppKit
 import Vision
 
+// MARK: - OCR Service Protocol
 protocol OCRServiceProtocol {
-  func recognizeText(
-    from imagePath: String,
-    preferredLanguages: [OCRLanguage],
-    completion: @escaping (Result<[OCRResult], OCRError>) -> Void
-  )
+    func recognizeText(
+        from imagePath: String,
+        preferredLanguages: [OCRLanguage]
+    ) async throws -> [OCRResult]
 }
 
-class OCRService: OCRServiceProtocol {
-  // MARK: - Properties
-  private let minimumConfidence: Float = 0.3
-  private let queue = DispatchQueue(label: "com.schedulesage.ocr", qos: .userInitiated)
-
-  // MARK: - Public Methods
-  func recognizeText(
-    from imagePath: String,
-    preferredLanguages: [OCRLanguage] = [.chinese, .english, .japanese],
-    completion: @escaping (Result<[OCRResult], OCRError>) -> Void
-  ) {
-    queue.async {
-      guard let image = NSImage(contentsOfFile: imagePath) else {
-        completion(.failure(.imageLoadFailed))
-        return
-      }
-
-      // 创建 Vision 请求
-      let request = VNRecognizeTextRequest { request, error in
-        if let error = error {
-          completion(.failure(.recognitionFailed(error.localizedDescription)))
-          return
+// MARK: - OCR Service Implementation
+final class OCRService: OCRServiceProtocol {
+    // MARK: - Properties
+    private let minimumConfidence: Float = 0.3
+    
+    // MARK: - Public Methods
+    func recognizeText(
+        from imagePath: String,
+        preferredLanguages: [OCRLanguage] = [.chinese, .english, .japanese]
+    ) async throws -> [OCRResult] {
+        // 加载图像
+        guard let image = NSImage(contentsOfFile: imagePath),
+              let cgImage = image.cgImage
+        else {
+            throw OCRError.imageLoadFailed
         }
-
+        
+        // 创建识别请求
+        let request = createTextRecognitionRequest(languages: preferredLanguages)
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        
+        // 执行识别
+        try await handler.perform([request])
+        
+        // 处理结果
         guard let observations = request.results as? [VNRecognizedTextObservation] else {
-          completion(.failure(.recognitionFailed("Invalid observation results")))
-          return
+            throw OCRError.recognitionFailed("Invalid observation results")
         }
-
-        let results = observations.compactMap { observation -> OCRResult? in
-          guard let candidate = observation.topCandidates(1).first else { return nil }
-
-          // 检测语言
-          let language = self.detectLanguage(for: candidate.string)
-
-          return OCRResult(
+        
+        // 转换结果
+        return observations.compactMap { observation in
+            processObservation(observation)
+        }
+        .filter { $0.confidence >= minimumConfidence }
+    }
+    
+    // MARK: - Private Methods
+    private func createTextRecognitionRequest(
+        languages: [OCRLanguage]
+    ) -> VNRecognizeTextRequest {
+        let request = VNRecognizeTextRequest()
+        request.recognitionLanguages = languages.flatMap { $0.recognitionLanguages }
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = true
+        return request
+    }
+    
+    private func processObservation(_ observation: VNRecognizedTextObservation) -> OCRResult? {
+        guard let candidate = observation.topCandidates(1).first else { return nil }
+        
+        return OCRResult(
             text: candidate.string,
             confidence: candidate.confidence,
-            language: language,
+            language: detectLanguage(for: candidate.string),
             boundingBox: observation.boundingBox
-          )
-        }
-        .filter { $0.confidence >= self.minimumConfidence }
-
-        DispatchQueue.main.async {
-          completion(.success(results))
-        }
-      }
-
-      // 配置识别请求
-      request.recognitionLanguages = preferredLanguages.flatMap { $0.recognitionLanguages }
-      request.recognitionLevel = .accurate
-      request.usesLanguageCorrection = true
-
-      // 创建图片处理请求
-      guard let cgImage = self.convertToCGImage(from: image) else {
-        completion(.failure(.imageLoadFailed))
-        return
-      }
-
-      let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-
-      do {
-        try handler.perform([request])
-      } catch {
-        completion(.failure(.recognitionFailed(error.localizedDescription)))
-      }
+        )
     }
-  }
-
-  // MARK: - Private Methods
-  private func detectLanguage(for text: String) -> OCRLanguage {
-    // 使用 NSLinguisticTagger 检测语言
-    let tagger = NSLinguisticTagger(
-      tagSchemes: [.language],
-      options: 0
-    )
-    tagger.string = text
-    guard let language = tagger.dominantLanguage else {
-      return .english  // 默认返回英语
+    
+    private func detectLanguage(for text: String) -> OCRLanguage {
+        let tagger = NSLinguisticTagger(tagSchemes: [.language], options: 0)
+        tagger.string = text
+        
+        return tagger.dominantLanguage.map { languageCode in
+            switch languageCode {
+            case "zh-Hans", "zh-Hant": return .chinese
+            case "ja": return .japanese
+            default: return .english
+            }
+        } ?? .english
     }
+}
 
-    switch language {
-    case "zh-Hans", "zh-Hant":
-      return .chinese
-    case "ja":
-      return .japanese
-    default:
-      return .english
+// MARK: - NSImage Extension
+private extension NSImage {
+    var cgImage: CGImage? {
+        guard let imageData = tiffRepresentation,
+              let imageSource = CGImageSourceCreateWithData(imageData as CFData, nil)
+        else { return nil }
+        
+        return CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
     }
-  }
-
-  private func convertToCGImage(from nsImage: NSImage) -> CGImage? {
-    guard let imageData = nsImage.tiffRepresentation,
-      let imageSource = CGImageSourceCreateWithData(imageData as CFData, nil),
-      let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
-    else {
-      return nil
-    }
-    return cgImage
-  }
 }
