@@ -10,73 +10,76 @@ import OSLog
 
 // MARK: - Error Types
 enum PromptError: LocalizedError {
-    case networkError(Error)
-    case invalidResponse
-    case decodingError
-    case storageError
+    case network(Error)
+    case invalidResponse(Int)
+    case decoding(Error)
+    case storage(Error)
     
     var errorDescription: String? {
         switch self {
-        case .networkError(let error): return "Network Error: \(error.localizedDescription)"
-        case .invalidResponse: return "Invalid Server Response"
-        case .decodingError: return "Data Decoding Error"
-        case .storageError: return "Local Storage Error"
+        case .network(let error):
+            return "Network error: \(error.localizedDescription)"
+        case .invalidResponse(let code):
+            return "Invalid response: status code \(code)"
+        case .decoding(let error):
+            return "Decoding error: \(error.localizedDescription)"
+        case .storage(let error):
+            return "Storage error: \(error.localizedDescription)"
         }
     }
 }
 
 // MARK: - PromptService
 actor PromptService {
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PromptService")
-    private let apiConfig = APIConfig.shared
-    private let userDefaults = UserDefaults.standard
+    // MARK: - Properties
+    private let logger: Logger
+    private let apiConfig: APIConfig
+    private let storage: UserDefaults
     private let promptKey = "stored_prompt"
+    
+    // MARK: - Initialization
+    init(
+        logger: Logger = .init(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PromptService"),
+        apiConfig: APIConfig = .shared,
+        storage: UserDefaults = .standard
+    ) {
+        self.logger = logger
+        self.apiConfig = apiConfig
+        self.storage = storage
+    }
     
     // MARK: - Public Methods
     func fetchLatestPrompt() async throws -> StoredPrompt {
-        logger.info("Initiating fetch for latest prompt...")
+        logger.info("Fetching latest prompt...")
         
         let currentVersion = getCurrentVersion()
         let url = URL(string: "\(apiConfig.promptsEndpoint)?version=\(currentVersion)")!
         
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 else {
-                logger.error("Invalid server response: status code \(String(describing: (response as? HTTPURLResponse)?.statusCode))")
-                throw PromptError.invalidResponse
-            }
-            
-            let promptResponse = try JSONDecoder().decode(PromptResponse.self, from: data)
-            let storedPrompt = StoredPrompt(from: promptResponse)
-            
-            try await savePrompt(storedPrompt)
-            logger.info("Successfully fetched and saved new prompt version: \(storedPrompt.version)")
-            
-            return storedPrompt
-        } catch let error as DecodingError {
-            logger.error("Failed to decode response: \(error.localizedDescription)")
-            throw PromptError.decodingError
+            let prompt = try await fetchPrompt(from: url)
+            try await savePrompt(prompt)
+            logger.info("Successfully updated prompt to version \(prompt.version)")
+            return prompt
         } catch {
-            logger.error("Network request failed: \(error.localizedDescription)")
-            throw PromptError.networkError(error)
+            logger.error("Failed to fetch prompt: \(error.localizedDescription)")
+            throw error
         }
     }
     
     func getStoredPrompt() -> StoredPrompt? {
-        logger.debug("Attempting to retrieve stored prompt...")
-        guard let data = userDefaults.data(forKey: promptKey) else {
-            logger.notice("No stored prompt found in local storage")
+        logger.debug("Retrieving stored prompt...")
+        
+        guard let data = storage.data(forKey: promptKey) else {
+            logger.notice("No stored prompt found")
             return nil
         }
         
         do {
             let prompt = try JSONDecoder().decode(StoredPrompt.self, from: data)
-            logger.debug("Successfully retrieved stored prompt: version \(prompt.version)")
+            logger.debug("Retrieved prompt version \(prompt.version)")
             return prompt
         } catch {
-            logger.error("Failed to read stored prompt: \(error.localizedDescription)")
+            logger.error("Failed to decode stored prompt: \(error.localizedDescription)")
             return nil
         }
     }
@@ -86,14 +89,32 @@ actor PromptService {
         getStoredPrompt()?.version ?? 0
     }
     
+    private func fetchPrompt(from url: URL) async throws -> StoredPrompt {
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw PromptError.invalidResponse(-1)
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw PromptError.invalidResponse(httpResponse.statusCode)
+        }
+        
+        do {
+            let promptResponse = try JSONDecoder().decode(PromptResponse.self, from: data)
+            return StoredPrompt(from: promptResponse)
+        } catch {
+            throw PromptError.decoding(error)
+        }
+    }
+    
     private func savePrompt(_ prompt: StoredPrompt) async throws {
         do {
             let data = try JSONEncoder().encode(prompt)
-            userDefaults.set(data, forKey: promptKey)
-            logger.debug("Prompt successfully persisted to local storage")
+            storage.set(data, forKey: promptKey)
+            logger.debug("Saved prompt to storage")
         } catch {
-            logger.error("Failed to save prompt: \(error.localizedDescription)")
-            throw PromptError.storageError
+            throw PromptError.storage(error)
         }
     }
 } 

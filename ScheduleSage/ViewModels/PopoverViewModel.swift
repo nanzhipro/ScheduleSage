@@ -180,7 +180,7 @@ extension PopoverViewModel {
             
             let results = await self.webCrawler.crawlBatch(urls: [url.absoluteString])
             guard let result = results[url.absoluteString] else {
-                throw PromptError.invalidResponse
+                throw PromptError.invalidResponse(-1)
             }
             
             let contentText = try result.get()
@@ -197,7 +197,7 @@ extension PopoverViewModel {
                 }
                 
                 logger.info("Web content processing completed successfully")
-            } catch let error as LLMEventProcessorError {
+            } catch {
                 logger.error("LLM processing failed: \(error.localizedDescription)")
                 await MainActor.run {
                     self.isLLMProcessing = false
@@ -207,8 +207,8 @@ extension PopoverViewModel {
                     self.toastMessage = error.localizedDescription
                     self.showToast = true
                 }
+                throw error
             }
-            
         } catch {
             logger.error("Web content processing failed: \(error.localizedDescription)")
             await self.handleError(error)
@@ -392,9 +392,9 @@ private extension PopoverViewModel {
         }
     }
     
-    private func buildPromptWithContent(_ content: String, calendarNames: [String]) async throws -> String {
+    private func buildPromptWithContent(_ content: String, calendarNames: [String]) async -> String {
         // 获取基础提示词
-        let basePrompt = await promptViewModel.getPromptContent()
+        let basePrompt = promptViewModel.getPromptContent()
         
         // 构建日历名称列表字符串
         let calendarList = calendarNames.isEmpty ? "Default Calendar" : calendarNames.joined(separator: ", ")
@@ -406,12 +406,10 @@ private extension PopoverViewModel {
         )
         
         // 替换内容占位符
-        let finalPrompt = promptWithCalendars.replacingOccurrences(
+        return promptWithCalendars.replacingOccurrences(
             of: "PLACEHOLDER_TEXT",
             with: content
         )
-        
-        return finalPrompt
     }
 }
 
