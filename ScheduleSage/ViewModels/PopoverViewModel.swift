@@ -135,13 +135,7 @@ extension PopoverViewModel {
     }
     
     private func showInvalidURLToast() {
-        showToast = false
-        toastType = .error
-        toastMessage = NSLocalizedString("invalid_clipboard_content", comment: "")
-        
-        DispatchQueue.main.async {
-            self.showToast = true
-        }
+        showToastMessage(NSLocalizedString("invalid_clipboard_content", comment: ""))
     }
     
     private func handleURLContent(_ url: URL) {
@@ -223,12 +217,7 @@ extension PopoverViewModel {
     private func handleImageContent(_ url: URL) {
         guard url.isValidImageFile else {
             logger.error("Invalid image file: \(url.path)")
-            Task { @MainActor in
-                self.showToast = false
-                self.toastType = .error
-                self.toastMessage = NSLocalizedString("invalid_image_format", comment: "")
-                self.showToast = true
-            }
+            showToastMessage(NSLocalizedString("invalid_image_format", comment: ""))
             return
         }
         
@@ -319,10 +308,7 @@ extension PopoverViewModel {
             await MainActor.run {
                 self.isLLMProcessing = false
                 LoadingManager.shared.hide()
-                self.showToast = false
-                self.toastType = .error
-                self.toastMessage = error.localizedDescription
-                self.showToast = true
+                showToastMessage(error.localizedDescription)
             }
         }
     }
@@ -345,6 +331,7 @@ extension PopoverViewModel {
             isLLMProcessing = false
             LoadingManager.shared.hide()
             canImport = false
+            showToastMessage(error.localizedDescription)
         }
     }
 }
@@ -367,12 +354,7 @@ extension PopoverViewModel {
         // 先检查文件格式
         guard url.isValidImageFile else {
             logger.error("Invalid image file dropped: \(url.path)")
-            Task { @MainActor in
-                self.showToast = false
-                self.toastType = .error
-                self.toastMessage = NSLocalizedString("invalid_image_format", comment: "")
-                self.showToast = true
-            }
+            showToastMessage(NSLocalizedString("invalid_image_format", comment: ""))
             return
         }
         
@@ -518,6 +500,33 @@ enum CalendarError: LocalizedError {
         switch self {
         case .accessDenied:
             return NSLocalizedString("calendar_access_denied", comment: "")
+        }
+    }
+}
+
+// MARK: - Toast Management
+extension PopoverViewModel {
+    private func showToastMessage(_ message: String, type: ToastType = .error) {
+        // 取消之前的隐藏任务
+        Task { @MainActor in
+            // 确保当前 toast 被隐藏
+            showToast = false
+            
+            // 等待一小段时间确保动画完成
+            try? await Task.sleep(nanoseconds: 300_000_000) // 300ms
+            
+            // 设置新的 toast 内容
+            toastType = type
+            toastMessage = message
+            showToast = true
+            
+            // 3秒后自动隐藏
+            try? await Task.sleep(nanoseconds: 3_000_000_000) // 3s
+            
+            // 仅当消息未被更新时才隐藏
+            if toastMessage == message {
+                showToast = false
+            }
         }
     }
 }
