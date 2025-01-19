@@ -12,7 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private var isPopoverShown = false  // 添加状态跟踪
 
   func applicationDidFinishLaunching(_ notification: Notification) {
-      ScheduleDesignSystem.switchTheme(to: .apple)
+      ScheduleDesignSystem.switchTheme(to: .wechat)
     logger.logInfo("AppDelegate did finish launching")
 
     Task {
