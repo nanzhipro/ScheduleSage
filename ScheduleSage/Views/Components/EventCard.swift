@@ -123,12 +123,12 @@ private struct SelectionIndicator: View {
   var body: some View {
     ZStack {
       Circle()
-        .fill(ScheduleDesignSystem.Colors.success.opacity(Constants.Selection.outerOpacity))
+        .fill(ScheduleDesignSystem.Colors.primary.opacity(Constants.Selection.outerOpacity))
         .frame(width: Constants.Selection.size, height: Constants.Selection.size)
 
       if isSelected {
         Circle()
-          .fill(ScheduleDesignSystem.Colors.success)
+          .fill(ScheduleDesignSystem.Colors.primary)
           .frame(width: Constants.Selection.innerSize, height: Constants.Selection.innerSize)
       }
     }

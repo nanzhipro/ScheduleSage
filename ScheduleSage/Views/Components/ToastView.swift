@@ -36,18 +36,18 @@ public struct ToastView: View {
     
     public var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: configuration.type == .success ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+            Image(systemName: iconName)
                 .font(.system(size: 20))
-                .foregroundColor(.white)
+                .foregroundColor(iconColor)
             
             Text(configuration.message)
                 .font(ScheduleDesignSystem.Typography.bodyRegular)
-                .foregroundColor(.white)
+                .foregroundColor(textColor)
                 .lineLimit(2)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(configuration.type == .success ? ScheduleDesignSystem.Colors.success : ScheduleDesignSystem.Colors.error)
+        .background(backgroundColor)
         .cornerRadius(ScheduleDesignSystem.Dimensions.cardCornerRadius)
         .shadow(
             color: Color.black.opacity(0.1),
@@ -56,6 +56,40 @@ public struct ToastView: View {
             y: 4
         )
         .frame(maxWidth: 300)
+    }
+    
+    private var backgroundColor: Color {
+        switch configuration.type {
+        case .success:
+            return ScheduleDesignSystem.Colors.primary
+        case .error:
+            return ScheduleDesignSystem.Colors.error
+        }
+    }
+    
+    private var iconName: String {
+        switch configuration.type {
+        case .success:
+            return "checkmark.circle.fill"
+        case .error:
+            return "exclamationmark.circle.fill"
+        }
+    }
+    
+    private var iconColor: Color {
+        switch configuration.type {
+        case .success:
+            return ScheduleDesignSystem.Colors.background
+        case .error:
+            return ScheduleDesignSystem.Colors.background
+        }
+    }
+    
+    private var textColor: Color {
+        switch configuration.type {
+        case .success, .error:
+            return ScheduleDesignSystem.Colors.background
+        }
     }
 }
 

@@ -41,6 +41,12 @@ struct EventListView: View {
       message: toastMessage,
       duration: 2.0
     )
+    .onAppear {
+      // 如果有日程，默认选中第一个
+      if let firstEvent = events.first {
+        selectedEventIds.insert(firstEvent.eventIdentifier)
+      }
+    }
   }
 }
 

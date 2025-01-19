@@ -203,7 +203,26 @@ extension PopoverViewModel {
             let contentText = try result.get()
             
             do {
-                let events = try await llmProcessor.processContent(contentText)
+                var events = try await llmProcessor.processContent(contentText)
+                // 为所有事件设置 URL
+                events = events.map { event in
+                    var modifiedEvent = event
+                    if modifiedEvent.url.isEmpty {
+                        modifiedEvent = CalendarEvent(
+                            title: event.title,
+                            location: event.location,
+                            notes: event.notes,
+                            startDate: event.startDate,
+                            endDate: event.endDate,
+                            url: url.absoluteString,  // 设置 URL
+                            calendar: event.calendar,
+                            status: event.status,
+                            eventIdentifier: event.eventIdentifier,
+                            remarks: event.remarks
+                        )
+                    }
+                    return modifiedEvent
+                }
                 
                 await MainActor.run {
                     self.parsedEvents = events
