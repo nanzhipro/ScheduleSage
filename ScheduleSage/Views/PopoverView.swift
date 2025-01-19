@@ -222,14 +222,7 @@ private struct AddMethodSection: View {
         icon: "photo.fill",
         text: NSLocalizedString("image_import", comment: ""),
         action: {
-          ImagePicker(
-            onImageSelected: { url in
-              print("Selected image path: \(url.path)")
-            },
-            onError: { error in
-              print("Image selection failed with error: \(error.localizedDescription)")
-            }
-          ).showPicker()
+          viewModel.showToastMessage(NSLocalizedString("drag_drop_hint", comment: ""))
         }
       )
     }

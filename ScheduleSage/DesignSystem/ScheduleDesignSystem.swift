@@ -319,6 +319,10 @@ enum ScheduleDesignSystem {
     static let vertical: CGFloat = 24
     static let iconSpacing: CGFloat = 8
     static let elementSpacing: CGFloat = 16
+    
+    // Text
+    static let textSpacing: CGFloat = 8  // 文本元素之间的间距
+    static let sectionSpacing: CGFloat = 16  // 区块之间的间距
 
     // Form
     static let formFieldSpacing: CGFloat = 24

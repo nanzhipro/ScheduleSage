@@ -95,7 +95,25 @@ class PopoverViewModel: ObservableObject {
     
     // MARK: - Public Methods
     func closePopover() {
-        NSApplication.shared.keyWindow?.close()
+        // 先重置所有状态
+        Task { @MainActor in
+            // 1. 重置所有 sheet 状态
+            showManualInputSheet = false
+            showEventList = false
+            showUpgradeSheet = false
+            
+            // 2. 重置其他状态
+            resetState()
+            
+            // 3. 隐藏任何可能的 toast
+            showToast = false
+            
+            // 4. 隐藏加载状态
+            LoadingManager.shared.hide()
+            
+            // 5. 关闭窗口
+            NSApplication.shared.keyWindow?.close()
+        }
     }
 }
 
@@ -506,7 +524,7 @@ enum CalendarError: LocalizedError {
 
 // MARK: - Toast Management
 extension PopoverViewModel {
-    private func showToastMessage(_ message: String, type: ToastType = .error) {
+    func showToastMessage(_ message: String, type: ToastType = .error) {
         // 取消之前的隐藏任务
         Task { @MainActor in
             // 确保当前 toast 被隐藏

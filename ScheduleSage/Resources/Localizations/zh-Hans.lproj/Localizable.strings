@@ -66,6 +66,7 @@
 
 // Manual Schedule Input
 "manual_input_title" = "手动输入";
+"manual_input_subtitle" = "使用自然语言表述日程或直接拷贝日程文本内容，粘贴在下方";
 "recognize_button" = "识别";
 "schedule_input_placeholder" = "请描述并输入你的日程详细内容";
 
@@ -88,3 +89,6 @@
 
 // Error Messages
 "invalid_clipboard_content" = "请先复制有效的网页链接或图片，然后再尝试导入。";
+
+// Drag and Drop
+"drag_drop_hint" = "请直接拖拽图片文件";

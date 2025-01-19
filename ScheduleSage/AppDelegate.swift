@@ -2,13 +2,14 @@ import AppKit
 import SwiftUI
 
 @MainActor
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private var statusItem: NSStatusItem?
   private var popover: NSPopover?
   private var viewModel: PopoverViewModel?
   private var eventMonitor: Any?
   private let logger = LoggerService()
   private let calendarManager = CalendarManager()
+  private var isPopoverShown = false  // 添加状态跟踪
 
   func applicationDidFinishLaunching(_ notification: Notification) {
       ScheduleDesignSystem.switchTheme(to: .wechat)
@@ -46,26 +47,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     popover.contentSize = NSSize(width: 400, height: 600)
     popover.behavior = .transient
     popover.contentViewController = NSHostingController(rootView: contentView)
+    popover.delegate = self  // 设置 delegate
     self.popover = popover
   }
 
   private func setupEventMonitor() {
     eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-      if let window = NSApp.windows.first(where: { $0.isKeyWindow }),
-        !NSPointInRect(event.locationInWindow, window.frame)
+      guard let self = self else { return }
+      
+      if self.isPopoverShown,  // 使用状态变量
+         let window = NSApp.windows.first(where: { $0.isKeyWindow }),
+         !NSPointInRect(event.locationInWindow, window.frame)
       {
-        self?.dismissPopover()
+        self.dismissPopover()
       }
     }
   }
 
   @objc func togglePopover() {
     if let button = statusItem?.button {
-      if popover?.isShown ?? false {
+      if isPopoverShown {  // 使用状态变量
         dismissPopover()
       } else {
         popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-
+        
         if let window = NSApp.windows.first(where: { $0.isKeyWindow }) {
           window.level = .normal
         }
@@ -74,7 +79,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   private func dismissPopover() {
-    popover?.performClose(nil)
+    // 确保在主线程执行
+    Task { @MainActor in
+      // 先重置 ViewModel 状态
+      viewModel?.handlePopoverDisappear()
+      
+      // 关闭 popover
+      popover?.performClose(nil)
+      
+      // 更新状态
+      isPopoverShown = false
+    }
+  }
+
+  // MARK: - NSPopoverDelegate
+  func popoverWillShow(_ notification: Notification) {
+    isPopoverShown = true
+  }
+  
+  func popoverWillClose(_ notification: Notification) {
+    isPopoverShown = false
+    viewModel?.handlePopoverDisappear()
   }
 
   // TODO: 增加一个启动引导页面

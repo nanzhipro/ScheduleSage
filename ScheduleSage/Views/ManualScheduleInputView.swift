@@ -86,16 +86,23 @@ private struct HeaderView: View {
     @Binding var isPresented: Bool
     
     var body: some View {
-        HStack(spacing: ScheduleDesignSystem.Spacing.iconSpacing) {
-            Text(NSLocalizedString("manual_input_title", comment: ""))
-                .font(ScheduleDesignSystem.Typography.headerTitle)
-                .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-            Spacer()
-            CloseButton(action: { isPresented = false })
+        VStack(alignment: .leading, spacing: ScheduleDesignSystem.Spacing.textSpacing) {
+            HStack(spacing: ScheduleDesignSystem.Spacing.iconSpacing) {
+                Text(NSLocalizedString("manual_input_title", comment: ""))
+                    .font(ScheduleDesignSystem.Typography.headerTitle)
+                    .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+                Spacer()
+                CloseButton(action: { isPresented = false })
+            }
+            
+            Text(NSLocalizedString("manual_input_subtitle", comment: ""))
+                .font(ScheduleDesignSystem.Typography.caption)
+                .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+                .lineLimit(2)
         }
         .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
         .padding(.top, ScheduleDesignSystem.Layout.containerPadding.top)
-        .padding(.bottom, ScheduleDesignSystem.Spacing.vertical)
+        .padding(.bottom, ScheduleDesignSystem.Spacing.sectionSpacing)
     }
 }
 
@@ -170,7 +177,9 @@ private struct CloseButton: View {
                 .frame(width: 28, height: 28)
         }
         .buttonStyle(.plain)
-        .withHoverEffect()
+        .withHoverEffect(scale: 1.1, brightness: 0.1)
+        .background(ScheduleDesignSystem.Colors.hoverBackground.opacity(0.001))
+        .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
     }
 }
 

@@ -66,6 +66,7 @@
 
 // Manual Schedule Input
 "manual_input_title" = "手動入力";
+"manual_input_subtitle" = "自然言語でスケジュールを説明するか、スケジュールのテキスト内容を下にコピー＆ペーストしてください";
 "recognize_button" = "認識";
 "schedule_input_placeholder" = "スケジュールの詳細を入力してください";
 
@@ -88,3 +89,6 @@
 
 // Error Messages
 "invalid_clipboard_content" = "有効なウェブページのURLまたは画像を先にコピーしてから、再度お試しください。";
+
+// Drag and Drop
+"drag_drop_hint" = "画像ファイルを直接ドラッグ＆ドロップしてください";

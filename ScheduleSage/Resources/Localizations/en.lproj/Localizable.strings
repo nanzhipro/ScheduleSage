@@ -66,6 +66,7 @@
 
 // Manual Schedule Input
 "manual_input_title" = "Manual Input";
+"manual_input_subtitle" = "Use natural language to describe your schedule or paste schedule text content below";
 "recognize_button" = "Recognize";
 "schedule_input_placeholder" = "Please describe and enter your schedule details.";
 
@@ -88,3 +89,6 @@
 
 // Error Messages
 "invalid_clipboard_content" = "Please copy a valid webpage URL or image first, then try importing again.";
+
+// Drag and Drop
+"drag_drop_hint" = "Please drag and drop image files directly";
