@@ -11,10 +11,11 @@
 "add_schedule_title" = "スケジュール追加方法";
 "clipboard_import" = "クリップボードから";
 "manual_input" = "手動作成";
-"image_import" = "画像認識";
+"image_import" = "画像をドラッグ";
 
 // Actions
 "import_calendar" = "カレンダーに追加";
+"close_popover" = "閉じる";
 
 // Event List
 "detected_events" = "%d件のイベントを検出";
@@ -30,7 +31,6 @@
 // Image Picker
 "select_image" = "画像を選択";
 "select_image_message" = "認識する画像を選択してください";
-"image_import" = "画像をインポート";
 
 // Navigation
 "back_to_add" = "戻る";

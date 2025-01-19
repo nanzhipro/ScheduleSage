@@ -87,7 +87,13 @@ private struct AddScheduleView: View {
         onDragExited: viewModel.handleDragExited
       ) {
         AddScheduleContent(viewModel: viewModel)
+          .frame(maxHeight: .infinity)
       }
+      .padding(.bottom, ScheduleDesignSystem.Spacing.vertical)
+      
+      CloseButton(action: viewModel.closePopover)
+        .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
+        .padding(.bottom, ScheduleDesignSystem.Layout.containerPadding.bottom)
     }
     .frame(
       width: ScheduleDesignSystem.Dimensions.containerWidth,
@@ -253,5 +259,26 @@ private struct AnimatedContentModifier: ViewModifier {
         radius: animation == .glow ? 20 : 0
       )
       .animation(.spring(response: 0.3, dampingFraction: 0.8), value: animation)
+  }
+}
+
+// MARK: - Close Button
+private struct CloseButton: View {
+  let action: () -> Void
+  
+  var body: some View {
+    Button(action: action) {
+      Text(NSLocalizedString("close_popover", comment: ""))
+        .font(ScheduleDesignSystem.Typography.buttonLabel)
+        .foregroundColor(ScheduleDesignSystem.Colors.background)
+        .frame(maxWidth: .infinity)
+        .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
+        .background(
+          ScheduleDesignSystem.Colors.primary
+        )
+        .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
+    }
+    .buttonStyle(.plain)
+    .withHoverEffect(scale: 1.02, brightness: 0)
   }
 }

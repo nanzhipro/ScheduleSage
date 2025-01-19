@@ -92,6 +92,11 @@ class PopoverViewModel: ObservableObject {
             resetState()
         }
     }
+    
+    // MARK: - Public Methods
+    func closePopover() {
+        NSApplication.shared.keyWindow?.close()
+    }
 }
 
 // MARK: - Animation Types

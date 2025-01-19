@@ -11,10 +11,11 @@
 "add_schedule_title" = "Ways to Add Schedule";
 "clipboard_import" = "From Clipboard";
 "manual_input" = "Manual Create";
-"image_import" = "Image Recognition";
+"image_import" = "Drag & Drop Image";
 
 // Actions
 "import_calendar" = "Import to Calendar";
+"close_popover" = "Close";
 
 // Event List
 "detected_events" = "Detected %d Events";
@@ -30,7 +31,6 @@
 // Image Picker
 "select_image" = "Select Image";
 "select_image_message" = "Please select an image to recognize";
-"image_import" = "Import Image";
 
 // Navigation
 "back_to_add" = "Back";
