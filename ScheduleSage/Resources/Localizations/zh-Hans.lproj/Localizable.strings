@@ -84,4 +84,7 @@
 "event_field_calendar" = "日历";
 
 /* Image format error message */
-"invalid_image_format" = "不支持的图片格式。请使用 PNG、WEBP 或 JPG 格式的图片文件。";
+"invalid_image_format" = "不支持的图片格式，请使用 PNG、JPEG 或 HEIC 格式的文件。";
+
+// Error Messages
+"invalid_clipboard_content" = "请先复制有效的网页链接或图片，然后再尝试导入。";

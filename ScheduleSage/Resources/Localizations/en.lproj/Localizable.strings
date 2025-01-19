@@ -84,4 +84,7 @@
 "event_field_calendar" = "calendar";
 
 /* Image format error message */
-"invalid_image_format" = "Unsupported image format. Please use PNG, WEBP, or JPG files.";
+"invalid_image_format" = "Unsupported image format. Please use PNG, JPEG, or HEIC files.";
+
+// Error Messages
+"invalid_clipboard_content" = "Please copy a valid webpage URL or image first, then try importing again.";

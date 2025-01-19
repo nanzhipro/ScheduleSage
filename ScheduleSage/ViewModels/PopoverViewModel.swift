@@ -137,7 +137,7 @@ extension PopoverViewModel {
     private func showInvalidURLToast() {
         showToast = false
         toastType = .error
-        toastMessage = NSLocalizedString("invalid_clipboard_url", comment: "")
+        toastMessage = NSLocalizedString("invalid_clipboard_content", comment: "")
         
         DispatchQueue.main.async {
             self.showToast = true
@@ -419,11 +419,6 @@ extension PopoverViewModel {
 
 // MARK: - Helper Extensions
 private extension URL {
-    var isValidWebURL: Bool {
-        guard let scheme = scheme?.lowercased() else { return false }
-        return ["http", "https"].contains(scheme) && !absoluteString.isEmpty
-    }
-    
     var isValidImageFile: Bool {
         FileManager.default.fileExists(atPath: path) && 
         ImageSupport.isSupported(extension: pathExtension)
