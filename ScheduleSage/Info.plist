@@ -14,5 +14,7 @@
 		<string>${NSCalendarsUsageDescription}</string>
 		<key>CFBundleDisplayName</key>
 		<string>${CFBundleDisplayName}</string>
+		<key>LSApplicationCategoryType</key>
+		<string>public.app-category.productivity</string>
 	</dict>
 </plist>
