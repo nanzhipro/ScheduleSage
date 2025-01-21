@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import RevenueCat
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
@@ -24,6 +25,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
       // 请求日历权限
       requestCalendarAccess()
+      
+      // Initialize RevenueCat SDK
+      Purchases.configure(withAPIKey: "your_revenuecat_api_key")
     }
   }
 

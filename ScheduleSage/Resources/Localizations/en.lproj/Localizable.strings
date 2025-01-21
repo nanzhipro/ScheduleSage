@@ -1,4 +1,3 @@
-// Status
 "remaining_uses" = "%d Uses Left";
 "upgrade_prompt" = "Upgrade to Unlimited";
 "separator" = "｜";
@@ -92,3 +91,16 @@
 
 // Drag and Drop
 "drag_drop_hint" = "Please drag and drop image files directly";
+
+// Subscription
+"subscription_status_active" = "Your subscription is active.";
+"subscription_status_expired" = "Your subscription has expired.";
+"subscription_status_cancelled" = "Your subscription has been cancelled.";
+"subscription_status_pending" = "Your subscription is pending.";
+"subscription_status_trial" = "You are on a trial subscription.";
+"subscription_status_grace_period" = "Your subscription is in a grace period.";
+"subscription_status_unknown" = "Subscription status is unknown.";
+"subscription_purchase_success" = "Subscription purchase successful!";
+"subscription_purchase_failed" = "Subscription purchase failed.";
+"subscription_restore_success" = "Subscription restore successful!";
+"subscription_restore_failed" = "Subscription restore failed.";
