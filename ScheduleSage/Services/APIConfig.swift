@@ -1,10 +1,3 @@
-//
-//  APIConfig.swift
-//  ScheduleSage
-//
-//  Created by CursorAI on 2024-02-22.
-//
-
 import Foundation
 import OSLog
 
@@ -43,6 +36,10 @@ final class APIConfig {
     
     var llmEndpoint: String {
         "\(baseURL)/api/v1/llm/chat"
+    }
+    
+    var revenueCatEndpoint: String {
+        "\(baseURL)/api/v1/revenuecat"
     }
     
     // MARK: - Initialization
