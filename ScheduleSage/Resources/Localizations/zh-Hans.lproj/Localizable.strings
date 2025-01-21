@@ -1,3 +1,4 @@
+// Status
 "remaining_uses" = "剩余%d次";
 "upgrade_prompt" = "升级获取无限次数";
 "separator" = "｜";
@@ -91,16 +92,3 @@
 
 // Drag and Drop
 "drag_drop_hint" = "请直接拖拽图片文件";
-
-// Subscription
-"subscription_status_active" = "您的订阅已激活。";
-"subscription_status_expired" = "您的订阅已过期。";
-"subscription_status_cancelled" = "您的订阅已取消。";
-"subscription_status_pending" = "您的订阅正在处理中。";
-"subscription_status_trial" = "您正在使用试用订阅。";
-"subscription_status_grace_period" = "您的订阅处于宽限期。";
-"subscription_status_unknown" = "订阅状态未知。";
-"subscription_purchase_success" = "订阅购买成功！";
-"subscription_purchase_failed" = "订阅购买失败。";
-"subscription_restore_success" = "订阅恢复成功！";
-"subscription_restore_failed" = "订阅恢复失败。";

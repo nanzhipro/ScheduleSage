@@ -1,3 +1,4 @@
+// Status
 "remaining_uses" = "残り%d回";
 "upgrade_prompt" = "無制限にアップグレード";
 "separator" = "｜";
@@ -91,16 +92,3 @@
 
 // Drag and Drop
 "drag_drop_hint" = "画像ファイルを直接ドラッグ＆ドロップしてください";
-
-// Subscription
-"subscription_status_active" = "サブスクリプションはアクティブです。";
-"subscription_status_expired" = "サブスクリプションの有効期限が切れています。";
-"subscription_status_cancelled" = "サブスクリプションがキャンセルされました。";
-"subscription_status_pending" = "サブスクリプションは保留中です。";
-"subscription_status_trial" = "トライアルサブスクリプションを使用中です。";
-"subscription_status_grace_period" = "サブスクリプションは猶予期間中です。";
-"subscription_status_unknown" = "サブスクリプションのステータスが不明です。";
-"subscription_purchase_success" = "サブスクリプションの購入に成功しました！";
-"subscription_purchase_failed" = "サブスクリプションの購入に失敗しました。";
-"subscription_restore_success" = "サブスクリプションの復元に成功しました！";
-"subscription_restore_failed" = "サブスクリプションの復元に失敗しました。";

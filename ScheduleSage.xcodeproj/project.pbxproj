@@ -1,3 +1,4 @@
+// !$*UTF8*$!
 {
 	archiveVersion = 1;
 	classes = {
@@ -12,7 +13,6 @@
 		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
 		D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */ = {isa = PBXBuildFile; productRef = D5F11BF32D28C592007A225F /* SwiftWebCrawler */; };
 		D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */; };
-		D5F41BE92D2A17F100CB844E /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = D5F41BE82D2A17F100CB844E /* RevenueCat */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,23 +67,22 @@
 				D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */,
 				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
 				D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */,
-				D5F41BE92D2A17F100CB844E /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D57ADFD62CF54D36000D9DB1 /* Frameworks */ = {
-				isa = PBXFrameworksBuildPhase;
-				buildActionMask = 2147483647;
-				files = (
-				);
-				runOnlyForDeploymentPostprocessing = 0;
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D57ADFE02CF54D36000D9DB1 /* Frameworks */ = {
-				isa = PBXFrameworksBuildPhase;
-				buildActionMask = 2147483647;
-				files = (
-				);
-				runOnlyForDeploymentPostprocessing = 0;
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -142,7 +141,6 @@
 				D5F11BF32D28C592007A225F /* SwiftWebCrawler */,
 				D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */,
 				D55454902D3225130086A832 /* SwiftDate */,
-				D5F41BE82D2A17F100CB844E /* RevenueCat */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -235,7 +233,6 @@
 				D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */,
 				D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
 				D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */,
-				D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "RevenueCat" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -645,14 +642,6 @@
 				minimumVersion = 3.8.5;
 			};
 		};
-		D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "RevenueCat" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -685,11 +674,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */;
 			productName = CocoaLumberjackSwift;
-		};
-		D5F41BE82D2A17F100CB844E /* RevenueCat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "RevenueCat" */;
-			productName = RevenueCat;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
