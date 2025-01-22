@@ -105,3 +105,14 @@
 
 // Drag and Drop
 "drag_drop_hint" = "画像ファイルを直接ドラッグ＆ドロップしてください";
+
+// 設定 - 起動
+"settings_launch_error_title" = "起動設定エラー";
+"settings_launch_error_message" = "ログイン時の自動起動設定を更新できませんでした。システム環境設定を確認して、もう一度お試しください。";
+"settings_ok" = "OK";
+
+// 設定 - 通知
+"settings_notification_error_title" = "通知の許可が必要です";
+"settings_notification_error_message" = "アップデートを受け取るには、システム設定で通知を有効にしてください。";
+"settings_open_settings" = "設定を開く";
+"settings_cancel" = "キャンセル";

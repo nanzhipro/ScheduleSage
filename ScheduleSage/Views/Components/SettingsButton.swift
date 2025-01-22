@@ -59,7 +59,7 @@ struct SettingsButton: View {
     }
     
     let window = NSWindow(
-      contentRect: NSRect(x: 0, y: 0, width: 375, height: 450),
+      contentRect: NSRect(x: 0, y: 0, width: 375, height: 520),
       styleMask: [.titled, .closable],
       backing: .buffered,
       defer: false
@@ -67,10 +67,11 @@ struct SettingsButton: View {
     
     window.title = NSLocalizedString("settings_window_title", comment: "")
     window.center()
+    window.level = .floating
     
     let hostingController = NSHostingController(
       rootView: SettingsView()
-        .frame(width: 375, height: 450)
+        .frame(width: 375, height: 520)
     )
     
     window.contentViewController = hostingController

@@ -105,3 +105,14 @@
 
 // Drag and Drop
 "drag_drop_hint" = "Please drag and drop image files directly";
+
+// Settings - Launch
+"settings_launch_error_title" = "Launch Settings Error";
+"settings_launch_error_message" = "Failed to update launch at startup settings. Please check your system preferences and try again.";
+"settings_ok" = "OK";
+
+// Settings - Notifications
+"settings_notification_error_title" = "Notification Permission Required";
+"settings_notification_error_message" = "Please enable notifications in System Settings to receive updates.";
+"settings_open_settings" = "Open Settings";
+"settings_cancel" = "Cancel";

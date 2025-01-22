@@ -43,13 +43,13 @@
 "pro_expiry" = "会员有效期至：%@";
 
 // 设置菜单
-"settings_preferences" = "首选项";
+"settings_preferences" = "偏好设置";
 "settings_quit" = "退出";
 "settings_tab_general" = "通用";
 "settings_tab_advanced" = "高级";
-"settings_notifications" = "开启通知";
+"settings_notifications" = "启用通知";
 "settings_dark_mode" = "深色模式";
-"settings_auto_start" = "开机启动";
+"settings_auto_start" = "开机时启动";
 "settings_show_previews" = "显示预览";
 "settings_font_size" = "字体大小";
 "settings_version" = "版本";
@@ -105,3 +105,14 @@
 
 // Drag and Drop
 "drag_drop_hint" = "请直接拖拽图片文件";
+
+// 设置 - 开机启动
+"settings_launch_error_title" = "开机启动设置失败";
+"settings_launch_error_message" = "无法更新开机启动设置，请检查系统偏好设置后重试。";
+"settings_ok" = "好的";
+
+// 设置 - 通知
+"settings_notification_error_title" = "需要通知权限";
+"settings_notification_error_message" = "请在系统设置中启用通知以接收更新。";
+"settings_open_settings" = "打开设置";
+"settings_cancel" = "取消";
