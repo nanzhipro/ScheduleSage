@@ -6,6 +6,7 @@
 // Titles
 "schedule_add_title" = "Smart Schedule Creation";
 "schedule_add_subtitle" = "Create schedules easily with clipboard, manual input, or image recognition";
+"settings_window_title" = "Settings";
 
 // Add Schedule Methods
 "add_schedule_title" = "Ways to Add Schedule";
@@ -46,8 +47,20 @@
 "settings_quit" = "Quit";
 "settings_tab_general" = "General";
 "settings_tab_advanced" = "Advanced";
+"settings_notifications" = "Enable Notifications";
+"settings_dark_mode" = "Dark Mode";
+"settings_auto_start" = "Launch at Login";
 "settings_show_previews" = "Show Previews";
 "settings_font_size" = "Font Size";
+"settings_version" = "Version";
+
+// Settings Groups
+"settings_group_notifications" = "Notifications";
+"settings_group_appearance" = "Appearance";
+"settings_group_system" = "System";
+"settings_group_about" = "About";
+"settings_group_preview" = "Preview";
+"settings_group_font" = "Font";
  
 // Calendar Manager
 "calendar.error.access_denied" = "Calendar access denied. Please grant access in System Settings.";

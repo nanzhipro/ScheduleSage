@@ -6,6 +6,7 @@
 // Titles
 "schedule_add_title" = "智能日程创建";
 "schedule_add_subtitle" = "支持剪贴板、手动输入和图片识别，轻松创建日程";
+"settings_window_title" = "设置";
 
 // Add Schedule Methods
 "add_schedule_title" = "添加日程的方式";
@@ -46,8 +47,20 @@
 "settings_quit" = "退出";
 "settings_tab_general" = "通用";
 "settings_tab_advanced" = "高级";
+"settings_notifications" = "开启通知";
+"settings_dark_mode" = "深色模式";
+"settings_auto_start" = "开机启动";
 "settings_show_previews" = "显示预览";
-"settings_font_size" = "字体大小"; 
+"settings_font_size" = "字体大小";
+"settings_version" = "版本";
+
+// Settings Groups
+"settings_group_notifications" = "通知";
+"settings_group_appearance" = "外观";
+"settings_group_system" = "系统";
+"settings_group_about" = "关于";
+"settings_group_preview" = "预览";
+"settings_group_font" = "字体";
 
 // Calendar Manager
 "calendar.error.access_denied" = "日历访问被拒绝，请在系统设置中授予访问权限。";

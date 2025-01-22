@@ -6,6 +6,7 @@
 // Titles
 "schedule_add_title" = "スマートスケジュール作成";
 "schedule_add_subtitle" = "クリップボード、手動入力、画像認識で簡単にスケジュールを作成";
+"settings_window_title" = "設定";
 
 // Add Schedule Methods
 "add_schedule_title" = "スケジュール追加方法";
@@ -46,8 +47,20 @@
 "settings_quit" = "終了";
 "settings_tab_general" = "一般";
 "settings_tab_advanced" = "詳細";
+"settings_notifications" = "通知を有効にする";
+"settings_dark_mode" = "ダークモード";
+"settings_auto_start" = "ログイン時に起動";
 "settings_show_previews" = "プレビューを表示";
 "settings_font_size" = "フォントサイズ";
+"settings_version" = "バージョン";
+
+// Settings Groups
+"settings_group_notifications" = "通知";
+"settings_group_appearance" = "外観";
+"settings_group_system" = "システム";
+"settings_group_about" = "情報";
+"settings_group_preview" = "プレビュー";
+"settings_group_font" = "フォント";
 
 // Calendar Manager
 "calendar.error.access_denied" = "カレンダーへのアクセスが拒否されました。システム設定でアクセスを許可してください。";
