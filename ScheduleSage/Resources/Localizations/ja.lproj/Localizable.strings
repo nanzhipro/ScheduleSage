@@ -1,33 +1,33 @@
 // Status
-"remaining_uses" = "残り%d回";
-"upgrade_prompt" = "無制限にアップグレード";
+"remaining_uses" = "残り %d 回";
+"upgrade_prompt" = "無制限アクセスにアップグレード";
 "separator" = "｜";
 
 // Titles
 "schedule_add_title" = "スマートスケジュール作成";
 "schedule_add_subtitle" = "クリップボード、手動入力、画像認識で簡単にスケジュールを作成";
-"settings_window_title" = "設定";
+"settings_window_title" = "環境設定";
 
 // Add Schedule Methods
-"add_schedule_title" = "スケジュール追加方法";
-"clipboard_import" = "クリップボードから";
-"manual_input" = "手動作成";
-"image_import" = "画像をドラッグ";
+"add_schedule_title" = "作成方法を選択";
+"clipboard_import" = "クリップボードから取り込む";
+"manual_input" = "手動で作成";
+"image_import" = "画像認識";
 
 // Actions
 "import_calendar" = "カレンダーに追加";
 "close_popover" = "閉じる";
 
 // Event List
-"detected_events" = "%d件のイベントを検出";
-"selected_events" = "%d件のイベントを選択中";
-"recurring" = "繰り返し";
+"detected_events" = "%d 件のイベントを検出";
+"selected_events" = "%d 件のイベントを選択中";
+"recurring" = "繰り返しイベント";
 
 // Loading
-"loading_ocr" = "テキストを認識中...";
-"loading_network" = "読み込み中...";
-"loading_processing" = "処理中...";
-"loading_url" = "ウェブページを解析中...";
+"loading_ocr" = "画像テキストを認識中...";
+"loading_network" = "データを読み込み中...";
+"loading_processing" = "データを処理中...";
+"loading_url" = "ウェブページの内容を解析中...";
 
 // Image Picker
 "select_image" = "画像を選択";
@@ -38,13 +38,13 @@
 
 // Pro Features
 "feature_unlimited_ocr" = "無制限の認識";
-"feature_unlimited_ocr_desc" = "OCR認識を無制限に使用可能";
+"feature_unlimited_ocr_desc" = "テキスト認識を無制限に使用可能";
 "upgrade_to_pro" = "Proにアップグレード";
 "pro_expiry" = "Pro有効期限：%@";
 
 // Settings Menu
 "settings_preferences" = "環境設定";
-"settings_quit" = "終了";
+"settings_quit" = "アプリを終了";
 "settings_tab_general" = "一般";
 "settings_tab_advanced" = "詳細";
 "settings_notifications" = "通知を有効にする";
@@ -52,67 +52,67 @@
 "settings_auto_start" = "ログイン時に起動";
 "settings_show_previews" = "プレビューを表示";
 "settings_font_size" = "フォントサイズ";
-"settings_version" = "バージョン";
+"settings_version" = "現在のバージョン";
 
 // Settings Groups
-"settings_group_notifications" = "通知";
-"settings_group_appearance" = "外観";
-"settings_group_system" = "システム";
+"settings_group_notifications" = "通知設定";
+"settings_group_appearance" = "外観設定";
+"settings_group_system" = "システム設定";
 "settings_group_about" = "情報";
-"settings_group_preview" = "プレビュー";
-"settings_group_font" = "フォント";
+"settings_group_preview" = "プレビュー設定";
+"settings_group_font" = "フォント設定";
 
 // Calendar Manager
-"calendar.error.access_denied" = "カレンダーへのアクセスが拒否されました。システム設定でアクセスを許可してください。";
-"calendar.error.write_only_access" = "書き込み専用のアクセス権では不十分です。完全なアクセス権が必要です。";
-"calendar.error.unknown_status" = "不明なカレンダー権限状態です。";
-"calendar.error.color_generation_failed" = "カレンダーの色の生成に失敗しました。";
-"calendar.error.create_failed" = "カレンダーイベントの作成に失敗しました。";
-"calendar.error.invalid_date_format" = "イベントの日付形式が無効です。日付と時刻を確認してください。";
+"calendar.error.access_denied" = "カレンダーにアクセスできません。システム設定でアクセスを許可してください";
+"calendar.error.write_only_access" = "カレンダーへの完全なアクセス権が必要です。書き込み専用では不十分です";
+"calendar.error.unknown_status" = "不明なカレンダー権限状態です";
+"calendar.error.color_generation_failed" = "カレンダーの色を生成できません";
+"calendar.error.create_failed" = "カレンダーイベントの作成に失敗しました";
+"calendar.error.invalid_date_format" = "スケジュールの時刻形式が無効です。日付と時刻を確認してください";
 
 // Import Status
-"import_started" = "イベントのインポートを開始...";
-"import_success" = "カレンダーへの追加が完了しました";
-"import_in_progress" = "イベントをインポート中...";
+"import_started" = "スケジュールのインポートを開始...";
+"import_success" = "カレンダーに追加しました";
+"import_in_progress" = "スケジュールをインポート中...";
 
-"invalid_clipboard_url" = "有効なウェブページのURLをコピーしてから、再度インポートしてください。";
+"invalid_clipboard_url" = "有効なウェブページリンクをコピーしてから、再度お試しください";
 
 // Manual Schedule Input
 "manual_input_title" = "手動入力";
-"manual_input_subtitle" = "自然言語でスケジュールを説明するか、スケジュールのテキスト内容を下にコピー＆ペーストしてください";
-"recognize_button" = "認識";
+"manual_input_subtitle" = "自然言語でスケジュールを説明するか、スケジュールのテキストを直接貼り付けてください";
+"recognize_button" = "認識を開始";
 "schedule_input_placeholder" = "スケジュールの詳細を入力してください";
 
 // LLM Errors
-"llm_invalid_response" = "応答を処理できません。もう一度お試しください。";
-"llm_parsing_failed" = "スケジュール情報の解析に失敗しました。入力内容を確認して再度お試しください。";
-"llm_missing_fields" = "必要なスケジュール情報が不足しています：%@。詳細情報を入力してください。";
+"llm_invalid_response" = "応答を処理できません。もう一度お試しください";
+"llm_parsing_failed" = "スケジュール情報の解析に失敗しました。入力内容を確認して再度お試しください";
+"llm_missing_fields" = "必要な情報が不足しています：%@。入力を完了してから再度お試しください";
 
 // Event Fields
-"event_field_title" = "予定タイトル";
-"event_field_start_date" = "開始時間";
-"event_field_end_date" = "終了時間";
+"event_field_title" = "スケジュールタイトル";
+"event_field_start_date" = "開始時刻";
+"event_field_end_date" = "終了時刻";
 "event_field_location" = "場所";
 "event_field_notes" = "メモ";
-"event_field_url" = "URL";
+"event_field_url" = "リンク";
 "event_field_calendar" = "カレンダー";
 
 /* Image format error message */
-"invalid_image_format" = "サポートされていない画像形式です。PNG、JPEG、またはHEIC形式のファイルをご使用ください。";
+"invalid_image_format" = "サポートされていない画像形式です。PNG、JPEG、またはHEIC形式を使用してください";
 
 // Error Messages
-"invalid_clipboard_content" = "有効なウェブページのURLまたは画像を先にコピーしてから、再度お試しください。";
+"invalid_clipboard_content" = "有効なウェブページリンクまたは画像をコピーしてから、再度お試しください";
 
 // Drag and Drop
-"drag_drop_hint" = "画像ファイルを直接ドラッグ＆ドロップしてください";
+"drag_drop_hint" = "ここに画像をドロップ";
 
-// 設定 - 起動
-"settings_launch_error_title" = "起動設定エラー";
-"settings_launch_error_message" = "ログイン時の自動起動設定を更新できませんでした。システム環境設定を確認して、もう一度お試しください。";
+// Settings - Launch
+"settings_launch_error_title" = "起動設定に失敗";
+"settings_launch_error_message" = "起動設定を更新できません。システム環境設定を確認して再度お試しください";
 "settings_ok" = "OK";
 
-// 設定 - 通知
+// Settings - Notifications
 "settings_notification_error_title" = "通知の許可が必要です";
-"settings_notification_error_message" = "アップデートを受け取るには、システム設定で通知を有効にしてください。";
+"settings_notification_error_message" = "更新通知を受け取るには、システム設定で通知を有効にしてください";
 "settings_open_settings" = "設定を開く";
 "settings_cancel" = "キャンセル";

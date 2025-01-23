@@ -10,20 +10,73 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private let logger = LoggerService()
   private let calendarManager = CalendarManager()
   private var isPopoverShown = false  // 添加状态跟踪
-
+  
+  // 单实例标识符
+  private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.schedulesage.app"
+  
   func applicationDidFinishLaunching(_ notification: Notification) {
-      ScheduleDesignSystem.switchTheme(to: .wechat)
+    // 检查是否已有实例运行
+    if !checkAndActivateExistingInstance() {
+      return
+    }
+    
+    ScheduleDesignSystem.switchTheme(to: .wechat)
     logger.logInfo("AppDelegate did finish launching")
-
+    
     Task {
       self.viewModel = PopoverViewModel()
       
       setupStatusItem()
       setupPopover()
       setupEventMonitor()
-
+      
       // 请求日历权限
       requestCalendarAccess()
+    }
+  }
+  
+  // 检查并激活已存在的实例
+  private func checkAndActivateExistingInstance() -> Bool {
+    let runningApps = NSWorkspace.shared.runningApplications
+    let isAnotherInstanceRunning = runningApps.contains {
+      $0.bundleIdentifier == Self.bundleIdentifier && $0 != NSRunningApplication.current
+    }
+    
+    if isAnotherInstanceRunning {
+      // 找到其他正在运行的实例
+      if let existingInstance = runningApps.first(where: { 
+        $0.bundleIdentifier == Self.bundleIdentifier && $0 != NSRunningApplication.current 
+      }) {
+        // 激活已存在的实例
+        existingInstance.activate(options: [.activateIgnoringOtherApps])
+        
+        // 通过 URL Scheme 触发已存在实例的显示
+        if let url = URL(string: "schedulesage://show") {
+          NSWorkspace.shared.open(url)
+        }
+        
+        // 退出当前实例
+        NSApp.terminate(nil)
+        return false
+      }
+    }
+    
+    return true
+  }
+  
+  // 处理 URL Scheme 调用
+  func application(_ application: NSApplication, open urls: [URL]) {
+    guard let url = urls.first,
+          url.scheme == "schedulesage",
+          url.host == "show" else {
+      return
+    }
+    
+    // 显示 popover
+    if let button = statusItem?.button {
+      if !isPopoverShown {
+        popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+      }
     }
   }
 

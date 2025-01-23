@@ -9,6 +9,7 @@ import SwiftUI
 
 /**
  手动输入日程页
+ 支持直接输入文本或 URL 链接
  */
 struct ManualScheduleInputView: View {
     @Environment(\.dismiss) private var dismiss
@@ -23,11 +24,16 @@ struct ManualScheduleInputView: View {
     @FocusState private var isFocused: Bool
     
     private let llmProcessor: LLMEventProcessor
+    private let viewModel: PopoverViewModel
     var onEventsProcessed: ([CalendarEvent]) -> Void
     
-    init(isPresented: Binding<Bool>, llmProcessor: LLMEventProcessor, onEventsProcessed: @escaping ([CalendarEvent]) -> Void) {
+    init(isPresented: Binding<Bool>, 
+         llmProcessor: LLMEventProcessor, 
+         viewModel: PopoverViewModel,
+         onEventsProcessed: @escaping ([CalendarEvent]) -> Void) {
         self._isPresented = isPresented
         self.llmProcessor = llmProcessor
+        self.viewModel = viewModel
         self.onEventsProcessed = onEventsProcessed
     }
     
@@ -40,7 +46,7 @@ struct ManualScheduleInputView: View {
                 RecognizeButton(
                     isProcessing: isProcessing,
                     isDisabled: isProcessing || inputText.isEmpty,
-                    action: { Task { await processSchedule() } }
+                    action: { Task { await processInput() } }
                 )
             }
             .frame(width: 440, height: 360)
@@ -60,21 +66,32 @@ struct ManualScheduleInputView: View {
                     onBack: { navigateToEventList = false }
                 )
             }
+            .onChange(of: viewModel.showEventList) { oldValue, newValue in
+                if newValue {
+                    isPresented = false
+                }
+            }
         }
     }
     
-    private func processSchedule() async {
+    private func processInput() async {
         guard !inputText.isEmpty else { return }
         isProcessing = true
         
-        do {
-            processedEvents = try await llmProcessor.processContent(inputText)
-            onEventsProcessed(processedEvents)
+        let trimmedInput = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let url = URL(string: trimmedInput), url.isValidWebURL {
+            viewModel.handleURLContent(url)
             isPresented = false
-        } catch {
-            toastType = .error
-            toastMessage = error.localizedDescription
-            showToast = true
+        } else {
+            do {
+                processedEvents = try await llmProcessor.processContent(inputText)
+                onEventsProcessed(processedEvents)
+                isPresented = false
+            } catch {
+                toastType = .error
+                toastMessage = error.localizedDescription
+                showToast = true
+            }
         }
         
         isProcessing = false
@@ -188,7 +205,8 @@ struct ManualScheduleInputView_Previews: PreviewProvider {
     static var previews: some View {
         ManualScheduleInputView(
             isPresented: .constant(true),
-            llmProcessor: PreviewData.mockLLMProcessor
+            llmProcessor: PreviewData.mockLLMProcessor,
+            viewModel: PreviewData.mockPopoverViewModel
         ) { _ in }
     }
 }

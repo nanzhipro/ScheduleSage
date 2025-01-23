@@ -1,92 +1,92 @@
 // Status
-"remaining_uses" = "剩余%d次";
-"upgrade_prompt" = "升级获取无限次数";
+"remaining_uses" = "剩余 %d 次使用额度";
+"upgrade_prompt" = "升级获取无限使用权限";
 "separator" = "｜";
 
 // Titles
-"schedule_add_title" = "智能日程创建";
-"schedule_add_subtitle" = "支持剪贴板、手动输入和图片识别，轻松创建日程";
-"settings_window_title" = "设置";
+"schedule_add_title" = "智能创建日程";
+"schedule_add_subtitle" = "支持剪贴板导入、手动输入和图片识别，轻松创建日程";
+"settings_window_title" = "偏好设置";
 
 // Add Schedule Methods
-"add_schedule_title" = "添加日程的方式";
-"clipboard_import" = "剪贴板导入";
+"add_schedule_title" = "选择创建方式";
+"clipboard_import" = "从剪贴板导入";
 "manual_input" = "手动创建";
-"image_import" = "拖拽图片";
+"image_import" = "图片识别";
 
 // Actions
-"import_calendar" = "导入日历";
+"import_calendar" = "导入到日历";
 "close_popover" = "关闭";
 
 // Event List
-"detected_events" = "检测到 %d 个日程";
+"detected_events" = "已检测到 %d 个日程";
 "selected_events" = "已选择 %d 个日程";
-"recurring" = "重复";
+"recurring" = "重复日程";
 
 // Loading
-"loading_ocr" = "正在识别文字...";
-"loading_network" = "正在加载...";
-"loading_processing" = "正在处理...";
-"loading_url" = "正在解析网页...";
+"loading_ocr" = "正在识别图片文字...";
+"loading_network" = "正在加载数据...";
+"loading_processing" = "正在处理数据...";
+"loading_url" = "正在解析网页内容...";
 
 // Image Picker
 "select_image" = "选择图片";
-"select_image_message" = "请选择要识别的图片";
+"select_image_message" = "请选择需要识别的图片";
 
 // Navigation
-"back_to_add" = "返回添加";
+"back_to_add" = "返回";
 
 // Pro Features
-"feature_unlimited_ocr" = "无限次数识别";
-"feature_unlimited_ocr_desc" = "无限制使用OCR文字识别功能";
-"upgrade_to_pro" = "升级到 Pro";
+"feature_unlimited_ocr" = "无限次识别";
+"feature_unlimited_ocr_desc" = "无限制使用文字识别功能";
+"upgrade_to_pro" = "升级至专业版";
 "pro_expiry" = "会员有效期至：%@";
 
-// 设置菜单
+// Settings Menu
 "settings_preferences" = "偏好设置";
-"settings_quit" = "退出";
+"settings_quit" = "退出应用";
 "settings_tab_general" = "通用";
 "settings_tab_advanced" = "高级";
-"settings_notifications" = "启用通知";
+"settings_notifications" = "开启通知";
 "settings_dark_mode" = "深色模式";
-"settings_auto_start" = "开机时启动";
+"settings_auto_start" = "开机自动启动";
 "settings_show_previews" = "显示预览";
 "settings_font_size" = "字体大小";
-"settings_version" = "版本";
+"settings_version" = "当前版本";
 
 // Settings Groups
-"settings_group_notifications" = "通知";
-"settings_group_appearance" = "外观";
-"settings_group_system" = "系统";
+"settings_group_notifications" = "通知设置";
+"settings_group_appearance" = "外观设置";
+"settings_group_system" = "系统设置";
 "settings_group_about" = "关于";
-"settings_group_preview" = "预览";
-"settings_group_font" = "字体";
+"settings_group_preview" = "预览设置";
+"settings_group_font" = "字体设置";
 
 // Calendar Manager
-"calendar.error.access_denied" = "日历访问被拒绝，请在系统设置中授予访问权限。";
-"calendar.error.write_only_access" = "仅写入权限不足，需要完整的日历访问权限。";
-"calendar.error.unknown_status" = "未知的日历权限状态。";
-"calendar.error.color_generation_failed" = "生成日历颜色失败。";
-"calendar.error.create_failed" = "创建日历事件失败。";
-"calendar.error.invalid_date_format" = "事件日期格式无效，请检查日期和时间。";
+"calendar.error.access_denied" = "无法访问日历，请在系统设置中授予访问权限";
+"calendar.error.write_only_access" = "需要完整的日历访问权限，仅写入权限不足";
+"calendar.error.unknown_status" = "日历权限状态未知";
+"calendar.error.color_generation_failed" = "无法生成日历颜色";
+"calendar.error.create_failed" = "创建日历事件失败";
+"calendar.error.invalid_date_format" = "日程时间格式无效，请检查日期和时间";
 
 // Import Status
 "import_started" = "开始导入日程...";
 "import_success" = "日程已成功添加到日历";
 "import_in_progress" = "正在导入日程...";
 
-"invalid_clipboard_url" = "请先拷贝网页地址 URL 后，继续导入";
+"invalid_clipboard_url" = "请先复制有效的网页链接，然后再尝试导入";
 
 // Manual Schedule Input
 "manual_input_title" = "手动输入";
-"manual_input_subtitle" = "使用自然语言表述日程或直接拷贝日程文本内容，粘贴在下方";
-"recognize_button" = "识别";
-"schedule_input_placeholder" = "请描述并输入你的日程详细内容";
+"manual_input_subtitle" = "使用自然语言描述日程，或直接粘贴日程文本";
+"recognize_button" = "开始识别";
+"schedule_input_placeholder" = "请输入日程详细内容";
 
 // LLM Errors
 "llm_invalid_response" = "无法处理响应内容，请重试";
 "llm_parsing_failed" = "日程信息解析失败，请检查输入内容后重试";
-"llm_missing_fields" = "缺少必要的日程信息：%@，请补充完整信息后重试";
+"llm_missing_fields" = "缺少必要信息：%@，请补充完整后重试";
 
 // Event Fields
 "event_field_title" = "日程主题";
@@ -98,21 +98,21 @@
 "event_field_calendar" = "日历";
 
 /* Image format error message */
-"invalid_image_format" = "不支持的图片格式，请使用 PNG、JPEG 或 HEIC 格式的文件。";
+"invalid_image_format" = "不支持的图片格式，请使用 PNG、JPEG 或 HEIC 格式";
 
 // Error Messages
-"invalid_clipboard_content" = "请先复制有效的网页链接或图片，然后再尝试导入。";
+"invalid_clipboard_content" = "请先复制有效的网页链接或图片，然后再尝试导入";
 
 // Drag and Drop
-"drag_drop_hint" = "请直接拖拽图片文件";
+"drag_drop_hint" = "拖拽图片到此处";
 
-// 设置 - 开机启动
-"settings_launch_error_title" = "开机启动设置失败";
-"settings_launch_error_message" = "无法更新开机启动设置，请检查系统偏好设置后重试。";
-"settings_ok" = "好的";
+// Settings - Launch
+"settings_launch_error_title" = "启动设置失败";
+"settings_launch_error_message" = "无法更新开机启动设置，请检查系统偏好设置后重试";
+"settings_ok" = "确定";
 
-// 设置 - 通知
+// Settings - Notifications
 "settings_notification_error_title" = "需要通知权限";
-"settings_notification_error_message" = "请在系统设置中启用通知以接收更新。";
+"settings_notification_error_message" = "请在系统设置中开启通知权限以接收更新提醒";
 "settings_open_settings" = "打开设置";
 "settings_cancel" = "取消";

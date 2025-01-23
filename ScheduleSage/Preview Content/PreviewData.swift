@@ -54,6 +54,15 @@ enum PreviewData {
       remarks: "请提前准备演示材料"
     )
   ]
+  
+  static let mockLLMProcessor: LLMEventProcessor = MockLLMProcessor()
+  
+  @MainActor
+  static let mockPopoverViewModel: PopoverViewModel = {
+    let vm = PopoverViewModel()
+    // 设置一些预览用的初始状态
+    return vm
+  }()
 }
 
 #if DEBUG
@@ -64,10 +73,6 @@ class MockLLMProcessor: LLMEventProcessor {
     try? await Task.sleep(nanoseconds: 1_000_000_000)
     return PreviewData.mockCalendarEvents
   }
-}
-
-extension PreviewData {
-  static let mockLLMProcessor: LLMEventProcessor = MockLLMProcessor()
 }
 
 extension Event {

@@ -1,33 +1,33 @@
 // Status
-"remaining_uses" = "%d Uses Left";
-"upgrade_prompt" = "Upgrade to Unlimited";
+"remaining_uses" = "%d Uses Remaining";
+"upgrade_prompt" = "Upgrade to Unlimited Access";
 "separator" = "｜";
 
 // Titles
 "schedule_add_title" = "Smart Schedule Creation";
-"schedule_add_subtitle" = "Create schedules easily with clipboard, manual input, or image recognition";
-"settings_window_title" = "Settings";
+"schedule_add_subtitle" = "Create schedules easily with clipboard import, manual input, or image recognition";
+"settings_window_title" = "Preferences";
 
 // Add Schedule Methods
-"add_schedule_title" = "Ways to Add Schedule";
-"clipboard_import" = "From Clipboard";
+"add_schedule_title" = "Choose Creation Method";
+"clipboard_import" = "Import from Clipboard";
 "manual_input" = "Manual Create";
-"image_import" = "Drag & Drop Image";
+"image_import" = "Image Recognition";
 
 // Actions
 "import_calendar" = "Import to Calendar";
 "close_popover" = "Close";
 
 // Event List
-"detected_events" = "Detected %d Events";
+"detected_events" = "%d Events Detected";
 "selected_events" = "%d Events Selected";
-"recurring" = "Recurring";
+"recurring" = "Recurring Event";
 
 // Loading
-"loading_ocr" = "Recognizing text...";
-"loading_network" = "Loading...";
-"loading_processing" = "Processing...";
-"loading_url" = "Parsing webpage...";
+"loading_ocr" = "Recognizing Image Text...";
+"loading_network" = "Loading Data...";
+"loading_processing" = "Processing Data...";
+"loading_url" = "Parsing Webpage Content...";
 
 // Image Picker
 "select_image" = "Select Image";
@@ -38,13 +38,13 @@
 
 // Pro Features
 "feature_unlimited_ocr" = "Unlimited Recognition";
-"feature_unlimited_ocr_desc" = "Use OCR recognition without limits";
+"feature_unlimited_ocr_desc" = "Use text recognition without limits";
 "upgrade_to_pro" = "Upgrade to Pro";
 "pro_expiry" = "Pro expires on: %@";
 
 // Settings Menu
 "settings_preferences" = "Preferences";
-"settings_quit" = "Quit";
+"settings_quit" = "Quit App";
 "settings_tab_general" = "General";
 "settings_tab_advanced" = "Advanced";
 "settings_notifications" = "Enable Notifications";
@@ -52,67 +52,67 @@
 "settings_auto_start" = "Launch at Login";
 "settings_show_previews" = "Show Previews";
 "settings_font_size" = "Font Size";
-"settings_version" = "Version";
+"settings_version" = "Current Version";
 
 // Settings Groups
-"settings_group_notifications" = "Notifications";
-"settings_group_appearance" = "Appearance";
-"settings_group_system" = "System";
+"settings_group_notifications" = "Notification Settings";
+"settings_group_appearance" = "Appearance Settings";
+"settings_group_system" = "System Settings";
 "settings_group_about" = "About";
-"settings_group_preview" = "Preview";
-"settings_group_font" = "Font";
- 
+"settings_group_preview" = "Preview Settings";
+"settings_group_font" = "Font Settings";
+
 // Calendar Manager
-"calendar.error.access_denied" = "Calendar access denied. Please grant access in System Settings.";
-"calendar.error.write_only_access" = "Write-only access to calendar is not sufficient.";
-"calendar.error.unknown_status" = "Unknown calendar permission status.";
-"calendar.error.color_generation_failed" = "Failed to generate calendar color.";
-"calendar.error.create_failed" = "Failed to create calendar event.";
-"calendar.error.invalid_date_format" = "Invalid date format in event. Please check the date and time.";
+"calendar.error.access_denied" = "Cannot access calendar, please grant access in System Settings";
+"calendar.error.write_only_access" = "Full calendar access required, write-only permission is insufficient";
+"calendar.error.unknown_status" = "Unknown calendar permission status";
+"calendar.error.color_generation_failed" = "Failed to generate calendar color";
+"calendar.error.create_failed" = "Failed to create calendar event";
+"calendar.error.invalid_date_format" = "Invalid schedule time format, please check date and time";
 
 // Import Status
-"import_started" = "Starting to import events...";
-"import_success" = "Successfully added to your calendar";
-"import_in_progress" = "Importing events...";
+"import_started" = "Starting to import schedules...";
+"import_success" = "Successfully added to calendar";
+"import_in_progress" = "Importing schedules...";
 
-"invalid_clipboard_url" = "Please copy a valid webpage URL first, then try importing again.";
+"invalid_clipboard_url" = "Please copy a valid webpage link first, then try importing";
 
 // Manual Schedule Input
 "manual_input_title" = "Manual Input";
-"manual_input_subtitle" = "Use natural language to describe your schedule or paste schedule text content below";
-"recognize_button" = "Recognize";
-"schedule_input_placeholder" = "Please describe and enter your schedule details.";
+"manual_input_subtitle" = "Use natural language to describe schedule, or paste schedule text directly";
+"recognize_button" = "Start Recognition";
+"schedule_input_placeholder" = "Please enter schedule details";
 
 // LLM Errors
-"llm_invalid_response" = "Unable to process the response. Please try again.";
-"llm_parsing_failed" = "Failed to parse the schedule information. Please check your input and try again.";
-"llm_missing_fields" = "Missing required schedule information: %@. Please provide complete details.";
+"llm_invalid_response" = "Unable to process response, please try again";
+"llm_parsing_failed" = "Failed to parse schedule information, please check input and try again";
+"llm_missing_fields" = "Missing required information: %@, please complete and try again";
 
 // Event Fields
-"event_field_title" = "event title";
-"event_field_start_date" = "start time";
-"event_field_end_date" = "end time";
-"event_field_location" = "location";
-"event_field_notes" = "notes";
-"event_field_url" = "URL";
-"event_field_calendar" = "calendar";
+"event_field_title" = "Schedule Title";
+"event_field_start_date" = "Start Time";
+"event_field_end_date" = "End Time";
+"event_field_location" = "Location";
+"event_field_notes" = "Notes";
+"event_field_url" = "Link";
+"event_field_calendar" = "Calendar";
 
 /* Image format error message */
-"invalid_image_format" = "Unsupported image format. Please use PNG, JPEG, or HEIC files.";
+"invalid_image_format" = "Unsupported image format, please use PNG, JPEG, or HEIC format";
 
 // Error Messages
-"invalid_clipboard_content" = "Please copy a valid webpage URL or image first, then try importing again.";
+"invalid_clipboard_content" = "Please copy a valid webpage link or image first, then try importing";
 
 // Drag and Drop
-"drag_drop_hint" = "Please drag and drop image files directly";
+"drag_drop_hint" = "Drop Image Here";
 
 // Settings - Launch
-"settings_launch_error_title" = "Launch Settings Error";
-"settings_launch_error_message" = "Failed to update launch at startup settings. Please check your system preferences and try again.";
+"settings_launch_error_title" = "Launch Settings Failed";
+"settings_launch_error_message" = "Unable to update launch settings, please check system preferences and try again";
 "settings_ok" = "OK";
 
 // Settings - Notifications
 "settings_notification_error_title" = "Notification Permission Required";
-"settings_notification_error_message" = "Please enable notifications in System Settings to receive updates.";
+"settings_notification_error_message" = "Please enable notifications in System Settings to receive update alerts";
 "settings_open_settings" = "Open Settings";
 "settings_cancel" = "Cancel";

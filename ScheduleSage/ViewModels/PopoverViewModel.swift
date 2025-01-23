@@ -105,14 +105,8 @@ class PopoverViewModel: ObservableObject {
             // 2. 重置其他状态
             resetState()
             
-            // 3. 隐藏任何可能的 toast
-            showToast = false
-            
-            // 4. 隐藏加载状态
-            LoadingManager.shared.hide()
-            
-            // 5. 关闭窗口
-            NSApplication.shared.keyWindow?.close()
+            // 3. 关闭 popover
+            NSApp.sendAction(#selector(NSPopover.performClose(_:)), to: nil, from: nil)
         }
     }
 }
@@ -156,7 +150,7 @@ extension PopoverViewModel {
         showToastMessage(NSLocalizedString("invalid_clipboard_content", comment: ""))
     }
     
-    private func handleURLContent(_ url: URL) {
+    func handleURLContent(_ url: URL) {
         guard url.isValidWebURL else {
             self.logger.error("Invalid URL format: \(url.absoluteString)")
             showInvalidURLToast()
