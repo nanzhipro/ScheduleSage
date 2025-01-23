@@ -35,6 +35,7 @@ struct EventListView: View {
       height: ScheduleDesignSystem.Dimensions.containerHeight
     )
     .background(ScheduleDesignSystem.Colors.background)
+    .cornerRadius(ScheduleDesignSystem.Dimensions.containerCornerRadius)
     .toast(
       isPresented: $showToast,
       type: toastType,

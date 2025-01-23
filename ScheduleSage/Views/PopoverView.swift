@@ -222,9 +222,7 @@ private struct AddMethodSection: View {
       AddMethodButton(
         icon: "photo.fill",
         text: NSLocalizedString("image_import", comment: ""),
-        action: {
-          viewModel.showToastMessage(NSLocalizedString("drag_drop_hint", comment: ""))
-        }
+        action: viewModel.handleImageSelection
       )
     }
   }

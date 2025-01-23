@@ -24,6 +24,7 @@ public struct SettingsView: View {
   @State private var showLaunchError = false
   @AppStorage("showPreviews") private var showPreviews = true
   @AppStorage("fontSize") private var fontSize: Double = 28
+  @AppStorage("useWindowMode") private var useWindowMode = true
   
   private let formPadding: CGFloat = ScheduleDesignSystem.Spacing.contentPadding
   private let frameSize = CGSize(width: 375, height: 520)
@@ -153,6 +154,17 @@ public struct SettingsView: View {
             .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
         } icon: {
           Image(systemName: "power")
+            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
+        }
+      }
+      .tint(ScheduleDesignSystem.Colors.primary)
+      
+      Toggle(isOn: $useWindowMode) {
+        Label {
+          Text(NSLocalizedString("settings_window_mode", comment: ""))
+            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+        } icon: {
+          Image(systemName: "macwindow")
             .foregroundStyle(ScheduleDesignSystem.Colors.primary)
         }
       }

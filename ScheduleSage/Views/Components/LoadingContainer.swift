@@ -17,6 +17,7 @@ struct LoadingContainer<Content: View>: View {
       if loadingManager.isLoading {
         Color.black
           .opacity(0.2)
+          .cornerRadius(ScheduleDesignSystem.Dimensions.containerCornerRadius)
           .edgesIgnoringSafeArea(.all)
 
         LoadingIndicator(type: loadingManager.loadingType)

@@ -22,6 +22,9 @@ class PopoverViewModel: ObservableObject {
     @Published var toastMessage = ""
     @Published var toastType: ToastType = .success
     
+    // 添加窗口控制器引用
+    weak var windowController: MainWindowController?
+    
     // MARK: - Import Status
     enum ImportStatus: Equatable {
         case none
@@ -105,8 +108,14 @@ class PopoverViewModel: ObservableObject {
             // 2. 重置其他状态
             resetState()
             
-            // 3. 关闭 popover
-            NSApp.sendAction(#selector(NSPopover.performClose(_:)), to: nil, from: nil)
+            // 3. 根据模式选择关闭方式
+            if let windowController = windowController {
+                // Window 模式：关闭窗口
+                windowController.closeWindow()
+            } else {
+                // Popover 模式：关闭 popover
+                NSApp.sendAction(#selector(NSPopover.performClose(_:)), to: nil, from: nil)
+            }
         }
     }
 }
@@ -568,6 +577,33 @@ extension PopoverViewModel {
             // 仅当消息未被更新时才隐藏
             if toastMessage == message {
                 showToast = false
+            }
+        }
+    }
+}
+
+// MARK: - Image Selection
+extension PopoverViewModel {
+    func handleImageSelection() {
+        // 只在 Window 模式下允许打开文件选择器
+        guard windowController != nil else {
+            showToastMessage(NSLocalizedString("drag_drop_hint", comment: ""))
+            return
+        }
+        
+        let openPanel = NSOpenPanel()
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        openPanel.canChooseFiles = true
+        openPanel.allowedContentTypes = [.jpeg, .png, .tiff, .gif, .bmp, .ico, .pdf]
+        
+        Task { @MainActor in
+            guard let window = windowController?.window else { return }
+            let response = await openPanel.beginSheetModal(for: window)
+            
+            if response == .OK, let url = openPanel.url {
+                // 使用与拖拽相同的处理逻辑
+                handleDropped([url])
             }
         }
     }

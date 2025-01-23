@@ -11,8 +11,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private let calendarManager = CalendarManager()
   private var isPopoverShown = false  // 添加状态跟踪
   
+  // 新增窗口控制器
+  private var windowController: MainWindowController?
+  
   // 单实例标识符
   private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.schedulesage.app"
+  
+  // 使用 AppStorage 来获取窗口模式设置
+  @AppStorage("useWindowMode") private var useWindowMode = true
   
   func applicationDidFinishLaunching(_ notification: Notification) {
     // 检查是否已有实例运行
@@ -96,12 +102,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     let contentView = PopoverView()
         .environmentObject(viewModel)
     
-    let popover = NSPopover()
-    popover.contentSize = NSSize(width: 400, height: 600)
-    popover.behavior = .transient
-    popover.contentViewController = NSHostingController(rootView: contentView)
-    popover.delegate = self  // 设置 delegate
-    self.popover = popover
+    if useWindowMode {
+      // 创建窗口控制器
+      windowController = MainWindowController(
+        contentView: contentView,
+        viewModel: viewModel,
+        size: NSSize(width: 400, height: 600)
+      )
+      
+      // 设置 viewModel 的 windowController 引用
+      viewModel.windowController = windowController
+    } else {
+      let popover = NSPopover()
+      popover.contentSize = NSSize(width: 400, height: 600)
+      popover.behavior = .transient
+      popover.contentViewController = NSHostingController(rootView: contentView)
+      popover.delegate = self
+      self.popover = popover
+    }
   }
 
   private func setupEventMonitor() {
@@ -118,8 +136,38 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   }
 
   @objc func togglePopover() {
+    if useWindowMode {
+      toggleWindow()
+    } else {
+      togglePopoverView()
+    }
+  }
+  
+  private func toggleWindow() {
+    if let window = windowController?.window {
+      if window.isVisible {
+        window.close()
+      } else {
+        windowController?.showWindow(nil)
+        window.makeKeyAndOrderFront(nil)
+        
+        // 确保窗口在屏幕中心显示
+        if let screen = NSScreen.main {
+            let screenRect = screen.visibleFrame
+            let windowRect = window.frame
+            let newOrigin = NSPoint(
+                x: screenRect.midX - windowRect.width / 2,
+                y: screenRect.midY - windowRect.height / 2
+            )
+            window.setFrameOrigin(newOrigin)
+        }
+      }
+    }
+  }
+  
+  private func togglePopoverView() {
     if let button = statusItem?.button {
-      if isPopoverShown {  // 使用状态变量
+      if isPopoverShown {
         dismissPopover()
       } else {
         popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)

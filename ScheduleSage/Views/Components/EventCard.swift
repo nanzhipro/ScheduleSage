@@ -61,6 +61,7 @@ private struct CardContent: View {
   let time: String
   let location: String?
   let calendar: String?
+  @State private var isTimeHovered = false
   
   var body: some View {
     VStack(alignment: .leading, spacing: Constants.Spacing.title) {
@@ -72,7 +73,32 @@ private struct CardContent: View {
       Text(time)
         .font(.system(size: 15))
         .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        .lineLimit(1)
+        .truncationMode(.tail)
         .padding(.bottom, Constants.Spacing.timeBottom)
+        .overlay(
+          Group {
+            if isTimeHovered {
+              Text(time)
+                .font(.system(size: 13))
+                .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                  ScheduleDesignSystem.Colors.background
+                    .cornerRadius(6)
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                )
+                .offset(y: -30)
+            }
+          }
+        )
+        .onHover { hovering in
+          withAnimation(.easeInOut(duration: 0.15)) {
+            isTimeHovered = hovering
+          }
+        }
       
       IconLabels(location: location, calendar: calendar)
     }

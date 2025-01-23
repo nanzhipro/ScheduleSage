@@ -53,6 +53,7 @@
 "settings_show_previews" = "プレビューを表示";
 "settings_font_size" = "フォントサイズ";
 "settings_version" = "現在のバージョン";
+"settings_window_mode" = "ウィンドウモード";
 
 // Settings Groups
 "settings_group_notifications" = "通知設定";
