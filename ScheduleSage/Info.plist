@@ -36,5 +36,9 @@
 				</array>
 			</dict>
 		</array>
+		<key>NSUserNotificationAlertStyle</key>
+		<string>alert</string>
+		<key>NSUserNotificationsUsageDescription</key>
+		<string>${NSUserNotificationsUsageDescription}</string>
 	</dict>
 </plist>

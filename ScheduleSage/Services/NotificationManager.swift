@@ -8,71 +8,173 @@
 import Foundation
 import UserNotifications
 import AppKit
+import OSLog
 
-/// 管理应用程序的通知功能
-public final class NotificationManager {
-    public static let shared = NotificationManager()
+/// 通知管理器
+/// 管理应用程序的通知功能，包括权限管理、发送通知、处理通知交互等
+/// Notification Manager
+/// Manages application notifications, including permission management, sending notifications, and handling notification interactions
+public final class NotificationManager: NSObject {
+    // MARK: - Properties
     
-    private init() {}
+    public static let shared = NotificationManager()
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "NotificationManager")
+    private let notificationCenter = UNUserNotificationCenter.current()
+    
+    // MARK: - Initialization
+    
+    private override init() {
+        super.init()
+        notificationCenter.delegate = self
+    }
+    
+    // MARK: - Public Methods
     
     /// 请求通知权限
-    public func requestAuthorization() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            DispatchQueue.main.async {
-                if !granted {
-                    self.openNotificationSettings()
-                }
+    /// - Returns: 授权结果
+    @discardableResult
+    public func requestAuthorization() async -> Bool {
+        do {
+            let granted = try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
+            if !granted {
+                await MainActor.run { self.openNotificationSettings() }
             }
+            return granted
+        } catch {
+            logger.error("Failed to request notification authorization: \(error.localizedDescription)")
+            return false
         }
     }
     
     /// 检查通知权限状态
-    public func checkNotificationStatus(completion: @escaping (Bool) -> Void) {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            DispatchQueue.main.async {
-                completion(settings.authorizationStatus == .authorized)
-            }
-        }
-    }
-    
-    /// 打开系统通知设置
-    public func openNotificationSettings() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
-            NSWorkspace.shared.open(url)
-        }
+    /// - Returns: 是否已授权
+    public func checkNotificationStatus() async -> Bool {
+        let settings = await notificationCenter.notificationSettings()
+        return settings.authorizationStatus == .authorized
     }
     
     /// 发送通知
-    public func sendNotification(title: String, body: String, timeInterval: TimeInterval = 0) {
+    /// - Parameters:
+    ///   - title: 通知标题
+    ///   - body: 通知内容
+    ///   - delay: 延迟发送时间（可选）
+    public func sendNotification(
+        title: String,
+        body: String,
+        delay: TimeInterval = 0
+    ) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
         
-        let trigger = timeInterval > 0 
-            ? UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
-            : nil
-            
         let request = UNNotificationRequest(
             identifier: UUID().uuidString,
             content: content,
-            trigger: trigger
+            trigger: delay > 0 ? UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false) : nil
         )
         
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Error sending notification: \(error)")
+        Task {
+            do {
+                try await notificationCenter.add(request)
+            } catch {
+                logger.error("Failed to send notification: \(error.localizedDescription)")
             }
         }
     }
     
-    /// 清除所有待处理的通知
-    public func clearAllPendingNotifications() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    /// 发送带有日历事件链接的通知
+    /// - Parameters:
+    ///   - title: 通知标题
+    ///   - body: 通知内容
+    ///   - eventId: 日历事件的唯一标识符
+    ///   - delay: 延迟发送时间（可选）
+    public func sendCalendarEventNotification(
+        title: String,
+        body: String,
+        eventId: String,
+        delay: TimeInterval = 0
+    ) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        content.userInfo = ["eventId": eventId]
+        
+        let request = UNNotificationRequest(
+            identifier: "calendar-event-\(eventId)",
+            content: content,
+            trigger: delay > 0 ? UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false) : nil
+        )
+        
+        Task {
+            do {
+                try await notificationCenter.add(request)
+            } catch {
+                logger.error("Failed to send calendar event notification: \(error.localizedDescription)")
+            }
+        }
     }
     
-    /// 清除所有已显示的通知
-    public func clearAllDeliveredNotifications() {
-        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+    /// 清除所有通知
+    /// - Parameter type: 要清除的通知类型
+    public func clearNotifications(_ type: NotificationType = .all) {
+        switch type {
+        case .pending:
+            notificationCenter.removeAllPendingNotificationRequests()
+        case .delivered:
+            notificationCenter.removeAllDeliveredNotifications()
+        case .all:
+            notificationCenter.removeAllPendingNotificationRequests()
+            notificationCenter.removeAllDeliveredNotifications()
+        }
     }
-} 
+}
+
+// MARK: - Types
+
+extension NotificationManager {
+    /// 通知类型
+    public enum NotificationType {
+        case pending    // 待发送的通知
+        case delivered  // 已发送的通知
+        case all       // 所有通知
+    }
+}
+
+// MARK: - Private Methods
+
+private extension NotificationManager {
+    func openNotificationSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") else { return }
+        NSWorkspace.shared.open(url)
+    }
+    
+    func openCalendarEvent(_ eventId: String) {
+        guard let url = URL(string: "calshow://\(eventId)") else { return }
+        NSWorkspace.shared.open(url)
+    }
+}
+
+// MARK: - UNUserNotificationCenterDelegate
+
+extension NotificationManager: UNUserNotificationCenterDelegate {
+    public func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        if let eventId = response.notification.request.content.userInfo["eventId"] as? String {
+            openCalendarEvent(eventId)
+        }
+        completionHandler()
+    }
+    
+    public func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
+    }
+}

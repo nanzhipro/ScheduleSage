@@ -74,6 +74,7 @@
 "import_started" = "Starting to import schedules...";
 "import_success" = "Successfully added to calendar";
 "import_in_progress" = "Importing schedules...";
+"click_to_view_event" = "Click to view in Calendar";
 
 "invalid_clipboard_url" = "Please copy a valid webpage link first, then try importing";
 

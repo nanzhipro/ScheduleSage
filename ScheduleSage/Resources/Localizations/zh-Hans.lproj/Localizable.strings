@@ -72,8 +72,9 @@
 
 // Import Status
 "import_started" = "开始导入日程...";
-"import_success" = "日程已成功添加到日历";
+"import_success" = "已成功添加到日历";
 "import_in_progress" = "正在导入日程...";
+"click_to_view_event" = "点击查看日历事项";
 
 "invalid_clipboard_url" = "请先复制有效的网页链接，然后再尝试导入";
 

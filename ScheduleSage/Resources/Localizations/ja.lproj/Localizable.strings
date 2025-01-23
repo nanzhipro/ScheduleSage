@@ -74,6 +74,7 @@
 "import_started" = "スケジュールのインポートを開始...";
 "import_success" = "カレンダーに追加しました";
 "import_in_progress" = "スケジュールをインポート中...";
+"click_to_view_event" = "クリックしてカレンダーで表示";
 
 "invalid_clipboard_url" = "有効なウェブページリンクをコピーしてから、再度お試しください";
 

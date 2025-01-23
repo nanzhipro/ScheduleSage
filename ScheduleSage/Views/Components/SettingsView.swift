@@ -11,7 +11,9 @@ public struct SettingsView: View {
   @AppStorage("enableNotifications") private var enableNotifications = true {
     didSet {
       if enableNotifications {
-        NotificationManager.shared.requestAuthorization()
+        Task {
+          await NotificationManager.shared.requestAuthorization()
+        }
       }
     }
   }
@@ -78,11 +80,14 @@ public struct SettingsView: View {
         get: { enableNotifications },
         set: { newValue in
           if newValue {
-            NotificationManager.shared.checkNotificationStatus { isAuthorized in
+            Task {
+              let isAuthorized = await NotificationManager.shared.checkNotificationStatus()
               if !isAuthorized {
-                NotificationManager.shared.openNotificationSettings()
+                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!)
               }
-              enableNotifications = isAuthorized
+              await MainActor.run {
+                enableNotifications = isAuthorized
+              }
             }
           } else {
             enableNotifications = false

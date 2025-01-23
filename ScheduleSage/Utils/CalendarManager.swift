@@ -43,12 +43,15 @@ public final class CalendarManager {
   }
   
   /// 创建日历事件
-  public func createEvent(from model: CalendarEvent) async throws {
+  /// - Parameter model: 日历事件模型
+  /// - Returns: 创建的事件标识符
+  @discardableResult
+  public func createEvent(from model: CalendarEvent) async throws -> String {
     guard try await requestAccess() else {
       throw CalendarError.accessDenied
     }
     
-    try await createEventInternal(from: model)
+    return try await createEventInternal(from: model)
   }
   
   /// 为所有日历设置自动生成的颜色
@@ -97,7 +100,8 @@ private extension CalendarManager {
   }
   
   /// 创建事件的内部实现
-  func createEventInternal(from model: CalendarEvent) async throws {
+  @discardableResult
+  func createEventInternal(from model: CalendarEvent) async throws -> String {
     guard let calendar = try await getOrCreateCalendar(named: model.calendar) else {
       throw CalendarError.createFailed
     }
@@ -118,6 +122,7 @@ private extension CalendarManager {
     event.notes = model.notes
     
     try eventStore.save(event, span: .thisEvent)
+    return event.eventIdentifier
   }
   
   /// 获取或创建日历

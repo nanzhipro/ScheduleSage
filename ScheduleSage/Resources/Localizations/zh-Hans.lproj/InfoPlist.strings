@@ -2,4 +2,7 @@
 CFBundleDisplayName = "日程助手";
 
 /* Calendar Usage Description */
-NSCalendarsUsageDescription = "此应用需要访问您的日历以创建和管理事件。"; 
+NSCalendarsUsageDescription = "此应用需要访问您的日历以创建和管理事件。";
+
+/* Notifications Usage Description */
+NSUserNotificationsUsageDescription = "此应用需要发送通知以便及时通知您日历事件的更新。"; 

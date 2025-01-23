@@ -495,14 +495,25 @@ extension PopoverViewModel {
                     throw CalendarError.accessDenied
                 }
                 
+                var lastEventId: String?
                 // 导入所有事件
                 for event in parsedEvents {
-                    try await calendarManager.createEvent(from: event)
+                    lastEventId = try await calendarManager.createEvent(from: event)
                 }
                 
                 await MainActor.run {
                     importStatus = .success
                     LoadingManager.shared.hide()
+                    
+                    // 发送系统通知
+                    if let eventId = lastEventId {
+                        NotificationManager.shared.sendCalendarEventNotification(
+                            title: NSLocalizedString("import_success", comment: "Success message for calendar import"),
+                            body: NSLocalizedString("click_to_view_event", comment: "Prompt to view imported event"),
+                            eventId: eventId
+                        )
+                    }
+                    
                     // 延迟重置状态，让用户看到成功提示
                     Task {
                         try? await Task.sleep(nanoseconds: 2_000_000_000)  // 2秒后
