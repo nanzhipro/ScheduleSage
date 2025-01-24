@@ -10,6 +10,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private let logger = LoggerService()
   private let calendarManager = CalendarManager()
   private var isPopoverShown = false  // 添加状态跟踪
+  private let clipboardManager = ClipboardManager()
+  private var keyboardMonitor: Any?
   
   // 新增窗口控制器
   private var windowController: MainWindowController?
@@ -35,6 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
       setupStatusItem()
       setupPopover()
       setupEventMonitor()
+      setupKeyboardMonitor()
       
       // 请求日历权限
       requestCalendarAccess()
@@ -135,6 +138,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
   }
 
+  private func setupKeyboardMonitor() {
+    // 监听键盘事件
+    keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+      guard let self = self else { return event }
+      
+      // 检查是否是 Command + V
+      if event.modifierFlags.contains(.command) && event.keyCode == 9 { // V 键的 keyCode 是 9
+        // 检查应用程序是否在前台
+        if NSApp.isActive {
+          // 处理剪贴板内容
+          if let content = self.clipboardManager.checkClipboard() {
+            // 通知 ViewModel 处理剪贴板内容
+            self.viewModel?.handleClipboardContent(content)
+            return nil // 消耗掉这个事件
+          }
+        }
+      }
+      return event
+    }
+  }
+
   @objc func togglePopover() {
     if useWindowMode {
       toggleWindow()
@@ -225,6 +249,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
   deinit {
     if let monitor = eventMonitor {
+      NSEvent.removeMonitor(monitor)
+    }
+    if let monitor = keyboardMonitor {
       NSEvent.removeMonitor(monitor)
     }
   }

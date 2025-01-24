@@ -139,6 +139,17 @@ extension PopoverViewModel {
 
 // MARK: - Clipboard Handling
 extension PopoverViewModel {
+    func handleClipboardContent(_ content: ClipboardContent) {
+        switch content {
+        case .url(let url):
+            logger.debug("URL content detected from keyboard shortcut: \(url.absoluteString)")
+            handleURLContent(url)
+        case .image(let url):
+            logger.debug("Image content detected from keyboard shortcut: \(url.path)")
+            handleImageContent(url)
+        }
+    }
+
     func checkClipboardContent() {
         guard let content = clipboardManager.checkClipboard() else {
             showInvalidURLToast()
