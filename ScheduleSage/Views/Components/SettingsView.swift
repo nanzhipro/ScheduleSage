@@ -7,254 +7,197 @@
 
 import SwiftUI
 
-public struct SettingsView: View {
-  @AppStorage("enableNotifications") private var enableNotifications = true {
-    didSet {
-      if enableNotifications {
-        Task {
-          await NotificationManager.shared.requestAuthorization()
-        }
-      }
-    }
-  }
-  
+struct SettingsView: View {
+  // MARK: - Properties
   @StateObject private var themeManager = ThemeManager.shared
   @State private var showNotificationAlert = false
-  @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
   @State private var showLaunchError = false
+  
+  @AppStorage("enableNotifications") private var enableNotifications = true
   @AppStorage("showPreviews") private var showPreviews = true
   @AppStorage("fontSize") private var fontSize: Double = 28
   @AppStorage("useWindowMode") private var useWindowMode = true
+  @State private var autoStart = LaunchManager.shared.isLaunchAtStartupEnabled
   
-  private let formPadding: CGFloat = ScheduleDesignSystem.Spacing.contentPadding
-  private let frameSize = CGSize(width: 375, height: 520)
-  
-  public init() {}
-  
-  public var body: some View {
+  // MARK: - View
+  var body: some View {
     TabView {
       generalSettings
-        .tabItem {
-          Label(
-            NSLocalizedString("settings_tab_general", comment: ""),
-            systemImage: "gearshape"
-          )
-        }
+        .tabItem { settingsTabLabel("settings_tab_general", systemImage: "gear") }
+        .tag(SettingsTab.general)
       
       advancedSettings
-        .tabItem {
-          Label(
-            NSLocalizedString("settings_tab_advanced", comment: ""),
-            systemImage: "star"
-          )
-        }
+        .tabItem { settingsTabLabel("settings_tab_advanced", systemImage: "star") }
+        .tag(SettingsTab.advanced)
     }
-    .frame(width: frameSize.width, height: frameSize.height)
-    .background(ScheduleDesignSystem.Colors.background)
+    .frame(width: 375, height: 520)
+    .tabViewStyle(.automatic)
+    .background(ScheduleDesignSystem.Colors.primaryBackground)
+    .tint(ScheduleDesignSystem.Colors.primary)
   }
-  
-  private var generalSettings: some View {
-    Form {
+}
+
+// MARK: - View Components
+private extension SettingsView {
+  var generalSettings: some View {
+    SettingsForm {
       notificationSection
       appearanceSection
       systemSection
       versionSection
     }
-    .formStyle(.grouped)
-    .padding(formPadding)
-    .background(ScheduleDesignSystem.Colors.primaryBackground)
   }
   
-  private var advancedSettings: some View {
-    Form {
+  var advancedSettings: some View {
+    SettingsForm {
       previewSection
       fontSection
     }
-    .formStyle(.grouped)
-    .padding(formPadding)
-    .background(ScheduleDesignSystem.Colors.primaryBackground)
   }
   
-  private var notificationSection: some View {
+  var notificationSection: some View {
     Section {
-      Toggle(isOn: Binding(
-        get: { enableNotifications },
-        set: { newValue in
-          if newValue {
-            Task {
-              let isAuthorized = await NotificationManager.shared.checkNotificationStatus()
-              if !isAuthorized {
-                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!)
-              }
-              await MainActor.run {
-                enableNotifications = isAuthorized
-              }
-            }
-          } else {
-            enableNotifications = false
-          }
-        }
-      )) {
-        Label {
-          Text(NSLocalizedString("settings_notifications", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "bell.badge")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
-        }
+      Toggle(isOn: notificationBinding) {
+        settingsLabel("settings_notifications", systemImage: "bell.badge")
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
     } header: {
-      Text(NSLocalizedString("settings_group_notifications", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+      Text("settings_section_notifications")
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
   }
   
-  private var appearanceSection: some View {
+  var appearanceSection: some View {
     Section {
       Toggle(isOn: Binding(
-        get: { themeManager.isDarkModeEnabled },
+        get: { themeManager.isDarkMode },
         set: { themeManager.setDarkMode($0) }
       )) {
-        Label {
-          Text(NSLocalizedString("settings_dark_mode", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "moon.fill")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
-        }
+        settingsLabel("settings_dark_mode", systemImage: "moon.fill")
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
     } header: {
-      Text(NSLocalizedString("settings_group_appearance", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+      Text("settings_section_appearance")
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
   }
   
-  private var systemSection: some View {
+  var systemSection: some View {
     Section {
-      Toggle(isOn: Binding(
-        get: { autoStart },
-        set: { newValue in
-          let success = LaunchManager.shared.setLaunchAtStartup(newValue)
-          if success {
-            autoStart = newValue
-          } else {
-            showLaunchError = true
-            autoStart = LaunchManager.shared.isLaunchAtStartupEnabled
-          }
-        }
-      )) {
-        Label {
-          Text(NSLocalizedString("settings_auto_start", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "power")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
-        }
+      Toggle(isOn: $autoStart) {
+        settingsLabel("settings_launch_at_login", systemImage: "power")
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
+      .onChange(of: autoStart) { _, newValue in
+        handleAutoStartChange(newValue)
+      }
       
       Toggle(isOn: $useWindowMode) {
-        Label {
-          Text(NSLocalizedString("settings_window_mode", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "macwindow")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
-        }
+        settingsLabel("settings_use_window_mode", systemImage: "macwindow")
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
     } header: {
-      Text(NSLocalizedString("settings_group_system", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+      Text("settings_section_system")
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
-    .alert(
-      NSLocalizedString("settings_launch_error_title", comment: ""),
-      isPresented: $showLaunchError,
-      actions: {
-        Button(NSLocalizedString("settings_ok", comment: ""), role: .cancel) {}
-      },
-      message: {
-        Text(NSLocalizedString("settings_launch_error_message", comment: ""))
+  }
+  
+  var previewSection: some View {
+    Section {
+      Toggle(isOn: $showPreviews) {
+        settingsLabel("settings_show_previews", systemImage: "eye")
+      }
+    } header: {
+      Text("settings_section_preview")
+    }
+  }
+  
+  var fontSection: some View {
+    Section {
+      HStack {
+        settingsLabel("settings_font_size", systemImage: "textformat.size")
+        Slider(value: $fontSize, in: 12...48, step: 1)
+        Text("\(Int(fontSize))")
+      }
+    } header: {
+      Text("settings_section_font")
+    }
+  }
+  
+  var versionSection: some View {
+    Section {
+      Text("Version \(Bundle.main.shortVersionString)")
+        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+    }
+  }
+}
+
+// MARK: - Helper Views
+private extension SettingsView {
+  func settingsTabLabel(_ title: String, systemImage: String) -> some View {
+    Label(NSLocalizedString(title, comment: ""), systemImage: systemImage)
+      .labelStyle(.titleAndIcon)
+  }
+  
+  func settingsLabel(_ title: String, systemImage: String) -> some View {
+    Label {
+      Text(NSLocalizedString(title, comment: ""))
+        .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+    } icon: {
+      Image(systemName: systemImage)
+        .foregroundColor(ScheduleDesignSystem.Colors.primary)
+    }
+  }
+}
+
+// MARK: - Helper Methods
+private extension SettingsView {
+  var notificationBinding: Binding<Bool> {
+    Binding(
+      get: { enableNotifications },
+      set: { newValue in
+        if newValue {
+          Task { await requestNotificationPermission() }
+        } else {
+          enableNotifications = false
+        }
       }
     )
   }
   
-  private var versionSection: some View {
-    Section {
-      HStack {
-        Label {
-          Text(NSLocalizedString("settings_version", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "info.circle")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
-        }
-        Spacer()
-        Text(Bundle.main.appVersion)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-          .font(ScheduleDesignSystem.Typography.caption)
-      }
-    } header: {
-      Text(NSLocalizedString("settings_group_about", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+  func requestNotificationPermission() async {
+    let isAuthorized = await NotificationManager.shared.checkNotificationStatus()
+    if !isAuthorized {
+      NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!)
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
+    await MainActor.run {
+      enableNotifications = isAuthorized
+    }
   }
   
-  private var previewSection: some View {
-    Section {
-      Toggle(isOn: $showPreviews) {
-        Label {
-          Text(NSLocalizedString("settings_show_previews", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "eye")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
-        }
-      }
-      .tint(ScheduleDesignSystem.Colors.primary)
-    } header: {
-      Text(NSLocalizedString("settings_group_preview", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+  func handleAutoStartChange(_ newValue: Bool) {
+    LaunchManager.shared.setLaunchAtStartup(newValue)
+    if !LaunchManager.shared.isLaunchAtStartupEnabled {
+      showLaunchError = true
+      autoStart = false
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
-  }
-  
-  private var fontSection: some View {
-    Section {
-      VStack(alignment: .leading) {
-        Label {
-          Text(NSLocalizedString("settings_font_size", comment: "") + " (\(Int(fontSize)) pts)")
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "textformat.size")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
-        }
-        Slider(value: $fontSize, in: 12...48)
-          .padding(.leading, 28)
-          .tint(ScheduleDesignSystem.Colors.primary)
-      }
-    } header: {
-      Text(NSLocalizedString("settings_group_font", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
-    }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
   }
 }
 
+// MARK: - Helper Views
+private struct SettingsForm<Content: View>: View {
+  let content: Content
+  
+  init(@ViewBuilder content: () -> Content) {
+    self.content = content()
+  }
+  
+  var body: some View {
+    Form {
+      content
+    }
+    .formStyle(.grouped)
+    .padding(ScheduleDesignSystem.Spacing.contentPadding)
+    .background(ScheduleDesignSystem.Colors.primaryBackground)
+  }
+}
+
+// MARK: - Bundle Extension
 private extension Bundle {
-  var appVersion: String {
+  var shortVersionString: String {
     infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
   }
 }
