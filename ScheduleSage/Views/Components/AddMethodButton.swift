@@ -1,10 +1,3 @@
-//
-//  AddMethodButton.swift
-//  ScheduleSage
-//
-//  Created by CursorAI on 2024/03/26.
-//
-
 import SwiftUI
 
 struct AddMethodButton: View {

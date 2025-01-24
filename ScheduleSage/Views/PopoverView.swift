@@ -1,10 +1,3 @@
-//
-//  PopoverView.swift
-//  ScheduleSage
-//
-//  Created by CursorAI on 2024-02-14.
-//
-
 import AppKit
 import SwiftUI
 
@@ -249,6 +242,12 @@ private struct AddMethodSection: View {
         icon: "photo.fill",
         text: NSLocalizedString("image_import", comment: ""),
         action: viewModel.handleImageSelection
+      )
+      
+      AddMethodButton(
+        icon: "mic.fill",
+        text: NSLocalizedString("voice_input", comment: ""),
+        action: viewModel.handleVoiceInput
       )
     }
   }

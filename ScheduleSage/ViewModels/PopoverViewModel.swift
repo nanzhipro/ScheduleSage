@@ -147,6 +147,9 @@ extension PopoverViewModel {
         case .image(let url):
             logger.debug("Image content detected from keyboard shortcut: \(url.path)")
             handleImageContent(url)
+        case .voice(let text):
+            logger.debug("Voice content detected from keyboard shortcut: \(text)")
+            handleVoiceInput(text)
         }
     }
 
@@ -617,5 +620,27 @@ extension PopoverViewModel {
                 handleDropped([url])
             }
         }
+    }
+}
+
+// MARK: - Voice Input Handling
+extension PopoverViewModel {
+    func handleVoiceInput() {
+        let recognizer = NSSpeechRecognizer()
+        recognizer?.delegate = self
+        recognizer?.startListening()
+    }
+    
+    func handleVoiceInput(_ text: String) {
+        Task {
+            await processWithLLM(text)
+        }
+    }
+}
+
+// MARK: - NSSpeechRecognizerDelegate
+extension PopoverViewModel: NSSpeechRecognizerDelegate {
+    func speechRecognizer(_ sender: NSSpeechRecognizer, didRecognizeCommand command: String) {
+        handleVoiceInput(command)
     }
 }

@@ -40,5 +40,7 @@
 		<string>alert</string>
 		<key>NSUserNotificationsUsageDescription</key>
 		<string>${NSUserNotificationsUsageDescription}</string>
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>We need access to speech recognition to enable voice input for creating schedules.</string>
 	</dict>
 </plist>
