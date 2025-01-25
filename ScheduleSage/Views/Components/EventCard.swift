@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Constants
 private enum Constants {
   enum Card {
-    static let height: CGFloat = 134
+    static let height: CGFloat = 154
     static let padding = EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
     static let cornerRadius: CGFloat = 12
   }
@@ -11,12 +11,22 @@ private enum Constants {
   enum Spacing {
     static let title: CGFloat = 8
     static let icon: CGFloat = 16
-    static let timeBottom: CGFloat = 12
+    static let timeBottom: CGFloat = 8
+    static let timeSection: CGFloat = 12
+    static let timeIconWidth: CGFloat = 24
+    static let separatorPadding: CGFloat = 4
   }
   
   enum Icon {
     static let size: CGFloat = 32
     static let spacing: CGFloat = 8
+    static let timeIconSize: CGFloat = 14
+  }
+  
+  enum Time {
+    static let separatorWidth: CGFloat = 1
+    static let separatorHeight: CGFloat = 24
+    static let iconOffset: CGFloat = 2
   }
   
   enum Selection {
@@ -29,7 +39,8 @@ private enum Constants {
 // MARK: - Event Card
 struct EventCard: View {
   let title: String
-  let time: String
+  let startDate: Date
+  let endDate: Date
   let location: String?
   let calendar: String?
   let isSelected: Bool
@@ -39,7 +50,8 @@ struct EventCard: View {
     HStack(alignment: .center, spacing: Constants.Spacing.icon) {
       CardContent(
         title: title,
-        time: time,
+        startDate: startDate,
+        endDate: endDate,
         location: location,
         calendar: calendar
       )
@@ -58,10 +70,10 @@ struct EventCard: View {
 // MARK: - Supporting Views
 private struct CardContent: View {
   let title: String
-  let time: String
+  let startDate: Date
+  let endDate: Date
   let location: String?
   let calendar: String?
-  @State private var isTimeHovered = false
   
   var body: some View {
     VStack(alignment: .leading, spacing: Constants.Spacing.title) {
@@ -70,37 +82,38 @@ private struct CardContent: View {
         .foregroundColor(DesignSystem.Colors.primaryText)
         .lineLimit(1)
       
-      Text(time)
-        .font(.system(size: 15))
-        .foregroundColor(DesignSystem.Colors.secondaryText)
-        .lineLimit(1)
-        .truncationMode(.tail)
-        .padding(.bottom, Constants.Spacing.timeBottom)
-        .overlay(
-          Group {
-            if isTimeHovered {
-              Text(time)
-                .font(.system(size: 13))
-                .foregroundColor(DesignSystem.Colors.primaryText)
-                .fixedSize(horizontal: true, vertical: false)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(
-                  DesignSystem.Colors.background
-                    .cornerRadius(6)
-                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-                )
-                .offset(y: -30)
-            }
-          }
-        )
-        .onHover { hovering in
-          withAnimation(.easeInOut(duration: 0.15)) {
-            isTimeHovered = hovering
-          }
-        }
+      TimeSection(startDate: startDate, endDate: endDate)
+        .padding(.bottom, Constants.Spacing.timeSection)
       
       IconLabels(location: location, calendar: calendar)
+    }
+  }
+}
+
+private struct TimeSection: View {
+  let startDate: Date
+  let endDate: Date
+  
+  var body: some View {
+    HStack(alignment: .top, spacing: 0) {
+      VStack {
+        Rectangle()
+          .fill(DesignSystem.Colors.borderGray)
+          .frame(width: Constants.Time.separatorWidth, height: Constants.Time.separatorHeight)
+          .padding(.vertical, Constants.Spacing.separatorPadding)
+      }
+      .padding(.leading, 4)
+      
+      VStack(alignment: .leading, spacing: Constants.Spacing.timeBottom) {
+        Text(DateFormatters.display.string(from: startDate))
+          .font(DesignSystem.Typography.bodyRegular)
+          .foregroundColor(DesignSystem.Colors.primaryText)
+        
+        Text(DateFormatters.display.string(from: endDate))
+          .font(DesignSystem.Typography.bodyRegular)
+          .foregroundColor(DesignSystem.Colors.primaryText)
+      }
+      .padding(.leading, Constants.Icon.spacing)
     }
   }
 }
@@ -137,7 +150,7 @@ private struct EventIconLabel: View {
       }
       
       Text(text)
-        .font(.system(size: 13))
+        .font(DesignSystem.Typography.bodyRegular)
         .foregroundColor(DesignSystem.Colors.secondaryText)
     }
   }
@@ -190,7 +203,8 @@ struct EventCard_Previews: PreviewProvider {
   private static func makePreview() -> some View {
     EventCard(
       title: "南知读书会第一期",
-      time: "3月25日 周一 14:00-16:00",
+      startDate: Date(timeIntervalSince1970: 1679725200),
+      endDate: Date(timeIntervalSince1970: 1679732400),
       location: "知识星球",
       calendar: "工作",
       isSelected: true,

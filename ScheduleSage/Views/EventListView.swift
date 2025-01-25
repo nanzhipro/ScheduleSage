@@ -106,14 +106,18 @@ private extension EventListView {
     ScrollView {
       LazyVStack(spacing: DesignSystem.Dimensions.eventCardSpacing) {
         ForEach(events) { event in
-          EventCard(
-            title: event.title,
-            time: event.time,
-            location: event.location,
-            calendar: event.calendar,
-            isSelected: selectedEventIds.contains(event.eventIdentifier)
-          ) {
-            toggleEventSelection(event.eventIdentifier)
+          if let startDate = event.parsedStartDate,
+             let endDate = event.parsedEndDate {
+            EventCard(
+              title: event.title,
+              startDate: startDate,
+              endDate: endDate,
+              location: event.location,
+              calendar: event.calendar,
+              isSelected: selectedEventIds.contains(event.eventIdentifier)
+            ) {
+              toggleEventSelection(event.eventIdentifier)
+            }
           }
         }
       }
@@ -185,12 +189,38 @@ private extension EventListView {
 #if DEBUG
 struct EventListView_Previews: PreviewProvider {
   static var previews: some View {
-    EventListView(
-      events: [],
-      onAdd: {},
-      onImport: {},
-      onBack: {}
-    )
+    Group {
+      // 亮色模式预览
+      EventListView(
+        events: PreviewData.mockCalendarEvents,
+        onAdd: {},
+        onImport: {},
+        onBack: {}
+      )
+      .previewDisplayName("Light Mode")
+      
+      // 暗色模式预览
+      EventListView(
+        events: PreviewData.mockCalendarEvents,
+        onAdd: {},
+        onImport: {},
+        onBack: {}
+      )
+      .preferredColorScheme(.dark)
+      .previewDisplayName("Dark Mode")
+      
+      // 空列表预览
+      EventListView(
+        events: [],
+        onAdd: {},
+        onImport: {},
+        onBack: {}
+      )
+      .previewDisplayName("Empty State")
+    }
+    .frame(width: 500, height: 700)
+    .background(Color.gray.opacity(0.1))
+    .padding()
   }
 }
 #endif

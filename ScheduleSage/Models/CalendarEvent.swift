@@ -55,7 +55,17 @@ public struct CalendarEvent: Codable, Identifiable {
         return fieldDisplayNames[field] ?? field
     }
     
-    // MARK: - Computed Properties
+    // MARK: - Date Formatters
+    
+    private static let dateTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        formatter.timeZone = .current
+        formatter.locale = .current
+        formatter.doesRelativeDateFormatting = true  // 启用相对日期格式化
+        return formatter
+    }()
     
     /// 格式化后的时间显示
     public var time: String {
@@ -64,11 +74,7 @@ public struct CalendarEvent: Codable, Identifiable {
             return ""
         }
         
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        
-        return "\(formatter.string(from: start)) - \(formatter.string(from: end))"
+        return DateFormatters.formatDateRange(start: start, end: end)
     }
     
     // MARK: - Coding Keys
@@ -151,27 +157,28 @@ extension CalendarEvent {
     }
 }
 
+// MARK: - Date Formatter
+private extension DateFormatter {
+    /// 用于解析日期字符串的格式化器
+    static let standardFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = .current  // 使用系统时区
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+}
+
 // MARK: - Date Conversion
 extension CalendarEvent {
     /// 获取格式化的开始日期
     public var parsedStartDate: Date? {
-        DateFormatter.iso8601Full.date(from: startDate)
+        DateFormatters.parse(startDate)
     }
     
     /// 获取格式化的结束日期
     public var parsedEndDate: Date? {
-        DateFormatter.iso8601Full.date(from: endDate)
+        DateFormatters.parse(endDate)
     }
-}
-
-// MARK: - Date Formatter
-private extension DateFormatter {
-    static let iso8601Full: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        formatter.calendar = Calendar(identifier: .iso8601)
-        formatter.timeZone = TimeZone.current
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        return formatter
-    }()
 } 

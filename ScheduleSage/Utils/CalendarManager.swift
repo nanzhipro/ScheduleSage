@@ -11,7 +11,7 @@ import AppKit
 import SwiftDate
 
 /// 日历管理器
-public final class CalendarManager {
+public final class CalendarManager { 
   // MARK: - Properties
   
   private let eventStore = EKEventStore()
@@ -36,6 +36,9 @@ public final class CalendarManager {
       
     case .writeOnly:
       throw CalendarError.writeOnlyAccess
+      
+    case .fullAccess:
+      return true
       
     @unknown default:
       throw CalendarError.unknownStatus
@@ -106,17 +109,21 @@ private extension CalendarManager {
       throw CalendarError.createFailed
     }
     
-    // 验证日期转换
-    guard let startDate = model.startDate.toDate()?.date,
-          let endDate = model.endDate.toDate()?.date else {
+    // 使用用户当前时区
+    let userTimeZone = TimeZone.current
+    
+    // 验证并转换日期
+    guard let startDate = model.parsedStartDate,
+          let endDate = model.parsedEndDate else {
       throw CalendarError.invalidDateFormat
     }
     
     let event = EKEvent(eventStore: eventStore)
     event.calendar = calendar
     event.title = model.title
-    event.startDate = startDate
-    event.endDate = endDate
+    event.startDate = startDate  // 已经是正确时区的 Date
+    event.endDate = endDate      // 已经是正确时区的 Date
+    event.timeZone = userTimeZone  // 明确设置事件时区
     event.location = model.location
     event.url = URL(string: model.url)
     event.notes = model.notes

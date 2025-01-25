@@ -97,9 +97,27 @@ public class DefaultLLMEventProcessor: LLMEventProcessor {
         return calendarManager.getAllCalendarNames()
     }
     
+    private func getCurrentTimezoneInfo() -> String {
+        let timezone = TimeZone.current
+        let offset = timezone.secondsFromGMT()
+        let hours = abs(offset) / 3600
+        let minutes = (abs(offset) % 3600) / 60
+        
+        var result = timezone.identifier
+        if let abbreviation = timezone.abbreviation() {
+            result += " (\(abbreviation))"
+        }
+        result += ", UTC"
+        result += offset >= 0 ? "+" : "-"
+        result += String(format: "%02d:%02d", hours, minutes)
+        
+        return result
+    }
+    
     private func buildPrompt(content: String, calendarNames: [String]) async throws -> String {
         await promptViewModel.getPromptContent()
             .replacingOccurrences(of: "CALENDAR_NAMES_LIST", with: calendarNames.isEmpty ? "Default Calendar" : calendarNames.joined(separator: ", "))
+            .replacingOccurrences(of: "CURRENT_TIMEZONE", with: getCurrentTimezoneInfo())
             .replacingOccurrences(of: "PLACEHOLDER_TEXT", with: content)
     }
 } 

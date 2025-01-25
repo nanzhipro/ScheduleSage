@@ -128,3 +128,5 @@
 // Notification Actions
 "view_event" = "View Event";
 "dismiss" = "Dismiss";
+
+"event_time_range_format" = "%@ to %@";

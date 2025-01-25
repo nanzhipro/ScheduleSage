@@ -128,3 +128,5 @@
 // Notification Actions
 "view_event" = "查看日程";
 "dismiss" = "关闭";
+
+"event_time_range_format" = "%@ 至 %@";
