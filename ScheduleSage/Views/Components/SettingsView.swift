@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct SettingsView: View {
+struct SettingsView: View {
   @AppStorage("enableNotifications") private var enableNotifications = true {
     didSet {
       if enableNotifications {
@@ -26,31 +26,19 @@ public struct SettingsView: View {
   @AppStorage("fontSize") private var fontSize: Double = 28
   @AppStorage("useWindowMode") private var useWindowMode = true
   
-  private let formPadding: CGFloat = DesignSystem.Spacing.contentPadding
-  private let frameSize = CGSize(width: 375, height: 520)
-  
-  public init() {}
-  
-  public var body: some View {
+  var body: some View {
     TabView {
       generalSettings
         .tabItem {
-          Label(
-            NSLocalizedString("settings_tab_general", comment: ""),
-            systemImage: "gearshape"
-          )
+          Label(NSLocalizedString("settings_tab_general", comment: ""), systemImage: "gear")
         }
       
-      advancedSettings
-        .tabItem {
-          Label(
-            NSLocalizedString("settings_tab_advanced", comment: ""),
-            systemImage: "star"
-          )
-        }
+      // advancedSettings
+      //   .tabItem {
+      //     Label(NSLocalizedString("settings_tab_advanced", comment: ""), systemImage: "gearshape.2")
+      //   }
     }
-    .frame(width: frameSize.width, height: frameSize.height)
-    .background(DesignSystem.Colors.background)
+    .frame(width: 375)
   }
   
   private var generalSettings: some View {
@@ -61,7 +49,7 @@ public struct SettingsView: View {
       versionSection
     }
     .formStyle(.grouped)
-    .padding(formPadding)
+    .scrollContentBackground(.hidden)
     .background(DesignSystem.Colors.primaryBackground)
   }
   
@@ -71,7 +59,7 @@ public struct SettingsView: View {
       fontSection
     }
     .formStyle(.grouped)
-    .padding(formPadding)
+    .scrollContentBackground(.hidden)
     .background(DesignSystem.Colors.primaryBackground)
   }
   

@@ -31,7 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
       return
     }
     
-      DesignSystem.switchTheme(to: .apple)
+    DesignSystem.switchTheme(to: .wechat)
     logger.info("AppDelegate did finish launching")
     
     Task {
@@ -63,7 +63,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         $0.bundleIdentifier == Self.bundleIdentifier && $0 != NSRunningApplication.current 
       }) {
         // 激活已存在的实例
-        existingInstance.activate(options: [.activateIgnoringOtherApps])
+        if #available(macOS 14.0, *) {
+          existingInstance.activate()
+        } else {
+          existingInstance.activate(options: [.activateIgnoringOtherApps])
+        }
         
         // 通过 URL Scheme 触发已存在实例的显示
         if let url = URL(string: "schedulesage://show") {
@@ -270,6 +274,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
     if let monitor = keyboardMonitor {
       NSEvent.removeMonitor(monitor)
+    }
+  }
+
+  /// 显示主窗口
+  private func showMainWindow() {
+    if let window = windowController?.window {
+      window.makeKeyAndOrderFront(nil)
+      
+      if #available(macOS 14.0, *) {
+        NSApplication.shared.activate()
+      } else {
+        NSApplication.shared.activate(ignoringOtherApps: true)
+      }
     }
   }
 }

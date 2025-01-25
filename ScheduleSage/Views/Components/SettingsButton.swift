@@ -9,11 +9,14 @@ import SwiftUI
 import AppKit
 
 struct SettingsButton: View {
-  private static var settingsWindow: NSWindow?
-  
   var body: some View {
     Menu {
-      settingsButton
+      SettingsLink {
+        Label(
+          NSLocalizedString("settings_preferences", comment: ""),
+          systemImage: "gear"
+        )
+      }
       Divider()
       quitButton
     } label: {
@@ -22,16 +25,6 @@ struct SettingsButton: View {
     .menuStyle(BorderlessButtonMenuStyle())
     .menuIndicator(.hidden)
     .frame(width: 44, height: 44)
-  }
-  
-  private var settingsButton: some View {
-    Button(action: openSettings) {
-      Label(
-        NSLocalizedString("settings_preferences", comment: ""),
-        systemImage: "gear"
-      )
-    }
-    .foregroundColor(DesignSystem.Colors.primaryText)
   }
   
   private var quitButton: some View {
@@ -49,37 +42,6 @@ struct SettingsButton: View {
       .font(.system(size: DesignSystem.Dimensions.settingsButtonSize))
       .foregroundColor(DesignSystem.Colors.secondaryGray)
       .contentShape(Rectangle())
-  }
-  
-  private func openSettings() {
-    if let existingWindow = Self.settingsWindow {
-      existingWindow.makeKeyAndOrderFront(nil)
-      NSApp.activate(ignoringOtherApps: true)
-      return
-    }
-    
-    let window = NSWindow(
-      contentRect: NSRect(x: 0, y: 0, width: 375, height: 520),
-      styleMask: [.titled, .closable],
-      backing: .buffered,
-      defer: false
-    )
-    
-    window.title = NSLocalizedString("settings_window_title", comment: "")
-    window.center()
-    window.level = .floating
-    
-    let hostingController = NSHostingController(
-      rootView: SettingsView()
-        .frame(width: 375, height: 520)
-    )
-    
-    window.contentViewController = hostingController
-    window.isReleasedWhenClosed = false
-    window.makeKeyAndOrderFront(nil)
-    NSApp.activate(ignoringOtherApps: true)
-    
-    Self.settingsWindow = window
   }
 }
 
