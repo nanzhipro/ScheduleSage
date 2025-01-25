@@ -1,44 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>LSUIElement</key>
-		<true />
-		<key>CFBundleLocalizations</key>
-		<array>
-			<string>en</string>
-			<string>zh-Hans</string>
-			<string>ja</string>
-		</array>
-		<key>NSCalendarsUsageDescription</key>
-		<string>${NSCalendarsUsageDescription}</string>
-		<key>CFBundleDisplayName</key>
-		<string>${CFBundleDisplayName}</string>
-		<key>LSApplicationCategoryType</key>
-		<string>public.app-category.productivity</string>
-		<key>LSBackgroundOnly</key>
-		<false />
-		<key>LSMinimumSystemVersion</key>
-		<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
-		<key>SMPrivilegedExecutables</key>
+<dict>
+	<key>CFBundleURLTypes</key>
+	<array>
 		<dict>
-			<key>com.tiwenlab.schedulesage.LaunchAgent</key>
-			<string>anchor apple generic and identifier "com.tiwenlab.schedulesage.LaunchAgent"</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>schdulesage</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>schedulesage://show</string>
+			</array>
 		</dict>
-		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleURLName</key>
-				<string>com.tiwenlab.schedulesage</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>schedulesage</string>
-				</array>
-			</dict>
-		</array>
-		<key>NSUserNotificationAlertStyle</key>
-		<string>alert</string>
-		<key>NSUserNotificationsUsageDescription</key>
-		<string>${NSUserNotificationsUsageDescription}</string>
-	</dict>
+	</array>
+</dict>
 </plist>

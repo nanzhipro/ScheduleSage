@@ -312,6 +312,15 @@ enum DesignSystem {
     static let listVerticalPadding: CGFloat = 20
     /// 设置按钮尺寸
     static let settingsButtonSize: CGFloat = 22
+    
+    /// 主页面宽度
+    static let mainViewWidth: CGFloat = 440
+    /// 主页面高度
+    static let mainViewHeight: CGFloat = 640
+    /// 事件列表页宽度
+    static let eventListWidth: CGFloat = 440
+    /// 事件列表页高度
+    static let eventListHeight: CGFloat = 563
   }
 
   // MARK: - Spacing

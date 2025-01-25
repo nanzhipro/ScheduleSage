@@ -118,3 +118,9 @@
 "settings_notification_error_message" = "更新通知を受け取るには、システム設定で通知を有効にしてください";
 "settings_open_settings" = "設定を開く";
 "settings_cancel" = "キャンセル";
+
+/* 日程列表页标题 */
+"event_list_title" = "スケジュール一覧";
+
+/* 日程列表页副标题 */
+"event_list_subtitle" = "認識されたスケジュールをチェックしてカレンダーに追加できます";

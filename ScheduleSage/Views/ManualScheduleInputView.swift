@@ -58,9 +58,7 @@ struct ManualScheduleInputView: View {
             )
             .navigationDestination(isPresented: $navigateToEventList) {
                 EventListView(
-                    proStatus: .free(remainingUses: 12),
                     events: processedEvents,
-                    onUpgrade: {},
                     onAdd: { navigateToEventList = false },
                     onImport: {},
                     onBack: { navigateToEventList = false }
@@ -109,7 +107,7 @@ private struct HeaderView: View {
                     .font(DesignSystem.Typography.headerTitle)
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 Spacer()
-                CloseButton(action: { isPresented = false })
+                SageCloseButton(action: { isPresented = false })
             }
             
             Text(NSLocalizedString("manual_input_subtitle", comment: ""))
@@ -180,23 +178,6 @@ private struct RecognizeButton: View {
         .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
         .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
         .padding(.top, DesignSystem.Spacing.vertical)
-    }
-}
-
-private struct CloseButton: View {
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "xmark")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(DesignSystem.Colors.secondaryGray)
-                .frame(width: 28, height: 28)
-        }
-        .buttonStyle(.plain)
-        .withHoverEffect(scale: 1.1, brightness: 0.1)
-        .background(DesignSystem.Colors.hoverBackground.opacity(0.001))
-        .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
     }
 }
 

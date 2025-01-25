@@ -9,9 +9,7 @@ import SwiftUI
 
 struct EventListView: View {
   // MARK: - Properties
-  let proStatus: ProStatus
   let events: [CalendarEvent]
-  let onUpgrade: () -> Void
   let onAdd: () -> Void
   let onImport: () -> Void
   let onBack: () -> Void
@@ -26,13 +24,13 @@ struct EventListView: View {
   // MARK: - Body
   var body: some View {
     VStack(spacing: 0) {
-      navigationBar
+      HeaderView(onBack: onBack)
       contentArea
       importButton
     }
     .frame(
-      width: DesignSystem.Dimensions.containerWidth,
-      height: DesignSystem.Dimensions.containerHeight
+      width: DesignSystem.Dimensions.eventListWidth,
+      height: DesignSystem.Dimensions.eventListHeight
     )
     .background(DesignSystem.Colors.background)
     .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
@@ -51,42 +49,33 @@ struct EventListView: View {
   }
 }
 
+// MARK: - Header View
+private struct HeaderView: View {
+  let onBack: () -> Void
+  
+  var body: some View {
+    VStack(alignment: .leading, spacing: DesignSystem.Spacing.textSpacing) {
+      HStack(spacing: DesignSystem.Spacing.iconSpacing) {
+        Text(NSLocalizedString("event_list_title", comment: ""))
+          .font(DesignSystem.Typography.headerTitle)
+          .foregroundColor(DesignSystem.Colors.primaryText)
+        Spacer()
+        SageCloseButton(action: onBack)
+      }
+      
+      Text(NSLocalizedString("event_list_subtitle", comment: ""))
+        .font(DesignSystem.Typography.caption)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
+        .lineLimit(2)
+    }
+    .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+    .padding(.top, DesignSystem.Layout.containerPadding.top)
+    .padding(.bottom, DesignSystem.Spacing.sectionSpacing)
+  }
+}
+
 // MARK: - View Components
 private extension EventListView {
-  var navigationBar: some View {
-    HStack {
-      backButton
-      Spacer()
-      proStatusView
-    }
-    .frame(height: DesignSystem.Dimensions.headerHeight)
-    .padding(.horizontal, DesignSystem.Layout.statusBarPadding.leading)
-    .padding(.vertical, DesignSystem.Layout.statusBarPadding.top)
-    .background(DesignSystem.Colors.background)
-  }
-  
-  var backButton: some View {
-    Button(action: onBack) {
-      HStack(spacing: 4) {
-        Image(systemName: "chevron.left")
-          .font(.system(size: 13, weight: .semibold))
-        Text(NSLocalizedString("back_to_add", comment: ""))
-          .font(DesignSystem.Typography.navigationText)
-      }
-      .foregroundColor(DesignSystem.Colors.primary)
-    }
-    .buttonStyle(.plain)
-    .withHoverEffect()
-  }
-  
-  var proStatusView: some View {
-    ProStatusView(
-      status: proStatus,
-      onUpgrade: onUpgrade,
-      style: .compact
-    )
-  }
-  
   var contentArea: some View {
     VStack(spacing: DesignSystem.Dimensions.listContentSpacing) {
       listHeader
@@ -197,9 +186,7 @@ private extension EventListView {
 struct EventListView_Previews: PreviewProvider {
   static var previews: some View {
     EventListView(
-      proStatus: .free(remainingUses: 12),
       events: [],
-      onUpgrade: {},
       onAdd: {},
       onImport: {},
       onBack: {}

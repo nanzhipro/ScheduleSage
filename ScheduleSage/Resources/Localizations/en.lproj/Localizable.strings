@@ -118,3 +118,9 @@
 "settings_notification_error_message" = "Please enable notifications in System Settings to receive update alerts";
 "settings_open_settings" = "Open Settings";
 "settings_cancel" = "Cancel";
+
+/* 日程列表页标题 */
+"event_list_title" = "Event List";
+
+/* 日程列表页副标题 */
+"event_list_subtitle" = "Select recognized events to add to your calendar";

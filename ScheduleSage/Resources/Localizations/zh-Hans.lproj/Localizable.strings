@@ -118,3 +118,9 @@
 "settings_notification_error_message" = "请在系统设置中开启通知权限以接收更新提醒";
 "settings_open_settings" = "打开设置";
 "settings_cancel" = "取消";
+
+/* 日程列表页标题 */
+"event_list_title" = "日程列表";
+
+/* 日程列表页副标题 */
+"event_list_subtitle" = "已识别到的日程，可勾选添加到系统日历";

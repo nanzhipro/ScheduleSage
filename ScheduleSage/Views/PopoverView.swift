@@ -18,13 +18,14 @@ struct PopoverView: View {
         .withLoading()
         .sheet(isPresented: $viewModel.showEventList) {
           EventListView(
-            proStatus: viewModel.proStatus,
             events: viewModel.parsedEvents,
-            onUpgrade: viewModel.showUpgradeSheetAction,
             onAdd: viewModel.resetState,
             onImport: viewModel.importToCalendar,
             onBack: { viewModel.showEventList = false }
           )
+          .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
+          .presentationDragIndicator(.visible)
+          .presentationBackgroundInteraction(.enabled)
         }
     }
     .toast(
@@ -89,13 +90,13 @@ private struct AddScheduleView: View {
       }
       .padding(.bottom, DesignSystem.Spacing.vertical)
       
-      CloseButton(action: viewModel.closePopover)
+      CloseXButton(action: viewModel.closePopover)
         .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
         .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
     }
     .frame(
-      width: DesignSystem.Dimensions.containerWidth,
-      height: DesignSystem.Dimensions.containerHeight
+      width: DesignSystem.Dimensions.mainViewWidth,
+      height: DesignSystem.Dimensions.mainViewHeight
     )
     .background(DesignSystem.Colors.background)
     .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
@@ -253,7 +254,7 @@ private struct AnimatedContentModifier: ViewModifier {
 }
 
 // MARK: - Close Button
-private struct CloseButton: View {
+private struct CloseXButton: View {
   let action: () -> Void
   
   var body: some View {
