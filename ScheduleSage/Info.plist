@@ -1,37 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleTypeRole</key>
-				<string>Editor</string>
-				<key>CFBundleURLName</key>
-				<string>schdulesage</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>schedulesage://show</string>
-				</array>
-			</dict>
-		</array>
-
-		<!-- 通知权限相关配置 -->
-		<key>NSUserNotificationAlertStyle</key>
-		<string>alert</string>
-
-		<!-- 通知使用描述 -->
-		<key>NSUserNotificationsUsageDescription</key>
-		<string>We need to send you notifications about calendar events and updates.</string>
-
-		<!-- 通知类别 -->
-		<key>UNNotificationExtensionCategory</key>
-		<string>calendar_event</string>
-
-		<!-- 通知声音 -->
-		<key>UNNotificationExtensionDefaultContentHidden</key>
-		<false />
-		<key>UNNotificationExtensionDefaultSoundName</key>
-		<string>default</string>
-	</dict>
+<dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>schdulesage</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>schedulesage://show</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>We need to send you notifications about calendar events and updates.</string>
+	<key>UNNotificationExtensionCategory</key>
+	<string>calendar_event</string>
+	<key>UNNotificationExtensionDefaultContentHidden</key>
+	<false/>
+	<key>UNNotificationExtensionDefaultSoundName</key>
+	<string>default</string>
+</dict>
 </plist>
