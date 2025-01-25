@@ -176,35 +176,9 @@ private struct CalendarIcon: View {
 
 // MARK: - Title Section
 private struct TitleSection: View {
-  // 获取应用显示名称
-  private var appDisplayName: String {
-    // 1. 尝试获取本地化的显示名称
-    if let localizedName = Bundle.main.localizedInfoDictionary?["CFBundleDisplayName"] as? String {
-      return localizedName
-    }
-    
-    // 2. 尝试获取本地化的应用名称
-    if let localizedName = Bundle.main.localizedInfoDictionary?["CFBundleName"] as? String {
-      return localizedName
-    }
-    
-    // 3. 尝试获取非本地化的显示名称
-    if let name = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String {
-      return name
-    }
-    
-    // 4. 尝试获取非本地化的应用名称
-    if let name = Bundle.main.infoDictionary?["CFBundleName"] as? String {
-      return name
-    }
-    
-    // 5. 使用默认值
-    return "ScheduleSage"
-  }
-  
   var body: some View {
     VStack(spacing: 8) {
-      Text(appDisplayName)
+      Text(NSLocalizedString("schedule_add_title", comment: ""))
         .font(ScheduleDesignSystem.Typography.title)
         .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
       

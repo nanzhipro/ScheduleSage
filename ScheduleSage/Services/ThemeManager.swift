@@ -14,7 +14,7 @@ public final class ThemeManager: ObservableObject {
     
     private static let darkModeKey = "darkMode"
     
-    @AppStorage(darkModeKey) private(set) public var isDarkMode: Bool = false
+    @AppStorage(darkModeKey) private var isDarkMode: Bool = false
     @Published public private(set) var currentAppearance: NSAppearance
     
     private init() {

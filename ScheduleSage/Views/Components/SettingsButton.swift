@@ -9,7 +9,7 @@ import SwiftUI
 import AppKit
 
 struct SettingsButton: View {
-  @Environment(\.openSettings) private var openSettings
+  private static var settingsWindow: NSWindow?
   
   var body: some View {
     Menu {
@@ -25,7 +25,7 @@ struct SettingsButton: View {
   }
   
   private var settingsButton: some View {
-    Button(action: { openSettings() }) {
+    Button(action: openSettings) {
       Label(
         NSLocalizedString("settings_preferences", comment: ""),
         systemImage: "gear"
@@ -49,6 +49,37 @@ struct SettingsButton: View {
       .font(.system(size: ScheduleDesignSystem.Dimensions.settingsButtonSize))
       .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
       .contentShape(Rectangle())
+  }
+  
+  private func openSettings() {
+    if let existingWindow = Self.settingsWindow {
+      existingWindow.makeKeyAndOrderFront(nil)
+      NSApp.activate(ignoringOtherApps: true)
+      return
+    }
+    
+    let window = NSWindow(
+      contentRect: NSRect(x: 0, y: 0, width: 375, height: 520),
+      styleMask: [.titled, .closable],
+      backing: .buffered,
+      defer: false
+    )
+    
+    window.title = NSLocalizedString("settings_window_title", comment: "")
+    window.center()
+    window.level = .floating
+    
+    let hostingController = NSHostingController(
+      rootView: SettingsView()
+        .frame(width: 375, height: 520)
+    )
+    
+    window.contentViewController = hostingController
+    window.isReleasedWhenClosed = false
+    window.makeKeyAndOrderFront(nil)
+    NSApp.activate(ignoringOtherApps: true)
+    
+    Self.settingsWindow = window
   }
 }
 
