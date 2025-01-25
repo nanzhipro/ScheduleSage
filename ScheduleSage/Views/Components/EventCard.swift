@@ -152,7 +152,13 @@ private struct EventIconLabel: View {
       Text(text)
         .font(DesignSystem.Typography.bodyRegular)
         .foregroundColor(DesignSystem.Colors.secondaryText)
+        .lineLimit(1)
+        .truncationMode(.tail)
     }
+    .padding(.vertical, 4)
+    .background(Color.clear)
+    .contentShape(Rectangle())
+    .help(text)
   }
 }
 

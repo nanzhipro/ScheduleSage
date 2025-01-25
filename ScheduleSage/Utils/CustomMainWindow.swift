@@ -24,7 +24,7 @@ class CustomMainWindow: NSWindow {
         self.hasShadow = true
         
         // 设置窗口层级为浮动层，保持在最上层
-        self.level = .normal
+        self.level = .floating
         
         // 禁用全屏
         self.collectionBehavior = .fullScreenNone
