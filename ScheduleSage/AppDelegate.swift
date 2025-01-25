@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import OSLog
 
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
@@ -7,7 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private var popover: NSPopover?
   private var viewModel: PopoverViewModel?
   private var eventMonitor: Any?
-  private let logger = LoggerService()
+  private let logger = Logger(subsystem: "com.tiwenlab.schedulesage", category: "AppDelegate")
   private let calendarManager = CalendarManager()
   private var isPopoverShown = false  // 添加状态跟踪
   private let clipboardManager = ClipboardManager()
@@ -22,14 +23,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   // 使用 AppStorage 来获取窗口模式设置
   @AppStorage("useWindowMode") private var useWindowMode = true
   
+  private let notificationManager = NotificationManager.shared
+  
   func applicationDidFinishLaunching(_ notification: Notification) {
     // 检查是否已有实例运行
     if !checkAndActivateExistingInstance() {
       return
     }
     
-      DesignSystem.switchTheme(to: .wechat)
-    logger.logInfo("AppDelegate did finish launching")
+    DesignSystem.switchTheme(to: .wechat)
+    logger.info("AppDelegate did finish launching")
     
     Task {
       self.viewModel = PopoverViewModel()
@@ -41,6 +44,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
       
       // 请求日历权限
       requestCalendarAccess()
+      
+      // 请求通知权限
+      requestNotificationAccess()
     }
   }
   
@@ -235,15 +241,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             let granted = try await calendarManager.requestAccess()
             
             if granted {
-                self.logger.logInfo("Calendar access granted")
+                self.logger.info("Calendar access granted")
                 // Update UI state if needed
             } else {
-                self.logger.logWarn("Calendar access denied")
+                self.logger.warning("Calendar access denied")
                 // Show alert or update UI state
             }
         } catch {
-            self.logger.logError("Calendar access error: \(error.localizedDescription)")
+            self.logger.error("Calendar access error: \(error.localizedDescription)")
         }
+    }
+  }
+
+  private func requestNotificationAccess() {
+    Task {
+      let granted = await notificationManager.requestAuthorization()
+      if granted {
+        self.logger.info("Notification access granted")
+      } else {
+        self.logger.warning("Notification access denied")
+      }
     }
   }
 

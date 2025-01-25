@@ -26,6 +26,35 @@ public final class NotificationManager: NSObject {
     private override init() {
         super.init()
         notificationCenter.delegate = self
+        setupNotificationCategories()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setupNotificationCategories() {
+        // 定义日历事件通知的操作
+        let viewAction = UNNotificationAction(
+            identifier: "VIEW_EVENT",
+            title: NSLocalizedString("view_event", comment: "View Event"),
+            options: .foreground
+        )
+        
+        let dismissAction = UNNotificationAction(
+            identifier: "DISMISS",
+            title: NSLocalizedString("dismiss", comment: "Dismiss"),
+            options: .destructive
+        )
+        
+        // 创建通知类别
+        let calendarCategory = UNNotificationCategory(
+            identifier: "calendar_event",
+            actions: [viewAction, dismissAction],
+            intentIdentifiers: [],
+            options: .customDismissAction
+        )
+        
+        // 注册通知类别
+        notificationCenter.setNotificationCategories([calendarCategory])
     }
     
     // MARK: - Public Methods
@@ -100,6 +129,7 @@ public final class NotificationManager: NSObject {
         content.body = body
         content.sound = .default
         content.userInfo = ["eventId": eventId]
+        content.categoryIdentifier = "calendar_event"  // 设置通知类别
         
         let request = UNNotificationRequest(
             identifier: "calendar-event-\(eventId)",
@@ -164,8 +194,21 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        if let eventId = response.notification.request.content.userInfo["eventId"] as? String {
-            openCalendarEvent(eventId)
+        switch response.actionIdentifier {
+        case "VIEW_EVENT":
+            if let eventId = response.notification.request.content.userInfo["eventId"] as? String {
+                openCalendarEvent(eventId)
+            }
+        case UNNotificationDefaultActionIdentifier:
+            // 用户点击通知本身
+            if let eventId = response.notification.request.content.userInfo["eventId"] as? String {
+                openCalendarEvent(eventId)
+            }
+        case UNNotificationDismissActionIdentifier:
+            // 用户主动关闭通知
+            break
+        default:
+            break
         }
         completionHandler()
     }

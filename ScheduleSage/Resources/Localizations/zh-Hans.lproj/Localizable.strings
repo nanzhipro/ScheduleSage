@@ -124,3 +124,7 @@
 
 /* 日程列表页副标题 */
 "event_list_subtitle" = "已识别到的日程，可勾选添加到系统日历";
+
+// Notification Actions
+"view_event" = "查看日程";
+"dismiss" = "关闭";

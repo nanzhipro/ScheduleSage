@@ -124,3 +124,7 @@
 
 /* 日程列表页副标题 */
 "event_list_subtitle" = "Select recognized events to add to your calendar";
+
+// Notification Actions
+"view_event" = "View Event";
+"dismiss" = "Dismiss";
