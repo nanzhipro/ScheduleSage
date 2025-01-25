@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct SettingsView: View {
   @AppStorage("enableNotifications") private var enableNotifications = true {
@@ -22,8 +23,6 @@ struct SettingsView: View {
   @State private var showNotificationAlert = false
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
   @State private var showLaunchError = false
-  @AppStorage("showPreviews") private var showPreviews = true
-  @AppStorage("fontSize") private var fontSize: Double = 28
   @AppStorage("useWindowMode") private var useWindowMode = true
   
   var body: some View {
@@ -32,13 +31,9 @@ struct SettingsView: View {
         .tabItem {
           Label(NSLocalizedString("settings_tab_general", comment: ""), systemImage: "gear")
         }
-      
-      // advancedSettings
-      //   .tabItem {
-      //     Label(NSLocalizedString("settings_tab_advanced", comment: ""), systemImage: "gearshape.2")
-      //   }
     }
     .frame(width: 375)
+    .accentColor(DesignSystem.Colors.primary)
   }
   
   private var generalSettings: some View {
@@ -47,16 +42,6 @@ struct SettingsView: View {
       appearanceSection
       systemSection
       versionSection
-    }
-    .formStyle(.grouped)
-    .scrollContentBackground(.hidden)
-    .background(DesignSystem.Colors.primaryBackground)
-  }
-  
-  private var advancedSettings: some View {
-    Form {
-      previewSection
-      fontSection
     }
     .formStyle(.grouped)
     .scrollContentBackground(.hidden)
@@ -192,48 +177,6 @@ struct SettingsView: View {
       }
     } header: {
       Text(NSLocalizedString("settings_group_about", comment: ""))
-        .foregroundColor(DesignSystem.Colors.secondaryText)
-        .font(DesignSystem.Typography.formLabel)
-    }
-    .listRowBackground(DesignSystem.Colors.background)
-  }
-  
-  private var previewSection: some View {
-    Section {
-      Toggle(isOn: $showPreviews) {
-        Label {
-          Text(NSLocalizedString("settings_show_previews", comment: ""))
-            .foregroundColor(DesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "eye")
-            .foregroundStyle(DesignSystem.Colors.primary)
-        }
-      }
-      .tint(DesignSystem.Colors.primary)
-    } header: {
-      Text(NSLocalizedString("settings_group_preview", comment: ""))
-        .foregroundColor(DesignSystem.Colors.secondaryText)
-        .font(DesignSystem.Typography.formLabel)
-    }
-    .listRowBackground(DesignSystem.Colors.background)
-  }
-  
-  private var fontSection: some View {
-    Section {
-      VStack(alignment: .leading) {
-        Label {
-          Text(NSLocalizedString("settings_font_size", comment: "") + " (\(Int(fontSize)) pts)")
-            .foregroundColor(DesignSystem.Colors.primaryText)
-        } icon: {
-          Image(systemName: "textformat.size")
-            .foregroundStyle(DesignSystem.Colors.primary)
-        }
-        Slider(value: $fontSize, in: 12...48)
-          .padding(.leading, 28)
-          .tint(DesignSystem.Colors.primary)
-      }
-    } header: {
-      Text(NSLocalizedString("settings_group_font", comment: ""))
         .foregroundColor(DesignSystem.Colors.secondaryText)
         .font(DesignSystem.Typography.formLabel)
     }
