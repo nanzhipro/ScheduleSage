@@ -199,26 +199,35 @@ public final class OCRProcessor: ObservableObject {
 extension OCRProcessor {
     public func printDetailedResults(_ results: [OCRLanguage: [OCRResult]]) {
         queue.async {
-            print("OCR: Recognition completed successfully")
-            print("----------------------------------------")
+            print("\n📝 OCR Recognition Results Summary")
+            print("================================")
             
+            var totalConfidence: Double = 0
+            var totalResults: Int = 0
+            
+            // 按语言分组打印结果
             for (language, languageResults) in results {
-                print("OCR: Detected language - \(language.rawValue)")
-                print("----------------------------------------")
+                print("\n🌐 Language: \(language.rawValue)")
+                print("--------------------------------")
                 
-                for result in languageResults.sorted(by: { $0.confidence > $1.confidence }) {
-                    print("Text: \(result.text)")
-                    print("Confidence: \(result.confidence)")
-                    print("----------------------------------------")
+                // 按置信度排序并打印文本
+                let sortedResults = languageResults.sorted { $0.confidence > $1.confidence }
+                for (index, result) in sortedResults.enumerated() {
+                    print("[\(index + 1)] (\(String(format: "%.2f", result.confidence * 100))%) \(result.text)")
+                    totalConfidence += Double(result.confidence)
+                    totalResults += 1
                 }
             }
             
+            print("\n📊 Statistics")
+            print("--------------------------------")
             if let metrics = self.getMetrics() {
-                print("Processing Time: \(metrics.processingTime) seconds")
-                print("Image Size: \(metrics.imageSize)")
-                print("Average Confidence: \(metrics.confidence)")
-                print("----------------------------------------")
+                print("⏱️ Processing Time: \(String(format: "%.2f", metrics.processingTime))s")
+                print("📏 Image Size: \(metrics.imageSize)")
             }
+            print("📈 Average Confidence: \(String(format: "%.2f", (totalResults > 0 ? totalConfidence / Double(totalResults) * 100 : 0)))%")
+            print("📑 Total Results: \(totalResults)")
+            print("================================\n")
         }
     }
 }
