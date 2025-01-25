@@ -12,7 +12,7 @@
 "add_schedule_title" = "作成方法を選択";
 "clipboard_import" = "クリップボードから取り込む";
 "manual_input" = "手動で作成";
-"image_import" = "画像認識";
+"image_import" = "画像からスケジュールを取り込む";
 
 // Actions
 "import_calendar" = "カレンダーに追加";

@@ -12,7 +12,7 @@
 "add_schedule_title" = "选择创建方式";
 "clipboard_import" = "从剪贴板导入";
 "manual_input" = "手动创建";
-"image_import" = "图片识别";
+"image_import" = "从图片导入";
 
 // Actions
 "import_calendar" = "导入到日历";

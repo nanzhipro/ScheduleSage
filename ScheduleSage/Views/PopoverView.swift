@@ -139,7 +139,7 @@ private struct AddScheduleContent: View {
         .frame(height: DesignSystem.Spacing.vertical * 2)
       
       CalendarIcon(animation: viewModel.dragAnimation)
-        .padding(.bottom, DesignSystem.Spacing.vertical * 1.5)
+        .padding(.bottom, DesignSystem.Spacing.vertical * 0.5)
       
       TitleSection()
         .padding(.bottom, DesignSystem.Spacing.vertical * 2)
@@ -177,7 +177,7 @@ private struct CalendarIcon: View {
 private struct TitleSection: View {
   var body: some View {
     VStack(spacing: 8) {
-      Text(NSLocalizedString("schedule_add_title", comment: ""))
+      Text(AppInfo.displayName)
         .font(DesignSystem.Typography.title)
         .foregroundColor(DesignSystem.Colors.primaryText)
       

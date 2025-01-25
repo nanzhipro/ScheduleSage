@@ -21,6 +21,7 @@ class PopoverViewModel: ObservableObject {
     @Published var showToast = false
     @Published var toastMessage = ""
     @Published var toastType: ToastType = .success
+    @Published var isKeyboardMonitorEnabled = true
     
     // 添加窗口控制器引用
     weak var windowController: MainWindowController?
@@ -117,6 +118,15 @@ class PopoverViewModel: ObservableObject {
                 NSApp.sendAction(#selector(NSPopover.performClose(_:)), to: nil, from: nil)
             }
         }
+    }
+    
+    // MARK: - Keyboard Monitor Control
+    func disableKeyboardMonitor() {
+        isKeyboardMonitorEnabled = false
+    }
+    
+    func enableKeyboardMonitor() {
+        isKeyboardMonitorEnabled = true
     }
 }
 

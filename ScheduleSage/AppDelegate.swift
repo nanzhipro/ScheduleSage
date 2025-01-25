@@ -17,7 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private var windowController: MainWindowController?
   
   // 单实例标识符
-  private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.schedulesage.app"
+  private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.tiwenlab.schedulesage"
   
   // 使用 AppStorage 来获取窗口模式设置
   @AppStorage("useWindowMode") private var useWindowMode = true
@@ -28,7 +28,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
       return
     }
     
-    DesignSystem.switchTheme(to: .wechat)
+      DesignSystem.switchTheme(to: .wechat)
     logger.logInfo("AppDelegate did finish launching")
     
     Task {
@@ -145,8 +145,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
       
       // 检查是否是 Command + V
       if event.modifierFlags.contains(.command) && event.keyCode == 9 { // V 键的 keyCode 是 9
-        // 检查应用程序是否在前台
-        if NSApp.isActive {
+        // 检查应用程序是否在前台且键盘监听器已启用
+        if NSApp.isActive && self.viewModel?.isKeyboardMonitorEnabled == true {
           // 处理剪贴板内容
           if let content = self.clipboardManager.checkClipboard() {
             // 通知 ViewModel 处理剪贴板内容

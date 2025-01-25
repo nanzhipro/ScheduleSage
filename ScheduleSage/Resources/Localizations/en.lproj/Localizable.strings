@@ -12,7 +12,7 @@
 "add_schedule_title" = "Choose Creation Method";
 "clipboard_import" = "Import from Clipboard";
 "manual_input" = "Manual Create";
-"image_import" = "Image Recognition";
+"image_import" = "Import from Image";
 
 // Actions
 "import_calendar" = "Import to Calendar";
