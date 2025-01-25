@@ -287,9 +287,8 @@ extension PopoverViewModel {
             await startOCRProcessing()
             
             do {
-                let results = try await OCRService().recognizeText(from: url.path)
-                let groupedResults = Dictionary(grouping: results) { $0.language }
-                await completeOCRProcessing(with: groupedResults)
+                let results = try await processor.process(imagePath: url.path)
+                await completeOCRProcessing(with: results)
                 logger.info("OCR processing completed successfully")
             } catch {
                 logger.error("OCR processing failed: \(error.localizedDescription)")
@@ -304,9 +303,8 @@ extension PopoverViewModel {
         await MainActor.run { LoadingManager.shared.show(.network) }
         
         do {
-            let results = try await OCRService().recognizeText(from: url.path)
-            let groupedResults = Dictionary(grouping: results) { $0.language }
-            await completeOCRProcessing(with: groupedResults)
+            let results = try await processor.process(imagePath: url.path)
+            await completeOCRProcessing(with: results)
         } catch {
             await handleError(error)
         }

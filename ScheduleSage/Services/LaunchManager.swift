@@ -12,7 +12,7 @@ import ServiceManagement
 public final class LaunchManager {
     public static let shared = LaunchManager()
     
-    private let launchAgentIdentifier = "com.schedulesage.LaunchAgent"
+    private let launchAgentIdentifier = "com.quest.schedulesage.launchagent"
     
     private init() {}
     

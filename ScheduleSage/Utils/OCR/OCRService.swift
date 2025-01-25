@@ -1,51 +1,109 @@
-import AppKit
+import Foundation
 import Vision
-
-// MARK: - OCR Service Protocol
-protocol OCRServiceProtocol {
-    func recognizeText(
-        from imagePath: String,
-        preferredLanguages: [OCRLanguage]
-    ) async throws -> [OCRResult]
-}
 
 // MARK: - OCR Service Implementation
 final class OCRService: OCRServiceProtocol {
     // MARK: - Properties
-    private let minimumConfidence: Float = 0.3
+    var configuration: OCRConfiguration
+    let supportedLanguages: [OCRLanguage] = OCRLanguage.allCases
+    
+    private var startTime: Date?
+    private var lastMetrics: OCRMetrics?
+    
+    // MARK: - Initialization
+    init(configuration: OCRConfiguration = .default) {
+        self.configuration = configuration
+    }
     
     // MARK: - Public Methods
     func recognizeText(
         from imagePath: String,
-        preferredLanguages: [OCRLanguage] = [.chinese, .english, .japanese]
+        preferredLanguages: [OCRLanguage] = []
     ) async throws -> [OCRResult] {
+        startTime = Date()
+        
+        // 检查缓存
+        if configuration.enableCache,
+           let cachedResult = OCRCache.shared.retrieve(forKey: imagePath) {
+            return [cachedResult]
+        }
+        
         // 加载图像
-        guard let image = NSImage(contentsOfFile: imagePath),
-              let cgImage = image.cgImage
-        else {
+        guard let image = PlatformImage(contentsOfFile: imagePath),
+              let cgImage = image.platformCGImage else {
             throw OCRError.imageLoadFailed
         }
         
-        // 创建识别请求
-        let request = createTextRecognitionRequest(languages: preferredLanguages)
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        return try await recognizeText(from: image, cgImage: cgImage, preferredLanguages: preferredLanguages)
+    }
+    
+    func recognizeText(
+        from image: PlatformImage,
+        preferredLanguages: [OCRLanguage] = []
+    ) async throws -> [OCRResult] {
+        startTime = Date()
         
-        // 执行识别
-        try await handler.perform([request])
-        
-        // 处理结果
-        guard let observations = request.results as? [VNRecognizedTextObservation] else {
-            throw OCRError.recognitionFailed("Invalid observation results")
+        guard let cgImage = image.platformCGImage else {
+            throw OCRError.imageLoadFailed
         }
         
-        // 转换结果
-        return observations.compactMap { observation in
-            processObservation(observation)
-        }
-        .filter { $0.confidence >= minimumConfidence }
+        return try await recognizeText(from: image, cgImage: cgImage, preferredLanguages: preferredLanguages)
+    }
+    
+    func collectMetrics() -> OCRMetrics? {
+        return lastMetrics
     }
     
     // MARK: - Private Methods
+    private func recognizeText(
+        from image: PlatformImage,
+        cgImage: CGImage,
+        preferredLanguages: [OCRLanguage]
+    ) async throws -> [OCRResult] {
+        let languages = preferredLanguages.isEmpty ? configuration.preferredLanguages : preferredLanguages
+        let request = createTextRecognitionRequest(languages: languages)
+        
+        try await performRecognition(cgImage: cgImage, request: request)
+        
+        guard let observations = request.results else {
+            throw OCRError.recognitionFailed("No results available")
+        }
+        
+        let results = observations.compactMap { observation -> OCRResult? in
+            guard let observation = observation as? VNRecognizedTextObservation else { return nil }
+            return processObservation(observation)
+        }
+        
+        let filteredResults = results.filter { $0.confidence >= configuration.minimumConfidence }
+        
+        guard !filteredResults.isEmpty else {
+            throw OCRError.noTextDetected
+        }
+        
+        updateMetrics(image: image, results: filteredResults)
+        
+        if configuration.enableCache, let firstResult = filteredResults.first {
+            OCRCache.shared.store(firstResult, forKey: String(describing: image))
+        }
+        
+        return filteredResults
+    }
+    
+    private func performRecognition(
+        cgImage: CGImage,
+        request: VNRecognizeTextRequest
+    ) async throws {
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            do {
+                try handler.perform([request])
+                continuation.resume()
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+    
     private func createTextRecognitionRequest(
         languages: [OCRLanguage]
     ) -> VNRecognizeTextRequest {
@@ -57,14 +115,15 @@ final class OCRService: OCRServiceProtocol {
     }
     
     private func processObservation(_ observation: VNRecognizedTextObservation) -> OCRResult? {
-        guard let candidate = observation.topCandidates(1).first else { return nil }
-        
-        return OCRResult(
-            text: candidate.string,
-            confidence: candidate.confidence,
-            language: detectLanguage(for: candidate.string),
-            boundingBox: observation.boundingBox
-        )
+        observation.topCandidates(1).first.map { candidate in
+            OCRResult(
+                text: candidate.string,
+                confidence: candidate.confidence,
+                language: detectLanguage(for: candidate.string),
+                boundingBox: observation.boundingBox,
+                timestamp: Date()
+            )
+        }
     }
     
     private func detectLanguage(for text: String) -> OCRLanguage {
@@ -79,15 +138,19 @@ final class OCRService: OCRServiceProtocol {
             }
         } ?? .english
     }
-}
-
-// MARK: - NSImage Extension
-private extension NSImage {
-    var cgImage: CGImage? {
-        guard let imageData = tiffRepresentation,
-              let imageSource = CGImageSourceCreateWithData(imageData as CFData, nil)
-        else { return nil }
+    
+    private func updateMetrics(image: PlatformImage, results: [OCRResult]) {
+        guard let startTime = startTime else { return }
         
-        return CGImageSourceCreateImageAtIndex(imageSource, 0, nil)
+        let processingTime = Date().timeIntervalSince(startTime)
+        let averageConfidence = Float(results.map(\.confidence).reduce(0, +)) / Float(results.count)
+        let recognizedLanguages = Array(Set(results.map(\.language)))
+        
+        lastMetrics = OCRMetrics(
+            processingTime: processingTime,
+            imageSize: image.platformSize,
+            recognizedLanguages: recognizedLanguages,
+            confidence: averageConfidence
+        )
     }
 }

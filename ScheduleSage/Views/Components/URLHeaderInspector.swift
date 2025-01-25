@@ -47,7 +47,7 @@ public final class URLHeaderInspector: URLHeaderInspecting {
   public static let shared = URLHeaderInspector()
 
   private let queue = DispatchQueue(
-    label: "com.schedulesage.urlheaderinspector",
+    label: "com.quest.urlheaderinspector",
     attributes: .concurrent
   )
   private let cache = NSCache<NSURL, NSDictionary>()

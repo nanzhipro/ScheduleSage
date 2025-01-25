@@ -1,12 +1,14 @@
 import Foundation
 
-enum OCRError: Error {
+public enum OCRError: Error {
   case imageLoadFailed
   case recognitionFailed(String)
   case unsupportedLanguage
   case invalidFilePath
+  case preprocessingFailed
+  case noTextDetected
 
-  var localizedDescription: String {
+  public var localizedDescription: String {
     switch self {
     case .imageLoadFailed:
       return "Failed to load image"
@@ -16,6 +18,10 @@ enum OCRError: Error {
       return "Unsupported language"
     case .invalidFilePath:
       return "Invalid file path"
+    case .preprocessingFailed:
+      return "Failed to preprocess image"
+    case .noTextDetected:
+      return "No text detected in image"
     }
   }
 }

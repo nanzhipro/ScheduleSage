@@ -1,12 +1,27 @@
 import Foundation
 
-struct OCRResult {
-  let text: String
-  let confidence: Float
-  let language: OCRLanguage
-  let boundingBox: CGRect?
-
-  var isReliable: Bool {
-    confidence > 0.7  // 可配置的置信度阈值
-  }
+public struct OCRResult: Equatable, Hashable {
+    public let text: String
+    public let confidence: Float
+    public let language: OCRLanguage
+    public let boundingBox: CGRect?
+    public let timestamp: Date
+    
+    public var isReliable: Bool {
+        confidence > 0.7
+    }
+    
+    public init(
+        text: String,
+        confidence: Float,
+        language: OCRLanguage,
+        boundingBox: CGRect?,
+        timestamp: Date = Date()
+    ) {
+        self.text = text
+        self.confidence = confidence
+        self.language = language
+        self.boundingBox = boundingBox
+        self.timestamp = timestamp
+    }
 }
