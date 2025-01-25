@@ -160,14 +160,14 @@ private struct CalendarIcon: View {
   var body: some View {
     ZStack {
       Circle()
-        .fill(DesignSystem.Colors.lightGray)
+        .fill(DesignSystem.Colors.secondaryBackground)
         .frame(
           width: DesignSystem.Dimensions.emptyStateIconSize,
           height: DesignSystem.Dimensions.emptyStateIconSize
         )
       Image(systemName: "calendar.badge.plus")
         .font(.system(size: 32))
-        .foregroundColor(DesignSystem.Colors.iconGray)
+        .foregroundColor(DesignSystem.Colors.primary)
     }
     .modifier(DragAnimationModifier(animation: animation))
   }
