@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftWebCrawler
 import OSLog
+import QuestOCR
 
 // MARK: - PopoverViewModel
 @MainActor

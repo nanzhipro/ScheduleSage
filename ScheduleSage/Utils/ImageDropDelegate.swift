@@ -1,6 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import OSLog
+import QuestOCR
 
 struct ImageDropDelegate: DropDelegate {
   let onDrop: ([URL]) -> Void

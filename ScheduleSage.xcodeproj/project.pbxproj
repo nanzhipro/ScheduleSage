@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D52B9FFF2D44B65700D74909 /* QuestOCR in Frameworks */ = {isa = PBXBuildFile; productRef = D52B9FFE2D44B65700D74909 /* QuestOCR */; };
 		D55454912D3225130086A832 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = D55454902D3225130086A832 /* SwiftDate */; };
 		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
@@ -66,6 +67,7 @@
 				D55454912D3225130086A832 /* SwiftDate in Frameworks */,
 				D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */,
 				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
+				D52B9FFF2D44B65700D74909 /* QuestOCR in Frameworks */,
 				D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -141,6 +143,7 @@
 				D5F11BF32D28C592007A225F /* SwiftWebCrawler */,
 				D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */,
 				D55454902D3225130086A832 /* SwiftDate */,
+				D52B9FFE2D44B65700D74909 /* QuestOCR */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -233,6 +236,7 @@
 				D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */,
 				D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
 				D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */,
+				D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -604,6 +608,14 @@
 				minimumVersion = 5.10.2;
 			};
 		};
+		D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nanzhipro/QuestOCR.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/malcommac/SwiftDate";
@@ -647,6 +659,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		D52B9FFE2D44B65700D74909 /* QuestOCR */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */;
+			productName = QuestOCR;
+		};
 		D55454902D3225130086A832 /* SwiftDate */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */;

@@ -1,5 +1,5 @@
 {
-  "originHash" : "7b448775a94f32e3410691e7704db059d3e4806364ed03eb559a2f4420e23ad7",
+  "originHash" : "5d6040c016bc315f882f72901e23601d067735cebf01a71f3675dc4878539eaa",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "e6749919f9761d573d37a7d7e78b1b854c191d7f",
         "version" : "8.1.3"
+      }
+    },
+    {
+      "identity" : "questocr",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nanzhipro/QuestOCR.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "df482c3c629704a727ad23a5cc28d273930a27a4"
       }
     },
     {
