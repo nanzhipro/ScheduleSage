@@ -26,7 +26,7 @@ public struct SettingsView: View {
   @AppStorage("fontSize") private var fontSize: Double = 28
   @AppStorage("useWindowMode") private var useWindowMode = true
   
-  private let formPadding: CGFloat = ScheduleDesignSystem.Spacing.contentPadding
+  private let formPadding: CGFloat = DesignSystem.Spacing.contentPadding
   private let frameSize = CGSize(width: 375, height: 520)
   
   public init() {}
@@ -50,7 +50,7 @@ public struct SettingsView: View {
         }
     }
     .frame(width: frameSize.width, height: frameSize.height)
-    .background(ScheduleDesignSystem.Colors.background)
+    .background(DesignSystem.Colors.background)
   }
   
   private var generalSettings: some View {
@@ -62,7 +62,7 @@ public struct SettingsView: View {
     }
     .formStyle(.grouped)
     .padding(formPadding)
-    .background(ScheduleDesignSystem.Colors.primaryBackground)
+    .background(DesignSystem.Colors.primaryBackground)
   }
   
   private var advancedSettings: some View {
@@ -72,7 +72,7 @@ public struct SettingsView: View {
     }
     .formStyle(.grouped)
     .padding(formPadding)
-    .background(ScheduleDesignSystem.Colors.primaryBackground)
+    .background(DesignSystem.Colors.primaryBackground)
   }
   
   private var notificationSection: some View {
@@ -97,19 +97,19 @@ public struct SettingsView: View {
       )) {
         Label {
           Text(NSLocalizedString("settings_notifications", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+            .foregroundColor(DesignSystem.Colors.primaryText)
         } icon: {
           Image(systemName: "bell.badge")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
+            .foregroundStyle(DesignSystem.Colors.primary)
         }
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
+      .tint(DesignSystem.Colors.primary)
     } header: {
       Text(NSLocalizedString("settings_group_notifications", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.formLabel)
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
+    .listRowBackground(DesignSystem.Colors.background)
   }
   
   private var appearanceSection: some View {
@@ -120,19 +120,19 @@ public struct SettingsView: View {
       )) {
         Label {
           Text(NSLocalizedString("settings_dark_mode", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+            .foregroundColor(DesignSystem.Colors.primaryText)
         } icon: {
           Image(systemName: "moon.fill")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
+            .foregroundStyle(DesignSystem.Colors.primary)
         }
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
+      .tint(DesignSystem.Colors.primary)
     } header: {
       Text(NSLocalizedString("settings_group_appearance", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.formLabel)
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
+    .listRowBackground(DesignSystem.Colors.background)
   }
   
   private var systemSection: some View {
@@ -151,30 +151,30 @@ public struct SettingsView: View {
       )) {
         Label {
           Text(NSLocalizedString("settings_auto_start", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+            .foregroundColor(DesignSystem.Colors.primaryText)
         } icon: {
           Image(systemName: "power")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
+            .foregroundStyle(DesignSystem.Colors.primary)
         }
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
+      .tint(DesignSystem.Colors.primary)
       
       Toggle(isOn: $useWindowMode) {
         Label {
           Text(NSLocalizedString("settings_window_mode", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+            .foregroundColor(DesignSystem.Colors.primaryText)
         } icon: {
           Image(systemName: "macwindow")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
+            .foregroundStyle(DesignSystem.Colors.primary)
         }
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
+      .tint(DesignSystem.Colors.primary)
     } header: {
       Text(NSLocalizedString("settings_group_system", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.formLabel)
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
+    .listRowBackground(DesignSystem.Colors.background)
     .alert(
       NSLocalizedString("settings_launch_error_title", comment: ""),
       isPresented: $showLaunchError,
@@ -192,22 +192,22 @@ public struct SettingsView: View {
       HStack {
         Label {
           Text(NSLocalizedString("settings_version", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+            .foregroundColor(DesignSystem.Colors.primaryText)
         } icon: {
           Image(systemName: "info.circle")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
+            .foregroundStyle(DesignSystem.Colors.primary)
         }
         Spacer()
         Text(Bundle.main.appVersion)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-          .font(ScheduleDesignSystem.Typography.caption)
+          .foregroundColor(DesignSystem.Colors.secondaryText)
+          .font(DesignSystem.Typography.caption)
       }
     } header: {
       Text(NSLocalizedString("settings_group_about", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.formLabel)
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
+    .listRowBackground(DesignSystem.Colors.background)
   }
   
   private var previewSection: some View {
@@ -215,19 +215,19 @@ public struct SettingsView: View {
       Toggle(isOn: $showPreviews) {
         Label {
           Text(NSLocalizedString("settings_show_previews", comment: ""))
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+            .foregroundColor(DesignSystem.Colors.primaryText)
         } icon: {
           Image(systemName: "eye")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
+            .foregroundStyle(DesignSystem.Colors.primary)
         }
       }
-      .tint(ScheduleDesignSystem.Colors.primary)
+      .tint(DesignSystem.Colors.primary)
     } header: {
       Text(NSLocalizedString("settings_group_preview", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.formLabel)
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
+    .listRowBackground(DesignSystem.Colors.background)
   }
   
   private var fontSection: some View {
@@ -235,21 +235,21 @@ public struct SettingsView: View {
       VStack(alignment: .leading) {
         Label {
           Text(NSLocalizedString("settings_font_size", comment: "") + " (\(Int(fontSize)) pts)")
-            .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+            .foregroundColor(DesignSystem.Colors.primaryText)
         } icon: {
           Image(systemName: "textformat.size")
-            .foregroundStyle(ScheduleDesignSystem.Colors.primary)
+            .foregroundStyle(DesignSystem.Colors.primary)
         }
         Slider(value: $fontSize, in: 12...48)
           .padding(.leading, 28)
-          .tint(ScheduleDesignSystem.Colors.primary)
+          .tint(DesignSystem.Colors.primary)
       }
     } header: {
       Text(NSLocalizedString("settings_group_font", comment: ""))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
-        .font(ScheduleDesignSystem.Typography.formLabel)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.formLabel)
     }
-    .listRowBackground(ScheduleDesignSystem.Colors.background)
+    .listRowBackground(DesignSystem.Colors.background)
   }
 }
 

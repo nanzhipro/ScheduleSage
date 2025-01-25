@@ -8,9 +8,7 @@
 import AppKit
 import SwiftUI
 
-/**
- 日程主页面
- */
+/// 日程主页面
 struct PopoverView: View {
   @EnvironmentObject private var viewModel: PopoverViewModel
   
@@ -89,18 +87,18 @@ private struct AddScheduleView: View {
         AddScheduleContent(viewModel: viewModel)
           .frame(maxHeight: .infinity)
       }
-      .padding(.bottom, ScheduleDesignSystem.Spacing.vertical)
+      .padding(.bottom, DesignSystem.Spacing.vertical)
       
       CloseButton(action: viewModel.closePopover)
-        .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
-        .padding(.bottom, ScheduleDesignSystem.Layout.containerPadding.bottom)
+        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+        .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
     }
     .frame(
-      width: ScheduleDesignSystem.Dimensions.containerWidth,
-      height: ScheduleDesignSystem.Dimensions.containerHeight
+      width: DesignSystem.Dimensions.containerWidth,
+      height: DesignSystem.Dimensions.containerHeight
     )
-    .background(ScheduleDesignSystem.Colors.background)
-    .cornerRadius(ScheduleDesignSystem.Dimensions.containerCornerRadius)
+    .background(DesignSystem.Colors.background)
+    .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
   }
 }
 
@@ -115,18 +113,18 @@ private struct HeaderView: View {
         onUpgrade: viewModel.showUpgradeSheetAction,
         style: .compact
       )
-      .padding(.horizontal, ScheduleDesignSystem.Layout.statusBarPadding.leading)
-      .padding(.vertical, ScheduleDesignSystem.Layout.statusBarPadding.top)
+      .padding(.horizontal, DesignSystem.Layout.statusBarPadding.leading)
+      .padding(.vertical, DesignSystem.Layout.statusBarPadding.top)
       
       Spacer()
       
       SettingsButton()
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+        .foregroundColor(DesignSystem.Colors.secondaryGray)
         .frame(width: 44, height: 44)
     }
-    .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
-    .background(ScheduleDesignSystem.Colors.background)
-    .cornerRadius(ScheduleDesignSystem.Dimensions.headerCornerRadius)
+    .frame(height: DesignSystem.Dimensions.headerHeight)
+    .background(DesignSystem.Colors.background)
+    .cornerRadius(DesignSystem.Dimensions.headerCornerRadius)
   }
 }
 
@@ -137,20 +135,20 @@ private struct AddScheduleContent: View {
   var body: some View {
     VStack(spacing: 0) {
       Spacer()
-        .frame(height: ScheduleDesignSystem.Spacing.vertical * 2)
+        .frame(height: DesignSystem.Spacing.vertical * 2)
       
       CalendarIcon(animation: viewModel.dragAnimation)
-        .padding(.bottom, ScheduleDesignSystem.Spacing.vertical * 1.5)
+        .padding(.bottom, DesignSystem.Spacing.vertical * 1.5)
       
       TitleSection()
-        .padding(.bottom, ScheduleDesignSystem.Spacing.vertical * 2)
+        .padding(.bottom, DesignSystem.Spacing.vertical * 2)
       
       AddMethodSection(viewModel: viewModel)
       
       Spacer()
     }
     .frame(maxWidth: .infinity)
-    .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
+    .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
   }
 }
 
@@ -161,14 +159,14 @@ private struct CalendarIcon: View {
   var body: some View {
     ZStack {
       Circle()
-        .fill(ScheduleDesignSystem.Colors.lightGray)
+        .fill(DesignSystem.Colors.lightGray)
         .frame(
-          width: ScheduleDesignSystem.Dimensions.emptyStateIconSize,
-          height: ScheduleDesignSystem.Dimensions.emptyStateIconSize
+          width: DesignSystem.Dimensions.emptyStateIconSize,
+          height: DesignSystem.Dimensions.emptyStateIconSize
         )
       Image(systemName: "calendar.badge.plus")
         .font(.system(size: 32))
-        .foregroundColor(ScheduleDesignSystem.Colors.iconGray)
+        .foregroundColor(DesignSystem.Colors.iconGray)
     }
     .modifier(DragAnimationModifier(animation: animation))
   }
@@ -179,12 +177,12 @@ private struct TitleSection: View {
   var body: some View {
     VStack(spacing: 8) {
       Text(NSLocalizedString("schedule_add_title", comment: ""))
-        .font(ScheduleDesignSystem.Typography.title)
-        .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+        .font(DesignSystem.Typography.title)
+        .foregroundColor(DesignSystem.Colors.primaryText)
       
       Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
-        .font(ScheduleDesignSystem.Typography.caption)
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.caption)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
         .multilineTextAlignment(.center)
     }
   }
@@ -195,7 +193,7 @@ private struct AddMethodSection: View {
   @ObservedObject var viewModel: PopoverViewModel
   
   var body: some View {
-    HStack(spacing: ScheduleDesignSystem.Spacing.horizontal) {
+    HStack(spacing: DesignSystem.Spacing.horizontal) {
       AddMethodButton(
         icon: "doc.text.fill",
         text: NSLocalizedString("clipboard_import", comment: ""),
@@ -247,7 +245,7 @@ private struct AnimatedContentModifier: ViewModifier {
       .scaleEffect(animation == .pulse ? 1.1 : (animation == .scale ? 1.2 : 1.0))
       .offset(y: animation == .bounce ? -10 : 0)
       .shadow(
-        color: animation == .glow ? ScheduleDesignSystem.Colors.primary.opacity(0.5) : .clear,
+        color: animation == .glow ? DesignSystem.Colors.primary.opacity(0.5) : .clear,
         radius: animation == .glow ? 20 : 0
       )
       .animation(.spring(response: 0.3, dampingFraction: 0.8), value: animation)
@@ -261,14 +259,14 @@ private struct CloseButton: View {
   var body: some View {
     Button(action: action) {
       Text(NSLocalizedString("close_popover", comment: ""))
-        .font(ScheduleDesignSystem.Typography.buttonLabel)
-        .foregroundColor(ScheduleDesignSystem.Colors.background)
+        .font(DesignSystem.Typography.buttonLabel)
+        .foregroundColor(DesignSystem.Colors.background)
         .frame(maxWidth: .infinity)
-        .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
+        .frame(height: DesignSystem.Dimensions.buttonHeight)
         .background(
-          ScheduleDesignSystem.Colors.primary
+          DesignSystem.Colors.primary
         )
-        .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
+        .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
     }
     .buttonStyle(.plain)
     .withHoverEffect(scale: 1.02, brightness: 0)

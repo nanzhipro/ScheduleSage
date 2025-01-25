@@ -41,14 +41,14 @@ public struct ToastView: View {
                 .foregroundColor(iconColor)
             
             Text(configuration.message)
-                .font(ScheduleDesignSystem.Typography.bodyRegular)
+                .font(DesignSystem.Typography.bodyRegular)
                 .foregroundColor(textColor)
                 .lineLimit(2)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(backgroundColor)
-        .cornerRadius(ScheduleDesignSystem.Dimensions.cardCornerRadius)
+        .cornerRadius(DesignSystem.Dimensions.cardCornerRadius)
         .shadow(
             color: Color.black.opacity(0.1),
             radius: 10,
@@ -61,9 +61,9 @@ public struct ToastView: View {
     private var backgroundColor: Color {
         switch configuration.type {
         case .success:
-            return ScheduleDesignSystem.Colors.primary
+            return DesignSystem.Colors.primary
         case .error:
-            return ScheduleDesignSystem.Colors.error
+            return DesignSystem.Colors.error
         }
     }
     
@@ -79,16 +79,16 @@ public struct ToastView: View {
     private var iconColor: Color {
         switch configuration.type {
         case .success:
-            return ScheduleDesignSystem.Colors.background
+            return DesignSystem.Colors.background
         case .error:
-            return ScheduleDesignSystem.Colors.background
+            return DesignSystem.Colors.background
         }
     }
     
     private var textColor: Color {
         switch configuration.type {
         case .success, .error:
-            return ScheduleDesignSystem.Colors.background
+            return DesignSystem.Colors.background
         }
     }
 }

@@ -46,20 +46,20 @@ struct ProStatusView: View {
       if let remainingUses = status.remainingUses {
         // 剩余次数（非会员）
         Text(String(format: NSLocalizedString("remaining_uses", comment: ""), remainingUses))
-          .font(ScheduleDesignSystem.Typography.statusText)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+          .font(DesignSystem.Typography.statusText)
+          .foregroundColor(DesignSystem.Colors.secondaryText)
 
         Text(NSLocalizedString("separator", comment: ""))
-          .font(ScheduleDesignSystem.Typography.statusText)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+          .font(DesignSystem.Typography.statusText)
+          .foregroundColor(DesignSystem.Colors.secondaryText)
       }
 
       // 升级按钮
       if !status.isPro {
         Button(action: onUpgrade) {
           Text(NSLocalizedString("upgrade_to_pro", comment: ""))
-            .font(ScheduleDesignSystem.Typography.statusText)
-            .foregroundColor(ScheduleDesignSystem.Colors.primary)
+            .font(DesignSystem.Typography.statusText)
+            .foregroundColor(DesignSystem.Colors.primary)
         }
         .buttonStyle(.plain)
         .withHoverEffect()
@@ -93,23 +93,23 @@ struct ProStatusView: View {
             DateFormatter.localizedString(from: expiryDate, dateStyle: .medium, timeStyle: .none)
           )
         )
-        .font(ScheduleDesignSystem.Typography.caption)
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.caption)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
       }
     }
     .padding()
-    .background(ScheduleDesignSystem.Colors.background)
-    .cornerRadius(ScheduleDesignSystem.Dimensions.cardCornerRadius)
+    .background(DesignSystem.Colors.background)
+    .cornerRadius(DesignSystem.Dimensions.cardCornerRadius)
   }
 
   private var upgradeButton: some View {
     Button(action: onUpgrade) {
       Text(NSLocalizedString("upgrade_to_pro", comment: ""))
-        .font(ScheduleDesignSystem.Typography.buttonLabel)
-        .foregroundColor(ScheduleDesignSystem.Colors.background)
+        .font(DesignSystem.Typography.buttonLabel)
+        .foregroundColor(DesignSystem.Colors.background)
         .padding(.horizontal, 16)
         .frame(height: 32)
-        .background(ScheduleDesignSystem.Colors.primary)
+        .background(DesignSystem.Colors.primary)
         .cornerRadius(16)
     }
     .buttonStyle(.plain)
@@ -124,13 +124,13 @@ private struct ProBadge: View {
   var body: some View {
     ZStack {
       Circle()
-        .fill(ScheduleDesignSystem.Colors.lightGray)
+        .fill(DesignSystem.Colors.lightGray)
         .frame(
-          width: ScheduleDesignSystem.Dimensions.crownIconSize,
-          height: ScheduleDesignSystem.Dimensions.crownIconSize
+          width: DesignSystem.Dimensions.crownIconSize,
+          height: DesignSystem.Dimensions.crownIconSize
         )
       Image(systemName: "crown.fill")
-        .foregroundColor(isPro ? ScheduleDesignSystem.Colors.primary : ScheduleDesignSystem.Colors.secondaryGray)
+        .foregroundColor(isPro ? DesignSystem.Colors.primary : DesignSystem.Colors.secondaryGray)
     }
   }
 }
@@ -141,15 +141,15 @@ private struct FeatureRow: View {
   var body: some View {
     HStack(spacing: 8) {
       Image(systemName: feature.icon)
-        .foregroundColor(ScheduleDesignSystem.Colors.primary)
+        .foregroundColor(DesignSystem.Colors.primary)
         .frame(width: 24)
 
       VStack(alignment: .leading, spacing: 2) {
         Text(feature.name)
-          .font(ScheduleDesignSystem.Typography.bodyMedium)
+          .font(DesignSystem.Typography.bodyMedium)
         Text(feature.description)
-          .font(ScheduleDesignSystem.Typography.caption)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+          .font(DesignSystem.Typography.caption)
+          .foregroundColor(DesignSystem.Colors.secondaryText)
       }
     }
   }

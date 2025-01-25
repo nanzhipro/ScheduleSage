@@ -31,11 +31,11 @@ struct EventListView: View {
       importButton
     }
     .frame(
-      width: ScheduleDesignSystem.Dimensions.containerWidth,
-      height: ScheduleDesignSystem.Dimensions.containerHeight
+      width: DesignSystem.Dimensions.containerWidth,
+      height: DesignSystem.Dimensions.containerHeight
     )
-    .background(ScheduleDesignSystem.Colors.background)
-    .cornerRadius(ScheduleDesignSystem.Dimensions.containerCornerRadius)
+    .background(DesignSystem.Colors.background)
+    .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
     .toast(
       isPresented: $showToast,
       type: toastType,
@@ -59,10 +59,10 @@ private extension EventListView {
       Spacer()
       proStatusView
     }
-    .frame(height: ScheduleDesignSystem.Dimensions.headerHeight)
-    .padding(.horizontal, ScheduleDesignSystem.Layout.statusBarPadding.leading)
-    .padding(.vertical, ScheduleDesignSystem.Layout.statusBarPadding.top)
-    .background(ScheduleDesignSystem.Colors.background)
+    .frame(height: DesignSystem.Dimensions.headerHeight)
+    .padding(.horizontal, DesignSystem.Layout.statusBarPadding.leading)
+    .padding(.vertical, DesignSystem.Layout.statusBarPadding.top)
+    .background(DesignSystem.Colors.background)
   }
   
   var backButton: some View {
@@ -71,9 +71,9 @@ private extension EventListView {
         Image(systemName: "chevron.left")
           .font(.system(size: 13, weight: .semibold))
         Text(NSLocalizedString("back_to_add", comment: ""))
-          .font(ScheduleDesignSystem.Typography.navigationText)
+          .font(DesignSystem.Typography.navigationText)
       }
-      .foregroundColor(ScheduleDesignSystem.Colors.primary)
+      .foregroundColor(DesignSystem.Colors.primary)
     }
     .buttonStyle(.plain)
     .withHoverEffect()
@@ -88,34 +88,34 @@ private extension EventListView {
   }
   
   var contentArea: some View {
-    VStack(spacing: ScheduleDesignSystem.Dimensions.listContentSpacing) {
+    VStack(spacing: DesignSystem.Dimensions.listContentSpacing) {
       listHeader
       eventList
     }
-    .padding(.horizontal, ScheduleDesignSystem.Spacing.listContentPadding)
-    .padding(.vertical, ScheduleDesignSystem.Dimensions.listVerticalPadding)
-    .background(ScheduleDesignSystem.Colors.containerGray)
+    .padding(.horizontal, DesignSystem.Spacing.listContentPadding)
+    .padding(.vertical, DesignSystem.Dimensions.listVerticalPadding)
+    .background(DesignSystem.Colors.containerGray)
   }
   
   var listHeader: some View {
     HStack {
       Text(String(format: NSLocalizedString("detected_events", comment: ""), events.count))
-        .font(ScheduleDesignSystem.Typography.eventCount)
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.eventCount)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
       
       if hasSelectedEvents {
-        Text("·").foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        Text("·").foregroundColor(DesignSystem.Colors.secondaryText)
         Text(String(format: NSLocalizedString("selected_events", comment: ""), selectedEventIds.count))
-          .font(ScheduleDesignSystem.Typography.eventCount)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+          .font(DesignSystem.Typography.eventCount)
+          .foregroundColor(DesignSystem.Colors.secondaryText)
       }
     }
-    .frame(height: ScheduleDesignSystem.Dimensions.listHeaderHeight)
+    .frame(height: DesignSystem.Dimensions.listHeaderHeight)
   }
   
   var eventList: some View {
     ScrollView {
-      LazyVStack(spacing: ScheduleDesignSystem.Dimensions.eventCardSpacing) {
+      LazyVStack(spacing: DesignSystem.Dimensions.eventCardSpacing) {
         ForEach(events) { event in
           EventCard(
             title: event.title,
@@ -128,21 +128,21 @@ private extension EventListView {
           }
         }
       }
-      .padding(.bottom, ScheduleDesignSystem.Spacing.vertical)
+      .padding(.bottom, DesignSystem.Spacing.vertical)
     }
   }
   
   var importButton: some View {
     Button(action: handleImport) {
       Text(NSLocalizedString("import_calendar", comment: ""))
-        .font(ScheduleDesignSystem.Typography.buttonLabel)
-        .foregroundColor(ScheduleDesignSystem.Colors.background)
+        .font(DesignSystem.Typography.buttonLabel)
+        .foregroundColor(DesignSystem.Colors.background)
         .frame(
           maxWidth: .infinity,
-          minHeight: ScheduleDesignSystem.Dimensions.buttonHeight
+          minHeight: DesignSystem.Dimensions.buttonHeight
         )
         .background(buttonBackground)
-        .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
+        .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
     }
     .buttonStyle(.plain)
     .withHoverEffect(
@@ -150,11 +150,11 @@ private extension EventListView {
       brightness: hasSelectedEvents ? 0.05 : 0
     )
     .disabled(!hasSelectedEvents)
-    .padding(ScheduleDesignSystem.Layout.containerPadding)
+    .padding(DesignSystem.Layout.containerPadding)
   }
   
   var buttonBackground: some View {
-    ScheduleDesignSystem.Colors.primary
+    DesignSystem.Colors.primary
       .opacity(hasSelectedEvents ? 1 : 0.5)
   }
 }

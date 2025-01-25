@@ -28,12 +28,12 @@ struct AddMethodButton: View {
     }) {
       VStack(spacing: 8) {
         Image(systemName: icon)
-          .font(.system(size: ScheduleDesignSystem.Dimensions.methodIconSize))
-          .foregroundColor(ScheduleDesignSystem.Colors.iconGray)
+          .font(.system(size: DesignSystem.Dimensions.methodIconSize))
+          .foregroundColor(DesignSystem.Colors.iconGray)
 
         Text(text)
-          .font(ScheduleDesignSystem.Typography.bodyRegular)
-          .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+          .font(DesignSystem.Typography.bodyRegular)
+          .foregroundColor(DesignSystem.Colors.secondaryText)
       }
       .frame(maxWidth: .infinity)
     }

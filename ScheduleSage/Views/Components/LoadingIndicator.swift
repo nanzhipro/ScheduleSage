@@ -17,7 +17,7 @@ struct LoadingIndicator: View {
         // 背景圆环
         Circle()
           .stroke(
-            ScheduleDesignSystem.Colors.lightGray,
+            DesignSystem.Colors.lightGray,
             lineWidth: strokeWidth
           )
           .frame(width: spinnerSize, height: spinnerSize)
@@ -26,7 +26,7 @@ struct LoadingIndicator: View {
         Circle()
           .trim(from: 0, to: 0.7)
           .stroke(
-            ScheduleDesignSystem.Colors.primary,
+            DesignSystem.Colors.primary,
             lineWidth: strokeWidth
           )
           .frame(width: spinnerSize, height: spinnerSize)
@@ -35,12 +35,12 @@ struct LoadingIndicator: View {
 
       // 加载文本
       Text(type.message)
-        .font(ScheduleDesignSystem.Typography.bodyRegular)
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        .font(DesignSystem.Typography.bodyRegular)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
     }
     .padding()
     .background(
-      RoundedRectangle(cornerRadius: ScheduleDesignSystem.Dimensions.cardCornerRadius)
+      RoundedRectangle(cornerRadius: DesignSystem.Dimensions.cardCornerRadius)
         .fill(Color.white)
         .shadow(
           color: Color.black.opacity(0.1),

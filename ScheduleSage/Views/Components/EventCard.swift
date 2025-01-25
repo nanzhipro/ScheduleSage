@@ -67,12 +67,12 @@ private struct CardContent: View {
     VStack(alignment: .leading, spacing: Constants.Spacing.title) {
       Text(title)
         .font(.system(size: 17, weight: .medium))
-        .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+        .foregroundColor(DesignSystem.Colors.primaryText)
         .lineLimit(1)
       
       Text(time)
         .font(.system(size: 15))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
         .lineLimit(1)
         .truncationMode(.tail)
         .padding(.bottom, Constants.Spacing.timeBottom)
@@ -81,12 +81,12 @@ private struct CardContent: View {
             if isTimeHovered {
               Text(time)
                 .font(.system(size: 13))
-                .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+                .foregroundColor(DesignSystem.Colors.primaryText)
                 .fixedSize(horizontal: true, vertical: false)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(
-                  ScheduleDesignSystem.Colors.background
+                  DesignSystem.Colors.background
                     .cornerRadius(6)
                     .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                 )
@@ -129,16 +129,16 @@ private struct EventIconLabel: View {
     HStack(spacing: Constants.Icon.spacing) {
       ZStack {
         Circle()
-          .fill(ScheduleDesignSystem.Colors.lightGray)
+          .fill(DesignSystem.Colors.lightGray)
           .frame(width: Constants.Icon.size, height: Constants.Icon.size)
         
         Image(systemName: icon)
-          .foregroundColor(ScheduleDesignSystem.Colors.iconGray)
+          .foregroundColor(DesignSystem.Colors.iconGray)
       }
       
       Text(text)
         .font(.system(size: 13))
-        .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
     }
   }
 }
@@ -149,12 +149,12 @@ private struct SelectionIndicator: View {
   var body: some View {
     ZStack {
       Circle()
-        .fill(ScheduleDesignSystem.Colors.primary.opacity(Constants.Selection.outerOpacity))
+        .fill(DesignSystem.Colors.primary.opacity(Constants.Selection.outerOpacity))
         .frame(width: Constants.Selection.size, height: Constants.Selection.size)
 
       if isSelected {
         Circle()
-          .fill(ScheduleDesignSystem.Colors.primary)
+          .fill(DesignSystem.Colors.primary)
           .frame(width: Constants.Selection.innerSize, height: Constants.Selection.innerSize)
       }
     }
@@ -165,7 +165,7 @@ private struct SelectionIndicator: View {
 private extension View {
   func cardStyle() -> some View {
     self
-      .background(ScheduleDesignSystem.Colors.background)
+      .background(DesignSystem.Colors.background)
       .cornerRadius(Constants.Card.cornerRadius)
       .scheduleCardStyle()
   }

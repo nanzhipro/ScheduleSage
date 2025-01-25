@@ -50,7 +50,7 @@ struct ManualScheduleInputView: View {
                 )
             }
             .frame(width: 440, height: 360)
-            .background(ScheduleDesignSystem.Colors.background)
+            .background(DesignSystem.Colors.background)
             .toast(
                 isPresented: $showToast,
                 type: toastType,
@@ -103,23 +103,23 @@ private struct HeaderView: View {
     @Binding var isPresented: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: ScheduleDesignSystem.Spacing.textSpacing) {
-            HStack(spacing: ScheduleDesignSystem.Spacing.iconSpacing) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.textSpacing) {
+            HStack(spacing: DesignSystem.Spacing.iconSpacing) {
                 Text(NSLocalizedString("manual_input_title", comment: ""))
-                    .font(ScheduleDesignSystem.Typography.headerTitle)
-                    .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+                    .font(DesignSystem.Typography.headerTitle)
+                    .foregroundColor(DesignSystem.Colors.primaryText)
                 Spacer()
                 CloseButton(action: { isPresented = false })
             }
             
             Text(NSLocalizedString("manual_input_subtitle", comment: ""))
-                .font(ScheduleDesignSystem.Typography.caption)
-                .foregroundColor(ScheduleDesignSystem.Colors.secondaryText)
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.secondaryText)
                 .lineLimit(2)
         }
-        .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
-        .padding(.top, ScheduleDesignSystem.Layout.containerPadding.top)
-        .padding(.bottom, ScheduleDesignSystem.Spacing.sectionSpacing)
+        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+        .padding(.top, DesignSystem.Layout.containerPadding.top)
+        .padding(.bottom, DesignSystem.Spacing.sectionSpacing)
     }
 }
 
@@ -129,22 +129,22 @@ private struct InputArea: View {
     
     var body: some View {
         TextEditor(text: $text)
-            .font(ScheduleDesignSystem.Typography.bodyRegular)
+            .font(DesignSystem.Typography.bodyRegular)
             .focused($isFocused)
             .scrollContentBackground(.hidden)
             .background(placeholderView)
-            .padding(ScheduleDesignSystem.Spacing.contentPadding)
-            .background(ScheduleDesignSystem.Colors.lightGray)
-            .cornerRadius(ScheduleDesignSystem.Dimensions.cardCornerRadius)
-            .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
+            .padding(DesignSystem.Spacing.contentPadding)
+            .background(DesignSystem.Colors.lightGray)
+            .cornerRadius(DesignSystem.Dimensions.cardCornerRadius)
+            .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
     }
     
     private var placeholderView: some View {
         ZStack(alignment: .topLeading) {
             if text.isEmpty && !isFocused {
                 Text(NSLocalizedString("schedule_input_placeholder", comment: ""))
-                    .font(ScheduleDesignSystem.Typography.bodyRegular)
-                    .foregroundColor(ScheduleDesignSystem.Colors.tertiaryText)
+                    .font(DesignSystem.Typography.bodyRegular)
+                    .foregroundColor(DesignSystem.Colors.tertiaryText)
                     .padding(.top, 8)
                     .padding(.leading, 5)
             }
@@ -163,23 +163,23 @@ private struct RecognizeButton: View {
                 if isProcessing {
                     ProgressView()
                         .scaleEffect(0.8)
-                        .tint(ScheduleDesignSystem.Colors.background)
+                        .tint(DesignSystem.Colors.background)
                 }
                 Text(NSLocalizedString("recognize_button", comment: ""))
-                    .font(ScheduleDesignSystem.Typography.buttonLabel)
-                    .foregroundColor(ScheduleDesignSystem.Colors.background)
+                    .font(DesignSystem.Typography.buttonLabel)
+                    .foregroundColor(DesignSystem.Colors.background)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: ScheduleDesignSystem.Dimensions.buttonHeight)
-            .background(ScheduleDesignSystem.Colors.primary)
-            .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
+            .frame(height: DesignSystem.Dimensions.buttonHeight)
+            .background(DesignSystem.Colors.primary)
+            .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
         }
         .buttonStyle(.plain)
         .withHoverEffect(scale: 1.02, brightness: 0.05)
         .disabled(isDisabled)
-        .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
-        .padding(.bottom, ScheduleDesignSystem.Layout.containerPadding.bottom)
-        .padding(.top, ScheduleDesignSystem.Spacing.vertical)
+        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+        .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
+        .padding(.top, DesignSystem.Spacing.vertical)
     }
 }
 
@@ -190,13 +190,13 @@ private struct CloseButton: View {
         Button(action: action) {
             Image(systemName: "xmark")
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+                .foregroundColor(DesignSystem.Colors.secondaryGray)
                 .frame(width: 28, height: 28)
         }
         .buttonStyle(.plain)
         .withHoverEffect(scale: 1.1, brightness: 0.1)
-        .background(ScheduleDesignSystem.Colors.hoverBackground.opacity(0.001))
-        .cornerRadius(ScheduleDesignSystem.Dimensions.buttonCornerRadius)
+        .background(DesignSystem.Colors.hoverBackground.opacity(0.001))
+        .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
     }
 }
 

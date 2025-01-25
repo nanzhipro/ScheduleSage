@@ -31,7 +31,7 @@ struct SettingsButton: View {
         systemImage: "gear"
       )
     }
-    .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+    .foregroundColor(DesignSystem.Colors.primaryText)
   }
   
   private var quitButton: some View {
@@ -41,13 +41,13 @@ struct SettingsButton: View {
         systemImage: "power"
       )
     }
-    .foregroundColor(ScheduleDesignSystem.Colors.primaryText)
+    .foregroundColor(DesignSystem.Colors.primaryText)
   }
   
   private var settingsIcon: some View {
     Image(systemName: "gear.badge.checkmark")
-      .font(.system(size: ScheduleDesignSystem.Dimensions.settingsButtonSize))
-      .foregroundColor(ScheduleDesignSystem.Colors.secondaryGray)
+      .font(.system(size: DesignSystem.Dimensions.settingsButtonSize))
+      .foregroundColor(DesignSystem.Colors.secondaryGray)
       .contentShape(Rectangle())
   }
   

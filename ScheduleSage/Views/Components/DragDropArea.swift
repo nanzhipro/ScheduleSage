@@ -30,23 +30,23 @@ struct DragDropArea<Content: View>: View {
       content
 
       // 虚线边框
-      RoundedRectangle(cornerRadius: ScheduleDesignSystem.Dimensions.cardCornerRadius)
+      RoundedRectangle(cornerRadius: DesignSystem.Dimensions.cardCornerRadius)
         .strokeBorder(
           style: StrokeStyle(
             lineWidth: 2,
             dash: [4, 4]
           )
         )
-        .foregroundColor(isDragging ? ScheduleDesignSystem.Colors.primary : ScheduleDesignSystem.Colors.borderGray)
-        .padding(.horizontal, ScheduleDesignSystem.Layout.containerPadding.leading)
-        .padding(.top, ScheduleDesignSystem.Layout.containerPadding.top)
+        .foregroundColor(isDragging ? DesignSystem.Colors.primary : DesignSystem.Colors.borderGray)
+        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+        .padding(.top, DesignSystem.Layout.containerPadding.top)
         .padding(
           .bottom,
-          ScheduleDesignSystem.Layout.containerPadding.bottom + ScheduleDesignSystem.Dimensions.buttonHeight + 16
+          DesignSystem.Layout.containerPadding.bottom + DesignSystem.Dimensions.buttonHeight + 16
         )
         .animation(.easeInOut(duration: 0.3), value: isDragging)
     }
-    .background(ScheduleDesignSystem.Colors.containerGray)
+    .background(DesignSystem.Colors.containerGray)
     .onDrop(
       of: [.fileURL],
       delegate: ImageDropDelegate(

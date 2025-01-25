@@ -10,7 +10,7 @@ enum ThemeType {
 
 /// ScheduleSage 应用的设计系统
 /// 包含颜色、排版、尺寸、间距、阴影等设计元素
-enum ScheduleDesignSystem {
+enum DesignSystem {
   /// 当前使用的主题类型，默认为微信风格
   static var currentTheme: ThemeType = .wechat
 
@@ -473,8 +473,8 @@ extension View {
   /// 包括背景色、圆角和阴影
   func scheduleCardStyle() -> some View {
     self
-      .background(ScheduleDesignSystem.Colors.background)
-      .cornerRadius(ScheduleDesignSystem.Dimensions.cardCornerRadius)
+      .background(DesignSystem.Colors.background)
+      .cornerRadius(DesignSystem.Dimensions.cardCornerRadius)
       .modifier(CardShadowModifier())
   }
 
@@ -482,13 +482,13 @@ extension View {
   /// 包括高度、内边距、背景色、圆角和边框
   func scheduleFormFieldStyle() -> some View {
     self
-      .frame(height: ScheduleDesignSystem.Dimensions.formFieldHeight)
-      .padding(ScheduleDesignSystem.Layout.formFieldPadding)
-      .background(ScheduleDesignSystem.Colors.background)
-      .cornerRadius(ScheduleDesignSystem.Dimensions.cardCornerRadius)
+      .frame(height: DesignSystem.Dimensions.formFieldHeight)
+      .padding(DesignSystem.Layout.formFieldPadding)
+      .background(DesignSystem.Colors.background)
+      .cornerRadius(DesignSystem.Dimensions.cardCornerRadius)
       .overlay(
-        RoundedRectangle(cornerRadius: ScheduleDesignSystem.Dimensions.cardCornerRadius)
-          .stroke(ScheduleDesignSystem.Colors.borderGray, lineWidth: 1)
+        RoundedRectangle(cornerRadius: DesignSystem.Dimensions.cardCornerRadius)
+          .stroke(DesignSystem.Colors.borderGray, lineWidth: 1)
       )
   }
 }
@@ -498,7 +498,7 @@ private struct CardShadowModifier: ViewModifier {
   @Environment(\.colorScheme) var colorScheme
   
   func body(content: Content) -> some View {
-    let shadow = ScheduleDesignSystem.Shadows.cardShadow(colorScheme: colorScheme)
+    let shadow = DesignSystem.Shadows.cardShadow(colorScheme: colorScheme)
     content.shadow(
       color: shadow.color,
       radius: shadow.radius,

@@ -28,7 +28,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
       return
     }
     
-    ScheduleDesignSystem.switchTheme(to: .wechat)
+    DesignSystem.switchTheme(to: .wechat)
     logger.logInfo("AppDelegate did finish launching")
     
     Task {
