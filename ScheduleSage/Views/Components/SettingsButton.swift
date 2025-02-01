@@ -38,7 +38,7 @@ struct SettingsButton: View {
   }
   
   private var settingsIcon: some View {
-    Image(systemName: "gear.badge.checkmark")
+    Image(systemName: "gear")
       .font(.system(size: DesignSystem.Dimensions.settingsButtonSize))
       .foregroundColor(DesignSystem.Colors.secondaryGray)
       .contentShape(Rectangle())
