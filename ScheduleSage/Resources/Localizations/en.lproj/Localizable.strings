@@ -130,3 +130,14 @@
 "dismiss" = "Dismiss";
 
 "event_time_range_format" = "%@ to %@";
+
+// Event Card Menu
+"edit_event" = "Edit";
+"delete_event" = "Delete";
+"delete_success" = "Event deleted";
+
+// Event Edit View
+"edit_event_title" = "Edit Event";
+"edit_event_subtitle" = "Modify event details";
+"save" = "Save";
+"cancel" = "Cancel";

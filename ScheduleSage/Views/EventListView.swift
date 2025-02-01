@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+extension Notification.Name {
+  static let eventDidUpdate = Notification.Name("eventDidUpdate")
+}
+
 struct EventListView: View {
   // MARK: - Properties
   let events: [CalendarEvent]
@@ -18,8 +22,17 @@ struct EventListView: View {
   @State private var showToast = false
   @State private var toastType: ToastType = .success
   @State private var toastMessage: String = ""
+  @State private var displayEvents: [CalendarEvent]
 
   private var hasSelectedEvents: Bool { !selectedEventIds.isEmpty }
+
+  init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping () -> Void, onBack: @escaping () -> Void) {
+    self.events = events
+    self.onAdd = onAdd
+    self.onImport = onImport
+    self.onBack = onBack
+    _displayEvents = State(initialValue: events)
+  }
 
   // MARK: - Body
   var body: some View {
@@ -41,9 +54,29 @@ struct EventListView: View {
       duration: 2.0
     )
     .onAppear {
-      // 如果有日程，默认选中第一个
       if let firstEvent = events.first {
         selectedEventIds.insert(firstEvent.eventIdentifier)
+      }
+    }
+    .onReceive(NotificationCenter.default.publisher(for: .eventDidUpdate)) { notification in
+      if let updatedEvent = notification.userInfo?["event"] as? CalendarEvent {
+        handleEventUpdate(updatedEvent)
+      }
+    }
+  }
+
+  // MARK: - Event Update Handler
+  private func handleEventUpdate(_ updatedEvent: CalendarEvent) {
+    withAnimation(.easeInOut(duration: 0.3)) {
+      if let index = displayEvents.firstIndex(where: { $0.eventIdentifier == updatedEvent.eventIdentifier }) {
+        var updatedEvents = displayEvents
+        updatedEvents[index] = updatedEvent
+        displayEvents = updatedEvents
+        
+        // 显示更新成功提示
+        toastType = .success
+        toastMessage = NSLocalizedString("update_success", comment: "")
+        showToast = true
       }
     }
   }
@@ -79,7 +112,7 @@ private extension EventListView {
   var contentArea: some View {
     VStack(spacing: DesignSystem.Dimensions.listContentSpacing) {
       listHeader
-      eventList
+      eventListView
     }
     .padding(.horizontal, DesignSystem.Spacing.listContentPadding)
     .padding(.vertical, DesignSystem.Dimensions.listVerticalPadding)
@@ -88,7 +121,7 @@ private extension EventListView {
   
   var listHeader: some View {
     HStack {
-      Text(String(format: NSLocalizedString("detected_events", comment: ""), events.count))
+      Text(String(format: NSLocalizedString("detected_events", comment: ""), displayEvents.count))
         .font(DesignSystem.Typography.eventCount)
         .foregroundColor(DesignSystem.Colors.secondaryText)
       
@@ -102,10 +135,10 @@ private extension EventListView {
     .frame(height: DesignSystem.Dimensions.listHeaderHeight)
   }
   
-  var eventList: some View {
+  var eventListView: some View {
     ScrollView {
       LazyVStack(spacing: DesignSystem.Dimensions.eventCardSpacing) {
-        ForEach(events) { event in
+        ForEach(displayEvents) { event in
           if let startDate = event.parsedStartDate,
              let endDate = event.parsedEndDate {
             EventCard(
@@ -114,10 +147,15 @@ private extension EventListView {
               endDate: endDate,
               location: event.location,
               calendar: event.calendar,
-              isSelected: selectedEventIds.contains(event.eventIdentifier)
-            ) {
-              toggleEventSelection(event.eventIdentifier)
-            }
+              isSelected: selectedEventIds.contains(event.eventIdentifier),
+              onSelect: {
+                toggleEventSelection(event.eventIdentifier)
+              },
+              onMoreAction: {},
+              onDelete: {
+                deleteEvent(event)
+              }
+            )
           }
         }
       }
@@ -181,6 +219,20 @@ private extension EventListView {
         toastMessage = NSLocalizedString("import_success", comment: "")
         showToast = true
       }
+    }
+  }
+  
+  func deleteEvent(_ event: CalendarEvent) {
+    withAnimation(.easeInOut(duration: 0.3)) {
+      displayEvents.removeAll { event in
+        event.eventIdentifier == event.eventIdentifier
+      }
+      selectedEventIds.remove(event.eventIdentifier)
+      
+      // 显示删除成功提示
+      toastType = .success
+      toastMessage = NSLocalizedString("delete_success", comment: "")
+      showToast = true
     }
   }
 }

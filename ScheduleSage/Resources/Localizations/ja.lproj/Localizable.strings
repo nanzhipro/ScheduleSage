@@ -130,3 +130,14 @@
 "dismiss" = "閉じる";
 
 "event_time_range_format" = "%@から%@まで";
+
+// Event Card Menu
+"edit_event" = "編集";
+"delete_event" = "削除";
+"delete_success" = "予定を削除しました";
+
+// Event Edit View
+"edit_event_title" = "予定を編集";
+"edit_event_subtitle" = "予定の詳細を修正";
+"save" = "保存";
+"cancel" = "キャンセル";

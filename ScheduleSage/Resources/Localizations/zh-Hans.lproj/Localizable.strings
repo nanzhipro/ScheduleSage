@@ -130,3 +130,14 @@
 "dismiss" = "关闭";
 
 "event_time_range_format" = "%@ 至 %@";
+
+// Event Card Menu
+"edit_event" = "编辑";
+"delete_event" = "删除";
+"delete_success" = "已删除日程";
+
+// Event Edit View
+"edit_event_title" = "编辑日程";
+"edit_event_subtitle" = "修改日程详细信息";
+"save" = "保存";
+"cancel" = "取消";
