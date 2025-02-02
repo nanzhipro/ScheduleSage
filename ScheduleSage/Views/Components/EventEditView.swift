@@ -206,6 +206,7 @@ private struct ActionButton: View {
   
   @State private var isHovering = false
   @State private var isPressed = false
+  @Environment(\.colorScheme) private var colorScheme
   
   enum ButtonStyle {
     case primary
@@ -213,15 +214,32 @@ private struct ActionButton: View {
     
     var backgroundColor: Color {
       switch self {
-      case .primary: return DesignSystem.Colors.primary
-      case .cancel: return DesignSystem.Colors.cancelButtonBackground
+      case .primary:
+        return DesignSystem.Colors.primary
+      case .cancel:
+        return DesignSystem.Colors.cancelButtonBackground
       }
     }
     
-    var foregroundColor: Color {
+    func foregroundColor(in colorScheme: ColorScheme) -> Color {
       switch self {
-      case .primary: return DesignSystem.Colors.background
-      case .cancel: return DesignSystem.Colors.primaryText
+      case .primary:
+        return DesignSystem.Colors.background
+      case .cancel:
+        return colorScheme == .dark ? DesignSystem.Colors.background : DesignSystem.Colors.primaryText
+      }
+    }
+    
+    func backgroundColor(in colorScheme: ColorScheme, isHovering: Bool) -> Color {
+      switch self {
+      case .primary:
+        return DesignSystem.Colors.primary.opacity(isHovering ? 0.8 : 1.0)
+      case .cancel:
+        if colorScheme == .dark {
+          return DesignSystem.Colors.secondaryText.opacity(isHovering ? 0.8 : 0.6)
+        } else {
+          return DesignSystem.Colors.cancelButtonBackground.opacity(isHovering ? 0.8 : 1.0)
+        }
       }
     }
   }
@@ -238,12 +256,11 @@ private struct ActionButton: View {
     }) {
       Text(NSLocalizedString(title, comment: ""))
         .font(DesignSystem.Typography.buttonLabel)
-        .foregroundColor(style.foregroundColor)
+        .foregroundColor(style.foregroundColor(in: colorScheme))
         .frame(maxWidth: .infinity)
         .frame(height: DesignSystem.Dimensions.buttonHeight)
         .background(
-          style.backgroundColor
-            .opacity(isHovering ? 0.8 : 1.0)
+          style.backgroundColor(in: colorScheme, isHovering: isHovering)
         )
         .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
         .scaleEffect(isPressed ? 0.98 : 1.0)

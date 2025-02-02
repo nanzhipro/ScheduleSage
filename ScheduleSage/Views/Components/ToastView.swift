@@ -29,6 +29,7 @@ public struct ToastConfiguration {
 // MARK: - Toast View
 public struct ToastView: View {
     private let configuration: ToastConfiguration
+    @Environment(\.colorScheme) private var colorScheme
     
     public init(configuration: ToastConfiguration) {
         self.configuration = configuration
@@ -50,7 +51,7 @@ public struct ToastView: View {
         .background(backgroundColor)
         .cornerRadius(DesignSystem.Dimensions.cardCornerRadius)
         .shadow(
-            color: Color.black.opacity(0.1),
+            color: Color.black.opacity(colorScheme == .dark ? 0.3 : 0.1),
             radius: 10,
             x: 0,
             y: 4
@@ -61,9 +62,13 @@ public struct ToastView: View {
     private var backgroundColor: Color {
         switch configuration.type {
         case .success:
-            return DesignSystem.Colors.primary
+            return colorScheme == .dark ? 
+                DesignSystem.Colors.primary.opacity(0.9) :
+                DesignSystem.Colors.primary
         case .error:
-            return DesignSystem.Colors.error
+            return colorScheme == .dark ? 
+                DesignSystem.Colors.error.opacity(0.9) :
+                DesignSystem.Colors.error
         }
     }
     
@@ -78,17 +83,19 @@ public struct ToastView: View {
     
     private var iconColor: Color {
         switch configuration.type {
-        case .success:
-            return DesignSystem.Colors.background
-        case .error:
-            return DesignSystem.Colors.background
+        case .success, .error:
+            return colorScheme == .dark ? 
+                DesignSystem.Colors.background.opacity(0.9) :
+                DesignSystem.Colors.background
         }
     }
     
     private var textColor: Color {
         switch configuration.type {
         case .success, .error:
-            return DesignSystem.Colors.background
+            return colorScheme == .dark ? 
+                DesignSystem.Colors.background.opacity(0.9) :
+                DesignSystem.Colors.background
         }
     }
 }
