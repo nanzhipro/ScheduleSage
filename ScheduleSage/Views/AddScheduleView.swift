@@ -137,7 +137,7 @@ private struct AddScheduleContent: View {
   var body: some View {
     VStack(spacing: 0) {
       Spacer()
-        .frame(height: DesignSystem.Spacing.vertical * 2)
+        .frame(height: DesignSystem.Spacing.vertical * 3)
       
       CalendarIcon(animation: viewModel.dragAnimation)
         .padding(.bottom, DesignSystem.Spacing.vertical * 0.5)

@@ -67,6 +67,7 @@ private struct CardContent: View {
     VStack(alignment: .leading, spacing: Design.Layout.titleSpacing) {
       titleView
       timeSection
+      Spacer()
       iconLabels
     }
   }
@@ -104,31 +105,15 @@ private struct TimeSection: View {
   let endDate: Date
   
   var body: some View {
-    HStack(alignment: .top, spacing: 0) {
-      timeSeparator
-      timeLabels
+    HStack(alignment: .center, spacing: Design.Layout.iconSpacing) {
+      Image(systemName: "clock")
+        .font(.system(size: Design.Layout.timeIconSize, weight: .regular))
+        .foregroundColor(DesignSystem.Colors.iconGray)
+      
+      Text(DateFormatters.formatDateRange(start: startDate, end: endDate))
+        .font(DesignSystem.Typography.bodyRegular)
+        .foregroundColor(DesignSystem.Colors.primaryText)
     }
-  }
-  
-  private var timeSeparator: some View {
-    VStack {
-      Rectangle()
-        .fill(DesignSystem.Colors.borderGray)
-        .frame(width: Design.Time.separatorWidth, height: Design.Time.separatorHeight)
-        .padding(.vertical, Design.Time.separatorPadding)
-    }
-    .padding(.leading, 4)
-  }
-  
-  private var timeLabels: some View {
-    VStack(alignment: .leading, spacing: Design.Layout.titleSpacing) {
-      ForEach([startDate, endDate], id: \.self) { date in
-        Text(DateFormatters.display.string(from: date))
-          .font(DesignSystem.Typography.bodyRegular)
-          .foregroundColor(DesignSystem.Colors.primaryText)
-      }
-    }
-    .padding(.leading, Design.Layout.iconSpacing)
   }
 }
 
@@ -214,6 +199,7 @@ private struct RightControls: View {
       .onHover { hovering in
         isHovering = hovering
       }
+      .offset(y: -8)
     }
     .sheet(isPresented: $showingEditSheet) {
       EventEditView(

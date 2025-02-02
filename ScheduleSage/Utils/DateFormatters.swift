@@ -32,23 +32,46 @@ public enum DateFormatters {
         return formatter
     }()
     
+    /// 事件时间显示格式化器
+    /// 用于事件卡片中显示时间，支持本地化
+    public static let eventTime: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = NSLocalizedString("date_format.event_time", comment: "Date format for event time display")
+        formatter.timeZone = .current
+        formatter.locale = .current
+        formatter.doesRelativeDateFormatting = false
+        return formatter
+    }()
+    
     /// 格式化日期范围
     /// - Parameters:
     ///   - start: 开始日期
     ///   - end: 结束日期
-    /// - Returns: 格式化后的日期范围字符串
+    /// - Returns: 格式化后的日期范围字符串，支持本地化
     public static func formatDateRange(start: Date, end: Date) -> String {
-        let startStr = display.string(from: start)
-        let endStr = display.string(from: end)
+        let calendar = Calendar.current
         
-        return String(
-            format: NSLocalizedString(
-                "event_time_range_format",
-                comment: "Format string for event time range. Example: '今天 14:30 至 16:30'"
-            ),
-            startStr,
-            endStr
-        )
+        // 如果是同一天，只显示一次日期
+        if calendar.isDate(start, inSameDayAs: end) {
+            let dateStr = eventTime.string(from: start)
+            let startTimeStr = String(dateStr.suffix(5))  // 获取 "HH:mm" 部分
+            let endTimeStr = String(eventTime.string(from: end).suffix(5))  // 转换为 String
+            
+            return String(
+                format: NSLocalizedString("date_format.same_day", comment: "Format for same day events"),
+                dateStr,
+                endTimeStr
+            )
+        } else {
+            let startStr = eventTime.string(from: start)
+            let endStr = eventTime.string(from: end)
+            
+            return String(
+                format: NSLocalizedString("date_format.different_days", comment: "Format for events spanning multiple days"),
+                startStr,
+                endStr
+            )
+        }
     }
     
     /// 解析日期字符串

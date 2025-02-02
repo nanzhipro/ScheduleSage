@@ -142,3 +142,9 @@
 "save" = "保存";
 "cancel" = "キャンセル";
 "update_success" = "予定を更新しました";
+
+// Date Formats
+"date_format.event_time" = "M月d日 HH:mm";
+"date_format.time_separator" = "～";
+"date_format.same_day" = "%@～%@"; // 同日のイベント：11月6日 14:00～17:00
+"date_format.different_days" = "%@～%@"; // 複数日のイベント：11月6日 14:00～11月7日 17:00
