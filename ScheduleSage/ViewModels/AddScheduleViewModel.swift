@@ -3,9 +3,9 @@ import SwiftWebCrawler
 import OSLog
 import QuestOCR
 
-// MARK: - PopoverViewModel
+// MARK: - AddScheduleViewModel 新增日程 ViewModel
 @MainActor
-class PopoverViewModel: ObservableObject {
+class AddScheduleViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var showEventList = false
     @Published var isDragging = false
@@ -53,7 +53,7 @@ class PopoverViewModel: ObservableObject {
     }
     
     // MARK: - Private Properties
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PopoverViewModel")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "AddScheduleViewModel")
     private let processor = OCRProcessor()
     private let clipboardManager = ClipboardManager()
     private var promptViewModel: PromptViewModel
@@ -132,7 +132,7 @@ class PopoverViewModel: ObservableObject {
 }
 
 // MARK: - Animation Types
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     enum DragAnimation {
         case none, pulse, bounce, glow, scale
         
@@ -149,7 +149,7 @@ extension PopoverViewModel {
 }
 
 // MARK: - Clipboard Handling
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     func handleClipboardContent(_ content: ClipboardContent) {
         switch content {
         case .url(let url):
@@ -212,7 +212,7 @@ extension PopoverViewModel {
 }
 
 // MARK: - Content Processing
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     private func handleWebContent(_ url: URL) async {
         do {
             await MainActor.run { 
@@ -313,7 +313,7 @@ extension PopoverViewModel {
 }
 
 // MARK: - State Management
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     private func startOCRProcessing() async {
         await MainActor.run {
             loadingStartTime = Date()
@@ -397,7 +397,7 @@ extension PopoverViewModel {
 }
 
 // MARK: - Drag and Drop
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     func handleDragEntered() {
         isDragging = true
         dragAnimation = .glow
@@ -443,7 +443,7 @@ extension PopoverViewModel {
 }
 
 // MARK: - Pro Features
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     func showUpgradeSheetAction() {
         showUpgradeSheet = true
     }
@@ -468,7 +468,7 @@ private extension URL {
 }
 
 // MARK: - Private Helper Methods
-private extension PopoverViewModel {
+private extension AddScheduleViewModel {
     func getCalendarNames() async -> [String] {
         do {
             // 请求日历访问权限
@@ -510,7 +510,7 @@ private extension PopoverViewModel {
 }
 
 // MARK: - Calendar Import
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     func importToCalendar() {
         Task {
             await MainActor.run {
@@ -576,7 +576,7 @@ enum CalendarError: LocalizedError {
 }
 
 // MARK: - Toast Management
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     func showToastMessage(_ message: String, type: ToastType = .error) {
         // 取消之前的隐藏任务
         Task { @MainActor in
@@ -603,7 +603,7 @@ extension PopoverViewModel {
 }
 
 // MARK: - Image Selection
-extension PopoverViewModel {
+extension AddScheduleViewModel {
     func handleImageSelection() {
         // 只在 Window 模式下允许打开文件选择器
         guard windowController != nil else {

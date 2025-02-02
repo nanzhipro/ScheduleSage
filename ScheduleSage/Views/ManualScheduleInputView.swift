@@ -24,12 +24,12 @@ struct ManualScheduleInputView: View {
     @FocusState private var isFocused: Bool
     
     private let llmProcessor: LLMEventProcessor
-    private let viewModel: PopoverViewModel
+    private let viewModel: AddScheduleViewModel
     var onEventsProcessed: ([CalendarEvent]) -> Void
     
     init(isPresented: Binding<Bool>, 
          llmProcessor: LLMEventProcessor, 
-         viewModel: PopoverViewModel,
+         viewModel: AddScheduleViewModel,
          onEventsProcessed: @escaping ([CalendarEvent]) -> Void) {
         self._isPresented = isPresented
         self.llmProcessor = llmProcessor
@@ -194,7 +194,7 @@ struct ManualScheduleInputView_Previews: PreviewProvider {
         ManualScheduleInputView(
             isPresented: .constant(true),
             llmProcessor: PreviewData.mockLLMProcessor,
-            viewModel: PreviewData.mockPopoverViewModel
+            viewModel: PreviewData.mockAddScheduleViewModel
         ) { _ in }
     }
 }

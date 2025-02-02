@@ -32,8 +32,8 @@ enum PreviewData {
   static let mockLLMProcessor: LLMEventProcessor = MockLLMProcessor()
   
   @MainActor
-  static let mockPopoverViewModel: PopoverViewModel = {
-    let vm = PopoverViewModel()
+  static let mockAddScheduleViewModel: AddScheduleViewModel = {
+    let vm = AddScheduleViewModel()
     // 设置一些预览用的初始状态
     return vm
   }()

@@ -1,5 +1,5 @@
 //
-//  PopoverView.swift
+//  AddScheduleView.swift
 //  ScheduleSage
 //
 //  Created by CursorAI on 2024-02-14.
@@ -9,12 +9,12 @@ import AppKit
 import SwiftUI
 
 /// 日程主页面
-struct PopoverView: View {
-  @EnvironmentObject private var viewModel: PopoverViewModel
+struct AddScheduleView: View {
+  @EnvironmentObject private var viewModel: AddScheduleViewModel
   
   var body: some View {
     VStack(spacing: 0) {
-      AddScheduleView(viewModel: viewModel)
+      AddScheduleView_Impl(viewModel: viewModel)
         .withLoading()
         .sheet(isPresented: $viewModel.showEventList) {
           EventListView(
@@ -71,8 +71,8 @@ struct PopoverView: View {
 }
 
 // MARK: - Add Schedule View
-private struct AddScheduleView: View {
-  @ObservedObject var viewModel: PopoverViewModel
+private struct AddScheduleView_Impl: View {
+  @ObservedObject var viewModel: AddScheduleViewModel
   
   var body: some View {
     VStack(spacing: 0) {
@@ -105,7 +105,7 @@ private struct AddScheduleView: View {
 
 // MARK: - Header View
 private struct HeaderView: View {
-  @ObservedObject var viewModel: PopoverViewModel
+  @ObservedObject var viewModel: AddScheduleViewModel
   
   var body: some View {
     HStack {
@@ -131,7 +131,7 @@ private struct HeaderView: View {
 
 // MARK: - Add Schedule Content
 private struct AddScheduleContent: View {
-  @ObservedObject var viewModel: PopoverViewModel
+  @ObservedObject var viewModel: AddScheduleViewModel
   
   var body: some View {
     VStack(spacing: 0) {
@@ -155,7 +155,7 @@ private struct AddScheduleContent: View {
 
 // MARK: - Calendar Icon
 private struct CalendarIcon: View {
-  let animation: PopoverViewModel.DragAnimation
+  let animation: AddScheduleViewModel.DragAnimation
   
   var body: some View {
     ZStack {
@@ -191,7 +191,7 @@ private struct TitleSection: View {
 
 // MARK: - Add Method Section
 private struct AddMethodSection: View {
-  @ObservedObject var viewModel: PopoverViewModel
+  @ObservedObject var viewModel: AddScheduleViewModel
   
   var body: some View {
     HStack(spacing: DesignSystem.Spacing.horizontal) {
@@ -229,7 +229,7 @@ private struct AddMethodSection: View {
 
 // MARK: - Drag Animation Modifier
 struct DragAnimationModifier: ViewModifier {
-  let animation: PopoverViewModel.DragAnimation
+  let animation: AddScheduleViewModel.DragAnimation
   
   func body(content: Content) -> some View {
     content.modifier(
@@ -239,7 +239,7 @@ struct DragAnimationModifier: ViewModifier {
 }
 
 private struct AnimatedContentModifier: ViewModifier {
-  let animation: PopoverViewModel.DragAnimation
+  let animation: AddScheduleViewModel.DragAnimation
   
   func body(content: Content) -> some View {
     content

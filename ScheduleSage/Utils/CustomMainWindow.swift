@@ -9,7 +9,7 @@ import AppKit
 import SwiftUI
 
 class CustomMainWindow: NSWindow {
-    weak var viewModel: PopoverViewModel?
+    weak var viewModel: AddScheduleViewModel?
     private var visualEffectView: NSVisualEffectView?
     
     override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
@@ -88,7 +88,7 @@ extension CustomMainWindow: NSWindowDelegate {
 }
 
 class MainWindowController: NSWindowController {
-    convenience init(contentView: some View, viewModel: PopoverViewModel, size: NSSize) {
+    convenience init(contentView: some View, viewModel: AddScheduleViewModel, size: NSSize) {
         let window = CustomMainWindow(
             contentRect: NSRect(x: 0, y: 0, width: size.width, height: size.height),
             styleMask: [.closable, .miniaturizable, .borderless, .fullSizeContentView],

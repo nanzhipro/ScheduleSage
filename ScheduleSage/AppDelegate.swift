@@ -6,7 +6,7 @@ import OSLog
 class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private var statusItem: NSStatusItem?
   private var popover: NSPopover?
-  private var viewModel: PopoverViewModel?
+  private var viewModel: AddScheduleViewModel?
   private var eventMonitor: Any?
   private let logger = Logger(subsystem: "com.tiwenlab.schedulesage", category: "AppDelegate")
   private let calendarManager = CalendarManager()
@@ -35,7 +35,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     logger.info("AppDelegate did finish launching")
     
     Task {
-      self.viewModel = PopoverViewModel()
+      self.viewModel = AddScheduleViewModel()
       
       setupStatusItem()
       setupPopover()
@@ -112,7 +112,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   private func setupPopover() {
     guard let viewModel = viewModel else { return }
     
-    let contentView = PopoverView()
+    let contentView = AddScheduleView()
         .environmentObject(viewModel)
     
     if useWindowMode {
@@ -173,7 +173,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     if useWindowMode {
       toggleWindow()
     } else {
-      togglePopoverView()
+      toggleAddScheduleView()
     }
   }
   
@@ -199,7 +199,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
   }
   
-  private func togglePopoverView() {
+  private func toggleAddScheduleView() {
     if let button = statusItem?.button {
       if isPopoverShown {
         dismissPopover()
