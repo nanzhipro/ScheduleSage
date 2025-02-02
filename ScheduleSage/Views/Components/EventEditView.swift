@@ -20,6 +20,7 @@ struct EventEditView: View {
   @State private var endDate: Date
   @State private var location: String
   @State private var calendar: String
+  @State private var isEditing = false
   
   // MARK: - Initialization
   init(event: CalendarEvent, onSave: @escaping (CalendarEvent) -> Void, onCancel: @escaping () -> Void) {
@@ -46,6 +47,12 @@ struct EventEditView: View {
     .frame(width: DesignSystem.Dimensions.containerWidth, height: DesignSystem.Dimensions.containerHeight)
     .background(DesignSystem.Colors.background)
     .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
+    .onAppear {
+      isEditing = true
+    }
+    .onDisappear {
+      isEditing = false
+    }
   }
   
   // MARK: - Header View
@@ -125,7 +132,7 @@ struct EventEditView: View {
       ActionButton(
         title: "cancel",
         style: .cancel,
-        action: onCancel
+        action: handleCancel
       )
       
       ActionButton(
@@ -159,6 +166,8 @@ struct EventEditView: View {
   
   // MARK: - Actions
   private func handleSave() {
+    guard isEditing else { return }
+    
     let updatedEvent = CalendarEvent(
       title: title,
       location: location,
@@ -171,8 +180,21 @@ struct EventEditView: View {
       eventIdentifier: event.eventIdentifier,
       remarks: event.remarks
     )
+    
+    isEditing = false
     onSave(updatedEvent)
-    dismiss()
+    
+    DispatchQueue.main.async {
+      dismiss()
+    }
+  }
+  
+  private func handleCancel() {
+    isEditing = false
+    DispatchQueue.main.async {
+      onCancel()
+      dismiss()
+    }
   }
 }
 
@@ -183,6 +205,7 @@ private struct ActionButton: View {
   let action: () -> Void
   
   @State private var isHovering = false
+  @State private var isPressed = false
   
   enum ButtonStyle {
     case primary
@@ -204,7 +227,15 @@ private struct ActionButton: View {
   }
   
   var body: some View {
-    Button(action: action) {
+    Button(action: {
+      withAnimation(.easeOut(duration: 0.2)) {
+        isPressed = true
+      }
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        isPressed = false
+        action()
+      }
+    }) {
       Text(NSLocalizedString(title, comment: ""))
         .font(DesignSystem.Typography.buttonLabel)
         .foregroundColor(style.foregroundColor)
@@ -215,6 +246,7 @@ private struct ActionButton: View {
             .opacity(isHovering ? 0.8 : 1.0)
         )
         .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
+        .scaleEffect(isPressed ? 0.98 : 1.0)
     }
     .buttonStyle(.plain)
     .onHover { hovering in

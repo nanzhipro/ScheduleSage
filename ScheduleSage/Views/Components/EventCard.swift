@@ -141,10 +141,11 @@ private struct EventIconLabel: View {
     HStack(spacing: Design.Layout.iconSpacing) {
       ZStack {
         Circle()
-          .fill(DesignSystem.Colors.lightGray)
+          .fill(DesignSystem.Colors.lightGray.opacity(0.8))
           .frame(width: Design.Layout.iconSize, height: Design.Layout.iconSize)
         
         Image(systemName: icon)
+          .font(.system(size: 14, weight: .light))
           .foregroundColor(DesignSystem.Colors.iconGray)
       }
       Text(text)
@@ -253,6 +254,12 @@ private extension View {
     self
       .background(DesignSystem.Colors.background)
       .cornerRadius(Design.Card.cornerRadius)
+      .shadow(
+        color: Color.black.opacity(0.05),
+        radius: 8,
+        x: 0,
+        y: 2
+      )
       .scheduleCardStyle()
   }
 }
