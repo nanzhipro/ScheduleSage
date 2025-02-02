@@ -162,14 +162,14 @@ struct EventEditView: View {
     let updatedEvent = CalendarEvent(
       title: title,
       location: location,
-      notes: "",
+      notes: event.notes,
       startDate: DateFormatters.standard.string(from: startDate),
       endDate: DateFormatters.standard.string(from: endDate),
-      url: "",
+      url: event.url,
       calendar: calendar,
-      status: "normal",
+      status: event.status,
       eventIdentifier: event.eventIdentifier,
-      remarks: ""
+      remarks: event.remarks
     )
     onSave(updatedEvent)
     dismiss()

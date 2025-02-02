@@ -35,50 +35,22 @@ private enum Design {
 
 // MARK: - Event Card
 struct EventCard: View {
-  // MARK: - Properties
-  let title: String
-  let startDate: Date
-  let endDate: Date
-  let location: String?
-  let calendar: String?
+  let calendarEvent: CalendarEvent
   let isSelected: Bool
   let onSelect: () -> Void
-  let onMoreAction: () -> Void
   let onDelete: () -> Void
+  let onUpdate: (CalendarEvent) -> Void
   
-  private var event: CalendarEvent {
-    CalendarEvent(
-      title: title,
-      location: location ?? "",
-      notes: "",
-      startDate: DateFormatters.standard.string(from: startDate),
-      endDate: DateFormatters.standard.string(from: endDate),
-      url: "",
-      calendar: calendar ?? "",
-      status: "normal",
-      eventIdentifier: UUID().uuidString,
-      remarks: ""
-    )
-  }
-  
-  // MARK: - Body
   var body: some View {
     HStack(alignment: .center, spacing: Design.Layout.iconSpacing) {
-      CardContent(
-        title: title,
-        startDate: startDate,
-        endDate: endDate,
-        location: location,
-        calendar: calendar
-      )
-      
+      CardContent(event: calendarEvent)
       Spacer(minLength: Design.Layout.iconSpacing)
-      
       RightControls(
         isSelected: isSelected,
         onSelect: onSelect,
         onDelete: onDelete,
-        event: event
+        onUpdate: onUpdate,
+        event: calendarEvent
       )
     }
     .padding(Design.Card.padding)
@@ -89,11 +61,7 @@ struct EventCard: View {
 
 // MARK: - Card Content
 private struct CardContent: View {
-  let title: String
-  let startDate: Date
-  let endDate: Date
-  let location: String?
-  let calendar: String?
+  let event: CalendarEvent
   
   var body: some View {
     VStack(alignment: .leading, spacing: Design.Layout.titleSpacing) {
@@ -104,24 +72,27 @@ private struct CardContent: View {
   }
   
   private var titleView: some View {
-    Text(title)
+    Text(event.title)
       .font(.system(size: 17, weight: .medium))
       .foregroundColor(DesignSystem.Colors.primaryText)
       .lineLimit(1)
   }
   
   private var timeSection: some View {
-    TimeSection(startDate: startDate, endDate: endDate)
-      .padding(.bottom, Design.Layout.timeSectionSpacing)
+    TimeSection(
+      startDate: event.parsedStartDate ?? Date(),
+      endDate: event.parsedEndDate ?? Date()
+    )
+    .padding(.bottom, Design.Layout.timeSectionSpacing)
   }
   
   private var iconLabels: some View {
     HStack(spacing: Design.Layout.iconSpacing) {
-      if let location {
-        EventIconLabel(icon: "location.fill", text: location)
+      if !event.location.isEmpty {
+        EventIconLabel(icon: "location.fill", text: event.location)
       }
-      if let calendar {
-        EventIconLabel(icon: "calendar", text: calendar)
+      if !event.calendar.isEmpty {
+        EventIconLabel(icon: "calendar", text: event.calendar)
       }
     }
   }
@@ -168,32 +139,24 @@ private struct EventIconLabel: View {
   
   var body: some View {
     HStack(spacing: Design.Layout.iconSpacing) {
-      iconView
-      labelText
+      ZStack {
+        Circle()
+          .fill(DesignSystem.Colors.lightGray)
+          .frame(width: Design.Layout.iconSize, height: Design.Layout.iconSize)
+        
+        Image(systemName: icon)
+          .foregroundColor(DesignSystem.Colors.iconGray)
+      }
+      Text(text)
+        .font(DesignSystem.Typography.bodyRegular)
+        .foregroundColor(DesignSystem.Colors.secondaryText)
+        .lineLimit(1)
+        .truncationMode(.tail)
     }
     .padding(.vertical, 4)
     .background(Color.clear)
     .contentShape(Rectangle())
     .help(text)
-  }
-  
-  private var iconView: some View {
-    ZStack {
-      Circle()
-        .fill(DesignSystem.Colors.lightGray)
-        .frame(width: Design.Layout.iconSize, height: Design.Layout.iconSize)
-      
-      Image(systemName: icon)
-        .foregroundColor(DesignSystem.Colors.iconGray)
-    }
-  }
-  
-  private var labelText: some View {
-    Text(text)
-      .font(DesignSystem.Typography.bodyRegular)
-      .foregroundColor(DesignSystem.Colors.secondaryText)
-      .lineLimit(1)
-      .truncationMode(.tail)
   }
 }
 
@@ -202,16 +165,18 @@ private struct RightControls: View {
   let isSelected: Bool
   let onSelect: () -> Void
   let onDelete: () -> Void
+  let onUpdate: (CalendarEvent) -> Void
   let event: CalendarEvent
   
   @State private var isHovering = false
   @State private var showingEditSheet = false
   @State private var currentEvent: CalendarEvent
   
-  init(isSelected: Bool, onSelect: @escaping () -> Void, onDelete: @escaping () -> Void, event: CalendarEvent) {
+  init(isSelected: Bool, onSelect: @escaping () -> Void, onDelete: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void, event: CalendarEvent) {
     self.isSelected = isSelected
     self.onSelect = onSelect
     self.onDelete = onDelete
+    self.onUpdate = onUpdate
     self.event = event
     _currentEvent = State(initialValue: event)
   }
@@ -219,61 +184,47 @@ private struct RightControls: View {
   var body: some View {
     VStack(alignment: .center) {
       Spacer()
-      selectionIndicator
+      SelectionIndicator(isSelected: isSelected)
+        .onTapGesture(perform: onSelect)
       Spacer()
-      moreButton
+      Menu {
+        Button(action: { showingEditSheet = true }) {
+          Label(NSLocalizedString("edit_event", comment: ""), systemImage: "pencil")
+        }
+        
+        Button(role: .destructive, action: onDelete) {
+          Label(NSLocalizedString("delete_event", comment: ""), systemImage: "trash")
+        }
+      } label: {
+        Image(systemName: "ellipsis")
+          .font(.system(size: 16, weight: .medium))
+          .foregroundColor(DesignSystem.Colors.secondaryText)
+          .frame(width: Design.Layout.selectionSize, height: Design.Layout.selectionSize)
+          .background(
+            Circle()
+              .fill(DesignSystem.Colors.secondaryText.opacity(isHovering ? 0.1 : 0))
+              .frame(width: Design.Layout.selectionSize + 8, height: Design.Layout.selectionSize + 8)
+          )
+          .animation(.easeInOut(duration: 0.2), value: isHovering)
+      }
+      .menuStyle(.borderlessButton)
+      .menuIndicator(.hidden)
+      .fixedSize()
+      .onHover { hovering in
+        isHovering = hovering
+      }
     }
     .sheet(isPresented: $showingEditSheet) {
       EventEditView(
         event: currentEvent,
-        onSave: handleEventUpdate,
+        onSave: { updatedEvent in
+          currentEvent = updatedEvent
+          onUpdate(updatedEvent)
+          showingEditSheet = false
+        },
         onCancel: { showingEditSheet = false }
       )
     }
-  }
-  
-  private var selectionIndicator: some View {
-    SelectionIndicator(isSelected: isSelected)
-      .onTapGesture(perform: onSelect)
-  }
-  
-  private var moreButton: some View {
-    Menu {
-      Button(action: { showingEditSheet = true }) {
-        Label(NSLocalizedString("edit_event", comment: ""), systemImage: "pencil")
-      }
-      
-      Button(role: .destructive, action: onDelete) {
-        Label(NSLocalizedString("delete_event", comment: ""), systemImage: "trash")
-      }
-    } label: {
-      Image(systemName: "ellipsis")
-        .font(.system(size: 16, weight: .medium))
-        .foregroundColor(DesignSystem.Colors.secondaryText)
-        .frame(width: Design.Layout.selectionSize, height: Design.Layout.selectionSize)
-        .background(
-          Circle()
-            .fill(DesignSystem.Colors.secondaryText.opacity(isHovering ? 0.1 : 0))
-            .frame(width: Design.Layout.selectionSize + 8, height: Design.Layout.selectionSize + 8)
-        )
-        .animation(.easeInOut(duration: 0.2), value: isHovering)
-    }
-    .menuStyle(.borderlessButton)
-    .menuIndicator(.hidden)
-    .fixedSize()
-    .onHover { hovering in
-      isHovering = hovering
-    }
-  }
-  
-  private func handleEventUpdate(_ updatedEvent: CalendarEvent) {
-    currentEvent = updatedEvent
-    NotificationCenter.default.post(
-      name: .eventDidUpdate,
-      object: nil,
-      userInfo: ["event": updatedEvent]
-    )
-    showingEditSheet = false
   }
 }
 
@@ -324,15 +275,22 @@ struct EventCard_Previews: PreviewProvider {
   
   private static func makePreview() -> some View {
     EventCard(
-      title: "南知读书会第一期",
-      startDate: Date(timeIntervalSince1970: 1679725200),
-      endDate: Date(timeIntervalSince1970: 1679732400),
-      location: "知识星球",
-      calendar: "工作",
+      calendarEvent: CalendarEvent(
+        title: "南知读书会第一期",
+        location: "知识星球",
+        notes: "",
+        startDate: "2023-03-20T10:00:00",
+        endDate: "2023-03-20T12:00:00",
+        url: "",
+        calendar: "工作",
+        status: "normal",
+        eventIdentifier: UUID().uuidString,
+        remarks: ""
+      ),
       isSelected: true,
       onSelect: {},
-      onMoreAction: {},
-      onDelete: {}
+      onDelete: {},
+      onUpdate: { _ in }
     )
   }
 }

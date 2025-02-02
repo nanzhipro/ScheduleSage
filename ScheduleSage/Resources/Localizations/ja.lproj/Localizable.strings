@@ -141,3 +141,4 @@
 "edit_event_subtitle" = "予定の詳細を修正";
 "save" = "保存";
 "cancel" = "キャンセル";
+"update_success" = "予定を更新しました";

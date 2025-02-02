@@ -628,3 +628,19 @@ extension AddScheduleViewModel {
         }
     }
 }
+
+// MARK: - Event Management
+extension AddScheduleViewModel {
+    func updateEvent(_ updatedEvent: CalendarEvent) {
+        logger.info("Updating event: \(updatedEvent.title), \(updatedEvent.startDate), \(updatedEvent.endDate), \(updatedEvent.location), \(updatedEvent.calendar)")
+        if let index = parsedEvents.firstIndex(where: { $0.eventIdentifier == updatedEvent.eventIdentifier }) {
+            parsedEvents[index] = updatedEvent
+            // 发送通知以便其他视图更新
+            NotificationCenter.default.post(
+                name: .eventDidUpdate,
+                object: nil,
+                userInfo: ["event": updatedEvent]
+            )
+        }
+    }
+}

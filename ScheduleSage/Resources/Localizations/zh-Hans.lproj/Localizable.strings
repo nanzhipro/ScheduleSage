@@ -141,3 +141,4 @@
 "edit_event_subtitle" = "修改日程详细信息";
 "save" = "保存";
 "cancel" = "取消";
+"update_success" = "日程更新成功";

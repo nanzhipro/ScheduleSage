@@ -25,11 +25,10 @@ public enum DateFormatters {
     /// 用于界面显示，支持相对日期和本地化
     public static let display: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
         formatter.timeZone = .current
         formatter.locale = .current
-        formatter.doesRelativeDateFormatting = true
+        formatter.doesRelativeDateFormatting = false
         return formatter
     }()
     

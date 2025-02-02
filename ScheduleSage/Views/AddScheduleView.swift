@@ -8,7 +8,7 @@
 import AppKit
 import SwiftUI
 
-/// 日程主页面
+/// 添加日程主页面
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
   
@@ -21,7 +21,8 @@ struct AddScheduleView: View {
             events: viewModel.parsedEvents,
             onAdd: viewModel.resetState,
             onImport: viewModel.importToCalendar,
-            onBack: { viewModel.showEventList = false }
+            onBack: { viewModel.showEventList = false },
+            onUpdate: viewModel.updateEvent
           )
           .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
           .presentationDragIndicator(.visible)

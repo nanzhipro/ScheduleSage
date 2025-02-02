@@ -17,6 +17,7 @@ struct EventListView: View {
   let onAdd: () -> Void
   let onImport: () -> Void
   let onBack: () -> Void
+  let onUpdate: (CalendarEvent) -> Void
 
   @State private var selectedEventIds: Set<String> = []
   @State private var showToast = false
@@ -26,11 +27,12 @@ struct EventListView: View {
 
   private var hasSelectedEvents: Bool { !selectedEventIds.isEmpty }
 
-  init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping () -> Void, onBack: @escaping () -> Void) {
+  init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping () -> Void, onBack: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void) {
     self.events = events
     self.onAdd = onAdd
     self.onImport = onImport
     self.onBack = onBack
+    self.onUpdate = onUpdate
     _displayEvents = State(initialValue: events)
   }
 
@@ -67,17 +69,11 @@ struct EventListView: View {
 
   // MARK: - Event Update Handler
   private func handleEventUpdate(_ updatedEvent: CalendarEvent) {
-    withAnimation(.easeInOut(duration: 0.3)) {
-      if let index = displayEvents.firstIndex(where: { $0.eventIdentifier == updatedEvent.eventIdentifier }) {
-        var updatedEvents = displayEvents
-        updatedEvents[index] = updatedEvent
-        displayEvents = updatedEvents
-        
-        // 显示更新成功提示
-        toastType = .success
-        toastMessage = NSLocalizedString("update_success", comment: "")
-        showToast = true
-      }
+    if let index = displayEvents.firstIndex(where: { $0.eventIdentifier == updatedEvent.eventIdentifier }) {
+      displayEvents[index] = updatedEvent
+      toastType = .success
+      toastMessage = NSLocalizedString("update_success", comment: "")
+      showToast = true
     }
   }
 }
@@ -139,24 +135,13 @@ private extension EventListView {
     ScrollView {
       LazyVStack(spacing: DesignSystem.Dimensions.eventCardSpacing) {
         ForEach(displayEvents) { event in
-          if let startDate = event.parsedStartDate,
-             let endDate = event.parsedEndDate {
-            EventCard(
-              title: event.title,
-              startDate: startDate,
-              endDate: endDate,
-              location: event.location,
-              calendar: event.calendar,
-              isSelected: selectedEventIds.contains(event.eventIdentifier),
-              onSelect: {
-                toggleEventSelection(event.eventIdentifier)
-              },
-              onMoreAction: {},
-              onDelete: {
-                deleteEvent(event)
-              }
-            )
-          }
+          EventCard(
+            calendarEvent: event,
+            isSelected: selectedEventIds.contains(event.eventIdentifier),
+            onSelect: { toggleSelection(for: event) },
+            onDelete: { deleteEvent(event) },
+            onUpdate: onUpdate
+          )
         }
       }
       .padding(.bottom, DesignSystem.Spacing.vertical)
@@ -198,11 +183,11 @@ private extension EventListView {
     onImport()
   }
   
-  func toggleEventSelection(_ eventIdentifier: String) {
-    if selectedEventIds.contains(eventIdentifier) {
-      selectedEventIds.remove(eventIdentifier)
+  func toggleSelection(for event: CalendarEvent) {
+    if selectedEventIds.contains(event.eventIdentifier) {
+      selectedEventIds.remove(event.eventIdentifier)
     } else {
-      selectedEventIds.insert(eventIdentifier)
+      selectedEventIds.insert(event.eventIdentifier)
     }
   }
   
@@ -247,7 +232,8 @@ struct EventListView_Previews: PreviewProvider {
         events: PreviewData.mockCalendarEvents,
         onAdd: {},
         onImport: {},
-        onBack: {}
+        onBack: {},
+        onUpdate: { _ in }
       )
       .previewDisplayName("Light Mode")
       
@@ -256,7 +242,8 @@ struct EventListView_Previews: PreviewProvider {
         events: PreviewData.mockCalendarEvents,
         onAdd: {},
         onImport: {},
-        onBack: {}
+        onBack: {},
+        onUpdate: { _ in }
       )
       .preferredColorScheme(.dark)
       .previewDisplayName("Dark Mode")
@@ -266,7 +253,8 @@ struct EventListView_Previews: PreviewProvider {
         events: [],
         onAdd: {},
         onImport: {},
-        onBack: {}
+        onBack: {},
+        onUpdate: { _ in }
       )
       .previewDisplayName("Empty State")
     }

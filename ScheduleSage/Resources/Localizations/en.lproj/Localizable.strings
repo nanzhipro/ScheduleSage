@@ -141,3 +141,4 @@
 "edit_event_subtitle" = "Modify event details";
 "save" = "Save";
 "cancel" = "Cancel";
+"update_success" = "Event updated successfully";
