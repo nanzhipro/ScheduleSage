@@ -1,282 +1,222 @@
+//
+//  AppDelegate.swift
+//  ScheduleSage
+//
+//  Created by CursorAI on 2024-03-21.
+//
+
 import AppKit
 import SwiftUI
 import OSLog
 
 @MainActor
-class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
-  private var statusItem: NSStatusItem?
-  private var popover: NSPopover?
-  private var viewModel: AddScheduleViewModel?
-  private var eventMonitor: Any?
-  private let logger = Logger(subsystem: "com.tiwenlab.schedulesage", category: "AppDelegate")
-  private let calendarManager = CalendarManager()
-  private var isPopoverShown = false  // 添加状态跟踪
-  private let clipboardManager = ClipboardManager()
-  private var keyboardMonitor: Any?
-  
-  // 新增窗口控制器
-  private var windowController: MainWindowController?
-  
-  // 单实例标识符
-  private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.tiwenlab.schedulesage"
-  
-  // 使用 AppStorage 来获取窗口模式设置
-  @AppStorage("useWindowMode") private var useWindowMode = true
-  
-  private let notificationManager = NotificationManager.shared
-  
-  func applicationDidFinishLaunching(_ notification: Notification) {
-    // 检查是否已有实例运行
-    if !checkAndActivateExistingInstance() {
-      return
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    // MARK: - Properties
+    private var statusItem: NSStatusItem?
+    private var popover: NSPopover?
+    private var viewModel: AddScheduleViewModel?
+    private var windowController: MainWindowController?
+    
+    private var eventMonitor: Any?
+    private var keyboardMonitor: Any?
+    
+    private let logger = Logger(subsystem: "com.tiwenlab.schedulesage", category: "AppDelegate")
+    private let calendarManager = CalendarManager()
+    private let clipboardManager = ClipboardManager()
+    private let notificationManager = NotificationManager.shared
+    
+    private var isPopoverShown = false
+    
+    @AppStorage("useWindowMode") private var useWindowMode = true
+    
+    private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.tiwenlab.schedulesage"
+    
+    // MARK: - Lifecycle
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        guard checkAndActivateExistingInstance() else { return }
+        
+        Task {
+            await setupApplication()
+            await requestPermissions()
+        }
     }
     
-    DesignSystem.switchTheme(to: .wechat)
-    logger.info("AppDelegate did finish launching")
-    
-    Task {
-      self.viewModel = AddScheduleViewModel()
-      
-      setupStatusItem()
-      setupPopover()
-      setupEventMonitor()
-      setupKeyboardMonitor()
-      
-      // 请求日历权限
-      requestCalendarAccess()
-      
-      // 请求通知权限
-      requestNotificationAccess()
-    }
-  }
-  
-  // 检查并激活已存在的实例
-  private func checkAndActivateExistingInstance() -> Bool {
-    let runningApps = NSWorkspace.shared.runningApplications
-    let isAnotherInstanceRunning = runningApps.contains {
-      $0.bundleIdentifier == Self.bundleIdentifier && $0 != NSRunningApplication.current
+    deinit {
+        [eventMonitor, keyboardMonitor].forEach { monitor in
+            if let monitor { NSEvent.removeMonitor(monitor) }
+        }
     }
     
-    if isAnotherInstanceRunning {
-      // 找到其他正在运行的实例
-      if let existingInstance = runningApps.first(where: { 
-        $0.bundleIdentifier == Self.bundleIdentifier && $0 != NSRunningApplication.current 
-      }) {
-        // 激活已存在的实例
-        if #available(macOS 14.0, *) {
-          existingInstance.activate()
+    // MARK: - Setup
+    private func setupApplication() async {
+        DesignSystem.switchTheme(to: .wechat)
+        logger.info("AppDelegate did finish launching")
+        
+        viewModel = AddScheduleViewModel()
+        setupStatusItem()
+        setupPopover()
+        setupEventMonitor()
+        setupKeyboardMonitor()
+    }
+    
+    private func setupStatusItem() {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        
+        statusItem?.button?.image = NSImage(
+            systemSymbolName: "calendar.badge.plus",
+            accessibilityDescription: "ScheduleSage"
+        )
+        statusItem?.button?.action = #selector(togglePopover)
+        statusItem?.button?.target = self
+    }
+    
+    private func setupPopover() {
+        guard let viewModel else { return }
+        
+        let contentView = AddScheduleView()
+            .environmentObject(viewModel)
+        
+        if useWindowMode {
+            windowController = MainWindowController(
+                contentView: contentView,
+                viewModel: viewModel,
+                size: NSSize(width: 400, height: 600)
+            )
+            viewModel.windowController = windowController
         } else {
-          existingInstance.activate(options: [.activateIgnoringOtherApps])
+            let popover = NSPopover()
+            popover.contentSize = NSSize(width: 400, height: 600)
+            popover.behavior = .transient
+            popover.contentViewController = NSHostingController(rootView: contentView)
+            popover.delegate = self
+            self.popover = popover
+        }
+    }
+    
+    private func setupEventMonitor() {
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self,
+                  self.isPopoverShown,
+                  let window = NSApp.windows.first(where: { $0.isKeyWindow }),
+                  !NSPointInRect(event.locationInWindow, window.frame) else { return }
+            
+            self.dismissPopover()
+        }
+    }
+    
+    private func setupKeyboardMonitor() {
+        keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self,
+                  event.modifierFlags.contains(.command),
+                  event.keyCode == 9,  // V key
+                  NSApp.isActive,
+                  self.viewModel?.isKeyboardMonitorEnabled == true,
+                  let content = self.clipboardManager.checkClipboard() else { return event }
+            
+            self.viewModel?.handleClipboardContent(content)
+            return nil
+        }
+    }
+    
+    // MARK: - Permissions
+    private func requestPermissions() async {
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { await self.requestCalendarAccess() }
+            group.addTask { await self.requestNotificationAccess() }
+        }
+    }
+    
+    private func requestCalendarAccess() async {
+        do {
+            let granted = try await calendarManager.requestAccess()
+            logger.info("\(granted ? "Calendar access granted" : "Calendar access denied")")
+        } catch {
+            logger.error("Calendar access error: \(error.localizedDescription)")
+        }
+    }
+    
+    private func requestNotificationAccess() async {
+        let granted = await notificationManager.requestAuthorization()
+        logger.info("\(granted ? "Notification access granted" : "Notification access denied")")
+    }
+    
+    // MARK: - Instance Management
+    private func checkAndActivateExistingInstance() -> Bool {
+        let runningApps = NSWorkspace.shared.runningApplications
+        guard let existingInstance = runningApps.first(where: {
+            $0.bundleIdentifier == Self.bundleIdentifier && $0 != NSRunningApplication.current
+        }) else { return true }
+        
+        if #available(macOS 14.0, *) {
+            existingInstance.activate()
+        } else {
+            existingInstance.activate(options: [.activateIgnoringOtherApps])
         }
         
-        // 通过 URL Scheme 触发已存在实例的显示
         if let url = URL(string: "schedulesage://show") {
-          NSWorkspace.shared.open(url)
+            NSWorkspace.shared.open(url)
         }
         
-        // 退出当前实例
         NSApp.terminate(nil)
         return false
-      }
     }
     
-    return true
-  }
-  
-  // 处理 URL Scheme 调用
-  func application(_ application: NSApplication, open urls: [URL]) {
-    guard let url = urls.first,
-          url.scheme == "schedulesage",
-          url.host == "show" else {
-      return
+    // MARK: - Window Management
+    @objc private func togglePopover() {
+        useWindowMode ? toggleWindow() : toggleAddScheduleView()
     }
     
-    // 显示 popover
-    if let button = statusItem?.button {
-      if !isPopoverShown {
-        popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-      }
-    }
-  }
-
-  private func setupStatusItem() {
-    statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-
-    if let button = statusItem?.button {
-      button.image = NSImage(systemSymbolName: "calendar.badge.plus", accessibilityDescription: "ScheduleSage")
-      button.action = #selector(togglePopover)
-      button.target = self
-    }
-  }
-
-  private func setupPopover() {
-    guard let viewModel = viewModel else { return }
-    
-    let contentView = AddScheduleView()
-        .environmentObject(viewModel)
-    
-    if useWindowMode {
-      // 创建窗口控制器
-      windowController = MainWindowController(
-        contentView: contentView,
-        viewModel: viewModel,
-        size: NSSize(width: 400, height: 600)
-      )
-      
-      // 设置 viewModel 的 windowController 引用
-      viewModel.windowController = windowController
-    } else {
-      let popover = NSPopover()
-      popover.contentSize = NSSize(width: 400, height: 600)
-      popover.behavior = .transient
-      popover.contentViewController = NSHostingController(rootView: contentView)
-      popover.delegate = self
-      self.popover = popover
-    }
-  }
-
-  private func setupEventMonitor() {
-    eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-      guard let self = self else { return }
-      
-      if self.isPopoverShown,  // 使用状态变量
-         let window = NSApp.windows.first(where: { $0.isKeyWindow }),
-         !NSPointInRect(event.locationInWindow, window.frame)
-      {
-        self.dismissPopover()
-      }
-    }
-  }
-
-  private func setupKeyboardMonitor() {
-    // 监听键盘事件
-    keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-      guard let self = self else { return event }
-      
-      // 检查是否是 Command + V
-      if event.modifierFlags.contains(.command) && event.keyCode == 9 { // V 键的 keyCode 是 9
-        // 检查应用程序是否在前台且键盘监听器已启用
-        if NSApp.isActive && self.viewModel?.isKeyboardMonitorEnabled == true {
-          // 处理剪贴板内容
-          if let content = self.clipboardManager.checkClipboard() {
-            // 通知 ViewModel 处理剪贴板内容
-            self.viewModel?.handleClipboardContent(content)
-            return nil // 消耗掉这个事件
-          }
-        }
-      }
-      return event
-    }
-  }
-
-  @objc func togglePopover() {
-    if useWindowMode {
-      toggleWindow()
-    } else {
-      toggleAddScheduleView()
-    }
-  }
-  
-  private func toggleWindow() {
-    if let window = windowController?.window {
+    private func toggleWindow() {
+        guard let window = windowController?.window else { return }
+        
         if window.isVisible {
-            if let customWindow = window as? CustomMainWindow {
-                customWindow.closeWindow()
-            }
+            (window as? CustomMainWindow)?.closeWindow()
         } else {
             windowController?.showWindow(from: statusItem)
         }
     }
-  }
-  
-  private func toggleAddScheduleView() {
-    if let button = statusItem?.button {
-      if isPopoverShown {
-        dismissPopover()
-      } else {
-        popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+    
+    private func toggleAddScheduleView() {
+        guard let button = statusItem?.button else { return }
         
-        if let window = NSApp.windows.first(where: { $0.isKeyWindow }) {
-          window.level = .normal
-        }
-      }
-    }
-  }
-
-  private func dismissPopover() {
-    // 确保在主线程执行
-    Task { @MainActor in
-      // 先重置 ViewModel 状态
-      viewModel?.handlePopoverDisappear()
-      
-      // 关闭 popover
-      popover?.performClose(nil)
-      
-      // 更新状态
-      isPopoverShown = false
-    }
-  }
-
-  // MARK: - NSPopoverDelegate
-  func popoverWillShow(_ notification: Notification) {
-    isPopoverShown = true
-  }
-  
-  func popoverWillClose(_ notification: Notification) {
-    isPopoverShown = false
-    viewModel?.handlePopoverDisappear()
-  }
-
-  // TODO: 增加一个启动引导页面
-  private func requestCalendarAccess() {
-    // 创建异步任务
-    Task { @MainActor in
-        do {
-            let granted = try await calendarManager.requestAccess()
-            
-            if granted {
-                self.logger.info("Calendar access granted")
-                // Update UI state if needed
-            } else {
-                self.logger.warning("Calendar access denied")
-                // Show alert or update UI state
-            }
-        } catch {
-            self.logger.error("Calendar access error: \(error.localizedDescription)")
+        if isPopoverShown {
+            dismissPopover()
+        } else {
+            popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            NSApp.windows.first(where: { $0.isKeyWindow })?.level = .normal
         }
     }
-  }
+    
+    private func dismissPopover() {
+        Task { @MainActor in
+            viewModel?.handlePopoverDisappear()
+            popover?.performClose(nil)
+            isPopoverShown = false
+        }
+    }
+}
 
-  private func requestNotificationAccess() {
-    Task {
-      let granted = await notificationManager.requestAuthorization()
-      if granted {
-        self.logger.info("Notification access granted")
-      } else {
-        self.logger.warning("Notification access denied")
-      }
+// MARK: - NSPopoverDelegate
+extension AppDelegate: NSPopoverDelegate {
+    func popoverWillShow(_ notification: Notification) {
+        isPopoverShown = true
     }
-  }
+    
+    func popoverWillClose(_ notification: Notification) {
+        isPopoverShown = false
+        viewModel?.handlePopoverDisappear()
+    }
+}
 
-  deinit {
-    if let monitor = eventMonitor {
-      NSEvent.removeMonitor(monitor)
+// MARK: - URL Handling
+extension AppDelegate {
+    func application(_ application: NSApplication, open urls: [URL]) {
+        guard let url = urls.first,
+              url.scheme == "schedulesage",
+              url.host == "show",
+              let button = statusItem?.button,
+              !isPopoverShown else { return }
+        
+        popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
     }
-    if let monitor = keyboardMonitor {
-      NSEvent.removeMonitor(monitor)
-    }
-  }
-
-  /// 显示主窗口
-  private func showMainWindow() {
-    if let window = windowController?.window {
-      window.makeKeyAndOrderFront(nil)
-      
-      if #available(macOS 14.0, *) {
-        NSApplication.shared.activate()
-      } else {
-        NSApplication.shared.activate(ignoringOtherApps: true)
-      }
-    }
-  }
 }
