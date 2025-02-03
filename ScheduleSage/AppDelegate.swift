@@ -62,12 +62,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
-        statusItem?.button?.image = NSImage(
-            systemSymbolName: "calendar.badge.plus",
-            accessibilityDescription: "ScheduleSage"
-        )
-        statusItem?.button?.action = #selector(togglePopover)
-        statusItem?.button?.target = self
+        if let button = statusItem?.button {
+            let configuration = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+            button.image = NSImage(
+                systemSymbolName: "calendar.badge.plus",
+                accessibilityDescription: "ScheduleSage"
+            )?.withSymbolConfiguration(configuration)
+            
+            button.image?.isTemplate = true
+            
+            button.action = #selector(togglePopover)
+            button.target = self
+        }
     }
     
     private func setupPopover() {

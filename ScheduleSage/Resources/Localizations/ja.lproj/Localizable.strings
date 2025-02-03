@@ -1,37 +1,37 @@
 // Status
-"remaining_uses" = "残り %d 回";
-"upgrade_prompt" = "無制限アクセスにアップグレード";
+"remaining_uses" = "本日残り%d回";
+"upgrade_prompt" = "無制限プランへ";
 "separator" = "｜";
 
 // Error Messages
-"no_time_information_found" = "コンテンツに時間情報が見つかりません";
-"invalid_content" = "コンテンツの形式が無効です";
+"no_time_information_found" = "日時が見つかりません";
+"invalid_content" = "内容を確認してください";
 
 // Titles
-"schedule_add_title" = "スマートスケジュール作成";
-"schedule_add_subtitle" = "クリップボード、手動入力、画像認識で簡単にスケジュールを作成";
-"settings_window_title" = "環境設定";
+"schedule_add_title" = "予定を追加";
+"schedule_add_subtitle" = "テキスト・画像・手動入力から簡単に予定を作成";
+"settings_window_title" = "設定";
 
 // Add Schedule Methods
-"add_schedule_title" = "作成方法を選択";
-"clipboard_import" = "クリップボードから取り込む";
-"manual_input" = "手動で作成";
-"image_import" = "画像からスケジュールを取り込む";
+"add_schedule_title" = "追加方法";
+"clipboard_import" = "テキストから";
+"manual_input" = "手動入力";
+"image_import" = "画像から";
 
 // Actions
-"import_calendar" = "カレンダーに追加";
+"import_calendar" = "カレンダーへ追加";
 "close_popover" = "閉じる";
 
 // Event List
-"detected_events" = "%d 件のイベントを検出";
-"selected_events" = "%d 件のイベントを選択中";
-"recurring" = "繰り返しイベント";
+"detected_events" = "%d件の予定を検出";
+"selected_events" = "%d件を選択中";
+"recurring" = "繰り返し";
 
 // Loading
-"loading_ocr" = "画像テキストを認識中...";
-"loading_network" = "データを読み込み中...";
-"loading_processing" = "データを処理中...";
-"loading_url" = "ウェブページの内容を解析中...";
+"loading_ocr" = "画像を読み込み中...";
+"loading_network" = "読み込み中...";
+"loading_processing" = "処理中...";
+"loading_url" = "ページを読み込み中...";
 
 // Image Picker
 "select_image" = "画像を選択";
@@ -41,23 +41,23 @@
 "back_to_add" = "戻る";
 
 // Pro Features
-"feature_unlimited_ocr" = "無制限の認識";
-"feature_unlimited_ocr_desc" = "テキスト認識を無制限に使用可能";
-"upgrade_to_pro" = "Proにアップグレード";
-"pro_expiry" = "Pro有効期限：%@";
+"feature_unlimited_ocr" = "無制限利用";
+"feature_unlimited_ocr_desc" = "すべての機能を制限なく利用可能";
+"upgrade_to_pro" = "Proへアップグレード";
+"pro_expiry" = "有効期限：%@";
 
 // Settings Menu
-"settings_preferences" = "環境設定";
-"settings_quit" = "アプリを終了";
+"settings_preferences" = "設定";
+"settings_quit" = "終了";
 "settings_tab_general" = "一般";
 "settings_tab_advanced" = "詳細";
-"settings_notifications" = "通知を有効にする";
+"settings_notifications" = "通知を許可";
 "settings_dark_mode" = "ダークモード";
 "settings_auto_start" = "ログイン時に起動";
 "settings_show_previews" = "プレビューを表示";
 "settings_font_size" = "フォントサイズ";
 "settings_version" = "現在のバージョン";
-"settings_window_mode" = "ウィンドウモード";
+"settings_window_mode" = "ウィンドウモードを使用";
 
 // Settings Groups
 "settings_group_notifications" = "通知設定";
@@ -68,11 +68,11 @@
 "settings_group_font" = "フォント設定";
 
 // Calendar Manager
-"calendar.error.access_denied" = "カレンダーにアクセスできません。システム設定でアクセスを許可してください";
-"calendar.error.write_only_access" = "カレンダーへの完全なアクセス権が必要です。書き込み専用では不十分です";
+"calendar.error.access_denied" = "カレンダーへのアクセスを許可してください";
+"calendar.error.write_only_access" = "カレンダーへの完全なアクセス権が必要です";
 "calendar.error.unknown_status" = "不明なカレンダー権限状態です";
 "calendar.error.color_generation_failed" = "カレンダーの色を生成できません";
-"calendar.error.create_failed" = "カレンダーイベントの作成に失敗しました";
+"calendar.error.create_failed" = "予定の作成に失敗しました";
 "calendar.error.invalid_date_format" = "スケジュールの時刻形式が無効です。日付と時刻を確認してください";
 
 // Import Status
@@ -95,9 +95,9 @@
 "llm_missing_fields" = "必要な情報が不足しています：%@。入力を完了してから再度お試しください";
 
 // Event Fields
-"event_field_title" = "スケジュールタイトル";
-"event_field_start_date" = "開始時刻";
-"event_field_end_date" = "終了時刻";
+"event_field_title" = "タイトル";
+"event_field_start_date" = "開始";
+"event_field_end_date" = "終了";
 "event_field_location" = "場所";
 "event_field_notes" = "メモ";
 "event_field_url" = "リンク";

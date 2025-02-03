@@ -1,37 +1,37 @@
 // Status
-"remaining_uses" = "%d Uses Remaining";
-"upgrade_prompt" = "Upgrade to Unlimited Access";
+"remaining_uses" = "%d Uses Left Today";
+"upgrade_prompt" = "Get Unlimited Access";
 "separator" = "｜";
 
 // Error Messages
-"no_time_information_found" = "No time information found in the content";
-"invalid_content" = "Invalid content format";
+"no_time_information_found" = "No time found. Please try again";
+"invalid_content" = "Please check and try again";
 
 // Titles
-"schedule_add_title" = "Smart Schedule Creation";
-"schedule_add_subtitle" = "Create schedules easily with clipboard import, manual input, or image recognition";
-"settings_window_title" = "Preferences";
+"schedule_add_title" = "Quick Add";
+"schedule_add_subtitle" = "Create events easily from text, images, or manual input";
+"settings_window_title" = "Settings";
 
 // Add Schedule Methods
-"add_schedule_title" = "Choose Creation Method";
-"clipboard_import" = "Import from Clipboard";
-"manual_input" = "Manual Create";
-"image_import" = "Import from Image";
+"add_schedule_title" = "Add Event";
+"clipboard_import" = "From Text";
+"manual_input" = "Manual Entry";
+"image_import" = "From Image";
 
 // Actions
-"import_calendar" = "Import to Calendar";
+"import_calendar" = "Add to Calendar";
 "close_popover" = "Close";
 
 // Event List
-"detected_events" = "%d Events Detected";
-"selected_events" = "%d Events Selected";
-"recurring" = "Recurring Event";
+"detected_events" = "%d Events Found";
+"selected_events" = "%d Selected";
+"recurring" = "Repeats";
 
 // Loading
-"loading_ocr" = "Recognizing Image Text...";
-"loading_network" = "Loading Data...";
-"loading_processing" = "Processing Data...";
-"loading_url" = "Parsing Webpage Content...";
+"loading_ocr" = "Reading Image...";
+"loading_network" = "Loading...";
+"loading_processing" = "Processing...";
+"loading_url" = "Reading Webpage...";
 
 // Image Picker
 "select_image" = "Select Image";
@@ -41,23 +41,23 @@
 "back_to_add" = "Back";
 
 // Pro Features
-"feature_unlimited_ocr" = "Unlimited Recognition";
-"feature_unlimited_ocr_desc" = "Use text recognition without limits";
-"upgrade_to_pro" = "Upgrade to Pro";
-"pro_expiry" = "Pro expires on: %@";
+"feature_unlimited_ocr" = "Unlimited Use";
+"feature_unlimited_ocr_desc" = "Use all features without limits";
+"upgrade_to_pro" = "Go Pro";
+"pro_expiry" = "Pro until: %@";
 
 // Settings Menu
-"settings_preferences" = "Preferences";
-"settings_quit" = "Quit App";
+"settings_preferences" = "Settings";
+"settings_quit" = "Quit";
 "settings_tab_general" = "General";
 "settings_tab_advanced" = "Advanced";
-"settings_notifications" = "Enable Notifications";
+"settings_notifications" = "Allow Notifications";
 "settings_dark_mode" = "Dark Mode";
 "settings_auto_start" = "Launch at Login";
 "settings_show_previews" = "Show Previews";
 "settings_font_size" = "Font Size";
 "settings_version" = "Current Version";
-"settings_window_mode" = "Window Mode";
+"settings_window_mode" = "Use Window Mode";
 
 // Settings Groups
 "settings_group_notifications" = "Notification Settings";
@@ -68,11 +68,11 @@
 "settings_group_font" = "Font Settings";
 
 // Calendar Manager
-"calendar.error.access_denied" = "Cannot access calendar, please grant access in System Settings";
-"calendar.error.write_only_access" = "Full calendar access required, write-only permission is insufficient";
+"calendar.error.access_denied" = "Please allow calendar access in Settings";
+"calendar.error.write_only_access" = "Full calendar access needed";
 "calendar.error.unknown_status" = "Unknown calendar permission status";
 "calendar.error.color_generation_failed" = "Failed to generate calendar color";
-"calendar.error.create_failed" = "Failed to create calendar event";
+"calendar.error.create_failed" = "Couldn't create event. Try again";
 "calendar.error.invalid_date_format" = "Invalid schedule time format, please check date and time";
 
 // Import Status
@@ -95,9 +95,9 @@
 "llm_missing_fields" = "Missing required information: %@, please complete and try again";
 
 // Event Fields
-"event_field_title" = "Schedule Title";
-"event_field_start_date" = "Start Time";
-"event_field_end_date" = "End Time";
+"event_field_title" = "Title";
+"event_field_start_date" = "Starts";
+"event_field_end_date" = "Ends";
 "event_field_location" = "Location";
 "event_field_notes" = "Notes";
 "event_field_url" = "Link";
