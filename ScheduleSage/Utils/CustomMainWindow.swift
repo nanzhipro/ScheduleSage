@@ -38,14 +38,22 @@ class CustomMainWindow: NSWindow {
         
         // 设置视觉效果
         setupVisualEffectView()
+        
+        // 初始化时设置窗口为完全透明
+        self.alphaValue = 0.0
     }
     
     // 添加公共关闭方法
-    func closeWindow() {
-        // 先通知 ViewModel
-        viewModel?.handlePopoverDisappear()
-        // 关闭窗口
-        self.close()
+    func closeWindow(completion: (() -> Void)? = nil) {
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.15  // 稍微缩短动画时间
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            self.animator().alphaValue = 0.0
+        }, completionHandler: { [weak self] in
+            self?.viewModel?.handlePopoverDisappear()
+            self?.close()
+            completion?()
+        })
     }
     
     private func setupVisualEffectView() {
@@ -98,47 +106,46 @@ class MainWindowController: NSWindowController {
             defer: false
         )
         
-        // 设置 ViewModel
         window.viewModel = viewModel
-        
         let hostingView = NSHostingView(rootView: contentView)
         window.contentView = hostingView
         
         self.init(window: window)
     }
     
-    // 显示窗口，带动画效果
     func showWindow(from statusItem: NSStatusItem?) {
         guard let window = window else { return }
         
-        // 获取状态栏图标的位置
+        // 设置窗口位置
         if let button = statusItem?.button,
            let frame = button.window?.convertToScreen(button.frame) {
-            statusItemFrame = frame
-            
-            // 计算窗口的目标位置
             let padding: CGFloat = 5
             let targetOrigin = NSPoint(
                 x: frame.origin.x - (window.frame.width - frame.width) / 2,
                 y: frame.origin.y - window.frame.height - padding
             )
             
-            // 直接设置窗口位置和大小
+            // 直接设置窗口位置，不使用动画
             window.setFrame(NSRect(
                 origin: targetOrigin,
                 size: window.frame.size
             ), display: false)
-            
-            // 显示窗口
-            window.makeKeyAndOrderFront(nil)
         } else {
-            // 如果获取不到状态栏位置，就居中显示
             window.center()
-            window.makeKeyAndOrderFront(nil)
         }
+        
+        // 设置初始透明度
+        window.alphaValue = 0.0
+        window.makeKeyAndOrderFront(nil)
+        
+        // 执行淡入动画
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.15  // 使用较短的动画时间
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            window.animator().alphaValue = 1.0
+        })
     }
     
-    // 关闭窗口，带动画效果
     func closeWindow() {
         if let customWindow = window as? CustomMainWindow {
             customWindow.closeWindow()

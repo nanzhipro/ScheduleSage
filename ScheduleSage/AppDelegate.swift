@@ -179,23 +179,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
   
   private func toggleWindow() {
     if let window = windowController?.window {
-      if window.isVisible {
-        window.close()
-      } else {
-        windowController?.showWindow(nil)
-        window.makeKeyAndOrderFront(nil)
-        
-        // 确保窗口在屏幕中心显示
-        if let screen = NSScreen.main {
-            let screenRect = screen.visibleFrame
-            let windowRect = window.frame
-            let newOrigin = NSPoint(
-                x: screenRect.midX - windowRect.width / 2,
-                y: screenRect.midY - windowRect.height / 2
-            )
-            window.setFrameOrigin(newOrigin)
+        if window.isVisible {
+            if let customWindow = window as? CustomMainWindow {
+                customWindow.closeWindow()
+            }
+        } else {
+            windowController?.showWindow(from: statusItem)
         }
-      }
     }
   }
   
