@@ -112,15 +112,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func setupKeyboardMonitor() {
         keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self,
-                  event.modifierFlags.contains(.command),
-                  event.keyCode == 9,  // V key
-                  NSApp.isActive,
-                  self.viewModel?.isKeyboardMonitorEnabled == true,
-                  let content = self.clipboardManager.checkClipboard() else { return event }
+            guard let self else { return event }
             
-            self.viewModel?.handleClipboardContent(content)
-            return nil
+            // 处理 Command + V 的剪贴板监听
+            if event.modifierFlags.contains(.command),
+               event.keyCode == 9,  // V key
+               NSApp.isActive,
+               self.viewModel?.isKeyboardMonitorEnabled == true,
+               let content = self.clipboardManager.checkClipboard() {
+                self.viewModel?.handleClipboardContent(content)
+                return nil
+            }
+            
+            // 处理 Shift + Command + C 的截图功能
+            if event.modifierFlags.contains([.command, .shift]),
+               event.keyCode == 8 {  // C key
+                self.handleScreenshot()
+                return nil
+            }
+            
+            return event
+        }
+    }
+    
+    private func handleScreenshot() {
+        let results = ScreenshotManager.shared.captureAllWindows()
+        
+        let successCount = results.filter { 
+            if case .success = $0 { return true }
+            return false 
+        }.count
+        
+        if successCount > 0 {
+            notificationManager.sendNotification(
+                title: NSLocalizedString("screenshot.success.title", comment: "Screenshot success title"),
+                body: NSLocalizedString("screenshot.success.message", comment: "Screenshot success message")
+            )
+        } else {
+            notificationManager.sendNotification(
+                title: NSLocalizedString("screenshot.failure.title", comment: "Screenshot failure title"),
+                body: NSLocalizedString("screenshot.failure.message", comment: "Screenshot failure message")
+            )
         }
     }
     

@@ -157,3 +157,9 @@
 "settings_privacy_policy" = "Privacy Policy";
 "settings_terms_of_service" = "Terms of Service";
 "settings_faq" = "FAQ";
+
+// Screenshot
+"screenshot.success.title" = "Screenshot Completed";
+"screenshot.success.message" = "Saved to Downloads folder";
+"screenshot.failure.title" = "Screenshot Failed";
+"screenshot.failure.message" = "Please check window status";

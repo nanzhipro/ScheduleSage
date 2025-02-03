@@ -70,11 +70,12 @@
   //
   ```
 - 遵从组件设计规范，使用组件设计系统，创建可复用，接口定义清晰的组件，所有的组件模块都放在 Views/Components 目录下。
-- 国际化 Localization.strings 文件放在 Resources/Localization 目录下。
+- 国际化 Localization.strings 文件放在 Resources/Localization 目录下，同时定义中英日三国地道语言。
 - 理解模块，包括 struct、enum、class、protocol 等，在文件头部增加模块注释（中英文），如果模块有更新，也请更新注释。
 - 全局的加载状态，使用 LoadingManager 管理，在 Utils/Loading 目录下。
 - 使用现代的 Swift 和 SwiftUI 编程模式。
 - 符合 Apple 推荐 App 的设计标准。
+
 
 ---
 

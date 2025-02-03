@@ -157,3 +157,9 @@
 "settings_privacy_policy" = "プライバシーポリシー";
 "settings_terms_of_service" = "利用規約";
 "settings_faq" = "よくある質問";
+
+// Screenshot
+"screenshot.success.title" = "スクリーンショット完了";
+"screenshot.success.message" = "ダウンロードフォルダに保存しました";
+"screenshot.failure.title" = "スクリーンショット失敗";
+"screenshot.failure.message" = "ウィンドウの状態を確認してください";

@@ -155,3 +155,9 @@
 "settings_privacy_policy" = "隐私政策";
 "settings_terms_of_service" = "用户协议";
 "settings_faq" = "常见问题";
+
+// Screenshot
+"screenshot.success.title" = "截图完成";
+"screenshot.success.message" = "已保存到下载文件夹";
+"screenshot.failure.title" = "截图失败";
+"screenshot.failure.message" = "请检查窗口状态";
