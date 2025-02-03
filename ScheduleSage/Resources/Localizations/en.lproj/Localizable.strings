@@ -152,3 +152,8 @@
 "date_format.time_separator" = " - ";
 "date_format.same_day" = "%@ - %@"; // For same day events: "Nov 6, 14:00 - 17:00"
 "date_format.different_days" = "%@ - %@"; // For different days: "Nov 6, 14:00 - Nov 7, 17:00"
+
+// Settings - About
+"settings_privacy_policy" = "Privacy Policy";
+"settings_terms_of_service" = "Terms of Service";
+"settings_faq" = "FAQ";

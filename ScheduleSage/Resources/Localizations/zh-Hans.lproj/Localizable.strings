@@ -150,3 +150,8 @@
 "date_format.time_separator" = " - ";
 "date_format.same_day" = "%@ - %@";
 "date_format.different_days" = "%@ - %@";
+
+// Settings - About
+"settings_privacy_policy" = "隐私政策";
+"settings_terms_of_service" = "用户协议";
+"settings_faq" = "常见问题";

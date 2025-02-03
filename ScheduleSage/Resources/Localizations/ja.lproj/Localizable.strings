@@ -152,3 +152,8 @@
 "date_format.time_separator" = "～";
 "date_format.same_day" = "%@～%@"; // 同日のイベント：11月6日 14:00～17:00
 "date_format.different_days" = "%@～%@"; // 複数日のイベント：11月6日 14:00～11月7日 17:00
+
+// Settings - About
+"settings_privacy_policy" = "プライバシーポリシー";
+"settings_terms_of_service" = "利用規約";
+"settings_faq" = "よくある質問";
