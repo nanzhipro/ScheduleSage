@@ -161,3 +161,25 @@
 "screenshot.success.message" = "已保存到下载文件夹";
 "screenshot.failure.title" = "截图失败";
 "screenshot.failure.message" = "请检查窗口状态";
+
+// Onboarding
+"onboarding.welcome.title" = "欢迎使用 ScheduleSage";
+"onboarding.welcome.description" = "您的智能日程助手，让日程管理更轻松";
+"onboarding.features.title" = "便捷创建日程";
+"onboarding.features.description" = "支持多种便捷方式，包括剪贴板、图片识别和手动输入";
+"onboarding.calendar.title" = "日历权限";
+"onboarding.calendar.description" = "需要日历权限来创建和管理您的日程";
+"onboarding.notification.title" = "通知提醒";
+"onboarding.notification.description" = "开启通知，不错过重要日程";
+
+"onboarding.button.next" = "下一步";
+"onboarding.button.back" = "返回";
+"onboarding.button.finish" = "开始使用";
+
+"onboarding.permission.calendar.title" = "日历访问";
+"onboarding.permission.calendar.description" = "允许访问日历以添加和管理日程";
+"onboarding.permission.calendar.button" = "允许访问日历";
+
+"onboarding.permission.notification.title" = "通知权限";
+"onboarding.permission.notification.description" = "开启通知以接收日程提醒";
+"onboarding.permission.notification.button" = "允许通知";

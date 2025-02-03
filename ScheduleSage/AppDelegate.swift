@@ -28,8 +28,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isPopoverShown = false
     
     @AppStorage("useWindowMode") private var useWindowMode = true
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     
     private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.tiwenlab.schedulesage"
+    
+    private var onboardingWindowController: NSWindowController?
     
     // MARK: - Lifecycle
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -51,6 +54,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupApplication() async {
         DesignSystem.switchTheme(to: .wechat)
         logger.info("AppDelegate did finish launching")
+        
+        if !hasCompletedOnboarding {
+            showOnboarding()
+        }
         
         viewModel = AddScheduleViewModel()
         setupStatusItem()
@@ -230,6 +237,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             viewModel?.handlePopoverDisappear()
             popover?.performClose(nil)
             isPopoverShown = false
+        }
+    }
+    
+    private func showOnboarding() {
+        let onboardingView = OnboardingView()
+            .environment(\.onboardingCompletion, { [weak self] in
+                self?.hasCompletedOnboarding = true
+                self?.onboardingWindowController?.close()
+                self?.onboardingWindowController = nil
+            })
+        
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: DesignSystem.Dimensions.mainViewWidth, height: DesignSystem.Dimensions.mainViewHeight),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        
+        window.center()
+        window.contentView = NSHostingView(rootView: onboardingView)
+        window.title = NSLocalizedString("onboarding.window.title", comment: "")
+        window.isReleasedWhenClosed = false
+        
+        onboardingWindowController = NSWindowController(window: window)
+        onboardingWindowController?.showWindow(nil)
+        
+        if let onboardingWindow = onboardingWindowController?.window {
+            NSApp.activate(ignoringOtherApps: true)
+            onboardingWindow.makeKeyAndOrderFront(nil)
         }
     }
 }

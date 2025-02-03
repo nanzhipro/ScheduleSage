@@ -163,3 +163,25 @@
 "screenshot.success.message" = "Saved to Downloads folder";
 "screenshot.failure.title" = "Screenshot Failed";
 "screenshot.failure.message" = "Please check window status";
+
+// Onboarding
+"onboarding.welcome.title" = "Welcome to ScheduleSage";
+"onboarding.welcome.description" = "Your smart calendar assistant for effortless scheduling";
+"onboarding.features.title" = "Quick Event Creation";
+"onboarding.features.description" = "Create events easily from clipboard, images, or manual input";
+"onboarding.calendar.title" = "Calendar Access";
+"onboarding.calendar.description" = "Calendar access is needed to create and manage your events";
+"onboarding.notification.title" = "Stay Notified";
+"onboarding.notification.description" = "Enable notifications to never miss important events";
+
+"onboarding.button.next" = "Next";
+"onboarding.button.back" = "Back";
+"onboarding.button.finish" = "Get Started";
+
+"onboarding.permission.calendar.title" = "Calendar Access";
+"onboarding.permission.calendar.description" = "Allow access to add and manage calendar events";
+"onboarding.permission.calendar.button" = "Allow Calendar Access";
+
+"onboarding.permission.notification.title" = "Notifications";
+"onboarding.permission.notification.description" = "Enable notifications for event reminders";
+"onboarding.permission.notification.button" = "Allow Notifications";

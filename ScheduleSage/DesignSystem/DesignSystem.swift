@@ -29,6 +29,16 @@ enum DesignSystem {
       }
     }
 
+    /// 次要品牌色
+    /// 用于次要强调、辅助元素等
+    static var secondary: Color {
+      switch currentTheme {
+      case .apple: return Color(light: "5856D6", dark: "5E5CE6")
+      case .wechat: return Color(light: "576B95", dark: "576B95")
+      case .airbnb: return Color(light: "00A699", dark: "00A699")
+      }
+    }
+
     /// 主要背景色
     /// 用于应用的主要背景，确保内容清晰可见
     static var primaryBackground: Color {

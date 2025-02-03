@@ -163,3 +163,25 @@
 "screenshot.success.message" = "ダウンロードフォルダに保存しました";
 "screenshot.failure.title" = "スクリーンショット失敗";
 "screenshot.failure.message" = "ウィンドウの状態を確認してください";
+
+// Onboarding
+"onboarding.welcome.title" = "ScheduleSageへようこそ";
+"onboarding.welcome.description" = "スマートなスケジュール管理アシスタント";
+"onboarding.features.title" = "簡単予定作成";
+"onboarding.features.description" = "クリップボード、画像認識、手動入力で簡単に予定を作成";
+"onboarding.calendar.title" = "カレンダーアクセス";
+"onboarding.calendar.description" = "予定の作成と管理にはカレンダーへのアクセスが必要です";
+"onboarding.notification.title" = "通知設定";
+"onboarding.notification.description" = "重要な予定を見逃さないように通知を有効にしましょう";
+
+"onboarding.button.next" = "次へ";
+"onboarding.button.back" = "戻る";
+"onboarding.button.finish" = "始める";
+
+"onboarding.permission.calendar.title" = "カレンダーアクセス";
+"onboarding.permission.calendar.description" = "予定の追加と管理のためにカレンダーへのアクセスを許可してください";
+"onboarding.permission.calendar.button" = "カレンダーアクセスを許可";
+
+"onboarding.permission.notification.title" = "通知";
+"onboarding.permission.notification.description" = "予定のリマインダーのために通知を有効にしてください";
+"onboarding.permission.notification.button" = "通知を許可";
