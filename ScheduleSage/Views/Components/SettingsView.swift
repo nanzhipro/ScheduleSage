@@ -23,7 +23,6 @@ struct SettingsView: View {
   @State private var showNotificationAlert = false
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
   @State private var showLaunchError = false
-  @AppStorage("useWindowMode") private var useWindowMode = true
   
   var body: some View {
     TabView {
@@ -109,12 +108,6 @@ private extension SettingsView {
             }
           }
         )
-      )
-      
-      SettingsToggle(
-        title: "settings_window_mode",
-        icon: "macwindow",
-        isOn: $useWindowMode
       )
     }
     .alert(
@@ -231,7 +224,6 @@ private struct SettingsLinkRow: View {
 // MARK: - Models
 private enum AboutLink: String, CaseIterable, Identifiable {
   case privacyPolicy
-  case termsOfService
   case faq
   
   var id: String { rawValue }
@@ -239,7 +231,6 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   var title: String {
     switch self {
     case .privacyPolicy: return "settings_privacy_policy"
-    case .termsOfService: return "settings_terms_of_service"
     case .faq: return "settings_faq"
     }
   }
@@ -247,7 +238,6 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   var icon: String {
     switch self {
     case .privacyPolicy: return "hand.raised.fill"
-    case .termsOfService: return "doc.text.fill"
     case .faq: return "questionmark.circle.fill"
     }
   }
@@ -255,7 +245,6 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   var url: String {
     switch self {
     case .privacyPolicy: return "https://tiwenlab.notion.site/18f5180108e580f69c59f212867f9a15"
-    case .termsOfService: return "https://tiwenlab.notion.site/18f5180108e5804cb596c845db6754bd"
     case .faq: return "https://tiwenlab.notion.site/FAQ-18f5180108e58034aecdec8a297c97ab?pvs=74"
     }
   }
