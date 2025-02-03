@@ -227,6 +227,17 @@ extension AddScheduleViewModel {
             
             let contentText = try result.get()
             
+            // 使用 ContentPreprocessor 进行预处理，检查是否包含时间信息。
+            let preprocessor = DefaultContentPreprocessor()
+            guard try await preprocessor.containsTimeInformation(contentText) else {
+                await MainActor.run {
+                    self.isLLMProcessing = false
+                    LoadingManager.shared.hide()
+                    showToastMessage(ContentPreprocessorError.noTimeInformation.localizedDescription)
+                }
+                return
+            }
+            
             do {
                 var events = try await llmProcessor.processContent(contentText)
                 // 为所有事件设置 URL

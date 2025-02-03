@@ -78,7 +78,7 @@ public class DefaultLLMEventProcessor: LLMEventProcessor {
         if event.startDate.isEmpty {
             missingFields.append(CalendarEvent.displayName(for: "startDate"))
         }
-        // TODO: 有些活动是没有结束时间的，这个要考虑一下如何处理
+        // TODO: 有些活动是没有结束时间的，这个要考虑一下如何处理，做成配置？？
         // if event.endDate.isEmpty {
         //     missingFields.append(CalendarEvent.displayName(for: "endDate"))
         // }

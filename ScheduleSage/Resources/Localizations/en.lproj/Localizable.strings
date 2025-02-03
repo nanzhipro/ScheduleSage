@@ -3,6 +3,10 @@
 "upgrade_prompt" = "Upgrade to Unlimited Access";
 "separator" = "｜";
 
+// Error Messages
+"no_time_information_found" = "No time information found in the content";
+"invalid_content" = "Invalid content format";
+
 // Titles
 "schedule_add_title" = "Smart Schedule Creation";
 "schedule_add_subtitle" = "Create schedules easily with clipboard import, manual input, or image recognition";

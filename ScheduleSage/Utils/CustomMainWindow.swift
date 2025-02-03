@@ -88,6 +88,8 @@ extension CustomMainWindow: NSWindowDelegate {
 }
 
 class MainWindowController: NSWindowController {
+    private var statusItemFrame: NSRect?
+    
     convenience init(contentView: some View, viewModel: AddScheduleViewModel, size: NSSize) {
         let window = CustomMainWindow(
             contentRect: NSRect(x: 0, y: 0, width: size.width, height: size.height),
@@ -105,7 +107,38 @@ class MainWindowController: NSWindowController {
         self.init(window: window)
     }
     
-    // 添加公共关闭方法
+    // 显示窗口，带动画效果
+    func showWindow(from statusItem: NSStatusItem?) {
+        guard let window = window else { return }
+        
+        // 获取状态栏图标的位置
+        if let button = statusItem?.button,
+           let frame = button.window?.convertToScreen(button.frame) {
+            statusItemFrame = frame
+            
+            // 计算窗口的目标位置
+            let padding: CGFloat = 5
+            let targetOrigin = NSPoint(
+                x: frame.origin.x - (window.frame.width - frame.width) / 2,
+                y: frame.origin.y - window.frame.height - padding
+            )
+            
+            // 直接设置窗口位置和大小
+            window.setFrame(NSRect(
+                origin: targetOrigin,
+                size: window.frame.size
+            ), display: false)
+            
+            // 显示窗口
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            // 如果获取不到状态栏位置，就居中显示
+            window.center()
+            window.makeKeyAndOrderFront(nil)
+        }
+    }
+    
+    // 关闭窗口，带动画效果
     func closeWindow() {
         if let customWindow = window as? CustomMainWindow {
             customWindow.closeWindow()

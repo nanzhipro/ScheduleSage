@@ -3,6 +3,10 @@
 "upgrade_prompt" = "無制限アクセスにアップグレード";
 "separator" = "｜";
 
+// Error Messages
+"no_time_information_found" = "コンテンツに時間情報が見つかりません";
+"invalid_content" = "コンテンツの形式が無効です";
+
 // Titles
 "schedule_add_title" = "スマートスケジュール作成";
 "schedule_add_subtitle" = "クリップボード、手動入力、画像認識で簡単にスケジュールを作成";

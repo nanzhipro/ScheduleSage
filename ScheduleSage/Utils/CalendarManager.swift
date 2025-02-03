@@ -11,7 +11,7 @@ import AppKit
 import SwiftDate
 
 /// 日历管理器
-public final class CalendarManager { 
+public final class CalendarManager { 
   // MARK: - Properties
   
   private let eventStore = EKEventStore()

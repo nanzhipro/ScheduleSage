@@ -3,6 +3,10 @@
 "upgrade_prompt" = "升级获取无限使用权限";
 "separator" = "｜";
 
+// Error Messages
+"no_time_information_found" = "内容中未找到时间信息";
+"invalid_content" = "内容格式无效";
+
 // Titles
 "schedule_add_title" = "智能创建日程";
 "schedule_add_subtitle" = "支持剪贴板导入、手动输入和图片识别，轻松创建日程";
