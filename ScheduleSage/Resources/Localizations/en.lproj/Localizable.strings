@@ -166,17 +166,17 @@
 
 // Onboarding
 "onboarding.welcome.title" = "Welcome to ScheduleSage";
-"onboarding.welcome.description" = "Your smart calendar assistant for effortless scheduling";
+"onboarding.welcome.description" = "Your personal time wizard - making schedule management a breeze";
 "onboarding.features.title" = "Quick Event Creation";
-"onboarding.features.description" = "Create events easily from clipboard, images, or manual input";
+"onboarding.features.description" = "Create events instantly from text, photos, or manual input - the choice is yours";
 "onboarding.calendar.title" = "Calendar Access";
-"onboarding.calendar.description" = "Calendar access is needed to create and manage your events";
+"onboarding.calendar.description" = "Grant calendar access to unlock smart scheduling features";
 "onboarding.notification.title" = "Stay Notified";
-"onboarding.notification.description" = "Enable notifications to never miss important events";
+"onboarding.notification.description" = "Stay on top of your schedule with timely reminders";
 
 "onboarding.button.next" = "Next";
 "onboarding.button.back" = "Back";
-"onboarding.button.finish" = "Get Started";
+"onboarding.button.finish" = "Done";
 
 "onboarding.permission.calendar.title" = "Calendar Access";
 "onboarding.permission.calendar.description" = "Allow access to add and manage calendar events";

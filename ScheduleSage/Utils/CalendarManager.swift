@@ -20,25 +20,50 @@ public final class CalendarManager {
   
   // MARK: - Public Methods
   
+  /// 检查日历访问权限状态
+  public func checkCalendarAuthorizationStatus() async throws -> Bool {
+    let status = EKEventStore.authorizationStatus(for: .event)
+    
+    switch status {
+    case .authorized, .fullAccess:
+      return true
+      
+    case .notDetermined, .denied, .restricted, .writeOnly:
+      return false
+      
+    @unknown default:
+      throw CalendarError.unknownStatus
+    }
+  }
+  
   /// 请求日历访问权限
   public func requestAccess() async throws -> Bool {
     let status = EKEventStore.authorizationStatus(for: .event)
     
     switch status {
-    case .authorized:
+    case .authorized, .fullAccess:
       return true
       
     case .notDetermined:
       return try await requestCalendarAccess()
       
     case .denied, .restricted:
+      // 打开系统设置
+      if let settingsUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendar") {
+        await MainActor.run {
+          NSWorkspace.shared.open(settingsUrl)
+        }
+      }
       throw CalendarError.accessDenied
       
     case .writeOnly:
+      // 打开系统设置
+      if let settingsUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendar") {
+        await MainActor.run {
+          NSWorkspace.shared.open(settingsUrl)
+        }
+      }
       throw CalendarError.writeOnlyAccess
-      
-    case .fullAccess:
-      return true
       
     @unknown default:
       throw CalendarError.unknownStatus

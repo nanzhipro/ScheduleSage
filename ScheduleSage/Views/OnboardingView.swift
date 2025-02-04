@@ -18,6 +18,123 @@ extension EnvironmentValues {
     }
 }
 
+/// NSPageController 的 SwiftUI 包装器
+private struct PageControllerView: NSViewControllerRepresentable {
+    @Binding var currentPage: Int
+    let pages: [OnboardingPage]
+    let viewModel: OnboardingViewModel
+    
+    @MainActor
+    func makeNSViewController(context: Context) -> NSPageController {
+        let controller = NSPageController()
+        controller.delegate = context.coordinator
+        controller.transitionStyle = .horizontalStrip
+        
+        // 配置转场动画
+        let transition = CATransition()
+        transition.type = .push
+        transition.subtype = .fromRight
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        controller.view.layer?.actions = ["sublayers": transition]
+        
+        // 配置视图控制器
+        controller.view.wantsLayer = true
+        controller.view.layerContentsRedrawPolicy = .onSetNeedsDisplay
+        
+        // 设置内容大小
+        controller.view.frame.size = NSSize(
+            width: DesignSystem.Dimensions.mainViewWidth,
+            height: DesignSystem.Dimensions.mainViewHeight
+        )
+        
+        // 延迟设置 arrangedObjects 以确保视图层级准备就绪
+        DispatchQueue.main.async {
+            controller.arrangedObjects = pages
+            controller.selectedIndex = currentPage
+        }
+        
+        return controller
+    }
+    
+    @MainActor
+    func updateNSViewController(_ pageController: NSPageController, context: Context) {
+        if pageController.selectedIndex != currentPage {
+            // 使用异步更新避免布局递归
+            DispatchQueue.main.async {
+                pageController.animator().selectedIndex = currentPage
+            }
+        }
+    }
+    
+    @MainActor
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, NSPageControllerDelegate {
+        var parent: PageControllerView
+        
+        init(_ pageController: PageControllerView) {
+            self.parent = pageController
+        }
+        
+        func pageController(_ pageController: NSPageController, viewControllerForIdentifier identifier: String) -> NSViewController {
+            let hostingController = NSHostingController(
+                rootView: OnboardingPageView(
+                    page: parent.pages[Int(identifier) ?? 0],
+                    viewModel: parent.viewModel
+                )
+            )
+            
+            // 配置视图
+            let view = hostingController.view
+            view.wantsLayer = true
+            view.layerContentsRedrawPolicy = .onSetNeedsDisplay
+            
+            // 使用 frame-based 布局而不是自动布局
+            view.translatesAutoresizingMaskIntoConstraints = true
+            view.frame = pageController.view.bounds
+            view.autoresizingMask = [.width, .height]
+            
+            return hostingController
+        }
+        
+        func pageController(_ pageController: NSPageController, identifierFor object: Any) -> String {
+            if let index = parent.pages.firstIndex(where: { $0.id == (object as? OnboardingPage)?.id }) {
+                return String(index)
+            }
+            return "0"
+        }
+        
+        func pageControllerDidEndLiveTransition(_ pageController: NSPageController) {
+            pageController.completeTransition()
+            // 使用异步更新避免布局递归
+            DispatchQueue.main.async {
+                self.parent.currentPage = pageController.selectedIndex
+            }
+        }
+        
+        func pageController(_ pageController: NSPageController, prepare viewController: NSViewController, with object: Any?) {
+            guard let page = object as? OnboardingPage,
+                  let hostingController = viewController as? NSHostingController<OnboardingPageView> else {
+                return
+            }
+            
+            // 更新 frame 以匹配父视图
+            hostingController.view.frame = pageController.view.bounds
+            
+            // 使用异步更新避免布局递归
+            DispatchQueue.main.async {
+                hostingController.rootView = OnboardingPageView(
+                    page: page,
+                    viewModel: self.parent.viewModel
+                )
+            }
+        }
+    }
+}
+
 /// OnboardingView
 /// Onboarding 引导页面
 /// 展示 App 功能介绍和权限请求
@@ -25,58 +142,47 @@ struct OnboardingView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.onboardingCompletion) private var onboardingCompletion
+    @State private var isFinishHovered = false
+    @State private var isNextHovered = false
+    @State private var isBackHovered = false
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // 背景
-                backgroundView
+                // 渐变背景
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.primary.opacity(0.1),
+                        DesignSystem.Colors.primary.opacity(0.05),
+                        DesignSystem.Colors.background
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea(.all)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 VStack(spacing: 0) {
                     // 页面内容
-                    TabView(selection: $viewModel.currentPageIndex) {
-                        ForEach(Array(viewModel.pages.enumerated()), id: \.element.id) { index, page in
-                            OnboardingPageView(page: page, viewModel: viewModel)
-                                .tag(index)
-                                .transition(.asymmetric(
-                                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                                    removal: .move(edge: .leading).combined(with: .opacity)
-                                ))
-                        }
-                    }
-                    .tabViewStyle(.automatic)
-                    .animation(.spring(), value: viewModel.currentPageIndex)
+                    PageControllerView(
+                        currentPage: $viewModel.currentPageIndex,
+                        pages: viewModel.pages,
+                        viewModel: viewModel
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
                     // 底部控制栏
                     bottomControlBar
                 }
-                .padding(.vertical, 40)
+                .padding(.vertical, DesignSystem.Spacing.vertical)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
-        .frame(width: DesignSystem.Dimensions.mainViewWidth, height: DesignSystem.Dimensions.mainViewHeight)
-        .background(DesignSystem.Colors.background)
+        .frame(width: DesignSystem.Dimensions.mainViewWidth, 
+               height: DesignSystem.Dimensions.mainViewHeight)
     }
     
     // MARK: - Subviews
-    
-    private var backgroundView: some View {
-        ZStack {
-            // 动态模糊背景
-            VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
-            
-            // 渐变背景
-            LinearGradient(
-                colors: [
-                    DesignSystem.Colors.primary.opacity(0.1),
-                    DesignSystem.Colors.secondaryGray.opacity(0.1)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        }
-        .ignoresSafeArea()
-    }
     
     private var bottomControlBar: some View {
         HStack {
@@ -87,9 +193,16 @@ struct OnboardingView: View {
                         NSLocalizedString("onboarding.button.back", comment: ""),
                         systemImage: "chevron.left"
                     )
+                    .font(DesignSystem.Typography.bodyMedium)
+                    .foregroundColor(DesignSystem.Colors.primary.opacity(isBackHovered ? 0.8 : 1.0))
                 }
                 .buttonStyle(.plain)
-                .foregroundColor(DesignSystem.Colors.primary)
+                .scaleEffect(isBackHovered ? 1.02 : 1.0)
+                .onHover { hovering in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isBackHovered = hovering
+                    }
+                }
             }
             
             Spacer()
@@ -109,23 +222,47 @@ struct OnboardingView: View {
                     onboardingCompletion()
                 }) {
                     Text("onboarding.button.finish")
-                        .fontWeight(.medium)
+                        .font(DesignSystem.Typography.buttonLabel)
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 2)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(DesignSystem.Colors.primary)
+                .scaleEffect(isFinishHovered ? 1.02 : 1.0)
+                .brightness(isFinishHovered ? -0.05 : 0)
+                .shadow(
+                    color: DesignSystem.Colors.primary.opacity(isFinishHovered ? 0.4 : 0.3),
+                    radius: isFinishHovered ? 6 : 4,
+                    x: 0,
+                    y: isFinishHovered ? 3 : 2
+                )
+                .onHover { hovering in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isFinishHovered = hovering
+                    }
+                }
             } else {
                 Button(action: { viewModel.goToNextPage() }) {
                     Label(
                         NSLocalizedString("onboarding.button.next", comment: ""),
                         systemImage: "chevron.right"
                     )
+                    .font(DesignSystem.Typography.bodyMedium)
+                    .foregroundColor(DesignSystem.Colors.primary.opacity(isNextHovered ? 0.8 : 1.0))
                 }
                 .buttonStyle(.plain)
-                .foregroundColor(DesignSystem.Colors.primary)
+                .scaleEffect(isNextHovered ? 1.02 : 1.0)
+                .onHover { hovering in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isNextHovered = hovering
+                    }
+                }
             }
         }
-        .padding(.horizontal, 40)
-        .padding(.top, 20)
+        .padding(.horizontal, DesignSystem.Spacing.horizontal)
+        .padding(.top, DesignSystem.Spacing.sectionSpacing)
+        .background(DesignSystem.Colors.background.opacity(0.8))
     }
 }
 
@@ -137,11 +274,20 @@ private struct PageIndicator: View {
     let currentPage: Int
     
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: DesignSystem.Spacing.iconSpacing) {
             ForEach(0..<numberOfPages, id: \.self) { index in
                 Circle()
-                    .fill(index == currentPage ? DesignSystem.Colors.primary : DesignSystem.Colors.secondaryGray)
-                    .frame(width: 8, height: 8)
+                    .fill(index == currentPage 
+                          ? DesignSystem.Colors.primary 
+                          : DesignSystem.Colors.secondaryGray)
+                    .frame(
+                        width: index == currentPage 
+                            ? DesignSystem.Dimensions.selectionIndicatorMiddleSize 
+                            : DesignSystem.Dimensions.selectionIndicatorInnerSize,
+                        height: index == currentPage 
+                            ? DesignSystem.Dimensions.selectionIndicatorMiddleSize 
+                            : DesignSystem.Dimensions.selectionIndicatorInnerSize
+                    )
                     .animation(.spring(), value: currentPage)
             }
         }

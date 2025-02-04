@@ -31,6 +31,9 @@ public final class OnboardingViewModel: ObservableObject {
     /// 通知权限状态
     @Published private(set) var notificationPermissionGranted: Bool = false
     
+    /// 是否正在请求权限
+    @Published private(set) var isRequestingPermission: Bool = false
+    
     // MARK: - Private Properties
     
     private let calendarManager = CalendarManager()
@@ -96,16 +99,64 @@ public final class OnboardingViewModel: ObservableObject {
     
     /// 请求日历权限
     public func requestCalendarPermission() async {
+        guard !isRequestingPermission else { return }
+        
+        await MainActor.run {
+            isRequestingPermission = true
+        }
+        
         do {
-            calendarPermissionGranted = try await calendarManager.requestAccess()
+            let status = try await calendarManager.requestAccess()
+            await MainActor.run {
+                calendarPermissionGranted = status
+                isRequestingPermission = false
+            }
+        } catch CalendarManager.CalendarError.accessDenied {
+            logger.error("Calendar access denied - User needs to enable in System Settings")
+            await MainActor.run {
+                calendarPermissionGranted = false
+                isRequestingPermission = false
+            }
+        } catch CalendarManager.CalendarError.writeOnlyAccess {
+            logger.error("Calendar write-only access - User needs to grant full access")
+            await MainActor.run {
+                calendarPermissionGranted = false
+                isRequestingPermission = false
+            }
         } catch {
             logger.error("Calendar permission request failed: \(error.localizedDescription)")
+            await MainActor.run {
+                calendarPermissionGranted = false
+                isRequestingPermission = false
+            }
         }
     }
     
     /// 请求通知权限
     public func requestNotificationPermission() async {
-        notificationPermissionGranted = await notificationManager.requestAuthorization()
+        guard !isRequestingPermission else { return }
+        
+        await MainActor.run {
+            isRequestingPermission = true
+        }
+        
+        do {
+            let granted = await notificationManager.requestAuthorization()
+            await MainActor.run {
+                notificationPermissionGranted = granted
+                isRequestingPermission = false
+                
+                if !granted {
+                    logger.notice("Notification permission denied - User needs to enable in System Settings")
+                }
+            }
+        } catch {
+            logger.error("Notification permission request failed: \(error.localizedDescription)")
+            await MainActor.run {
+                notificationPermissionGranted = false
+                isRequestingPermission = false
+            }
+        }
     }
     
     // MARK: - Private Methods
@@ -134,9 +185,10 @@ public final class OnboardingViewModel: ObservableObject {
     private func checkPermissions() async {
         // 检查日历权限
         do {
-            calendarPermissionGranted = try await calendarManager.requestAccess()
+            calendarPermissionGranted = try await calendarManager.checkCalendarAuthorizationStatus()
         } catch {
             logger.error("Calendar permission check failed: \(error.localizedDescription)")
+            calendarPermissionGranted = false
         }
         
         // 检查通知权限

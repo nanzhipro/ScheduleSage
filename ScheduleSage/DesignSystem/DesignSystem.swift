@@ -314,6 +314,8 @@ enum DesignSystem {
     static let eventCardSpacing: CGFloat = 12
     /// 选择指示器外圈尺寸
     static let selectionIndicatorOuterSize: CGFloat = 16
+    /// 选择指示器中圈尺寸
+    static let selectionIndicatorMiddleSize: CGFloat = 12
     /// 选择指示器内圈尺寸
     static let selectionIndicatorInnerSize: CGFloat = 8
     /// 列表内容间距

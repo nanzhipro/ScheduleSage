@@ -64,11 +64,25 @@ public final class NotificationManager: NSObject {
     @discardableResult
     public func requestAuthorization() async -> Bool {
         do {
-            let granted = try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
-            if !granted {
+            // 先检查当前权限状态
+            let settings = await notificationCenter.notificationSettings()
+            
+            switch settings.authorizationStatus {
+            case .authorized:
+                return true
+                
+            case .notDetermined:
+                // 首次请求权限
+                return try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
+                
+            case .denied, .provisional, .ephemeral:
+                // 如果权限被拒绝，打开系统设置
                 await MainActor.run { self.openNotificationSettings() }
+                return false
+                
+            @unknown default:
+                return false
             }
-            return granted
         } catch {
             logger.error("Failed to request notification authorization: \(error.localizedDescription)")
             return false

@@ -166,17 +166,17 @@
 
 // Onboarding
 "onboarding.welcome.title" = "ScheduleSageへようこそ";
-"onboarding.welcome.description" = "スマートなスケジュール管理アシスタント";
+"onboarding.welcome.description" = "スケジュール管理を簡単に。あなたの頼れるタイムマネージャー";
 "onboarding.features.title" = "簡単予定作成";
-"onboarding.features.description" = "クリップボード、画像認識、手動入力で簡単に予定を作成";
+"onboarding.features.description" = "テキスト、写真、手入力など、お好みの方法で予定を作成";
 "onboarding.calendar.title" = "カレンダーアクセス";
-"onboarding.calendar.description" = "予定の作成と管理にはカレンダーへのアクセスが必要です";
+"onboarding.calendar.description" = "カレンダーへのアクセスを許可して、スマートな予定管理を始めましょう";
 "onboarding.notification.title" = "通知設定";
-"onboarding.notification.description" = "重要な予定を見逃さないように通知を有効にしましょう";
+"onboarding.notification.description" = "大切な予定を見逃さないよう、通知機能でサポート";
 
 "onboarding.button.next" = "次へ";
 "onboarding.button.back" = "戻る";
-"onboarding.button.finish" = "始める";
+"onboarding.button.finish" = "完了";
 
 "onboarding.permission.calendar.title" = "カレンダーアクセス";
 "onboarding.permission.calendar.description" = "予定の追加と管理のためにカレンダーへのアクセスを許可してください";

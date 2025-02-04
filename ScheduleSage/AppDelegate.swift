@@ -40,7 +40,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         Task {
             await setupApplication()
-            await requestPermissions()
         }
     }
     
@@ -163,28 +162,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    // MARK: - Permissions
-    private func requestPermissions() async {
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { await self.requestCalendarAccess() }
-            group.addTask { await self.requestNotificationAccess() }
-        }
-    }
-    
-    private func requestCalendarAccess() async {
-        do {
-            let granted = try await calendarManager.requestAccess()
-            logger.info("\(granted ? "Calendar access granted" : "Calendar access denied")")
-        } catch {
-            logger.error("Calendar access error: \(error.localizedDescription)")
-        }
-    }
-    
-    private func requestNotificationAccess() async {
-        let granted = await notificationManager.requestAuthorization()
-        logger.info("\(granted ? "Notification access granted" : "Notification access denied")")
-    }
-    
     // MARK: - Instance Management
     private func checkAndActivateExistingInstance() -> Bool {
         let runningApps = NSWorkspace.shared.runningApplications
@@ -246,14 +223,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.hasCompletedOnboarding = true
                 self?.onboardingWindowController?.close()
                 self?.onboardingWindowController = nil
+                
+                // 延迟一帧显示主窗口，确保引导页面完全关闭
+                DispatchQueue.main.async {
+                    if self?.useWindowMode == true {
+                        self?.windowController?.showWindow(from: self?.statusItem)
+                    } else {
+                        self?.toggleAddScheduleView()
+                    }
+                }
             })
         
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: DesignSystem.Dimensions.mainViewWidth, height: DesignSystem.Dimensions.mainViewHeight),
-            styleMask: [.titled, .closable],
+            styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
+        
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
         
         window.center()
         window.contentView = NSHostingView(rootView: onboardingView)
