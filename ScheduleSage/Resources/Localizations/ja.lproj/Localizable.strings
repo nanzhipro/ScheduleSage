@@ -191,3 +191,7 @@
 "onboarding.permission.notification.title" = "通知";
 "onboarding.permission.notification.description" = "予定のリマインダーのために通知を有効にしてください";
 "onboarding.permission.notification.button" = "通知を許可";
+
+// New keys for granted permissions
+"onboarding.permission.calendar.granted" = "カレンダーへのアクセスが許可されました";
+"onboarding.permission.notification.granted" = "通知が有効になりました";

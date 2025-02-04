@@ -191,3 +191,7 @@
 "onboarding.permission.notification.title" = "Notifications";
 "onboarding.permission.notification.description" = "Enable notifications for event reminders";
 "onboarding.permission.notification.button" = "Allow Notifications";
+
+// New keys for granted permissions
+"onboarding.permission.calendar.granted" = "Calendar access granted";
+"onboarding.permission.notification.granted" = "Notifications enabled";

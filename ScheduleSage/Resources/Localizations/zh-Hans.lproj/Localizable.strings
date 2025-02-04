@@ -189,3 +189,7 @@
 "onboarding.permission.notification.title" = "通知权限";
 "onboarding.permission.notification.description" = "开启通知以接收日程提醒";
 "onboarding.permission.notification.button" = "允许通知";
+
+// New keys for granted permissions
+"onboarding.permission.calendar.granted" = "日历访问已授权";
+"onboarding.permission.notification.granted" = "通知已启用";
