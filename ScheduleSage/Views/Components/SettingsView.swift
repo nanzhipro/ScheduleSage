@@ -50,7 +50,6 @@ struct SettingsView: View {
   private var generalSettings: some View {
     Form {
       notificationSection
-      themeSection
       appearanceSection
       systemSection
       versionSection
@@ -90,25 +89,13 @@ private extension SettingsView {
     }
   }
   
-  var themeSection: some View {
-    SettingsSection(title: "settings_group_theme") {
-      HStack(spacing: DesignSystem.Spacing.horizontal) {
-        ForEach(ThemeType.allCases) { theme in
-          ThemeButton(
-            theme: theme,
-            isSelected: theme.rawValue == currentTheme,
-            action: {
-              currentTheme = theme.rawValue
-            }
-          )
-        }
-      }
-      .padding(.vertical, DesignSystem.Spacing.textSpacing)
-    }
-  }
-  
   var appearanceSection: some View {
     SettingsSection(title: "settings_group_appearance") {
+      ThemePicker(currentTheme: Binding(
+        get: { ThemeType(rawValue: currentTheme) ?? .wechat },
+        set: { currentTheme = $0.rawValue }
+      ))
+      
       SettingsToggle(
         title: "settings_dark_mode",
         icon: "moon.fill",
@@ -250,37 +237,74 @@ private struct SettingsLinkRow: View {
   }
 }
 
-// MARK: - Theme Button
-private struct ThemeButton: View {
+// MARK: - Theme Picker
+private struct ThemePicker: View {
+  @Binding var currentTheme: ThemeType
+  
+  var body: some View {
+    HStack {
+      Label {
+        Text("settings_theme")
+          .foregroundColor(DesignSystem.Colors.primaryText)
+      } icon: {
+        Image(systemName: "paintpalette.fill")
+          .foregroundStyle(DesignSystem.Colors.primary)
+      }
+      
+      Spacer()
+      
+      HStack(spacing: 12) {
+        ForEach(ThemeType.allCases) { theme in
+          ThemeColorButton(
+            theme: theme,
+            isSelected: theme == currentTheme,
+            action: { currentTheme = theme }
+          )
+        }
+      }
+    }
+    .padding(.vertical, 2)
+  }
+}
+
+private struct ThemeColorButton: View {
   let theme: ThemeType
   let isSelected: Bool
   let action: () -> Void
   
+  @Environment(\.colorScheme) private var colorScheme
   @State private var isHovered = false
-  
-  private var themeColor: Color {
-    switch theme {
-    case .apple: return Color(light: "007AFF", dark: "0A84FF")
-    case .wechat: return Color(light: "07C160", dark: "07C160")
-    case .airbnb: return Color(light: "FF5A5F", dark: "FF5A5F")
-    }
-  }
   
   var body: some View {
     Button(action: action) {
       Circle()
-        .fill(themeColor)
-        .frame(width: 12, height: 12)
+        .fill(theme.color)
+        .frame(
+          width: DesignSystem.Dimensions.selectionIndicatorMiddleSize,
+          height: DesignSystem.Dimensions.selectionIndicatorMiddleSize
+        )
         .overlay(
           Circle()
-            .strokeBorder(isSelected ? themeColor : .clear, lineWidth: 2)
+            .strokeBorder(
+              isSelected ? theme.color : .clear,
+              lineWidth: 2
+            )
             .padding(-4)
         )
         .overlay(
           Circle()
             .fill(.white)
-            .frame(width: 4, height: 4)
+            .frame(
+              width: DesignSystem.Dimensions.selectionIndicatorInnerSize,
+              height: DesignSystem.Dimensions.selectionIndicatorInnerSize
+            )
             .opacity(isSelected ? 1 : 0)
+        )
+        .shadow(
+          color: isHovered ? .black.opacity(0.1) : .clear,
+          radius: 4,
+          x: 0,
+          y: 2
         )
     }
     .buttonStyle(.plain)
@@ -289,6 +313,24 @@ private struct ThemeButton: View {
       withAnimation(.easeInOut(duration: 0.2)) {
         isHovered = hovering
       }
+    }
+  }
+}
+
+private extension ThemeType {
+  var color: Color {
+    switch self {
+    case .apple: return Color(light: "007AFF", dark: "0A84FF")
+    case .wechat: return Color(light: "07C160", dark: "07C160")
+    case .airbnb: return Color(light: "FF5A5F", dark: "FF5A5F")
+    }
+  }
+  
+  var localizedName: LocalizedStringKey {
+    switch self {
+    case .apple: return "theme_apple"
+    case .wechat: return "theme_wechat"
+    case .airbnb: return "theme_airbnb"
     }
   }
 }

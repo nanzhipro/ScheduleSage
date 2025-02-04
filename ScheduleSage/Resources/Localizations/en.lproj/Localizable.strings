@@ -58,6 +58,7 @@
 "settings_font_size" = "Font Size";
 "settings_version" = "Current Version";
 "settings_window_mode" = "Use Window Mode";
+"settings_theme" = "Theme";
 
 // Settings Groups
 "settings_group_notifications" = "Notification Settings";
