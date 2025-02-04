@@ -130,11 +130,35 @@ public final class ScreenshotManager {
 
 private extension NSView {
     func bitmapImage() -> NSImage? {
-        guard let rep = bitmapImageRepForCachingDisplay(in: bounds) else {
+        let scale = self.window?.backingScaleFactor ?? 1.0
+        let size = self.bounds.size
+        let pixelsWide = Int(size.width * scale)
+        let pixelsHigh = Int(size.height * scale)
+        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
+                                         pixelsWide: pixelsWide,
+                                         pixelsHigh: pixelsHigh,
+                                         bitsPerSample: 8,
+                                         samplesPerPixel: 4,
+                                         hasAlpha: true,
+                                         isPlanar: false,
+                                         colorSpaceName: .calibratedRGB,
+                                         bitmapFormat: [],
+                                         bytesPerRow: 0,
+                                         bitsPerPixel: 0) else {
             return nil
         }
-        cacheDisplay(in: bounds, to: rep)
-        return NSImage(size: bounds.size).with(representation: rep)
+        rep.size = size
+        NSGraphicsContext.saveGraphicsState()
+        if let context = NSGraphicsContext(bitmapImageRep: rep) {
+            NSGraphicsContext.current = context
+            self.displayIgnoringOpacity(self.bounds, in: context)
+            NSGraphicsContext.restoreGraphicsState()
+            let image = NSImage(size: size)
+            image.addRepresentation(rep)
+            return image
+        }
+        NSGraphicsContext.restoreGraphicsState()
+        return nil
     }
 }
 
