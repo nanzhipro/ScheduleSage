@@ -36,6 +36,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     
     // MARK: - Lifecycle
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // 初始化主题
+        initializeTheme()
+        
         guard checkAndActivateExistingInstance() else { return }
         
         Task {
@@ -51,7 +54,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     
     // MARK: - Setup
     private func setupApplication() async {
-        DesignSystem.switchTheme(to: .wechat)
         logger.info("AppDelegate did finish launching")
         
         if !hasCompletedOnboarding {
@@ -255,6 +257,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let onboardingWindow = onboardingWindowController?.window {
             NSApp.activate(ignoringOtherApps: true)
             onboardingWindow.makeKeyAndOrderFront(nil)
+        }
+    }
+    
+    // MARK: - Theme Initialization
+    private func initializeTheme() {
+        let defaults = UserDefaults.standard
+        let themeKey = "currentTheme"
+        
+        // 如果存在主题设置，使用已保存的主题
+        if let savedTheme = defaults.string(forKey: themeKey),
+           let theme = ThemeType(rawValue: savedTheme) {
+            DesignSystem.switchTheme(to: theme)
+        } else {
+            // 如果不存在主题设置，使用默认的 WeChat 主题
+            let defaultTheme = ThemeType.wechat
+            defaults.set(defaultTheme.rawValue, forKey: themeKey)
+            DesignSystem.switchTheme(to: defaultTheme)
         }
     }
 }

@@ -66,6 +66,12 @@
 "settings_group_about" = "About";
 "settings_group_preview" = "Preview Settings";
 "settings_group_font" = "Font Settings";
+"settings_group_theme" = "Theme Style";
+
+// Theme Names
+"theme.apple" = "Apple Style";
+"theme.wechat" = "WeChat Style";
+"theme.airbnb" = "Airbnb Style";
 
 // Calendar Manager
 "calendar.error.access_denied" = "Please allow calendar access in Settings";

@@ -11,6 +11,7 @@ import SwiftUI
 /// 添加日程主页面
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
+  @State private var needsRefresh = false
   
   var body: some View {
     VStack(spacing: 0) {
@@ -45,6 +46,10 @@ struct AddScheduleView: View {
     .onAppear(perform: viewModel.resetState)
     .onDisappear {
       viewModel.handlePopoverDisappear()
+    }
+    .id(needsRefresh)
+    .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
+      needsRefresh.toggle()
     }
   }
   

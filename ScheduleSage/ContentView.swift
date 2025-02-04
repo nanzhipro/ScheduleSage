@@ -11,6 +11,8 @@ import SwiftUI
 struct ContentView: View {
   @Environment(\.modelContext) private var modelContext
   @Query private var items: [Item]
+  @StateObject private var viewModel = AddScheduleViewModel()
+  @State private var needsRefresh = false
 
   var body: some View {
     NavigationSplitView {
@@ -34,6 +36,12 @@ struct ContentView: View {
       }
     } detail: {
       Text("Select an item")
+    }
+    .environmentObject(viewModel)
+    .id(needsRefresh)
+    .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
+      // 触发视图刷新
+      needsRefresh.toggle()
     }
   }
 

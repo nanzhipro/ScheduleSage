@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-extension Notification.Name {
-  static let eventDidUpdate = Notification.Name("eventDidUpdate")
-}
-
 struct EventListView: View {
   // MARK: - Properties
   let events: [CalendarEvent]
@@ -24,6 +20,7 @@ struct EventListView: View {
   @State private var toastType: ToastType = .success
   @State private var toastMessage: String = ""
   @State private var displayEvents: [CalendarEvent]
+  @State private var needsRefresh = false
 
   private var hasSelectedEvents: Bool { !selectedEventIds.isEmpty }
 
@@ -64,6 +61,10 @@ struct EventListView: View {
       if let updatedEvent = notification.userInfo?["event"] as? CalendarEvent {
         handleEventUpdate(updatedEvent)
       }
+    }
+    .id(needsRefresh)
+    .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
+      needsRefresh.toggle()
     }
   }
 
@@ -177,10 +178,33 @@ private extension EventListView {
 
 // MARK: - Actions
 private extension EventListView {
-  func handleImport() {
+  private func handleImport() {
     guard hasSelectedEvents else { return }
-    showImportStartedToast()
-    onImport()
+    
+    Task {
+      do {
+        // 先检查日历权限
+        let hasAccess = try await CalendarManager().checkCalendarAuthorizationStatus()
+        if !hasAccess {
+          // 如果没有权限，请求权限
+          _ = try await CalendarManager().requestAccess()
+        }
+        
+        // 如果成功获取权限，执行导入
+        await MainActor.run {
+          onImport()
+          toastType = .success
+          toastMessage = NSLocalizedString("import_success", comment: "")
+          showToast = true
+        }
+      } catch {
+        await MainActor.run {
+          toastType = .error
+          toastMessage = error.localizedDescription
+          showToast = true
+        }
+      }
+    }
   }
   
   func toggleSelection(for event: CalendarEvent) {
@@ -188,22 +212,6 @@ private extension EventListView {
       selectedEventIds.remove(event.eventIdentifier)
     } else {
       selectedEventIds.insert(event.eventIdentifier)
-    }
-  }
-  
-  func showImportStartedToast() {
-    showToast = false
-    DispatchQueue.main.async {
-      toastType = .success
-      toastMessage = NSLocalizedString("import_success", comment: "")
-      showToast = true
-      
-      // 2秒后显示导入成功提示
-      DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-        toastType = .success
-        toastMessage = NSLocalizedString("import_success", comment: "")
-        showToast = true
-      }
     }
   }
   

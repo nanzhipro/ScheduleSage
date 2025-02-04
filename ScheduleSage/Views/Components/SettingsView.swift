@@ -19,6 +19,17 @@ struct SettingsView: View {
     }
   }
   
+  @AppStorage("currentTheme") private var currentTheme = ThemeType.wechat.rawValue {
+    didSet {
+      if let theme = ThemeType(rawValue: currentTheme) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+          DesignSystem.switchTheme(to: theme)
+          NotificationCenter.default.post(name: .themeDidChange, object: theme)
+        }
+      }
+    }
+  }
+  
   @StateObject private var themeManager = ThemeManager.shared
   @State private var showNotificationAlert = false
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
@@ -39,6 +50,7 @@ struct SettingsView: View {
   private var generalSettings: some View {
     Form {
       notificationSection
+      themeSection
       appearanceSection
       systemSection
       versionSection
@@ -75,6 +87,23 @@ private extension SettingsView {
           }
         )
       )
+    }
+  }
+  
+  var themeSection: some View {
+    SettingsSection(title: "settings_group_theme") {
+      HStack(spacing: DesignSystem.Spacing.horizontal) {
+        ForEach(ThemeType.allCases) { theme in
+          ThemeButton(
+            theme: theme,
+            isSelected: theme.rawValue == currentTheme,
+            action: {
+              currentTheme = theme.rawValue
+            }
+          )
+        }
+      }
+      .padding(.vertical, DesignSystem.Spacing.textSpacing)
     }
   }
   
@@ -218,6 +247,49 @@ private struct SettingsLinkRow: View {
       }
     }
     .buttonStyle(.plain)
+  }
+}
+
+// MARK: - Theme Button
+private struct ThemeButton: View {
+  let theme: ThemeType
+  let isSelected: Bool
+  let action: () -> Void
+  
+  @State private var isHovered = false
+  
+  private var themeColor: Color {
+    switch theme {
+    case .apple: return Color(light: "007AFF", dark: "0A84FF")
+    case .wechat: return Color(light: "07C160", dark: "07C160")
+    case .airbnb: return Color(light: "FF5A5F", dark: "FF5A5F")
+    }
+  }
+  
+  var body: some View {
+    Button(action: action) {
+      Circle()
+        .fill(themeColor)
+        .frame(width: 12, height: 12)
+        .overlay(
+          Circle()
+            .strokeBorder(isSelected ? themeColor : .clear, lineWidth: 2)
+            .padding(-4)
+        )
+        .overlay(
+          Circle()
+            .fill(.white)
+            .frame(width: 4, height: 4)
+            .opacity(isSelected ? 1 : 0)
+        )
+    }
+    .buttonStyle(.plain)
+    .scaleEffect(isHovered ? 1.1 : 1.0)
+    .onHover { hovering in
+      withAnimation(.easeInOut(duration: 0.2)) {
+        isHovered = hovering
+      }
+    }
   }
 }
 

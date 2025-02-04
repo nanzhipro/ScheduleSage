@@ -246,22 +246,22 @@ extension CalendarManager {
       switch self {
       case .accessDenied:
         return NSLocalizedString("calendar.error.access_denied",
-                               comment: "Error message when calendar access is denied")
+                               comment: "需要日历访问权限，请在系统设置中允许访问")
       case .writeOnlyAccess:
         return NSLocalizedString("calendar.error.write_only_access",
-                               comment: "Error message when only write access is granted")
+                               comment: "需要完整的日历访问权限，请在系统设置中修改权限")
       case .unknownStatus:
         return NSLocalizedString("calendar.error.unknown_status",
-                               comment: "Error message for unknown permission status")
+                               comment: "日历权限状态未知，请检查系统设置")
       case .colorGenerationFailed:
         return NSLocalizedString("calendar.error.color_generation_failed",
-                               comment: "Error message when color generation fails")
+                               comment: "生成日历颜色失败")
       case .createFailed:
         return NSLocalizedString("calendar.error.create_failed",
-                               comment: "Error message when calendar creation fails")
+                               comment: "创建日历失败")
       case .invalidDateFormat:
         return NSLocalizedString("calendar.error.invalid_date_format",
-                               comment: "Error message when date format is invalid")
+                               comment: "日期格式无效")
       }
     }
   }

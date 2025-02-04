@@ -4,8 +4,10 @@ import SwiftUI
 /// - apple: 苹果风格，简洁现代
 /// - wechat: 微信风格，偏绿色调
 /// - airbnb: Airbnb风格，活力红色调
-enum ThemeType {
-  case apple, wechat, airbnb
+enum ThemeType: String, CaseIterable, Identifiable {
+    case apple, wechat, airbnb
+    
+    var id: String { rawValue }
 }
 
 /// ScheduleSage 应用的设计系统

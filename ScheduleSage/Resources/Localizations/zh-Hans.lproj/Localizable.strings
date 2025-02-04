@@ -66,6 +66,12 @@
 "settings_group_about" = "关于";
 "settings_group_preview" = "预览";
 "settings_group_font" = "字体";
+"settings_group_theme" = "主题风格";
+
+// Theme Names
+"theme.apple" = "苹果风格";
+"theme.wechat" = "微信风格";
+"theme.airbnb" = "Airbnb风格";
 
 // Calendar Manager
 "calendar.error.access_denied" = "需要日历访问权限，请在系统设置中允许访问";
