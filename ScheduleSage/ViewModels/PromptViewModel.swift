@@ -6,14 +6,17 @@
 //
 
 import Foundation
+import SwiftUI
 
 @MainActor
 class PromptViewModel: ObservableObject {
     private let promptService = PromptService()
+    private let defaults = UserDefaults.standard
     
     @Published private(set) var currentPrompt: StoredPrompt?
     @Published private(set) var isLoading = false
     @Published private(set) var error: Error?
+    @Published var isPresented = false
     
     init() {
         // 初始化时不加载数据
@@ -38,5 +41,12 @@ class PromptViewModel: ObservableObject {
     
     func getPromptContent() -> String {
         currentPrompt?.content ?? ""
+    }
+    
+    func finish() {
+        withAnimation {
+            isPresented = false
+        }
+        defaults.set(true, forKey: "hasCompletedOnboarding")
     }
 } 

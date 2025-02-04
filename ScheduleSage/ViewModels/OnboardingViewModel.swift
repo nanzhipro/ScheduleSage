@@ -141,20 +141,14 @@ public final class OnboardingViewModel: ObservableObject {
         }
         
         do {
-            let granted = await notificationManager.requestAuthorization()
-            await MainActor.run {
-                notificationPermissionGranted = granted
-                isRequestingPermission = false
-                
-                if !granted {
-                    logger.notice("Notification permission denied - User needs to enable in System Settings")
-                }
-            }
-        } catch {
-            logger.error("Notification permission request failed: \(error.localizedDescription)")
-            await MainActor.run {
-                notificationPermissionGranted = false
-                isRequestingPermission = false
+            notificationPermissionGranted = await notificationManager.checkNotificationStatus()
+        }
+        
+        await MainActor.run {
+            isRequestingPermission = false
+            
+            if !notificationPermissionGranted {
+                logger.notice("Notification permission denied - User needs to enable in System Settings")
             }
         }
     }

@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 import OSLog
 import QuestOCR
 
+@MainActor
 struct ImageDropDelegate: DropDelegate {
   let onDrop: ([URL]) -> Void
   let onEntered: () -> Void
@@ -40,9 +41,18 @@ struct ImageDropDelegate: DropDelegate {
       return false
     }
     
-    Task {
+    Task { @MainActor in
       do {
-        let urlData = try await provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) as? Data
+        let urlData = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data?, Error>) in
+          provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { data, error in
+            if let error = error {
+              continuation.resume(throwing: error)
+            } else {
+              continuation.resume(returning: data as? Data)
+            }
+          }
+        }
+        
         guard let urlData = urlData,
               let url = URL(dataRepresentation: urlData, relativeTo: nil) else {
           logger.error("Invalid URL data")
@@ -50,9 +60,7 @@ struct ImageDropDelegate: DropDelegate {
         }
         
         logger.debug("Processing file at: \(url.path)")
-        await MainActor.run {
-          onDrop([url])
-        }
+        onDrop([url])
       } catch {
         logger.error("Error loading item: \(error.localizedDescription)")
       }

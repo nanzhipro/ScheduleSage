@@ -37,7 +37,7 @@ public enum URLHeaderInspectorError: LocalizedError {
 }
 
 public protocol URLHeaderInspecting {
-  func getHeaders(for url: URL, timeout: TimeInterval?) async throws -> [AnyHashable: Any]
+  func getHeaders(for url: URL, timeout: TimeInterval?) async throws -> [String: String]
   func getMIMEType(for url: URL, timeout: TimeInterval?) async throws -> String
   func isImageURL(_ url: URL, timeout: TimeInterval?) async throws -> Bool
   func isHTMLPage(_ url: URL, timeout: TimeInterval?) async throws -> Bool
@@ -121,17 +121,24 @@ public final class URLHeaderInspector: URLHeaderInspecting {
     }
   }
 
-  public func getHeaders(for url: URL, timeout: TimeInterval? = nil) async throws -> [AnyHashable: Any] {
+  public func getHeaders(for url: URL, timeout: TimeInterval? = nil) async throws -> [String: String] {
     // 检查缓存
     if let cachedHeaders = cache.object(forKey: url as NSURL) {
-      return cachedHeaders as! [AnyHashable: Any]
+      return cachedHeaders as! [String: String]
     }
 
     let request = createRequest(for: url, timeout: timeout)
     let (_, response) = try await performRequest(request)
 
+    // 将 headers 转换为可发送的类型
+    let headers = response.allHeaderFields.reduce(into: [String: String]()) { result, pair in
+      if let key = pair.key as? String,
+         let value = pair.value as? String {
+        result[key] = value
+      }
+    }
+
     // 存储到缓存
-    let headers = response.allHeaderFields
     queue.async {
       self.cache.setObject(headers as NSDictionary, forKey: url as NSURL)
     }
@@ -142,7 +149,7 @@ public final class URLHeaderInspector: URLHeaderInspecting {
   public func getMIMEType(for url: URL, timeout: TimeInterval? = nil) async throws -> String {
     let headers = try await getHeaders(for: url, timeout: timeout)
 
-    guard let contentType = headers["Content-Type"] as? String else {
+    guard let contentType = headers["Content-Type"] else {
       throw URLHeaderInspectorError.missingMIMEType
     }
 
@@ -162,7 +169,7 @@ public final class URLHeaderInspector: URLHeaderInspecting {
 
 // 便捷静态方法
 public extension URL {
-  func getHeaders(timeout: TimeInterval? = nil) async throws -> [AnyHashable: Any] {
+  func getHeaders(timeout: TimeInterval? = nil) async throws -> [String: String] {
     try await URLHeaderInspector.shared.getHeaders(for: self, timeout: timeout)
   }
 

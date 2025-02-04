@@ -27,7 +27,7 @@ struct OnboardingPageView: View {
         }
         .padding(.horizontal, DesignSystem.Spacing.horizontal)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onChange(of: page.id) { _ in
+        .onChange(of: isAnimating) { _, newValue in
             triggerAnimation()
         }
         .onAppear {

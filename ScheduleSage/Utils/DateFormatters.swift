@@ -54,13 +54,10 @@ public enum DateFormatters {
         // 如果是同一天，只显示一次日期
         if calendar.isDate(start, inSameDayAs: end) {
             let dateStr = eventTime.string(from: start)
-            let startTimeStr = String(dateStr.suffix(5))  // 获取 "HH:mm" 部分
-            let endTimeStr = String(eventTime.string(from: end).suffix(5))  // 转换为 String
-            
             return String(
                 format: NSLocalizedString("date_format.same_day", comment: "Format for same day events"),
                 dateStr,
-                endTimeStr
+                String(eventTime.string(from: end).suffix(5))  // 直接使用
             )
         } else {
             let startStr = eventTime.string(from: start)

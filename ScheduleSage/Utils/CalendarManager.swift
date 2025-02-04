@@ -50,7 +50,7 @@ public final class CalendarManager {
     case .denied, .restricted:
       // 打开系统设置
       if let settingsUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendar") {
-        await MainActor.run {
+        _ = await MainActor.run {
           NSWorkspace.shared.open(settingsUrl)
         }
       }
@@ -59,7 +59,7 @@ public final class CalendarManager {
     case .writeOnly:
       // 打开系统设置
       if let settingsUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendar") {
-        await MainActor.run {
+        _ = await MainActor.run {
           NSWorkspace.shared.open(settingsUrl)
         }
       }
