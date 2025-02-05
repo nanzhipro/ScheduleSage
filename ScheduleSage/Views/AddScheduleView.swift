@@ -81,30 +81,43 @@ private struct AddScheduleView_Impl: View {
   @ObservedObject var viewModel: AddScheduleViewModel
   
   var body: some View {
-    VStack(spacing: 0) {
-      HeaderView(viewModel: viewModel)
+    ZStack {
+      // 使用预先混合的实色渐变
+      LinearGradient(
+        colors: [
+          Color(red: 0.95, green: 0.97, blue: 0.98),  // 浅色调
+          Color(red: 0.97, green: 0.98, blue: 0.99),  // 中间色调
+          DesignSystem.Colors.background               // 底色
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+      )
       
-      DragDropArea(
-        isDragging: $viewModel.isDragging,
-        isOCRProcessing: $viewModel.isOCRProcessing,
-        onDrop: viewModel.handleDropped,
-        onDragEntered: viewModel.handleDragEntered,
-        onDragExited: viewModel.handleDragExited
-      ) {
-        AddScheduleContent(viewModel: viewModel)
-          .frame(maxHeight: .infinity)
+      // 2. 内容放在渐变层之上
+      VStack(spacing: 0) {
+        HeaderView(viewModel: viewModel)
+        
+        DragDropArea(
+          isDragging: $viewModel.isDragging,
+          isOCRProcessing: $viewModel.isOCRProcessing,
+          onDrop: viewModel.handleDropped,
+          onDragEntered: viewModel.handleDragEntered,
+          onDragExited: viewModel.handleDragExited
+        ) {
+          AddScheduleContent(viewModel: viewModel)
+            .frame(maxHeight: .infinity)
+        }
+        .padding(.bottom, DesignSystem.Spacing.vertical)
+        
+        CloseXButton(action: viewModel.closePopover)
+          .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+          .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
       }
-      .padding(.bottom, DesignSystem.Spacing.vertical)
-      
-      CloseXButton(action: viewModel.closePopover)
-        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-        .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
     }
     .frame(
       width: DesignSystem.Dimensions.mainViewWidth,
       height: DesignSystem.Dimensions.mainViewHeight
     )
-    .background(DesignSystem.Colors.background)
     .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
   }
 }
@@ -130,7 +143,8 @@ private struct HeaderView: View {
         .frame(width: 44, height: 44)
     }
     .frame(height: DesignSystem.Dimensions.headerHeight)
-    .background(DesignSystem.Colors.background)
+    // 移除 HeaderView 的背景色，让渐变色显示出来
+    // .background(DesignSystem.Colors.background)
     .cornerRadius(DesignSystem.Dimensions.headerCornerRadius)
   }
 }
