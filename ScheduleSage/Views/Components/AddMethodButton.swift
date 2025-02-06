@@ -13,6 +13,7 @@ struct AddMethodButton: View {
   let action: (() -> Void)?
   
   @State private var isHovered = false
+  @State private var isPressed = false
   
   init(
     icon: String,
@@ -26,7 +27,13 @@ struct AddMethodButton: View {
   
   var body: some View {
     Button(action: {
-      action?()
+      withAnimation(.easeOut(duration: 0.2)) {
+        isPressed = true
+      }
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        isPressed = false
+        action?()
+      }
     }) {
       VStack(spacing: 8) {
         Image(systemName: icon)
@@ -35,13 +42,19 @@ struct AddMethodButton: View {
         
         Text(text)
           .font(DesignSystem.Typography.bodyRegular)
-          .foregroundColor(DesignSystem.Colors.secondaryText)
+          .foregroundColor(isHovered ? DesignSystem.Colors.primary : DesignSystem.Colors.secondaryText)
       }
       .frame(maxWidth: .infinity)
       .padding(.vertical, 12)
+      .scaleEffect(isPressed ? 0.95 : (isHovered ? 1.02 : 1.0))
+      .shadow(
+        color: isHovered ? DesignSystem.Colors.primary.opacity(0.15) : .clear,
+        radius: 6,
+        x: 0,
+        y: 3
+      )
     }
     .buttonStyle(.plain)
-    .withHoverEffect(scale: 1.02, brightness: 0)
     .onHover { hovering in
       withAnimation(.easeInOut(duration: 0.2)) {
         isHovered = hovering
