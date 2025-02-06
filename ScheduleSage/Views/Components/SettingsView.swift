@@ -128,13 +128,17 @@ private extension SettingsView {
         )
       )
       
-      Toggle(LocalizedStringKey("settings_always_on_top"), isOn: $alwaysOnTop)
-        .onChange(of: alwaysOnTop) { newValue in
-          NotificationCenter.default.post(
-            name: .windowLevelDidChange,
-            object: newValue
-          )
-        }
+      SettingsToggle(
+        title: "settings_always_on_top",
+        icon: "rectangle.on.rectangle",
+        isOn: $alwaysOnTop
+      )
+      .onChange(of: alwaysOnTop) { newValue in
+        NotificationCenter.default.post(
+          name: .windowLevelDidChange,
+          object: newValue
+        )
+      }
     }
     .alert(
       NSLocalizedString("settings_launch_error_title", comment: ""),
