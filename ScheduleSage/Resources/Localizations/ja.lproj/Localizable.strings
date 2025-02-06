@@ -196,3 +196,6 @@
 // New keys for granted permissions
 "onboarding.permission.calendar.granted" = "カレンダーへのアクセスが許可されました";
 "onboarding.permission.notification.granted" = "通知が有効になりました";
+
+// 設定 - ウィンドウを最前面に表示
+"settings_always_on_top" = "ウィンドウを最前面に表示";

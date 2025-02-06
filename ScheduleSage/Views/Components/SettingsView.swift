@@ -30,6 +30,8 @@ struct SettingsView: View {
     }
   }
   
+  @AppStorage("alwaysOnTop") private var alwaysOnTop = false
+  
   @StateObject private var themeManager = ThemeManager.shared
   @State private var showNotificationAlert = false
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
@@ -125,6 +127,14 @@ private extension SettingsView {
           }
         )
       )
+      
+      Toggle(LocalizedStringKey("settings_always_on_top"), isOn: $alwaysOnTop)
+        .onChange(of: alwaysOnTop) { newValue in
+          NotificationCenter.default.post(
+            name: .windowLevelDidChange,
+            object: newValue
+          )
+        }
     }
     .alert(
       NSLocalizedString("settings_launch_error_title", comment: ""),
@@ -154,86 +164,88 @@ private extension SettingsView {
 }
 
 // MARK: - Helper Views
-private struct SettingsSection<Content: View>: View {
-  let title: LocalizedStringKey
-  let content: Content
-  
-  init(title: LocalizedStringKey, @ViewBuilder content: () -> Content) {
-    self.title = title
-    self.content = content()
-  }
-  
-  var body: some View {
-    Section {
-      content
-    } header: {
-      Text(title)
-        .foregroundColor(DesignSystem.Colors.secondaryText)
-        .font(DesignSystem.Typography.formLabel)
+private extension SettingsView {
+  private struct SettingsSection<Content: View>: View {
+    let title: LocalizedStringKey
+    let content: Content
+    
+    init(title: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+      self.title = title
+      self.content = content()
     }
-    .listRowBackground(DesignSystem.Colors.background)
-  }
-}
-
-private struct SettingsToggle: View {
-  let title: LocalizedStringKey
-  let icon: String
-  let isOn: Binding<Bool>
-  
-  var body: some View {
-    Toggle(isOn: isOn) {
-      Label {
+    
+    var body: some View {
+      Section {
+        content
+      } header: {
         Text(title)
-          .foregroundColor(DesignSystem.Colors.primaryText)
-      } icon: {
-        Image(systemName: icon)
-          .foregroundStyle(DesignSystem.Colors.primary)
+          .foregroundColor(DesignSystem.Colors.secondaryText)
+          .font(DesignSystem.Typography.formLabel)
       }
+      .listRowBackground(DesignSystem.Colors.background)
     }
-    .tint(DesignSystem.Colors.primary)
   }
-}
 
-private struct SettingsRow<Content: View>: View {
-  let title: LocalizedStringKey
-  let icon: String
-  let content: Content
-  
-  init(title: LocalizedStringKey, icon: String, @ViewBuilder content: () -> Content) {
-    self.title = title
-    self.icon = icon
-    self.content = content()
-  }
-  
-  var body: some View {
-    HStack {
-      Label {
-        Text(title)
-          .foregroundColor(DesignSystem.Colors.primaryText)
-      } icon: {
-        Image(systemName: icon)
-          .foregroundStyle(DesignSystem.Colors.primary)
+  private struct SettingsToggle: View {
+    let title: LocalizedStringKey
+    let icon: String
+    let isOn: Binding<Bool>
+    
+    var body: some View {
+      Toggle(isOn: isOn) {
+        Label {
+          Text(title)
+            .foregroundColor(DesignSystem.Colors.primaryText)
+        } icon: {
+          Image(systemName: icon)
+            .foregroundStyle(DesignSystem.Colors.primary)
+        }
       }
-      Spacer()
-      content
+      .tint(DesignSystem.Colors.primary)
     }
   }
-}
 
-private struct SettingsLinkRow: View {
-  let link: AboutLink
-  
-  var body: some View {
-    Button(action: { link.open() }) {
-      Label {
-        Text(NSLocalizedString(link.title, comment: ""))
-          .foregroundColor(DesignSystem.Colors.primaryText)
-      } icon: {
-        Image(systemName: link.icon)
-          .foregroundStyle(DesignSystem.Colors.primary)
+  private struct SettingsRow<Content: View>: View {
+    let title: LocalizedStringKey
+    let icon: String
+    let content: Content
+    
+    init(title: LocalizedStringKey, icon: String, @ViewBuilder content: () -> Content) {
+      self.title = title
+      self.icon = icon
+      self.content = content()
+    }
+    
+    var body: some View {
+      HStack {
+        Label {
+          Text(title)
+            .foregroundColor(DesignSystem.Colors.primaryText)
+        } icon: {
+          Image(systemName: icon)
+            .foregroundStyle(DesignSystem.Colors.primary)
+        }
+        Spacer()
+        content
       }
     }
-    .buttonStyle(.plain)
+  }
+
+  private struct SettingsLinkRow: View {
+    let link: AboutLink
+    
+    var body: some View {
+      Button(action: { link.open() }) {
+        Label {
+          Text(NSLocalizedString(link.title, comment: ""))
+            .foregroundColor(DesignSystem.Colors.primaryText)
+        } icon: {
+          Image(systemName: link.icon)
+            .foregroundStyle(DesignSystem.Colors.primary)
+        }
+      }
+      .buttonStyle(.plain)
+    }
   }
 }
 

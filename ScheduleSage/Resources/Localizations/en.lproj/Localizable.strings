@@ -196,3 +196,6 @@
 // New keys for granted permissions
 "onboarding.permission.calendar.granted" = "Calendar access granted";
 "onboarding.permission.notification.granted" = "Notifications enabled";
+
+// Settings - Always on Top
+"settings_always_on_top" = "Keep Window on Top";

@@ -194,3 +194,6 @@
 // New keys for granted permissions
 "onboarding.permission.calendar.granted" = "日历访问已授权";
 "onboarding.permission.notification.granted" = "通知已启用";
+
+// 设置 - 窗口置顶
+"settings_always_on_top" = "窗口置顶";

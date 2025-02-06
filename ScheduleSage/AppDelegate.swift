@@ -193,7 +193,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func toggleWindow() {
         guard let window = windowController?.window else { return }
         
-        if window.isVisible {
+        if window.isVisible && window.isKeyWindow {
             (window as? CustomMainWindow)?.closeWindow()
         } else {
             windowController?.showWindow(from: statusItem)

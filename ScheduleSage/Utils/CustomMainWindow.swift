@@ -11,6 +11,11 @@ import SwiftUI
 class CustomMainWindow: NSWindow {
     weak var viewModel: AddScheduleViewModel?
     private var visualEffectView: NSVisualEffectView?
+    private var alwaysOnTop = UserDefaults.standard.bool(forKey: "alwaysOnTop") {
+        didSet {
+            updateWindowLevel()
+        }
+    }
     
     override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
         super.init(contentRect: contentRect, 
@@ -23,8 +28,8 @@ class CustomMainWindow: NSWindow {
         self.isMovableByWindowBackground = true
         self.hasShadow = true
         
-        // 设置窗口层级为浮动层，保持在最上层
-        self.level = .floating
+        // 确保窗口层级在初始化时就正确设置
+        updateWindowLevel()
         
         // 禁用全屏
         self.collectionBehavior = .fullScreenNone
@@ -41,6 +46,28 @@ class CustomMainWindow: NSWindow {
         
         // 初始化时设置窗口为完全透明
         self.alphaValue = 0.0
+        
+        // 添加通知观察者
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleWindowLevelChange),
+            name: .windowLevelDidChange,
+            object: nil
+        )
+    }
+    
+    @objc private func handleWindowLevelChange(_ notification: Notification) {
+        if let isOnTop = notification.object as? Bool {
+            self.alwaysOnTop = isOnTop
+            self.level = isOnTop ? .floating : .normal
+            if isVisible {
+                self.orderFront(nil)
+            }
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // 添加公共关闭方法
@@ -85,6 +112,32 @@ class CustomMainWindow: NSWindow {
     override var canBecomeMain: Bool {
         return true
     }
+    
+    override func makeKeyAndOrderFront(_ sender: Any?) {
+        super.makeKeyAndOrderFront(sender)
+        // 确保窗口显示时应用正确的层级
+        updateWindowLevel()
+    }
+    
+    // 添加公开方法
+    func refreshWindowLevel() {
+        updateWindowLevel()
+    }
+    
+    private func updateWindowLevel() {
+        if alwaysOnTop {
+            self.level = .floating
+            self.collectionBehavior = .fullScreenNone
+        } else {
+            self.level = .normal
+            self.collectionBehavior = .fullScreenNone
+        }
+        
+        if isVisible {
+            self.orderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
 }
 
 // MARK: - NSWindowDelegate
@@ -125,7 +178,6 @@ class MainWindowController: NSWindowController {
                 y: frame.origin.y - window.frame.height - padding
             )
             
-            // 直接设置窗口位置，不使用动画
             window.setFrame(NSRect(
                 origin: targetOrigin,
                 size: window.frame.size
@@ -136,11 +188,19 @@ class MainWindowController: NSWindowController {
         
         // 设置初始透明度
         window.alphaValue = 0.0
+        
+        // 激活应用程序并使窗口成为活跃窗口
+        NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        
+        // 使用新的公开方法刷新窗口层级
+        if let customWindow = window as? CustomMainWindow {
+            customWindow.refreshWindowLevel()
+        }
         
         // 执行淡入动画
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.15  // 使用较短的动画时间
+            context.duration = 0.15
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             window.animator().alphaValue = 1.0
         })
@@ -151,4 +211,8 @@ class MainWindowController: NSWindowController {
             customWindow.closeWindow()
         }
     }
+}
+
+extension Notification.Name {
+    static let windowLevelDidChange = Notification.Name("windowLevelDidChange")
 } 
