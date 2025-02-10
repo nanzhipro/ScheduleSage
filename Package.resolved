@@ -11,6 +11,33 @@
         }
       },
       {
+        "package": "Cryptor",
+        "repositoryURL": "https://github.com/Kitura/BlueCryptor.git",
+        "state": {
+          "branch": null,
+          "revision": "cec97c24b111351e70e448972a7d3fe68a756d6d",
+          "version": "2.0.2"
+        }
+      },
+      {
+        "package": "CryptorECC",
+        "repositoryURL": "https://github.com/Kitura/BlueECC.git",
+        "state": {
+          "branch": null,
+          "revision": "1485268a54f8135435a825a855e733f026fa6cc8",
+          "version": "1.2.201"
+        }
+      },
+      {
+        "package": "CryptorRSA",
+        "repositoryURL": "https://github.com/Kitura/BlueRSA.git",
+        "state": {
+          "branch": null,
+          "revision": "4c9464b4a21dd558a9b1f4a4ed603bb67dcbc773",
+          "version": "1.0.202"
+        }
+      },
+      {
         "package": "CocoaLumberjack",
         "repositoryURL": "https://github.com/CocoaLumberjack/CocoaLumberjack.git",
         "state": {
@@ -29,12 +56,39 @@
         }
       },
       {
+        "package": "KituraContracts",
+        "repositoryURL": "https://github.com/Kitura/KituraContracts.git",
+        "state": {
+          "branch": null,
+          "revision": "6edf7ac3dd2b3a2c61284778d430bbad7d8a6f23",
+          "version": "2.0.1"
+        }
+      },
+      {
+        "package": "LoggerAPI",
+        "repositoryURL": "https://github.com/Kitura/LoggerAPI.git",
+        "state": {
+          "branch": null,
+          "revision": "4e6b45e850ffa275e8e26a24c6454fd709d5b6ac",
+          "version": "2.0.0"
+        }
+      },
+      {
         "package": "QuestOCR",
         "repositoryURL": "https://github.com/nanzhipro/QuestOCR.git",
         "state": {
           "branch": "main",
-          "revision": "3f5ec5b76d6975691be6abdf88b8743b14761ebd",
+          "revision": "c8da0fb43af5940252c67af1030b608f92e985a2",
           "version": null
+        }
+      },
+      {
+        "package": "SwiftJWT",
+        "repositoryURL": "https://github.com/Kitura/Swift-JWT.git",
+        "state": {
+          "branch": null,
+          "revision": "2cf7ef3eeb0df84318c75662c257651285f8289f",
+          "version": "4.0.2"
         }
       },
       {

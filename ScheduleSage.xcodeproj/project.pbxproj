@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D52B9FFF2D44B65700D74909 /* QuestOCR in Frameworks */ = {isa = PBXBuildFile; productRef = D52B9FFE2D44B65700D74909 /* QuestOCR */; };
+		D53F8FBE2D5A3B0C0081039A /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = D53F8FBD2D5A3B0C0081039A /* SwiftJWT */; };
 		D55454912D3225130086A832 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = D55454902D3225130086A832 /* SwiftDate */; };
 		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
@@ -64,6 +65,7 @@
 			files = (
 				D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */,
 				D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */,
+				D53F8FBE2D5A3B0C0081039A /* SwiftJWT in Frameworks */,
 				D55454912D3225130086A832 /* SwiftDate in Frameworks */,
 				D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */,
 				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
@@ -144,6 +146,7 @@
 				D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */,
 				D55454902D3225130086A832 /* SwiftDate */,
 				D52B9FFE2D44B65700D74909 /* QuestOCR */,
+				D53F8FBD2D5A3B0C0081039A /* SwiftJWT */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -237,6 +240,7 @@
 				D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
 				D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */,
 				D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */,
+				D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -620,6 +624,14 @@
 				kind = branch;
 			};
 		};
+		D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Kitura/Swift-JWT.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.2;
+			};
+		};
 		D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/malcommac/SwiftDate";
@@ -667,6 +679,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */;
 			productName = QuestOCR;
+		};
+		D53F8FBD2D5A3B0C0081039A /* SwiftJWT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */;
+			productName = SwiftJWT;
 		};
 		D55454902D3225130086A832 /* SwiftDate */ = {
 			isa = XCSwiftPackageProductDependency;
