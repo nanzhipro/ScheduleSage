@@ -8,8 +8,8 @@
 import Foundation
 import OSLog
 
-// MARK: - APIEnvironment
-enum APIEnvironment {
+// MARK: - SSEnvironment
+enum SSEnvironment {
     case development
     case staging
     case production
@@ -30,7 +30,7 @@ final class APIConfig {
     
     // MARK: - Properties
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "APIConfig")
-    private let environment: APIEnvironment
+    private let environment: SSEnvironment
     
     // MARK: - Computed Properties
     var baseURL: String {
