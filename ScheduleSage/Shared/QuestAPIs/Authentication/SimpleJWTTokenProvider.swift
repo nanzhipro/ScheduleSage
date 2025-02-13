@@ -42,19 +42,22 @@ public actor SimpleJWTTokenProvider: TokenProvider {
   }
   
   public func fetchToken() async throws -> String {
-    let client = APIClient(environment: environment)
+    let client = APIClient(
+        environment: environment,
+        tokenProvider: self
+    )
     
     let result: Result<JWTTokenResponse, APIError> = await client.request(
-      JWTAuthTokenEndpoint.getToken,
-      parameters: credentials.asParameters()
+        JWTAuthTokenEndpoint.getToken,
+        parameters: credentials.asParameters()
     )
     
     switch result {
     case .success(let response):
-      self.jwtToken = response.jwtToken
-      return response.jwtToken
+        self.jwtToken = response.token
+        return response.token
     case .failure(let error):
-      throw error
+        throw error
     }
   }
 }
@@ -68,13 +71,9 @@ private enum JWTAuthTokenEndpoint: Endpoint {
     }
   }
   
-  var method: HTTPMethod { .get }
+  var method: HTTPMethod { .post }
 }
 
 private struct JWTTokenResponse: Decodable {
-  let jwtToken: String
-  
-  enum CodingKeys: String, CodingKey {
-    case jwtToken = "jwt_token"
-  }
+  let token: String
 } 

@@ -19,32 +19,36 @@ public class LLMService {
     let config = LLMConfig(model: "hunyuan-lite", temperature: 1.0)
     let request = LLMRequest(messages: [message], config: config)
     
-    return try await AF.request(
-      apiConfig.llmEndpoint,
-      method: .post,
-      parameters: request,
-      encoder: JSONParameterEncoder(encoder: {
-        let encoder = JSONEncoder()
-        return encoder
-      }())
+    let parameters = try request.asDictionary()
+    
+    let result: Result<LLMResponse, APIError> = await APIClient.shared.request(
+      LLMEndpoint.chat,
+      parameters: parameters
     )
-    .validate()
-    .serializingDecodable(LLMResponse.self)
-    .value
+    
+    switch result {
+    case .success(let response):
+      return response
+    case .failure(let error):
+      throw error
+    }
+  }
+}
+
+// MARK: - Endpoint
+private enum LLMEndpoint: Endpoint {
+  case chat
+  
+  var path: String {
+    switch self {
+    case .chat:
+      return "/api/v1/llm/chat"
+    }
   }
   
-  public func chatWithCustomConfig(request: LLMRequest) async throws -> LLMResponse {
-    return try await AF.request(
-      apiConfig.llmEndpoint,
-      method: .post,
-      parameters: request,
-      encoder: JSONParameterEncoder(encoder: {
-        let encoder = JSONEncoder()
-        return encoder
-      }())
-    )
-    .validate()
-    .serializingDecodable(LLMResponse.self)
-    .value
+  var method: HTTPMethod { .post }
+  
+  var encoding: ParameterEncoding {
+    JSONEncoding.default
   }
-} 
+}

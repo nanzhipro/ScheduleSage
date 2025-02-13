@@ -7,6 +7,7 @@
 
 import Foundation
 import OSLog
+import Alamofire
 
 // MARK: - Error Types
 enum PromptError: LocalizedError {
@@ -90,21 +91,23 @@ actor PromptService {
     }
     
     private func fetchPrompt(from url: URL) async throws -> StoredPrompt {
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let endpoint = PromptEndpoint.getLatest(version: getCurrentVersion())
         
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw PromptError.invalidResponse(-1)
-        }
+        let parameters: Parameters = [
+            "version": getCurrentVersion()
+        ]
         
-        guard httpResponse.statusCode == 200 else {
-            throw PromptError.invalidResponse(httpResponse.statusCode)
-        }
+        let result: Result<PromptResponse, APIError> = await APIClient.shared.request(
+            endpoint,
+            parameters: parameters
+        )
         
-        do {
-            let promptResponse = try JSONDecoder().decode(PromptResponse.self, from: data)
+        switch result {
+        case .success(let promptResponse):
             return StoredPrompt(from: promptResponse)
-        } catch {
-            throw PromptError.decoding(error)
+        case .failure(let error):
+            logger.error("Failed to fetch prompt: \(error.localizedDescription)")
+            throw PromptError.network(error)
         }
     }
     
@@ -116,5 +119,23 @@ actor PromptService {
         } catch {
             throw PromptError.storage(error)
         }
+    }
+}
+
+// MARK: - Endpoint
+private enum PromptEndpoint: Endpoint {
+    case getLatest(version: Int)
+    
+    var path: String {
+        switch self {
+        case .getLatest:
+            return "/api/v1/prompts"
+        }
+    }
+    
+    var method: HTTPMethod { .get }
+    
+    var encoding: ParameterEncoding {
+        URLEncoding.queryString
     }
 } 

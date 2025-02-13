@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let calendarManager = CalendarManager()
     private let clipboardManager = ClipboardManager()
     private let notificationManager = NotificationManager.shared
+    private let tokenProvider: SimpleJWTTokenProvider
     
     private var isPopoverShown = false
     
@@ -35,6 +36,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindowController: NSWindowController?
     
     // MARK: - Lifecycle
+    override init() {
+        // 使用 APIConfig 提供的 tokenProvider
+        self.tokenProvider = APIConfig.shared.getTokenProvider()
+        super.init()
+    }
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 初始化主题
         initializeTheme()

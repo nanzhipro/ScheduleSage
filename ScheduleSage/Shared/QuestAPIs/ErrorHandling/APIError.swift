@@ -10,6 +10,7 @@ public enum APIError: Error {
   case server(statusCode: Int)
   case authFailed(Error)
   case tokenStorageError
+  case invalidData(reason: String)
 
   init(error: Error) {
     if let afError = error as? AFError {
@@ -45,6 +46,8 @@ extension APIError: LocalizedError {
       return "认证失败: \(error.localizedDescription)"
     case .tokenStorageError:
       return "令牌存储错误"
+    case .invalidData(let reason):
+      return "数据无效: \(reason)"
     }
   }
 }

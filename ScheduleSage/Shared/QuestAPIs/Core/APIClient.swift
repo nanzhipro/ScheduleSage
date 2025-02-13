@@ -9,9 +9,17 @@ public final class APIClient {
   private static var sharedInstance: APIClient?
 
   /// 配置共享实例
-  /// - Parameter environment: 环境配置
-  public static func configure(with environment: APIEnvironment) {
-    sharedInstance = APIClient(environment: environment)
+  /// - Parameters:
+  ///   - environment: 环境配置
+  ///   - tokenProvider: 令牌提供者
+  public static func configure(
+    with environment: APIEnvironment,
+    tokenProvider: TokenProvider
+  ) {
+    sharedInstance = APIClient(
+      environment: environment,
+      tokenProvider: tokenProvider
+    )
   }
 
   /// 获取共享实例
@@ -24,7 +32,7 @@ public final class APIClient {
   }
 
   // MARK: - 依赖组件
-  private var session: Session
+  private let session: Session
   private let environment: APIEnvironment
   private let tokenProvider: TokenProvider
   private let logger: NetworkLogger
@@ -33,11 +41,11 @@ public final class APIClient {
   /// 初始化网络客户端
   /// - 参数:
   ///   - environment: 环境配置
-  ///   - tokenProvider: 令牌管理协议实现（默认JWT实现）
+  ///   - tokenProvider: 令牌管理协议实现
   ///   - logger: 网络日志记录器（默认共享实例）
   public init(
     environment: APIEnvironment,
-    tokenProvider: TokenProvider = JWTTokenManager.shared,
+    tokenProvider: TokenProvider,
     logger: NetworkLogger = .shared
   ) {
     self.environment = environment
@@ -67,6 +75,7 @@ public final class APIClient {
       )
     )
 
+    // 创建共享的 session
     self.session = Session(
       configuration: configuration,
       interceptor: interceptor
@@ -86,67 +95,19 @@ public final class APIClient {
     parameters: Parameters? = nil,
     decoder: JSONDecoder = .iso8601SnakeCase
   ) async -> Result<T, APIError> {
+    // 使用初始化时创建的 session
+    let request = session.request(
+      environment.baseURL.appendingPathComponent(endpoint.path),
+      method: endpoint.method,
+      parameters: parameters
+    )
+
     do {
-      // 构建基础URL
-      let url = environment.baseURL.appendingPathComponent(endpoint.path)
-
-      // 合并接口参数和Endpoint参数
-      var mergedParameters = parameters ?? [:]
-      if let endpointParams = endpoint.parameters {
-        mergedParameters.merge(endpointParams) { (_, new) in new }
-      }
-
-      // 创建自定义配置
-      let customConfig = URLSessionConfiguration.af.default
-      if let timeout = endpoint.timeout {
-        customConfig.timeoutIntervalForRequest = timeout
-      }
-      if let cachePolicy = endpoint.cachePolicy {
-        customConfig.requestCachePolicy = cachePolicy
-      }
-
-      // 使用自定义配置创建临时会话
-      let tempSession = Session(configuration: customConfig)
-
-      // 创建请求
-      let request = tempSession.request(
-        url,
-        method: endpoint.method,
-        parameters: mergedParameters,
-        encoding: endpoint.encoding,
-        headers: endpoint.headers
-      )
-
-      // 异步获取响应
-      let response = await request.serializingDecodable(
-        T.self,
-        decoder: decoder
-      ).response
-
-      // 处理响应错误
-      if let error = response.error {
-        throw error  // 抛出 AFError
-      }
-
-      // 验证并返回响应数据
-      guard let value = response.value else {
-        throw DecodingError.dataCorrupted(
-          DecodingError.Context(
-            codingPath: [],
-            debugDescription: "Response value is nil"
-          )
-        )
-      }
-
+      let value = try await request.serializingDecodable(T.self, decoder: decoder).value
       return .success(value)
     } catch let error as AFError {
-      // 处理 Alamofire 错误
       return .failure(APIError(error: error))
-    } catch let error as DecodingError {
-      // 处理解码错误
-      return .failure(.decoding(error))
     } catch {
-      // 处理其他错误
       return .failure(APIError(error: error))
     }
   }
@@ -156,21 +117,7 @@ public final class APIClient {
   @MainActor
   public func updateEnvironment(_ newEnvironment: APIEnvironment) {
     // 需要停止所有当前请求
-    cancelAllRequests()
-    // 重新创建session实例
-    self.session = Session(
-      configuration: URLSessionConfiguration.af.default,
-      interceptor: Interceptor(
-        adapter: NetworkHeaderAdapter(
-          tokenProvider: tokenProvider,
-          logger: logger
-        ),
-        retrier: TokenRefreshRetrier(
-          tokenProvider: tokenProvider,
-          logger: logger
-        )
-      )
-    )
+    session.cancelAllRequests()
   }
 
   /// 取消所有进行中的请求

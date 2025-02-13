@@ -112,6 +112,15 @@ public struct LLMRequest: Codable, Sendable {
     try container.encode(config.temperature, forKey: .temperature)
     try container.encode(config.stream, forKey: .stream)
   }
+
+  func asDictionary() throws -> [String: Any] {
+    let encoder = JSONEncoder()
+    let data = try encoder.encode(self)
+    guard let dictionary = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+      throw APIError.invalidData(reason: "Failed to convert encoded data to dictionary")
+    }
+    return dictionary
+  }
 }
 
 /// LLM 响应结构
