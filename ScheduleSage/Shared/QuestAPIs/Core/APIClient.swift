@@ -53,7 +53,7 @@ public final class APIClient {
     self.logger = logger
 
     // 配置URLSession参数
-    let configuration = URLSessionConfiguration.af.default
+    let configuration = URLSessionConfiguration.default
     configuration.timeoutIntervalForRequest = 30
     configuration.headers = environment.defaultHeaders
 
@@ -78,7 +78,8 @@ public final class APIClient {
     // 创建共享的 session
     self.session = Session(
       configuration: configuration,
-      interceptor: interceptor
+      interceptor: interceptor,
+      eventMonitors: [NetworkLogger.shared]
     )
   }
 
@@ -95,16 +96,29 @@ public final class APIClient {
     parameters: Parameters? = nil,
     decoder: JSONDecoder = .iso8601SnakeCase
   ) async -> Result<T, APIError> {
-    // 使用初始化时创建的 session
-    let request = session.request(
-      environment.baseURL.appendingPathComponent(endpoint.path),
-      method: endpoint.method,
-      parameters: parameters
-    )
-
     do {
-      let value = try await request.serializingDecodable(T.self, decoder: decoder).value
-      return .success(value)
+      // 构建完整的URL
+      let url = environment.baseURL.appendingPathComponent(endpoint.path)
+      
+      // 合并参数
+      let mergedParameters = mergingParameters(
+        request: parameters,
+        endpoint: endpoint.parameters
+      )
+      
+      let request = try await session
+        .request(
+          url,
+          method: endpoint.method,
+          parameters: mergedParameters,
+          encoding: endpoint.encoding,
+          headers: endpoint.headers
+        )
+        .validate()
+        .serializingDecodable(T.self, decoder: decoder)
+        .value
+      
+      return .success(request)
     } catch let error as AFError {
       return .failure(APIError(error: error))
     } catch {
@@ -146,5 +160,25 @@ public final class APIClient {
       configuration: configuration,
       interceptor: interceptor
     )
+  }
+
+  // MARK: - Private Helpers
+  private func mergingParameters(
+    request: Parameters?,
+    endpoint: Parameters?
+  ) -> Parameters? {
+    switch (request, endpoint) {
+    case (.none, .none):
+      return nil
+    case (let request?, .none):
+      return request
+    case (.none, let endpoint?):
+      return endpoint
+    case (let request?, let endpoint?):
+      // 合并两个字典，request 参数优先级更高
+      var merged = endpoint
+      merged.merge(request) { current, new in new }
+      return merged
+    }
   }
 }
