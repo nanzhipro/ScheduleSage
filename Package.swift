@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/malcommac/SwiftDate.git", from: "7.0.0"),
         .package(url: "https://github.com/nanzhipro/QuestOCR.git", branch: "main"),
         .package(url: "https://github.com/Kitura/Swift-JWT.git", from: "4.0.0"),
-        
+        .package(url: "https://github.com/auth0/JWTDecode.swift.git", from: "3.1.0"),
     ],
     targets: [
         .target(
@@ -28,7 +28,8 @@ let package = Package(
                 "CocoaLumberjack",
                 "SwiftDate",
                 "QuestOCR",
-                "SwiftJWT"
+                "SwiftJWT",
+                .product(name: "JWTDecode", package: "JWTDecode.swift"),
             ]
         ),
         .testTarget(
