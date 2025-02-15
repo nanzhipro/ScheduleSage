@@ -10,7 +10,7 @@ import SwiftUI
 
 @MainActor
 public class PromptViewModel: ObservableObject {
-    private let promptService = PromptService()
+    private let promptService: PromptService
     private let defaults = UserDefaults.standard
     
     @Published private(set) var currentPrompt: StoredPrompt?
@@ -19,7 +19,14 @@ public class PromptViewModel: ObservableObject {
     @Published var isPresented = false
     
     init() {
+        self.promptService = PromptService()
         // 初始化时不加载数据
+    }
+    
+    deinit {
+        Task {
+            await promptService.stopPeriodicRefresh()
+        }
     }
     
     func loadInitialPrompt() async {
