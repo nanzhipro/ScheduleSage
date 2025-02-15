@@ -14,6 +14,7 @@ struct AddMethodButton: View {
   
   @State private var isHovered = false
   @State private var isPressed = false
+  @Environment(\.colorScheme) private var colorScheme
   
   init(
     icon: String,
@@ -23,6 +24,20 @@ struct AddMethodButton: View {
     self.icon = icon
     self.text = text
     self.action = action
+  }
+  
+  private var iconColor: Color {
+    if isHovered {
+      return DesignSystem.Colors.primary
+    }
+    return colorScheme == .dark ? .white : DesignSystem.Colors.iconGray
+  }
+  
+  private var textColor: Color {
+    if isHovered {
+      return DesignSystem.Colors.primary
+    }
+    return colorScheme == .dark ? .white : DesignSystem.Colors.secondaryText
   }
   
   var body: some View {
@@ -38,11 +53,11 @@ struct AddMethodButton: View {
       VStack(spacing: 8) {
         Image(systemName: icon)
           .font(.system(size: DesignSystem.Dimensions.methodIconSize))
-          .foregroundColor(isHovered ? DesignSystem.Colors.primary : DesignSystem.Colors.iconGray)
+          .foregroundColor(iconColor)
         
         Text(text)
           .font(DesignSystem.Typography.bodyRegular)
-          .foregroundColor(isHovered ? DesignSystem.Colors.primary : DesignSystem.Colors.secondaryText)
+          .foregroundColor(textColor)
       }
       .frame(maxWidth: .infinity)
       .padding(.vertical, 12)
