@@ -17,6 +17,7 @@ private enum Design {
   
   enum Layout {
     static let iconSpacing: CGFloat = 16
+    static let iconLabelSpacing: CGFloat = 8
     static let titleSpacing: CGFloat = 8
     static let timeSectionSpacing: CGFloat = 12
     static let timeIconWidth: CGFloat = 24
@@ -123,7 +124,7 @@ private struct EventIconLabel: View {
   let text: String
   
   var body: some View {
-    HStack(spacing: Design.Layout.iconSpacing) {
+    HStack(spacing: Design.Layout.iconLabelSpacing) {
       ZStack {
         Circle()
           .fill(DesignSystem.Colors.lightGray.opacity(0.8))
