@@ -16,7 +16,7 @@ public class LLMService {
   
   public func chat(content: String) async throws -> LLMResponse {
     let message = LLMMessage(role: .user, content: content)
-    let config = LLMConfig(model: "hunyuan-lite", temperature: 1.0)
+    let config = LLMConfig(model: "", temperature: 0.7)
     let request = LLMRequest(messages: [message], config: config)
     
     let parameters = try request.asDictionary()

@@ -66,7 +66,7 @@
   //  {FileName}.swift
   //  {ProjectName}
   //
-  //  Created by CursorAI on {Date}.
+  //  Created by CursorAI on {CurrentDate}.
   //
   ```
 - 遵从组件设计规范，使用组件设计系统，创建可复用，接口定义清晰的组件，所有的组件模块都放在 Views/Components 目录下。

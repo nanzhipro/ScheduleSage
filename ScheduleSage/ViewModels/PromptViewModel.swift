@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class PromptViewModel: ObservableObject {
+public class PromptViewModel: ObservableObject {
     private let promptService = PromptService()
     private let defaults = UserDefaults.standard
     

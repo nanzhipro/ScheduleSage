@@ -499,26 +499,6 @@ private extension AddScheduleViewModel {
             return []
         }
     }
-    
-    private func buildPromptWithContent(_ content: String, calendarNames: [String]) async -> String {
-        // 获取基础提示词
-        let basePrompt = promptViewModel.getPromptContent()
-        
-        // 构建日历名称列表字符串
-        let calendarList = calendarNames.isEmpty ? "Default Calendar" : calendarNames.joined(separator: ", ")
-        
-        // 替换占位符
-        let promptWithCalendars = basePrompt.replacingOccurrences(
-            of: "CALENDAR_NAMES_LIST",
-            with: calendarList
-        )
-        
-        // 替换内容占位符
-        return promptWithCalendars.replacingOccurrences(
-            of: "PLACEHOLDER_TEXT",
-            with: content
-        )
-    }
 }
 
 // MARK: - Calendar Import

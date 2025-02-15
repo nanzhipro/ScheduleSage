@@ -157,6 +157,29 @@ extension CalendarEvent {
     }
 }
 
+// MARK: - Date Conversion
+extension CalendarEvent {
+    /// 获取格式化的开始日期
+    public var parsedStartDate: Date? {
+        // 使用标准格式化器解析日期
+        let formatter = DateFormatter.standardFormatter
+        guard let date = formatter.date(from: startDate) else {
+            return nil
+        }
+        return date
+    }
+    
+    /// 获取格式化的结束日期
+    public var parsedEndDate: Date? {
+        // 使用标准格式化器解析日期
+        let formatter = DateFormatter.standardFormatter
+        guard let date = formatter.date(from: endDate) else {
+            return nil
+        }
+        return date
+    }
+}
+
 // MARK: - Date Formatter
 private extension DateFormatter {
     /// 用于解析日期字符串的格式化器
@@ -164,21 +187,8 @@ private extension DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.timeZone = .current  // 使用系统时区
+        formatter.timeZone = TimeZone.current  // 使用当前时区
         formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter
     }()
-}
-
-// MARK: - Date Conversion
-extension CalendarEvent {
-    /// 获取格式化的开始日期
-    public var parsedStartDate: Date? {
-        DateFormatters.parse(startDate)
-    }
-    
-    /// 获取格式化的结束日期
-    public var parsedEndDate: Date? {
-        DateFormatters.parse(endDate)
-    }
 } 

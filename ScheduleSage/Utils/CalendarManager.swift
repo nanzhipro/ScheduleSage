@@ -130,31 +130,53 @@ private extension CalendarManager {
   /// 创建事件的内部实现
   @discardableResult
   func createEventInternal(from model: CalendarEvent) async throws -> String {
-    guard let calendar = try await getOrCreateCalendar(named: model.calendar) else {
-      throw CalendarError.createFailed
+    // 1. 确保有权限
+    guard try await requestAccess() else {
+        throw CalendarError.accessDenied
     }
     
-    // 使用用户当前时区
-    let userTimeZone = TimeZone.current
+    // 2. 获取或创建日历
+    guard let calendar = try await getOrCreateCalendar(named: model.calendar) else {
+        throw CalendarError.createFailed
+    }
     
-    // 验证并转换日期
+    // 3. 验证并转换日期
     guard let startDate = model.parsedStartDate,
           let endDate = model.parsedEndDate else {
-      throw CalendarError.invalidDateFormat
+        throw CalendarError.invalidDateFormat
     }
     
+    // 4. 创建事件
     let event = EKEvent(eventStore: eventStore)
     event.calendar = calendar
     event.title = model.title
-    event.startDate = startDate  // 已经是正确时区的 Date
-    event.endDate = endDate      // 已经是正确时区的 Date
-    event.timeZone = userTimeZone  // 明确设置事件时区
+    event.startDate = startDate
+    event.endDate = endDate
     event.location = model.location
-    event.url = URL(string: model.url)
-    event.notes = model.notes
     
-    try eventStore.save(event, span: .thisEvent)
-    return event.eventIdentifier
+    // 5. 设置时区（明确指定）
+    let timeZone = TimeZone.current
+    event.timeZone = timeZone
+    
+    // 6. 设置其他属性
+    if !model.url.isEmpty {
+        event.url = URL(string: model.url)
+    }
+    if !model.notes.isEmpty {
+        event.notes = model.notes
+    }
+    
+    // 7. 添加默认提醒（可选）
+    let alarm = EKAlarm(relativeOffset: -1800) // 30分钟前提醒
+    event.addAlarm(alarm)
+    
+    // 8. 使用事务保存
+    do {
+        try eventStore.save(event, span: .thisEvent, commit: true)
+        return event.eventIdentifier
+    } catch {
+        throw CalendarError.createFailed
+    }
   }
   
   /// 获取或创建日历
