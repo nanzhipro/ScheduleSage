@@ -79,21 +79,14 @@ struct AddScheduleView: View {
 // MARK: - Add Schedule View
 private struct AddScheduleView_Impl: View {
   @ObservedObject var viewModel: AddScheduleViewModel
+  @Environment(\.colorScheme) var colorScheme
   
   var body: some View {
     ZStack {
-      // 使用预先混合的实色渐变
-      LinearGradient(
-        colors: [
-          Color(red: 0.95, green: 0.97, blue: 0.98),  // 浅色调
-          Color(red: 0.97, green: 0.98, blue: 0.99),  // 中间色调
-          DesignSystem.Colors.background               // 底色
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-      )
+      // 使用设计系统定义的渐变背景
+      DesignSystem.Gradients.containerBackground(colorScheme: colorScheme)
       
-      // 2. 内容放在渐变层之上
+      // 内容层
       VStack(spacing: 0) {
         HeaderView(viewModel: viewModel)
         
@@ -110,8 +103,8 @@ private struct AddScheduleView_Impl: View {
         .padding(.bottom, DesignSystem.Spacing.vertical)
         
         CloseXButton(action: viewModel.closePopover)
-        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-        .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
+          .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+          .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
       }
     }
     .frame(
@@ -125,6 +118,7 @@ private struct AddScheduleView_Impl: View {
 // MARK: - Header View
 private struct HeaderView: View {
   @ObservedObject var viewModel: AddScheduleViewModel
+  @Environment(\.colorScheme) var colorScheme
   
   var body: some View {
     HStack {
@@ -139,12 +133,14 @@ private struct HeaderView: View {
       Spacer()
       
       SettingsButton()
-        .foregroundColor(DesignSystem.Colors.secondaryGray)
+        .foregroundColor(colorScheme == .dark ? 
+          DesignSystem.Colors.secondaryText :    // 深色模式下的图标颜色
+          DesignSystem.Colors.secondaryGray      // 浅色模式下的图标颜色
+        )
         .frame(width: 44, height: 44)
     }
     .frame(height: DesignSystem.Dimensions.headerHeight)
-    // 移除 HeaderView 的背景色，让渐变色显示出来
-    // .background(DesignSystem.Colors.background)
+    // 移除固定背景色，使用渐变背景
     .cornerRadius(DesignSystem.Dimensions.headerCornerRadius)
   }
 }

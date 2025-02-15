@@ -16,6 +16,28 @@ enum DesignSystem {
   /// 当前使用的主题类型，默认为微信风格
   static var currentTheme: ThemeType = .wechat
 
+  // MARK: - Gradients
+  /// 渐变配色系统
+  enum Gradients {
+    /// 主容器渐变背景
+    /// 用于主要容器的渐变背景效果，支持深色模式
+    static func containerBackground(colorScheme: ColorScheme) -> LinearGradient {
+      LinearGradient(
+        colors: colorScheme == .dark ? [
+          Colors.darkGradientTop,      // 深色模式顶部色
+          Colors.darkGradientMiddle,   // 深色模式中间色
+          Colors.background            // 深色模式底部色
+        ] : [
+          Colors.lightGradientTop,     // 浅色模式顶部色
+          Colors.lightGradientMiddle,  // 浅色模式中间色
+          Colors.background            // 浅色模式底部色
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+      )
+    }
+  }
+
   // MARK: - Colors
   /// 颜色系统
   enum Colors {
@@ -205,6 +227,32 @@ enum DesignSystem {
       case .airbnb: return Color(light: "EBEBEB", dark: "3D3D3D")
       }
     }
+
+    // MARK: - Gradient Colors
+    
+    /// 深色模式渐变色 - 顶部
+    static let darkGradientTop = Color(
+      light: "F5F5F7",  // 浅色模式下不使用
+      dark: "151516"    // rgb(21, 21, 22)
+    )
+    
+    /// 深色模式渐变色 - 中间
+    static let darkGradientMiddle = Color(
+      light: "F7F7F7",  // 浅色模式下不使用
+      dark: "181819"    // rgb(24, 24, 25)
+    )
+    
+    /// 浅色模式渐变色 - 顶部
+    static let lightGradientTop = Color(
+      light: "F5F7F8",  // rgb(245, 247, 248)
+      dark: "242424"    // 深色模式下不使用
+    )
+    
+    /// 浅色模式渐变色 - 中间
+    static let lightGradientMiddle = Color(
+      light: "F7F8F9",  // rgb(247, 248, 249)
+      dark: "242424"    // 深色模式下不使用
+    )
   }
 
   // MARK: - Typography
