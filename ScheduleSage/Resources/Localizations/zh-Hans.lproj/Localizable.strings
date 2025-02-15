@@ -197,3 +197,6 @@
 
 // 设置 - 窗口置顶
 "settings_always_on_top" = "窗口置顶";
+
+// Powered by
+"powered_by_tencent" = "腾讯云提供技术支持";

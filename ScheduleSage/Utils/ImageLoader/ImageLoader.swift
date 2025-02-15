@@ -16,7 +16,6 @@ protocol ImageLoading {
 final class ImageLoader: ImageLoading {
   // MARK: - Properties
   private let session: URLSession
-  private let supportedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/heic"]
   private let tempDirectory: URL
 
   // MARK: - Initialization
@@ -39,10 +38,9 @@ final class ImageLoader: ImageLoading {
       throw ImageLoadError.invalidResponse
     }
 
-    // 验证 MIME 类型
+    // 使用 ImageSupport 验证 MIME 类型
     if let mimeType = httpResponse.mimeType,
-      !supportedMimeTypes.contains(mimeType)
-    {
+      !ImageSupport.isSupported(mimeType: mimeType) {
       throw ImageLoadError.unsupportedImageFormat
     }
 

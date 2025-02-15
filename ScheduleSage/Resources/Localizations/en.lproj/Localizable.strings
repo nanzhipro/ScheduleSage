@@ -199,3 +199,6 @@
 
 // Settings - Always on Top
 "settings_always_on_top" = "Keep Window on Top";
+
+// Powered by
+"powered_by_tencent" = "Powered by Tencent Cloud";

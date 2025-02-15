@@ -110,8 +110,8 @@ private struct AddScheduleView_Impl: View {
         .padding(.bottom, DesignSystem.Spacing.vertical)
         
         CloseXButton(action: viewModel.closePopover)
-          .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-          .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
+        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+        .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
       }
     }
     .frame(
@@ -149,102 +149,123 @@ private struct HeaderView: View {
   }
 }
 
-// MARK: - Add Schedule Content
-private struct AddScheduleContent: View {
-  @ObservedObject var viewModel: AddScheduleViewModel
-  
-  var body: some View {
-    VStack(spacing: 0) {
-      Spacer()
-        .frame(height: DesignSystem.Spacing.vertical * 3)
-      
-      CalendarIcon(animation: viewModel.dragAnimation)
-        .padding(.bottom, DesignSystem.Spacing.vertical * 0.5)
-      
-      TitleSection()
-        .padding(.bottom, DesignSystem.Spacing.vertical * 2)
-      
-      AddMethodSection(viewModel: viewModel)
-      
-      Spacer()
+// MARK: - Design Constants
+private enum Design {
+    enum Spacing {
+        /// 顶部到图标的间距
+        static let topToIcon: CGFloat = 48
+        /// 图标到标题的间距
+        static let iconToTitle: CGFloat = 24
+        /// 标题到副标题的间距
+        static let titleToSubtitle: CGFloat = 12
+        /// 副标题到操作按钮的间距
+        static let subtitleToActions: CGFloat = 40
+        /// 操作按钮之间的水平间距
+        static let actionButtonsHorizontal: CGFloat = 20
     }
-    .frame(maxWidth: .infinity)
-    .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-  }
+    
+    enum Size {
+        /// 图标容器尺寸
+        static let iconContainerSize: CGFloat = 80
+        /// 图标尺寸
+        static let iconSize: CGFloat = 32
+    }
 }
 
 // MARK: - Calendar Icon
 private struct CalendarIcon: View {
-  let animation: AddScheduleViewModel.DragAnimation
-  
-  var body: some View {
-    ZStack {
-      Circle()
-        .fill(DesignSystem.Colors.secondaryBackground)
-        .frame(
-          width: DesignSystem.Dimensions.emptyStateIconSize,
-          height: DesignSystem.Dimensions.emptyStateIconSize
-        )
-      Image(systemName: "calendar.badge.plus")
-        .font(.system(size: 32))
-        .foregroundColor(DesignSystem.Colors.primary)
+    let animation: AddScheduleViewModel.DragAnimation
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(DesignSystem.Colors.secondaryBackground)
+                .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
+            Image(systemName: "calendar.badge.plus")
+                .font(.system(size: Design.Size.iconSize))
+                .foregroundColor(DesignSystem.Colors.primary)
+        }
+        .modifier(DragAnimationModifier(animation: animation))
     }
-    .modifier(DragAnimationModifier(animation: animation))
-  }
+}
+
+// MARK: - Add Schedule Content
+private struct AddScheduleContent: View {
+    @ObservedObject var viewModel: AddScheduleViewModel
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+                .frame(height: Design.Spacing.topToIcon)
+            
+            CalendarIcon(animation: viewModel.dragAnimation)
+                .padding(.bottom, Design.Spacing.iconToTitle)
+            
+            TitleSection()
+                .padding(.bottom, Design.Spacing.subtitleToActions)
+            
+            AddMethodSection(viewModel: viewModel)
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+    }
 }
 
 // MARK: - Title Section
 private struct TitleSection: View {
-  var body: some View {
-    VStack(spacing: 8) {
-      Text(AppInfo.displayName)
-        .font(DesignSystem.Typography.title)
-        .foregroundColor(DesignSystem.Colors.primaryText)
-      
-      Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
-        .font(DesignSystem.Typography.caption)
-        .foregroundColor(DesignSystem.Colors.secondaryText)
-        .multilineTextAlignment(.center)
+    var body: some View {
+        VStack(spacing: Design.Spacing.titleToSubtitle) {
+            Text(AppInfo.displayName)
+                .font(DesignSystem.Typography.title)
+                .foregroundColor(DesignSystem.Colors.primaryText)
+            
+            Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.secondaryText)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
-  }
 }
 
 // MARK: - Add Method Section
 private struct AddMethodSection: View {
-  @ObservedObject var viewModel: AddScheduleViewModel
-  
-  var body: some View {
-    HStack(spacing: DesignSystem.Spacing.horizontal) {
-      AddMethodButton(
-        icon: "doc.text.fill",
-        text: NSLocalizedString("clipboard_import", comment: ""),
-        action: viewModel.checkClipboardContent
-      )
-      
-      AddMethodButton(
-        icon: "square.and.pencil",
-        text: NSLocalizedString("manual_input", comment: ""),
-        action: { viewModel.showManualInputSheet = true }
-      )
-      .sheet(isPresented: $viewModel.showManualInputSheet) {
-        ManualScheduleInputView(
-          isPresented: $viewModel.showManualInputSheet,
-          llmProcessor: viewModel.llmProcessor,
-          viewModel: viewModel,
-          onEventsProcessed: { events in
-            viewModel.parsedEvents = events
-            viewModel.showEventList = true
-          }
-        )
-      }
-      
-      AddMethodButton(
-        icon: "photo.fill",
-        text: NSLocalizedString("image_import", comment: ""),
-        action: viewModel.handleImageSelection
-      )
+    @ObservedObject var viewModel: AddScheduleViewModel
+    
+    var body: some View {
+        HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
+            AddMethodButton(
+                icon: "doc.text.fill",
+                text: NSLocalizedString("clipboard_import", comment: ""),
+                action: viewModel.checkClipboardContent
+            )
+            
+            AddMethodButton(
+                icon: "square.and.pencil",
+                text: NSLocalizedString("manual_input", comment: ""),
+                action: { viewModel.showManualInputSheet = true }
+            )
+            .sheet(isPresented: $viewModel.showManualInputSheet) {
+                ManualScheduleInputView(
+                    isPresented: $viewModel.showManualInputSheet,
+                    llmProcessor: viewModel.llmProcessor,
+                    viewModel: viewModel,
+                    onEventsProcessed: { events in
+                        viewModel.parsedEvents = events
+                        viewModel.showEventList = true
+                    }
+                )
+            }
+            
+            AddMethodButton(
+                icon: "photo.fill",
+                text: NSLocalizedString("image_import", comment: ""),
+                action: viewModel.handleImageSelection
+            )
+        }
     }
-  }
 }
 
 // MARK: - Drag Animation Modifier
@@ -278,18 +299,26 @@ private struct CloseXButton: View {
   let action: () -> Void
   
   var body: some View {
-    Button(action: action) {
-      Text(NSLocalizedString("close_popover", comment: ""))
-        .font(DesignSystem.Typography.buttonLabel)
-        .foregroundColor(DesignSystem.Colors.background)
-        .frame(maxWidth: .infinity)
-        .frame(height: DesignSystem.Dimensions.buttonHeight)
-        .background(
-          DesignSystem.Colors.primary
-        )
-        .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
+    VStack(spacing: 8) {
+      Button(action: action) {
+        Text(NSLocalizedString("close_popover", comment: ""))
+          .font(DesignSystem.Typography.buttonLabel)
+          .foregroundColor(DesignSystem.Colors.background)
+          .frame(maxWidth: .infinity)
+          .frame(height: DesignSystem.Dimensions.buttonHeight)
+          .background(
+            DesignSystem.Colors.primary
+          )
+          .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
+      }
+      .buttonStyle(.plain)
+      .withHoverEffect(scale: 1.02, brightness: 0)
+      
+      Text(NSLocalizedString("powered_by_tencent", comment: ""))
+        .font(DesignSystem.Typography.caption)
+        .foregroundColor(DesignSystem.Colors.tertiaryText)
+        .multilineTextAlignment(.center)
     }
-    .buttonStyle(.plain)
-    .withHoverEffect(scale: 1.02, brightness: 0)
+    .contentShape(Rectangle())
   }
 }

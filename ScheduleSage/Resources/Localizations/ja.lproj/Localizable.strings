@@ -199,3 +199,6 @@
 
 // 設定 - ウィンドウを最前面に表示
 "settings_always_on_top" = "ウィンドウを最前面に表示";
+
+// Powered by
+"powered_by_tencent" = "テンセントクラウドが技術支援を提供";

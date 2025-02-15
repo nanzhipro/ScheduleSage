@@ -607,7 +607,8 @@ extension AddScheduleViewModel {
         openPanel.allowsMultipleSelection = false
         openPanel.canChooseDirectories = false
         openPanel.canChooseFiles = true
-        openPanel.allowedContentTypes = [.jpeg, .png, .tiff, .gif, .bmp, .ico, .pdf]
+        // 使用 ImageSupport 中定义的 UTTypes
+        openPanel.allowedContentTypes = ImageSupport.supportedUTTypes
         
         Task { @MainActor in
             guard let window = windowController?.window else { return }
