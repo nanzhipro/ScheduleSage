@@ -92,6 +92,15 @@
         }
       },
       {
+        "package": "Sentry",
+        "repositoryURL": "https://github.com/getsentry/sentry-cocoa.git",
+        "state": {
+          "branch": null,
+          "revision": "3640aaf7849a9fc39996d777e6df866251bb98d6",
+          "version": "8.45.0"
+        }
+      },
+      {
         "package": "SwiftJWT",
         "repositoryURL": "https://github.com/Kitura/Swift-JWT.git",
         "state": {

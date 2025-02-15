@@ -16,6 +16,7 @@ let package = Package(
         .package(url: "https://github.com/nanzhipro/QuestOCR.git", branch: "main"),
         .package(url: "https://github.com/Kitura/Swift-JWT.git", from: "4.0.0"),
         .package(url: "https://github.com/auth0/JWTDecode.swift.git", from: "3.1.0"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa.git", from: "8.45.0"),
     ],
     targets: [
         .target(
@@ -30,6 +31,7 @@ let package = Package(
                 "QuestOCR",
                 "SwiftJWT",
                 .product(name: "JWTDecode", package: "JWTDecode.swift"),
+                .product(name: "Sentry", package: "sentry-cocoa"),
             ]
         ),
         .testTarget(

@@ -8,42 +8,76 @@
 import AppKit
 import SwiftUI
 import OSLog
+import Sentry
 
+/// 应用程序委托
+/// 负责管理应用程序的生命周期和主要功能
+/// - Note: 使用 @MainActor 确保在主线程上执行UI操作
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Properties
+    
+    /// 状态栏项
     private var statusItem: NSStatusItem?
+    
+    /// 弹出窗口
     private var popover: NSPopover?
+    
+    /// 主视图模型
     private var viewModel: AddScheduleViewModel?
+    
+    /// 主窗口控制器
     private var windowController: MainWindowController?
     
+    /// 全局事件监视器
     private var eventMonitor: Any?
+    
+    /// 键盘事件监视器
     private var keyboardMonitor: Any?
     
-    private let logger = Logger(subsystem: "com.tiwenlab.schedulesage", category: "AppDelegate")
+    /// 应用日志记录器
+    private let logger = Logger(
+        subsystem: "com.tiwenlab.schedulesage",
+        category: "AppDelegate"
+    )
+    
+    /// 日历管理器
     private let calendarManager = CalendarManager()
+    
+    /// 剪贴板管理器
     private let clipboardManager = ClipboardManager()
+    
+    /// 通知管理器
     private let notificationManager = NotificationManager.shared
+    
+    /// 令牌提供者
     private let tokenProvider: SimpleJWTTokenProvider
     
+    /// 弹出窗口显示状态
     private var isPopoverShown = false
     
+    /// 窗口模式设置
     @AppStorage("useWindowMode") private var useWindowMode = true
+    
+    /// 引导页完成状态
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     
+    /// 应用包标识符
     private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.tiwenlab.schedulesage"
     
+    /// 引导页窗口控制器
     private var onboardingWindowController: NSWindowController?
     
     // MARK: - Lifecycle
+    
     override init() {
-        // 使用 APIConfig 提供的 tokenProvider
         self.tokenProvider = APIConfig.shared.getTokenProvider()
         super.init()
     }
     
+    /// 应用程序启动完成
+    /// - Parameter notification: 通知对象
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // 初始化主题
         initializeTheme()
         
         guard checkAndActivateExistingInstance() else { return }
@@ -59,7 +93,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    // MARK: - Setup
+    // MARK: - Setup Methods
+    
+    /// 设置应用程序
+    /// - Complexity: O(1)
     private func setupApplication() async {
         logger.info("AppDelegate did finish launching")
         
@@ -68,30 +105,43 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         viewModel = AddScheduleViewModel()
-        setupStatusItem()
-        setupPopover()
-        setupEventMonitor()
-        setupKeyboardMonitor()
+        configureStatusItem()
+        configurePopover()
+        configureEventMonitor()
+        configureKeyboardMonitor()
+        configureSentry()
     }
     
-    private func setupStatusItem() {
+    /// 配置 Sentry 错误跟踪
+    private func configureSentry() {
+        SentrySDK.start { options in
+            options.dsn = "https://8dbe56154a591426c2ecb7ed66018a1a@o4508634309066752.ingest.us.sentry.io/4508822914793472"
+            options.debug = false
+            options.tracesSampleRate = 1.0
+        }
+    }
+    
+    /// 配置状态栏图标
+    private func configureStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let button = statusItem?.button {
-            let configuration = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+            let configuration = NSImage.SymbolConfiguration(
+                pointSize: 14,
+                weight: .medium
+            )
             button.image = NSImage(
                 systemSymbolName: "calendar.badge.plus",
                 accessibilityDescription: "ScheduleSage"
             )?.withSymbolConfiguration(configuration)
             
             button.image?.isTemplate = true
-            
             button.action = #selector(togglePopover)
             button.target = self
         }
     }
     
-    private func setupPopover() {
+    private func configurePopover() {
         guard let viewModel else { return }
         
         let contentView = AddScheduleView()
@@ -114,7 +164,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    private func setupEventMonitor() {
+    private func configureEventMonitor() {
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self,
                   self.isPopoverShown,
@@ -125,7 +175,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    private func setupKeyboardMonitor() {
+    private func configureKeyboardMonitor() {
         keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return event }
             
@@ -287,10 +337,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 // MARK: - NSPopoverDelegate
 extension AppDelegate: NSPopoverDelegate {
+    /// 弹出窗口即将显示
     func popoverWillShow(_ notification: Notification) {
         isPopoverShown = true
     }
     
+    /// 弹出窗口即将关闭
     func popoverWillClose(_ notification: Notification) {
         isPopoverShown = false
         viewModel?.handlePopoverDisappear()
@@ -299,6 +351,10 @@ extension AppDelegate: NSPopoverDelegate {
 
 // MARK: - URL Handling
 extension AppDelegate {
+    /// 处理应用程序 URL 打开请求
+    /// - Parameters:
+    ///   - application: 应用程序实例
+    ///   - urls: 要打开的 URL 数组
     func application(_ application: NSApplication, open urls: [URL]) {
         guard let url = urls.first,
               url.scheme == "schedulesage",
