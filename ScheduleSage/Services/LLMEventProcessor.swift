@@ -86,7 +86,7 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
         
         let calendarNames = await fetchAvailableCalendarNames()
         let prompt = try await buildPrompt(forContent: content, withCalendars: calendarNames)
-        let response = try await llmService.chat(content: prompt)
+        let response = try await llmService.chat(with: prompt)
         
         guard let event = CalendarEvent.from(llmResponse: response.content, logger: logger) else {
             throw LLMEventProcessorError.parsingFailed

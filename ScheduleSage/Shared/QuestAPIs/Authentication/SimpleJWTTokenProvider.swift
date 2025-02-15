@@ -9,21 +9,40 @@ import Alamofire
 import Foundation
 import SwiftJWT
 
-/// 简单JWT令牌提供者
-/// Simple JWT Token Provider
-/// - 功能: 
-///   - 提供基础的JWT令牌获取和管理功能
-///   - 支持令牌过期检测和自动刷新
-///   - 处理并发请求时的令牌更新
+/// 提供 JWT 令牌管理的类型
+/// - 职责:
+///   - 管理 JWT 令牌的生命周期
+///   - 处理令牌的获取、验证和刷新
+///   - 确保令牌在多个并发请求中的一致性
+/// - 注意:
+///   - 使用 actor 确保线程安全
+///   - 自动处理令牌过期和刷新
+///   - 支持令牌提前刷新以避免过期
 public actor SimpleJWTTokenProvider: TokenProvider {
+    // MARK: - Properties
+    
+    /// 当前的 JWT 令牌
     private var jwtToken: String?
+    
+    /// 令牌的过期时间
     private var tokenExpirationDate: Date?
+    
+    /// API 环境配置
     private let environment: APIEnvironment
+    
+    /// 认证凭据
     private let credentials: AuthCredentials
     
-    // 令牌提前刷新的时间阈值（默认60秒）
+    /// 令牌刷新的提前时间（秒）
+    /// - Note: 在令牌过期前 60 秒开始刷新，避免过期导致的服务中断
     private let refreshThreshold: TimeInterval = 60
     
+    // MARK: - Initialization
+    
+    /// 创建令牌提供者实例
+    /// - Parameters:
+    ///   - environment: API 环境配置
+    ///   - credentials: 认证凭据，默认使用 .default
     public init(environment: APIEnvironment, credentials: AuthCredentials = .default) {
         self.environment = environment
         self.credentials = credentials
