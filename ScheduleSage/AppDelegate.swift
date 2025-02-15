@@ -253,6 +253,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if window.isVisible && window.isKeyWindow {
             (window as? CustomMainWindow)?.closeWindow()
         } else {
+            NSApp.activate(ignoringOtherApps: true)
             windowController?.showWindow(from: statusItem)
         }
     }
@@ -260,11 +261,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func toggleAddScheduleView() {
         guard let button = statusItem?.button else { return }
         
+        NSApp.activate(ignoringOtherApps: true)
+        
         if isPopoverShown {
             dismissPopover()
         } else {
             popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-            NSApp.windows.first(where: { $0.isKeyWindow })?.level = .normal
+            NSApp.windows.first(where: { $0.isKeyWindow })?.makeKeyAndOrderFront(nil)
         }
     }
     
