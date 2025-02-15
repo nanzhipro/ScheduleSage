@@ -164,6 +164,7 @@
 "settings_privacy_policy" = "プライバシーポリシー";
 "settings_terms_of_service" = "利用規約";
 "settings_faq" = "よくある質問";
+"settings_feedback" = "フィードバック";
 
 // Screenshot
 "screenshot.success.title" = "スクリーンショット完了";

@@ -68,7 +68,7 @@ private extension SettingsView {
     SettingsSection(title: "settings_group_notifications") {
       SettingsToggle(
         title: "settings_notifications",
-        icon: "bell.badge",
+        icon: "bell.badge.fill",
         isOn: Binding(
           get: { enableNotifications },
           set: { newValue in
@@ -93,10 +93,10 @@ private extension SettingsView {
   
   var appearanceSection: some View {
     SettingsSection(title: "settings_group_appearance") {
-      ThemePicker(currentTheme: Binding(
-        get: { ThemeType(rawValue: currentTheme) ?? .wechat },
-        set: { currentTheme = $0.rawValue }
-      ))
+      // ThemePicker(currentTheme: Binding(
+      //   get: { ThemeType(rawValue: currentTheme) ?? .wechat },
+      //   set: { currentTheme = $0.rawValue }
+      // ))
       
       SettingsToggle(
         title: "settings_dark_mode",
@@ -113,7 +113,7 @@ private extension SettingsView {
     SettingsSection(title: "settings_group_system") {
       SettingsToggle(
         title: "settings_auto_start",
-        icon: "power",
+        icon: "power.circle.fill",
         isOn: Binding(
           get: { autoStart },
           set: { newValue in
@@ -130,7 +130,7 @@ private extension SettingsView {
       
       SettingsToggle(
         title: "settings_always_on_top",
-        icon: "rectangle.on.rectangle",
+        icon: "rectangle.on.rectangle.fill",
         isOn: $alwaysOnTop
       )
       .onChange(of: alwaysOnTop) { newValue in
@@ -154,7 +154,7 @@ private extension SettingsView {
   
   var versionSection: some View {
     SettingsSection(title: "settings_group_about") {
-      SettingsRow(title: "settings_version", icon: "info.circle") {
+      SettingsRow(title: "settings_version", icon: "info.circle.fill") {
         Text(AppInfo.versionWithBuild)
           .foregroundColor(DesignSystem.Colors.secondaryText)
           .font(DesignSystem.Typography.caption)
@@ -353,6 +353,7 @@ private extension ThemeType {
 
 // MARK: - Models
 private enum AboutLink: String, CaseIterable, Identifiable {
+  case feedback
   case privacyPolicy
   case faq
   
@@ -360,6 +361,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   
   var title: String {
     switch self {
+    case .feedback: return "settings_feedback"
     case .privacyPolicy: return "settings_privacy_policy"
     case .faq: return "settings_faq"
     }
@@ -367,6 +369,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   
   var icon: String {
     switch self {
+    case .feedback: return "megaphone.fill"
     case .privacyPolicy: return "hand.raised.fill"
     case .faq: return "questionmark.circle.fill"
     }
@@ -374,6 +377,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   
   var url: String {
     switch self {
+    case .feedback: return "https://schedulesage.featurebase.app/"
     case .privacyPolicy: return "https://tiwenlab.notion.site/18f5180108e580f69c59f212867f9a15"
     case .faq: return "https://tiwenlab.notion.site/FAQ-18f5180108e58034aecdec8a297c97ab?pvs=74"
     }

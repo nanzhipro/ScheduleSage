@@ -164,6 +164,7 @@
 "settings_privacy_policy" = "Privacy Policy";
 "settings_terms_of_service" = "Terms of Service";
 "settings_faq" = "FAQ";
+"settings_feedback" = "Feedback";
 
 // Screenshot
 "screenshot.success.title" = "Screenshot Completed";
