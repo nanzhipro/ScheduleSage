@@ -114,7 +114,7 @@
 "invalid_image_format" = "Unsupported image format, please use PNG, JPEG, or HEIC format";
 
 // Error Messages
-"invalid_clipboard_content" = "Please copy a valid webpage link or image first, then try importing";
+"invalid_clipboard_content" = "Please copy a valid webpage link, image file, or schedule text first, then try importing";
 
 // Drag and Drop
 "drag_drop_hint" = "Drop Image Here";

@@ -114,7 +114,7 @@
 "invalid_image_format" = "サポートされていない画像形式です。PNG、JPEG、またはHEIC形式を使用してください";
 
 // Error Messages
-"invalid_clipboard_content" = "有効なウェブページリンクまたは画像をコピーしてから、再度お試しください";
+"invalid_clipboard_content" = "有効なウェブページリンク、画像ファイル、または日程テキストをコピーしてから、再度お試しください";
 
 // Drag and Drop
 "drag_drop_hint" = "ここに画像をドロップ";

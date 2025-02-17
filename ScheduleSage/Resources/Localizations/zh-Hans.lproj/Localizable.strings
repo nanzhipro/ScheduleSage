@@ -114,7 +114,7 @@
 "invalid_image_format" = "仅支持 PNG、JPEG 或 HEIC 格式的图片";
 
 // Error Messages
-"invalid_clipboard_content" = "请复制网页链接或图片后重试";
+"invalid_clipboard_content" = "剪贴板内容无法识别，请复制网页链接、图片或日程文本";
 
 // Drag and Drop
 "drag_drop_hint" = "拖放图片到这里";
