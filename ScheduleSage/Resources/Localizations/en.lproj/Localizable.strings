@@ -203,3 +203,8 @@
 
 // Powered by
 "powered_by_tencent" = "Powered by Tencent Cloud";
+
+// Method Button Hints
+"hint.clipboard_import" = "Create events from clipboard text or webpage links";
+"hint.manual_input" = "Manually enter event details with natural language support";
+"hint.image_import" = "Create events by recognizing text from images";

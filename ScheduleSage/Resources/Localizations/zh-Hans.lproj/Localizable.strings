@@ -202,3 +202,8 @@
 "powered_by_tencent" = "腾讯云提供技术支持";
 
 "settings_feedback" = "反馈建议";
+
+// Method Button Hints
+"hint.clipboard_import" = "从剪贴板文本或网页链接创建日程";
+"hint.manual_input" = "支持自然语言的手动输入方式";
+"hint.image_import" = "识别图片中的文字创建日程";

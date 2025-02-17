@@ -233,14 +233,16 @@ private struct AddMethodSection: View {
     var body: some View {
         HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
             AddMethodButton(
-                icon: "doc.text.fill",
-                text: NSLocalizedString("clipboard_import", comment: ""),
+                iconName: "doc.text.fill",
+                title: NSLocalizedString("clipboard_import", comment: ""),
+                hintKey: "hint.clipboard_import",
                 action: viewModel.checkClipboardContent
             )
             
             AddMethodButton(
-                icon: "square.and.pencil",
-                text: NSLocalizedString("manual_input", comment: ""),
+                iconName: "square.and.pencil",
+                title: NSLocalizedString("manual_input", comment: ""),
+                hintKey: "hint.manual_input",
                 action: { viewModel.showManualInputSheet = true }
             )
             .sheet(isPresented: $viewModel.showManualInputSheet) {
@@ -256,8 +258,9 @@ private struct AddMethodSection: View {
             }
             
             AddMethodButton(
-                icon: "photo.fill",
-                text: NSLocalizedString("image_import", comment: ""),
+                iconName: "photo.fill",
+                title: NSLocalizedString("image_import", comment: ""),
+                hintKey: "hint.image_import",
                 action: viewModel.handleImageSelection
             )
         }
