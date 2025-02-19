@@ -30,6 +30,7 @@ struct AddScheduleView: View {
           .presentationBackgroundInteraction(.enabled)
         }
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
     .toast(
       isPresented: $viewModel.showToast,
       type: viewModel.toastType,
@@ -83,13 +84,11 @@ private struct AddScheduleView_Impl: View {
   
   var body: some View {
     ZStack {
-      // 使用设计系统定义的渐变背景
       DesignSystem.Gradients.containerBackground(colorScheme: colorScheme)
       
-      // 内容层
+      // 主要内容
       VStack(spacing: 0) {
-        HeaderView(viewModel: viewModel)
-        
+        // 扩展 DragDropArea 以包含所有内容
         DragDropArea(
           isDragging: $viewModel.isDragging,
           isOCRProcessing: $viewModel.isOCRProcessing,
@@ -97,75 +96,91 @@ private struct AddScheduleView_Impl: View {
           onDragEntered: viewModel.handleDragEntered,
           onDragExited: viewModel.handleDragExited
         ) {
-          AddScheduleContent(viewModel: viewModel)
-            .frame(maxHeight: .infinity)
+          VStack(spacing: 0) {
+            // 顶部留白
+            Spacer()
+              .frame(height: Design.Spacing.windowTopPadding)
+            
+            AddScheduleContent(viewModel: viewModel)
+              .padding(Design.Spacing.contentPadding)
+            
+            Spacer()
+          }
         }
-        .padding(.bottom, DesignSystem.Spacing.vertical)
+        .frame(maxHeight: .infinity)
         
-        CloseXButton(action: viewModel.closePopover)
-          .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-          .padding(.bottom, DesignSystem.Layout.containerPadding.bottom)
+        // 底部工具栏
+        ZStack {
+          // powered by 文本居中
+          Text(NSLocalizedString("powered_by_tencent", comment: ""))
+            .font(DesignSystem.Typography.caption)
+            .foregroundColor(DesignSystem.Colors.tertiaryText)
+            .frame(maxWidth: .infinity)
+          
+          // 设置按钮靠右
+          HStack {
+            Spacer()
+            SettingsButton()
+              .foregroundColor(colorScheme == .dark ? 
+                DesignSystem.Colors.secondaryText :
+                DesignSystem.Colors.secondaryGray
+              )
+              .frame(width: 44, height: 44)
+          }
+        }
+        .frame(height: 44)  // 使用 SettingsButton 的高度
+        .padding(.horizontal, Design.Spacing.bottomBarPadding.horizontal)
+        .padding(.bottom, Design.Spacing.bottomBarPadding.bottom)
       }
     }
-    .frame(
-      width: DesignSystem.Dimensions.mainViewWidth,
-      height: DesignSystem.Dimensions.mainViewHeight
-    )
-    .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
-  }
-}
-
-// MARK: - Header View
-private struct HeaderView: View {
-  @ObservedObject var viewModel: AddScheduleViewModel
-  @Environment(\.colorScheme) var colorScheme
-  
-  var body: some View {
-    HStack {
-      ProStatusView(
-        status: viewModel.proStatus,
-        onUpgrade: viewModel.showUpgradeSheetAction,
-        style: .compact
-      )
-      .padding(.horizontal, DesignSystem.Layout.statusBarPadding.leading)
-      .padding(.vertical, DesignSystem.Layout.statusBarPadding.top)
-      
-      Spacer()
-      
-      SettingsButton()
-        .foregroundColor(colorScheme == .dark ? 
-          DesignSystem.Colors.secondaryText :    // 深色模式下的图标颜色
-          DesignSystem.Colors.secondaryGray      // 浅色模式下的图标颜色
-        )
-        .frame(width: 44, height: 44)
-    }
-    .frame(height: DesignSystem.Dimensions.headerHeight)
-    // 移除固定背景色，使用渐变背景
-    .cornerRadius(DesignSystem.Dimensions.headerCornerRadius)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(DesignSystem.Gradients.containerBackground(colorScheme: colorScheme))
   }
 }
 
 // MARK: - Design Constants
 private enum Design {
-    enum Spacing {
-        /// 顶部到图标的间距
-        static let topToIcon: CGFloat = 48
-        /// 图标到标题的间距
-        static let iconToTitle: CGFloat = 24
-        /// 标题到副标题的间距
-        static let titleToSubtitle: CGFloat = 12
-        /// 副标题到操作按钮的间距
-        static let subtitleToActions: CGFloat = 40
-        /// 操作按钮之间的水平间距
-        static let actionButtonsHorizontal: CGFloat = 20
-    }
+  enum Spacing {
+    /// 窗口顶部间距
+    static let windowTopPadding: CGFloat = 32
     
-    enum Size {
-        /// 图标容器尺寸
-        static let iconContainerSize: CGFloat = 80
-        /// 图标尺寸
-        static let iconSize: CGFloat = 32
-    }
+    /// 底部工具栏内边距
+    static let bottomBarPadding = (
+      horizontal: 16.0,
+      bottom: 12.0
+    )
+    
+    /// 内容整体内边距
+    static let contentPadding = EdgeInsets(
+      top: 16,
+      leading: 24,
+      bottom: 24,
+      trailing: 24
+    )
+    
+    /// 拖拽区域顶部到图标的间距
+    static let dragAreaTopPadding: CGFloat = 32
+    
+    /// 图标到标题的间距
+    static let iconToTitle: CGFloat = 24
+    /// 标题到副标题的间距
+    static let titleToSubtitle: CGFloat = 12
+    /// 标题到操作按钮的间距
+    static let titleToActions: CGFloat = 40
+    /// 操作按钮之间的水平间距
+    static let actionButtonsHorizontal: CGFloat = 20
+    /// 方法选择区域水平内边距
+    static let methodSectionHorizontal: CGFloat = 16
+    /// 内容区底部间距
+    static let contentBottomPadding: CGFloat = 32
+  }
+  
+  enum Size {
+    /// 图标容器尺寸
+    static let iconContainerSize: CGFloat = 80
+    /// 图标尺寸
+    static let iconSize: CGFloat = 32
+  }
 }
 
 // MARK: - Calendar Icon
@@ -187,26 +202,27 @@ private struct CalendarIcon: View {
 
 // MARK: - Add Schedule Content
 private struct AddScheduleContent: View {
-    @ObservedObject var viewModel: AddScheduleViewModel
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-                .frame(height: Design.Spacing.topToIcon)
-            
-            CalendarIcon(animation: viewModel.dragAnimation)
-                .padding(.bottom, Design.Spacing.iconToTitle)
-            
-            TitleSection()
-                .padding(.bottom, Design.Spacing.subtitleToActions)
-            
-            AddMethodSection(viewModel: viewModel)
-            
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+  @ObservedObject var viewModel: AddScheduleViewModel
+  
+  var body: some View {
+    VStack(spacing: 0) {
+      // 顶部空间，确保图标不会紧贴边缘
+      Spacer()
+        .frame(height: Design.Spacing.dragAreaTopPadding)
+      
+      CalendarIcon(animation: viewModel.dragAnimation)
+        .padding(.bottom, Design.Spacing.iconToTitle)
+      
+      TitleSection()
+        .padding(.bottom, Design.Spacing.titleToActions)
+      
+      AddMethodSection(viewModel: viewModel)
+        .padding(.horizontal, Design.Spacing.methodSectionHorizontal)
+      
+      Spacer(minLength: 0)
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
 }
 
 // MARK: - Title Section

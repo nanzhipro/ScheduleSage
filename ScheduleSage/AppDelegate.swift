@@ -68,6 +68,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 引导页窗口控制器
     private var onboardingWindowController: NSWindowController?
     
+    /// 主窗口是否已显示
+    private var isMainWindowShown = false
+    
     // MARK: - Lifecycle
     
     override init() {
@@ -143,6 +146,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func configurePopover() {
         guard let viewModel else { return }
+        
+        // 如果主窗口已显示，不需要创建新的弹出窗口
+        guard !isMainWindowShown else { return }
         
         let contentView = AddScheduleView()
             .environmentObject(viewModel)

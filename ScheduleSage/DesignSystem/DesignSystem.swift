@@ -378,7 +378,7 @@ enum DesignSystem {
     /// 主页面宽度
     static let mainViewWidth: CGFloat = 440
     /// 主页面高度
-    static let mainViewHeight: CGFloat = 640
+    static let mainViewHeight: CGFloat = 600
     /// 事件列表页宽度
     static let eventListWidth: CGFloat = 440
     /// 事件列表页高度

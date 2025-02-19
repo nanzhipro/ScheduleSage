@@ -39,11 +39,7 @@ struct DragDropArea<Content: View>: View {
         )
         .foregroundColor(isDragging ? DesignSystem.Colors.primary : DesignSystem.Colors.borderGray)
         .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-        .padding(.top, DesignSystem.Layout.containerPadding.top)
-        .padding(
-          .bottom,
-          DesignSystem.Layout.containerPadding.bottom + DesignSystem.Dimensions.buttonHeight + 16
-        )
+        .padding(.vertical, DesignSystem.Layout.containerPadding.top)
         .animation(.easeInOut(duration: 0.3), value: isDragging)
     }
     .background(DesignSystem.Colors.containerGray)

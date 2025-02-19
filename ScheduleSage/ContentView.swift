@@ -1,67 +1,62 @@
 //
 //  ContentView.swift
-//  ScheduleSage
+//  WindowGroup
 //
-//  Created by CursorAI on 2024/11/26.
+//  Created by cyberserval on 2025/2/18.
 //
 
-import SwiftData
 import SwiftUI
 
+// 主视图结构体
 struct ContentView: View {
-  @Environment(\.modelContext) private var modelContext
-  @Query private var items: [Item]
-  @StateObject private var viewModel = AddScheduleViewModel()
-  @State private var needsRefresh = false
-
   var body: some View {
-    NavigationSplitView {
-      List {
-        ForEach(items) { item in
-          NavigationLink {
-            Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-          } label: {
-            Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-          }
+    VStack {
+      // 顶部工具栏
+      HStack {
+        Spacer()
+        Button(action: {
+          NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        }) {
+          Image(systemName: "gear")
+            .imageScale(.large)
+            .foregroundColor(.secondary)
         }
-        .onDelete(perform: deleteItems)
+        .buttonStyle(.plain)
+        .padding(.trailing, 8)
+        .help("设置")
       }
-      .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-      .toolbar {
-        ToolbarItem {
-          Button(action: addItem) {
-            Label("Add Item", systemImage: "plus")
-          }
-        }
-      }
-    } detail: {
-      Text("Select an item")
-    }
-    .environmentObject(viewModel)
-    .id(needsRefresh)
-    .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
-      // 触发视图刷新
-      needsRefresh.toggle()
-    }
-  }
 
-  private func addItem() {
-    withAnimation {
-      let newItem = Item(timestamp: Date())
-      modelContext.insert(newItem)
-    }
-  }
-
-  private func deleteItems(offsets: IndexSet) {
-    withAnimation {
-      for index in offsets {
-        modelContext.delete(items[index])
+      // 主要内容
+      VStack {
+        Image(systemName: "globe")
+          .imageScale(.large)
+          .foregroundColor(.accentColor)
+        Text("Hello, world!")
       }
     }
+    .frame(width: 400, height: 600)
+    .background(WindowBackground())
   }
 }
 
-#Preview {
-  ContentView()
-    .modelContainer(for: Item.self, inMemory: true)
+// 私有结构体：窗口背景视图
+private struct WindowBackground: View {
+  @Environment(\.colorScheme) private var colorScheme
+
+  var body: some View {
+    Color(nsColor: .windowBackgroundColor)
+      .ignoresSafeArea()
+  }
+}
+
+// 使用传统的预览结构体
+struct ContentView_Previews: PreviewProvider {
+  static var previews: some View {
+    Group {
+      ContentView()
+        .preferredColorScheme(.light)
+      ContentView()
+        .preferredColorScheme(.dark)
+    }
+  }
 }
