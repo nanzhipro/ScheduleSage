@@ -16,34 +16,29 @@ struct ScheduleSageApp: App {
     WindowGroup {
       AddScheduleView()
         .environmentObject(viewModel)
-        .ignoresSafeArea()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(
+          width: DesignSystem.Dimensions.mainViewWidth,
+          height: DesignSystem.Dimensions.mainViewHeight
+        )
     }
     .windowStyle(.hiddenTitleBar)
     .windowResizability(.contentSize)
-    .defaultSize(
-      width: DesignSystem.Dimensions.mainViewWidth,
-      height: DesignSystem.Dimensions.mainViewHeight
-    )
     .defaultPosition(.center)
-    .windowToolbarStyle(.unifiedCompact)
-    .commands {
-      CommandGroup(replacing: .windowSize) {
-        Button("Enter Full Screen") {}.hidden()
-      }
-    }
-    .onChange(of: ScenePhase.active) { oldValue, newValue in
+    .onChange(of: ScenePhase.active) { _, _ in
       guard let window = NSApp.mainWindow else { return }
-      window.styleMask.remove(.resizable)
-      window.styleMask.remove(.miniaturizable)
       
+      // 配置窗口基本属性
+      window.styleMask.remove([.resizable, .miniaturizable, .fullScreen])
+      window.collectionBehavior.remove([.fullScreenPrimary, .fullScreenAuxiliary])
+      
+      // 设置窗口外观
       window.titlebarAppearsTransparent = true
       window.titleVisibility = .hidden
+      window.backgroundColor = .clear
+      window.contentView?.wantsLayer = true
       
-      if let contentView = window.contentView {
-        contentView.wantsLayer = true
-        window.backgroundColor = .clear
-      }
+      // 设置窗口层级
+      window.level = .floating
     }
 
     Settings {

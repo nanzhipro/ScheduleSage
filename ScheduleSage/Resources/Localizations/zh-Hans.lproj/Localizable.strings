@@ -207,3 +207,6 @@
 "hint.clipboard_import" = "从剪贴板文本或网页链接创建日程";
 "hint.manual_input" = "支持自然语言的手动输入方式";
 "hint.image_import" = "识别图片中的文字创建日程";
+
+"no_image_selected" = "未选择任何图片";
+"image_selection_failed" = "图片选择失败";

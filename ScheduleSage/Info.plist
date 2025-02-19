@@ -11,7 +11,7 @@
 			<string>schdulesage</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>schedulesage://show</string>
+				<string>schedulesage</string>
 			</array>
 		</dict>
 	</array>

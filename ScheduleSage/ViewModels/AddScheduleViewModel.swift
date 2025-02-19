@@ -23,6 +23,7 @@ class AddScheduleViewModel: ObservableObject {
     @Published var toastMessage = ""
     @Published var toastType: ToastType = .success
     @Published var isKeyboardMonitorEnabled = true
+    @Published var showImagePicker = false
     
     // 添加窗口控制器引用
     weak var windowController: MainWindowController?
@@ -85,7 +86,14 @@ class AddScheduleViewModel: ObservableObject {
             await promptViewModel.refreshPrompt()
             logger.info("Initialization completed")
         }
+        
+        setupNotifications()
     }
+    
+    private func setupNotifications() {
+
+    }
+    
     
     // MARK: - Window State Handling
     func handlePopoverDisappear() {
@@ -597,27 +605,23 @@ extension AddScheduleViewModel {
 // MARK: - Image Selection
 extension AddScheduleViewModel {
     func handleImageSelection() {
-        // 只在 Window 模式下允许打开文件选择器
-        guard windowController != nil else {
-            showToastMessage(NSLocalizedString("drag_drop_hint", comment: ""))
-            return
-        }
-        
-        let openPanel = NSOpenPanel()
-        openPanel.allowsMultipleSelection = false
-        openPanel.canChooseDirectories = false
-        openPanel.canChooseFiles = true
-        // 使用 ImageSupport 中定义的 UTTypes
-        openPanel.allowedContentTypes = ImageSupport.supportedUTTypes
-        
-        Task { @MainActor in
-            guard let window = windowController?.window else { return }
-            let response = await openPanel.beginSheetModal(for: window)
-            
-            if response == .OK, let url = openPanel.url {
+        showImagePicker = true
+    }
+    
+    func handleImagePickerResult(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            // 只处理第一个选择的文件
+            if let url = urls.first {
                 // 使用与拖拽相同的处理逻辑
                 handleDropped([url])
+            } else {
+                logger.error("No image selected")
+                showToastMessage(NSLocalizedString("no_image_selected", comment: ""))
             }
+        case .failure(let error):
+            logger.error("Image selection failed: \(error.localizedDescription)")
+            showToastMessage(NSLocalizedString("image_selection_failed", comment: ""))
         }
     }
 }
@@ -634,6 +638,26 @@ extension AddScheduleViewModel {
                 object: nil,
                 userInfo: ["event": updatedEvent]
             )
+        }
+    }
+}
+
+// MARK: - Modified closePopover method
+extension AddScheduleViewModel {
+    func closeWindow() {
+        Task { @MainActor in
+            // 1. 重置所有 sheet 状态
+            showManualInputSheet = false
+            showEventList = false
+            showUpgradeSheet = false
+            
+            // 2. 重置其他状态
+            resetState()
+            
+            // 3. 关闭窗口
+            if let windowController = windowController {
+                windowController.closeWindow()
+            }
         }
     }
 }

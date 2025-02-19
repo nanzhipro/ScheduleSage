@@ -45,12 +45,16 @@ struct AddScheduleView: View {
       message: toastMessage
     )
     .onAppear(perform: viewModel.resetState)
-    .onDisappear {
-      viewModel.handlePopoverDisappear()
-    }
     .id(needsRefresh)
     .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
       needsRefresh.toggle()
+    }
+    .fileImporter(
+        isPresented: $viewModel.showImagePicker,
+        allowedContentTypes: ImageSupport.supportedUTTypes,
+        allowsMultipleSelection: false
+    ) { result in
+        viewModel.handleImagePickerResult(result)
     }
   }
   
@@ -84,7 +88,6 @@ private struct AddScheduleView_Impl: View {
   
   var body: some View {
     ZStack {
-      DesignSystem.Gradients.containerBackground(colorScheme: colorScheme)
       
       // 主要内容
       VStack(spacing: 0) {
@@ -134,7 +137,6 @@ private struct AddScheduleView_Impl: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Gradients.containerBackground(colorScheme: colorScheme))
   }
 }
 
