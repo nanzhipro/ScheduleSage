@@ -50,22 +50,30 @@ struct AddMethodButton: View {
     self.action = action
   }
   
-  /// 图标的颜色，根据悬停状态和系统主题动态变化
-  private var iconColor: Color {
-    if isHovered {
-      return DesignSystem.Colors.primary
+  /// 背景颜色，根据悬停和按下状态动态变化
+  private var backgroundColor: Color {
+    if isPressed {
+      return DesignSystem.Colors.primary.opacity(0.1)
+    } else if isHovered {
+      return DesignSystem.Colors.primary.opacity(0.05)
     }
-    let baseColor = colorScheme == .dark ? Color.white : DesignSystem.Colors.iconGray
-    return baseColor.opacity(0.9)
-      .opacity(colorScheme == .dark ? 0.9 : 1.0)
+    return .clear
   }
   
-  /// 文本的颜色，根据悬停状态和系统主题动态变化
+  /// 图标的颜色，使用主题色但带有透明度
+  private var iconColor: Color {
+    if isHovered {
+      return DesignSystem.Colors.primary.opacity(0.8)
+    }
+    return DesignSystem.Colors.primary.opacity(0.8)
+  }
+  
+  /// 文本的颜色，使用标题文本颜色
   private var titleColor: Color {
     if isHovered {
-      return DesignSystem.Colors.primary
+      return DesignSystem.Colors.primaryText
     }
-    return colorScheme == .dark ? .white : DesignSystem.Colors.secondaryText
+    return DesignSystem.Colors.primaryText
   }
   
   var body: some View {
@@ -76,13 +84,9 @@ struct AddMethodButton: View {
       }
       .frame(maxWidth: .infinity)
       .padding(.vertical, 12)
-      .scaleEffect(buttonScale)
-      .shadow(
-        color: shadowColor,
-        radius: 6,
-        x: 0,
-        y: 3
-      )
+      .background(backgroundColor)
+      .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
+      .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
     .onHover { hovering in
@@ -93,29 +97,12 @@ struct AddMethodButton: View {
     .help(NSLocalizedString(hintKey, comment: ""))
   }
   
-  /// 处理按钮点击事件
-  private func handleButtonTap() {
-    withAnimation(.easeOut(duration: 0.2)) {
-      isPressed = true
-    }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-      isPressed = false
-      action?()
-    }
-  }
-  
   /// 创建图标视图
   private func makeIconView() -> some View {
     Image(systemName: iconName)
       .font(.system(size: DesignSystem.Dimensions.methodIconSize))
       .foregroundColor(iconColor)
       .symbolRenderingMode(.hierarchical)
-      .overlay(
-        Image(systemName: iconName)
-          .font(.system(size: DesignSystem.Dimensions.methodIconSize))
-          .foregroundColor(DesignSystem.Colors.primary)
-          .opacity(colorScheme == .dark ? 0.3 : 0.2)
-      )
   }
   
   /// 创建标题视图
@@ -125,14 +112,21 @@ struct AddMethodButton: View {
       .foregroundColor(titleColor)
   }
   
-  /// 按钮的缩放比例，根据状态动态变化
-  private var buttonScale: CGFloat {
-    isPressed ? 0.95 : (isHovered ? 1.02 : 1.0)
-  }
-  
-  /// 按钮的阴影颜色，根据悬停状态动态变化
-  private var shadowColor: Color {
-    isHovered ? DesignSystem.Colors.primary.opacity(0.15) : .clear
+  /// 处理按钮点击事件
+  private func handleButtonTap() {
+    withAnimation(.easeOut(duration: 0.1)) {
+      isPressed = true
+    }
+    
+    // 触觉反馈
+    NSHapticFeedbackManager.defaultPerformer.perform(.generic, performanceTime: .default)
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+      withAnimation(.easeOut(duration: 0.1)) {
+        isPressed = false
+      }
+      action?()
+    }
   }
 }
 

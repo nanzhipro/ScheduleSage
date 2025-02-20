@@ -88,6 +88,17 @@ private struct AddScheduleView_Impl: View {
   
   var body: some View {
     ZStack {
+      // 渐变背景
+      LinearGradient(
+        colors: [
+          DesignSystem.Colors.primary.opacity(0.1),
+          DesignSystem.Colors.primary.opacity(0.05),
+          DesignSystem.Colors.background
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+      )
+      .ignoresSafeArea()
       
       // 主要内容
       VStack(spacing: 0) {
@@ -131,9 +142,8 @@ private struct AddScheduleView_Impl: View {
               .frame(width: 44, height: 44)
           }
         }
-        .frame(height: 44)  // 使用 SettingsButton 的高度
-        .padding(.horizontal, Design.Spacing.bottomBarPadding.horizontal)
-        .padding(.bottom, Design.Spacing.bottomBarPadding.bottom)
+        .frame(height: 44)
+        .background(DesignSystem.Colors.background.opacity(0.8))
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)

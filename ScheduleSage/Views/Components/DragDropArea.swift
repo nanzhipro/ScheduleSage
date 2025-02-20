@@ -26,7 +26,19 @@ struct DragDropArea<Content: View>: View {
 
   var body: some View {
     ZStack {
-      // 背景和内容
+      // 渐变背景
+      LinearGradient(
+        colors: [
+          DesignSystem.Colors.primary.opacity(0.1),
+          DesignSystem.Colors.primary.opacity(0.05),
+          DesignSystem.Colors.background
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+      )
+      .ignoresSafeArea()
+      
+      // 主要内容
       content
 
       // 虚线边框
@@ -42,7 +54,6 @@ struct DragDropArea<Content: View>: View {
         .padding(.vertical, DesignSystem.Layout.containerPadding.top)
         .animation(.easeInOut(duration: 0.3), value: isDragging)
     }
-    .background(DesignSystem.Colors.containerGray)
     .onDrop(
       of: [.fileURL],
       delegate: ImageDropDelegate(
