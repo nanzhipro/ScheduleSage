@@ -64,7 +64,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if event.modifierFlags.contains(.command),
                event.keyCode == 9,
                NSApp.isActive {
-                return event
+                NotificationCenter.default.post(name: .commandVPressed, object: nil)
+                return nil
             }
             
             if event.modifierFlags.contains([.command, .shift]),

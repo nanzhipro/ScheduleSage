@@ -92,9 +92,22 @@ class AddScheduleViewModel: ObservableObject {
     }
     
     private func setupNotifications() {
-
+        // 监听 Command + V 事件
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleCommandV),
+            name: .commandVPressed,
+            object: nil
+        )
     }
     
+    @objc private func handleCommandV() {
+        // 只在键盘监听启用时处理
+        guard isKeyboardMonitorEnabled else { return }
+        
+        // 检查剪贴板内容
+        checkClipboardContent()
+    }
     
     // MARK: - Window State Handling
     func handlePopoverDisappear() {
@@ -661,4 +674,9 @@ extension AddScheduleViewModel {
             }
         }
     }
+}
+
+// MARK: - Notification Name Extension
+extension Notification.Name {
+    static let commandVPressed = Notification.Name("commandVPressed")
 }
