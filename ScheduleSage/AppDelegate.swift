@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Properties
     private var keyboardMonitor: Any?
     private var onboardingWindowController: NSWindowController?
+    private var mainWindowController: MainWindowController?
     
     private let logger = Logger(subsystem: "com.tiwenlab.schedulesage", category: "AppDelegate")
     private let calendarManager = CalendarManager()
@@ -35,6 +36,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         if !hasCompletedOnboarding {
             showOnboarding()
+        } else {
+            showMainWindow()
         }
         
         configureKeyboardMonitor()
@@ -48,7 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func configureSentry() {
         SentrySDK.start { options in
-            options.dsn = AppConstants.sentryUrl
+            options.dsn = AppConstants.URLs.sentryUrl
             options.debug = false
             options.tracesSampleRate = 1.0
         }
@@ -110,6 +113,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.hasCompletedOnboarding = true
                 self?.onboardingWindowController?.close()
                 self?.onboardingWindowController = nil
+                
+                // 完成引导后显示主窗口
+                self?.showMainWindow()
             })
         
         let window = NSWindow(
@@ -133,6 +139,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.activate(ignoringOtherApps: true)
             onboardingWindow.makeKeyAndOrderFront(nil)
         }
+    }
+    
+    private func showMainWindow() {
+        guard let mainWindow = NSApp.windows.first else { return }
+                
+        // 显示主窗口
+        NSApp.activate(ignoringOtherApps: true)
+        mainWindow.makeKeyAndOrderFront(nil)
     }
     
     private func initializeTheme() {

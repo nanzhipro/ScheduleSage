@@ -11,21 +11,27 @@ import SwiftUI
 struct ScheduleSageApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   @StateObject private var viewModel = AddScheduleViewModel()
+  @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
   var body: some Scene {
     WindowGroup {
-      AddScheduleView()
-        .environmentObject(viewModel)
-        .frame(
-          width: DesignSystem.Dimensions.mainViewWidth,
-          height: DesignSystem.Dimensions.mainViewHeight
-        )
+      Group {
+        if hasCompletedOnboarding {
+          AddScheduleView()
+            .environmentObject(viewModel)
+            .frame(
+              width: DesignSystem.Dimensions.mainViewWidth,
+              height: DesignSystem.Dimensions.mainViewHeight
+            )
+        }
+      }
     }
     .windowStyle(.hiddenTitleBar)
     .windowResizability(.contentSize)
     .defaultPosition(.center)
     .onChange(of: ScenePhase.active) { _, _ in
-      guard let window = NSApp.mainWindow else { return }
+      guard hasCompletedOnboarding,
+            let window = NSApp.mainWindow else { return }
       
       // 配置窗口基本属性
       window.styleMask.remove([.resizable, .miniaturizable, .fullScreen])
