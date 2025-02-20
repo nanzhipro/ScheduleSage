@@ -35,14 +35,11 @@ public struct OnboardingPage: Identifiable, Equatable {
     
     public enum PermissionType {
         case calendar
-        case notification
         
         var title: LocalizedStringKey {
             switch self {
             case .calendar:
                 return "onboarding.permission.calendar.title"
-            case .notification:
-                return "onboarding.permission.notification.title"
             }
         }
         
@@ -50,8 +47,6 @@ public struct OnboardingPage: Identifiable, Equatable {
             switch self {
             case .calendar:
                 return "onboarding.permission.calendar.description"
-            case .notification:
-                return "onboarding.permission.notification.description"
             }
         }
         
@@ -59,8 +54,6 @@ public struct OnboardingPage: Identifiable, Equatable {
             switch self {
             case .calendar:
                 return "calendar"
-            case .notification:
-                return "bell"
             }
         }
     }
@@ -105,14 +98,7 @@ public extension OnboardingPage {
                 description: "onboarding.calendar.description",
                 iconName: "calendar",
                 requiresPermission: true,
-                permissionType: .calendar
-            ),
-            OnboardingPage(
-                title: "onboarding.notification.title",
-                description: "onboarding.notification.description",
-                iconName: "bell",
-                requiresPermission: true,
-                permissionType: .notification,
+                permissionType: .calendar,
                 isLastPage: true
             )
         ]

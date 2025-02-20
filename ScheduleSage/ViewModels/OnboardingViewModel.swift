@@ -28,16 +28,12 @@ public final class OnboardingViewModel: ObservableObject {
     /// 日历权限状态
     @Published private(set) var calendarPermissionGranted: Bool = false
     
-    /// 通知权限状态
-    @Published private(set) var notificationPermissionGranted: Bool = false
-    
     /// 是否正在请求权限
     @Published private(set) var isRequestingPermission: Bool = false
     
     // MARK: - Private Properties
     
     private let calendarManager = CalendarManager()
-    private let notificationManager = NotificationManager.shared
     private var cancellables = Set<AnyCancellable>()
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.schedulesage", category: "OnboardingViewModel")
     
@@ -132,27 +128,6 @@ public final class OnboardingViewModel: ObservableObject {
         }
     }
     
-    /// 请求通知权限
-    public func requestNotificationPermission() async {
-        guard !isRequestingPermission else { return }
-        
-        await MainActor.run {
-            isRequestingPermission = true
-        }
-        
-        do {
-            notificationPermissionGranted = await notificationManager.checkNotificationStatus()
-        }
-        
-        await MainActor.run {
-            isRequestingPermission = false
-            
-            if !notificationPermissionGranted {
-                logger.notice("Notification permission denied - User needs to enable in System Settings")
-            }
-        }
-    }
-    
     // MARK: - Private Methods
     
     private func setupSubscriptions() {
@@ -177,15 +152,12 @@ public final class OnboardingViewModel: ObservableObject {
     }
     
     private func checkPermissions() async {
-        // 检查日历权限
+        // 只检查日历权限
         do {
             calendarPermissionGranted = try await calendarManager.checkCalendarAuthorizationStatus()
         } catch {
             logger.error("Calendar permission check failed: \(error.localizedDescription)")
             calendarPermissionGranted = false
         }
-        
-        // 检查通知权限
-        notificationPermissionGranted = await notificationManager.checkNotificationStatus()
     }
 }

@@ -27,11 +27,10 @@ struct OnboardingPageView: View {
         }
         .padding(.horizontal, DesignSystem.Spacing.horizontal)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onChange(of: isAnimating) { _, newValue in
-            triggerAnimation()
-        }
         .onAppear {
-            triggerAnimation()
+            withAnimation(.spring(duration: 0.5, bounce: 0.4)) {
+                isAnimating = true
+            }
         }
     }
     
@@ -65,12 +64,6 @@ struct OnboardingPageView: View {
         }
         .padding(.bottom, DesignSystem.Spacing.sectionSpacing)
     }
-    
-    private func triggerAnimation() {
-        withAnimation(.spring(duration: 0.5, bounce: 0.4)) {
-            isAnimating.toggle()
-        }
-    }
 }
 
 // MARK: - Permission Button
@@ -80,6 +73,7 @@ private struct PermissionButton: View {
     let type: OnboardingPage.PermissionType
     @ObservedObject var viewModel: OnboardingViewModel
     @Environment(\.colorScheme) private var colorScheme
+    @State private var isHovered = false
     
     var body: some View {
         Group {
@@ -96,8 +90,43 @@ private struct PermissionButton: View {
         switch type {
         case .calendar:
             return viewModel.calendarPermissionGranted
-        case .notification:
-            return viewModel.notificationPermissionGranted
+        }
+    }
+    
+    private func requestPermission() {
+        Task {
+            switch type {
+            case .calendar:
+                await viewModel.requestCalendarPermission()
+            }
+        }
+    }
+    
+    private var buttonTitle: LocalizedStringKey {
+        switch type {
+        case .calendar:
+            return "onboarding.permission.calendar.button"
+        }
+    }
+    
+    private var grantedTitle: LocalizedStringKey {
+        switch type {
+        case .calendar:
+            return "onboarding.permission.calendar.granted"
+        }
+    }
+    
+    private var buttonIcon: String {
+        switch type {
+        case .calendar:
+            return "calendar.badge.plus"
+        }
+    }
+    
+    private var helpText: LocalizedStringKey {
+        switch type {
+        case .calendar:
+            return "onboarding.permission.calendar.help"
         }
     }
     
@@ -136,57 +165,6 @@ private struct PermissionButton: View {
         Label(grantedTitle, systemImage: "checkmark.circle.fill")
             .font(DesignSystem.Typography.bodyMedium)
             .foregroundColor(DesignSystem.Colors.success)
-    }
-    
-    private func requestPermission() {
-        Task {
-            switch type {
-            case .calendar:
-                await viewModel.requestCalendarPermission()
-            case .notification:
-                await viewModel.requestNotificationPermission()
-            }
-        }
-    }
-    
-    // MARK: - Helper Properties
-    
-    @State private var isHovered = false
-    
-    private var buttonTitle: LocalizedStringKey {
-        switch type {
-        case .calendar:
-            return "onboarding.permission.calendar.button"
-        case .notification:
-            return "onboarding.permission.notification.button"
-        }
-    }
-    
-    private var grantedTitle: LocalizedStringKey {
-        switch type {
-        case .calendar:
-            return "onboarding.permission.calendar.granted"
-        case .notification:
-            return "onboarding.permission.notification.granted"
-        }
-    }
-    
-    private var buttonIcon: String {
-        switch type {
-        case .calendar:
-            return "calendar.badge.plus"
-        case .notification:
-            return "bell.badge"
-        }
-    }
-    
-    private var helpText: LocalizedStringKey {
-        switch type {
-        case .calendar:
-            return "onboarding.permission.calendar.help"
-        case .notification:
-            return "onboarding.permission.notification.help"
-        }
     }
 }
 
