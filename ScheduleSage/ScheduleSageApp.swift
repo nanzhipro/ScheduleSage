@@ -29,6 +29,10 @@ struct ScheduleSageApp: App {
     .windowStyle(.hiddenTitleBar)
     .windowResizability(.contentSize)
     .defaultPosition(.center)
+    .commands {
+      // 禁用新建窗口命令
+      CommandGroup(replacing: .newItem) { }
+    }
     .onChange(of: ScenePhase.active) { _, _ in
       guard hasCompletedOnboarding,
             let window = NSApp.mainWindow else { return }

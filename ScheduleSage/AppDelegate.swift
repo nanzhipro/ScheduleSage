@@ -10,14 +10,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindowController: NSWindowController?
     private var mainWindowController: MainWindowController?
     
-    private let logger = Logger(subsystem: "com.tiwenlab.schedulesage", category: "AppDelegate")
+    private let logger = Logger(subsystem: AppInfo.bundleIdentifier, category: "AppDelegate")
     private let calendarManager = CalendarManager()
     private let clipboardManager = ClipboardManager()
     private let notificationManager = NotificationManager.shared
     private let tokenProvider = APIConfig.shared.getTokenProvider()
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    private static let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.tiwenlab.schedulesage"
+    private static let bundleIdentifier = AppInfo.bundleIdentifier
     
     // MARK: - Lifecycle
     func applicationDidFinishLaunching(_ notification: Notification) {

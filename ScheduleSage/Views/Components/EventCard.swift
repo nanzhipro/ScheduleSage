@@ -16,7 +16,7 @@ private enum Design {
   }
   
   enum Layout {
-    static let iconSpacing: CGFloat = 16
+    static let iconSpacing: CGFloat = 8
     static let iconLabelSpacing: CGFloat = 8
     static let titleSpacing: CGFloat = 8
     static let timeSectionSpacing: CGFloat = 12
