@@ -294,7 +294,7 @@ private struct AddMethodSection: View {
             )
             
             AddMethodButton(
-                iconName: "square.and.pencil",
+                iconName: "pencil.and.list.clipboard",
                 title: NSLocalizedString("manual_input", comment: ""),
                 hintKey: "hint.manual_input",
                 action: { viewModel.showManualInputSheet = true }

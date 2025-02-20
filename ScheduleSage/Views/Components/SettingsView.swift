@@ -9,16 +9,6 @@ import SwiftUI
 import AppKit
 
 struct SettingsView: View {
-  @AppStorage("enableNotifications") private var enableNotifications = true {
-    didSet {
-      if enableNotifications {
-        Task {
-          await NotificationManager.shared.requestAuthorization()
-        }
-      }
-    }
-  }
-  
   @AppStorage("currentTheme") private var currentTheme = ThemeType.wechat.rawValue {
     didSet {
       if let theme = ThemeType(rawValue: currentTheme) {
@@ -31,7 +21,6 @@ struct SettingsView: View {
   }
   
   @StateObject private var themeManager = ThemeManager.shared
-  @State private var showNotificationAlert = false
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
   @State private var showLaunchError = false
   
@@ -49,7 +38,6 @@ struct SettingsView: View {
   
   private var generalSettings: some View {
     Form {
-      notificationSection
       appearanceSection
       systemSection
       versionSection
@@ -62,33 +50,6 @@ struct SettingsView: View {
 
 // MARK: - Section Views
 private extension SettingsView {
-  var notificationSection: some View {
-    SettingsSection(title: "settings_group_notifications") {
-      SettingsToggle(
-        title: "settings_notifications",
-        icon: "bell.badge.fill",
-        isOn: Binding(
-          get: { enableNotifications },
-          set: { newValue in
-            if newValue {
-              Task {
-                let isAuthorized = await NotificationManager.shared.checkNotificationStatus()
-                if !isAuthorized {
-                  NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!)
-                }
-                await MainActor.run {
-                  enableNotifications = isAuthorized
-                }
-              }
-            } else {
-              enableNotifications = false
-            }
-          }
-        )
-      )
-    }
-  }
-  
   var appearanceSection: some View {
     SettingsSection(title: "settings_group_appearance") {
       // ThemePicker(currentTheme: Binding(
