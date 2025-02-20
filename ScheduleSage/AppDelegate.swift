@@ -48,7 +48,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func configureSentry() {
         SentrySDK.start { options in
-            options.dsn = "https://8dbe56154a591426c2ecb7ed66018a1a@o4508634309066752.ingest.us.sentry.io/4508822914793472"
+            options.dsn = AppConstants.sentryUrl
             options.debug = false
             options.tracesSampleRate = 1.0
         }
