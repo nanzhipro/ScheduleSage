@@ -36,9 +36,6 @@ struct ScheduleSageApp: App {
       window.titleVisibility = .hidden
       window.backgroundColor = .clear
       window.contentView?.wantsLayer = true
-      
-      // 设置窗口层级
-      window.level = .floating
     }
 
     Settings {

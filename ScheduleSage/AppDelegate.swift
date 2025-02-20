@@ -39,6 +39,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         configureKeyboardMonitor()
         configureSentry()
+        
+        // 初始化窗口层级
+        if let window = NSApp.mainWindow {
+            window.level = .normal
+        }
     }
     
     private func configureSentry() {

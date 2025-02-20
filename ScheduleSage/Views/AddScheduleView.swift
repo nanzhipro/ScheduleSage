@@ -88,17 +88,19 @@ private struct AddScheduleView_Impl: View {
   
   var body: some View {
     ZStack {
-      // 渐变背景
-      LinearGradient(
-        colors: [
-          DesignSystem.Colors.primary.opacity(0.1),
-          DesignSystem.Colors.primary.opacity(0.05),
-          DesignSystem.Colors.background
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-      )
-      .ignoresSafeArea()
+      // 渐变背景，仅在浅色模式下显示
+      if colorScheme == .light {
+        LinearGradient(
+          colors: [
+            DesignSystem.Colors.primary.opacity(0.1),
+            DesignSystem.Colors.primary.opacity(0.05),
+            DesignSystem.Colors.background
+          ],
+          startPoint: .top,
+          endPoint: .bottom
+        )
+        .ignoresSafeArea()
+      }
       
       // 主要内容
       VStack(spacing: 0) {
@@ -147,6 +149,7 @@ private struct AddScheduleView_Impl: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(colorScheme == .dark ? DesignSystem.Colors.background : nil)
   }
 }
 

@@ -30,8 +30,6 @@ struct SettingsView: View {
     }
   }
   
-  @AppStorage("alwaysOnTop") private var alwaysOnTop = false
-  
   @StateObject private var themeManager = ThemeManager.shared
   @State private var showNotificationAlert = false
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
@@ -127,18 +125,6 @@ private extension SettingsView {
           }
         )
       )
-      
-      SettingsToggle(
-        title: "settings_always_on_top",
-        icon: "rectangle.on.rectangle.fill",
-        isOn: $alwaysOnTop
-      )
-      .onChange(of: alwaysOnTop) { newValue in
-        NotificationCenter.default.post(
-          name: .windowLevelDidChange,
-          object: newValue
-        )
-      }
     }
     .alert(
       NSLocalizedString("settings_launch_error_title", comment: ""),
