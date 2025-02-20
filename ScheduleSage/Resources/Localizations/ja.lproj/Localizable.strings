@@ -208,3 +208,7 @@
 "hint.clipboard_import" = "クリップボードのテキストやウェブページリンクから予定を作成";
 "hint.manual_input" = "自然言語に対応した手動入力で予定を作成";
 "hint.image_import" = "画像のテキストを認識して予定を作成";
+
+// フィードバック関連
+"settings_feedback" = "フィードバック";
+"feedback_button_hint" = "改善のご提案";

@@ -133,9 +133,32 @@ private struct AddScheduleView_Impl: View {
             .foregroundColor(DesignSystem.Colors.tertiaryText)
             .frame(maxWidth: .infinity)
           
-          // 设置按钮靠右
-          HStack {
+          // 右侧按钮组
+          HStack(spacing: 16) {
             Spacer()
+            
+            // 反馈按钮
+            Button(action: {
+              if let url = URL(string: AppConstants.URLs.feedback) {
+                NSWorkspace.shared.open(url)
+              }
+            }) {
+              Text(NSLocalizedString("settings_feedback", comment: ""))
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.primary)
+            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .help(NSLocalizedString("feedback_button_hint", comment: ""))
+            .scaleEffect(viewModel.feedbackButtonScale)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: viewModel.feedbackButtonScale)
+            .onHover { isHovered in
+              withAnimation {
+                viewModel.feedbackButtonScale = isHovered ? 1.1 : 1.0
+              }
+            }
+            
+            // 设置按钮
             SettingsButton()
               .foregroundColor(colorScheme == .dark ? 
                 DesignSystem.Colors.secondaryText :

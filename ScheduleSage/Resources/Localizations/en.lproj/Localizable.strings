@@ -208,3 +208,7 @@
 "hint.clipboard_import" = "Create events from clipboard text or webpage links";
 "hint.manual_input" = "Manually enter event details with natural language support";
 "hint.image_import" = "Create events by recognizing text from images";
+
+// Feedback related
+"settings_feedback" = "Feedback";
+"feedback_button_hint" = "Help us improve";

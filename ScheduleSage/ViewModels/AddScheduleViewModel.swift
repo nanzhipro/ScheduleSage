@@ -24,6 +24,7 @@ class AddScheduleViewModel: ObservableObject {
     @Published var toastType: ToastType = .success
     @Published var isKeyboardMonitorEnabled = true
     @Published var showImagePicker = false
+    @Published var feedbackButtonScale: CGFloat = 1.0
     
     // 添加窗口控制器引用
     weak var windowController: MainWindowController?

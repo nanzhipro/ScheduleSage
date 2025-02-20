@@ -202,6 +202,7 @@
 "powered_by_tencent" = "腾讯云提供技术支持";
 
 "settings_feedback" = "反馈建议";
+"feedback_button_hint" = "帮助我们改进产品";
 
 // Method Button Hints
 "hint.clipboard_import" = "从剪贴板文本或网页链接创建日程";

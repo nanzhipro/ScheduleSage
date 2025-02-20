@@ -363,9 +363,9 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   
   var url: String {
     switch self {
-    case .feedback: return "https://schedulesage.featurebase.app/"
-    case .privacyPolicy: return "https://tiwenlab.notion.site/18f5180108e580f69c59f212867f9a15"
-    case .faq: return "https://tiwenlab.notion.site/FAQ-18f5180108e58034aecdec8a297c97ab?pvs=74"
+    case .feedback: return AppConstants.URLs.feedback
+    case .privacyPolicy: return AppConstants.URLs.privacyPolicy
+    case .faq: return AppConstants.URLs.faq
     }
   }
   
