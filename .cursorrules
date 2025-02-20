@@ -76,6 +76,7 @@
 - 使用现代的 Swift 和 SwiftUI 编程模式。
 - 符合 Apple 推荐 App 的设计标准。
 - 优先使用 SwiftUI 的组件，而不是 AppKit 的组件。
+- App 从 macOS 13 开始支持；
 
 
 ---

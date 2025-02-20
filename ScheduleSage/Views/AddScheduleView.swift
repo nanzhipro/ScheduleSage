@@ -267,7 +267,7 @@ private struct AddScheduleContent: View {
 private struct TitleSection: View {
     var body: some View {
         VStack(spacing: Design.Spacing.titleToSubtitle) {
-            Text(AppInfo.displayName)
+            Text(AppInfo.name)
                 .font(DesignSystem.Typography.title)
                 .foregroundColor(DesignSystem.Colors.primaryText)
             
