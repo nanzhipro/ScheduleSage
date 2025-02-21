@@ -217,3 +217,23 @@
 "appearance_light" = "ライト";
 "appearance_dark" = "ダーク";
 "appearance_auto" = "自動";
+
+// IAP Errors
+"purchase_failed" = "購入に失敗しました。もう一度お試しください。";
+"restore_failed" = "購入の復元に失敗しました。";
+"network_error" = "ネットワーク接続エラー。";
+"user_cancelled" = "購入がキャンセルされました。";
+"product_not_found" = "商品が見つかりません。";
+
+// Subscription
+"subscription_expiry_reminder_title_7" = "サブスクリプション期限が近づいています";
+"subscription_expiry_reminder_body_7" = "プレミアムサブスクリプションは7日後に期限切れとなります。更新して、プレミアム機能を継続してご利用ください。";
+"subscription_expiry_reminder_title_1" = "サブスクリプション最終日";
+"subscription_expiry_reminder_body_1" = "プレミアムサブスクリプションは明日で期限切れとなります。プレミアム機能をお見逃しなく！";
+
+"subscription_period_monthly" = "月額";
+"subscription_period_yearly" = "年額";
+"subscription_feature_unlimited_usage" = "無制限利用";
+"subscription_feature_premium_features" = "プレミアム機能";
+"subscription_feature_priority_support" = "優先サポート";
+"subscription_feature_yearly_discount" = "お得な年額プラン（50%オフ）";

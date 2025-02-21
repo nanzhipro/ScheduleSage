@@ -77,6 +77,7 @@
 - 符合 Apple 推荐 App 的设计标准。
 - 优先使用 SwiftUI 的组件，而不是 AppKit 的组件。
 - App 从 macOS 13 开始支持；
+- 不要忘记 import 组件所在的模块。
 
 
 ---

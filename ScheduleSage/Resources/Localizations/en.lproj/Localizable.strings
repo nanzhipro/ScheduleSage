@@ -217,3 +217,22 @@
 "appearance_light" = "Light";
 "appearance_dark" = "Dark";
 "appearance_auto" = "Auto";
+
+"purchase_failed" = "Purchase failed. Please try again.";
+"restore_failed" = "Failed to restore purchases.";
+"network_error" = "Network connection error.";
+"user_cancelled" = "Purchase was cancelled.";
+"product_not_found" = "Product not found.";
+
+// Subscription
+"subscription_expiry_reminder_title_7" = "Subscription Expiring Soon";
+"subscription_expiry_reminder_body_7" = "Your premium subscription will expire in 7 days. Renew now to keep enjoying premium features.";
+"subscription_expiry_reminder_title_1" = "Last Day of Subscription";
+"subscription_expiry_reminder_body_1" = "Your premium subscription expires tomorrow. Don't miss out on premium features!";
+
+"subscription_period_monthly" = "Monthly";
+"subscription_period_yearly" = "Yearly";
+"subscription_feature_unlimited_usage" = "Unlimited Usage";
+"subscription_feature_premium_features" = "Premium Features";
+"subscription_feature_priority_support" = "Priority Support";
+"subscription_feature_yearly_discount" = "Best Value (Save 50%)";

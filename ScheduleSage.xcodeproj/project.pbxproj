@@ -10,6 +10,9 @@
 		D52B9FFF2D44B65700D74909 /* QuestOCR in Frameworks */ = {isa = PBXBuildFile; productRef = D52B9FFE2D44B65700D74909 /* QuestOCR */; };
 		D53F8FBE2D5A3B0C0081039A /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = D53F8FBD2D5A3B0C0081039A /* SwiftJWT */; };
 		D55454912D3225130086A832 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = D55454902D3225130086A832 /* SwiftDate */; };
+		D5553BD02D68C3AF00EB51BF /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = D5553BCF2D68C3AF00EB51BF /* RevenueCat */; };
+		D5553BD22D68C3AF00EB51BF /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = D5553BD12D68C3AF00EB51BF /* RevenueCatUI */; };
+		D5553BD42D68C46200EB51BF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5553BD32D68C46200EB51BF /* StoreKit.framework */; };
 		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
 		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
@@ -36,6 +39,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D5553BD32D68C46200EB51BF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduleSage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D57ADFD92CF54D36000D9DB1 /* ScheduleSageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleSageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D57ADFE32CF54D36000D9DB1 /* ScheduleSageUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleSageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -66,6 +70,9 @@
 			files = (
 				D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */,
 				D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */,
+				D5553BD02D68C3AF00EB51BF /* RevenueCat in Frameworks */,
+				D5553BD42D68C46200EB51BF /* StoreKit.framework in Frameworks */,
+				D5553BD22D68C3AF00EB51BF /* RevenueCatUI in Frameworks */,
 				D5FF61672D60AEDC00FC8AF6 /* Sentry in Frameworks */,
 				D53F8FBE2D5A3B0C0081039A /* SwiftJWT in Frameworks */,
 				D55454912D3225130086A832 /* SwiftDate in Frameworks */,
@@ -96,6 +103,7 @@
 		D56686A92CFC05D800EE1486 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D5553BD32D68C46200EB51BF /* StoreKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -150,6 +158,8 @@
 				D52B9FFE2D44B65700D74909 /* QuestOCR */,
 				D53F8FBD2D5A3B0C0081039A /* SwiftJWT */,
 				D5FF61662D60AEDC00FC8AF6 /* Sentry */,
+				D5553BCF2D68C3AF00EB51BF /* RevenueCat */,
+				D5553BD12D68C3AF00EB51BF /* RevenueCatUI */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -245,6 +255,7 @@
 				D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */,
 				D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 				D5FF61652D60AEDC00FC8AF6 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+				D5553BCE2D68C3AF00EB51BF /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -447,7 +458,7 @@
 				CODE_SIGN_ENTITLEMENTS = ScheduleSage/ScheduleSage.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"ScheduleSage/Preview Content\"";
 				DEVELOPMENT_TEAM = YSM8K853CQ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -461,7 +472,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tiwenlab.schedulesage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -478,7 +489,7 @@
 				CODE_SIGN_ENTITLEMENTS = ScheduleSage/ScheduleSage.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"ScheduleSage/Preview Content\"";
 				DEVELOPMENT_TEAM = YSM8K853CQ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -492,7 +503,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tiwenlab.schedulesage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -642,6 +653,14 @@
 				minimumVersion = 7.0.0;
 			};
 		};
+		D5553BCE2D68C3AF00EB51BF /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.17.0;
+			};
+		};
 		D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
@@ -699,6 +718,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */;
 			productName = SwiftDate;
+		};
+		D5553BCF2D68C3AF00EB51BF /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5553BCE2D68C3AF00EB51BF /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+		D5553BD12D68C3AF00EB51BF /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5553BCE2D68C3AF00EB51BF /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCatUI;
 		};
 		D56686AA2CFC05D800EE1486 /* SwiftSoup */ = {
 			isa = XCSwiftPackageProductDependency;
