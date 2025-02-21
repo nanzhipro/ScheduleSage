@@ -1,5 +1,36 @@
 import SwiftUI
 
+/// 外观模式
+enum AppearanceMode: String, CaseIterable, Identifiable {
+    case light = "light"
+    case dark = "dark"
+    case auto = "auto"
+    
+    var id: String { rawValue }
+    
+    var localizedName: String {
+        switch self {
+        case .light:
+            return NSLocalizedString("appearance_light", comment: "Light mode")
+        case .dark:
+            return NSLocalizedString("appearance_dark", comment: "Dark mode")
+        case .auto:
+            return NSLocalizedString("appearance_auto", comment: "Auto mode")
+        }
+    }
+    
+    var systemImage: String {
+        switch self {
+        case .light:
+            return "sun.max"
+        case .dark:
+            return "moon.stars"
+        case .auto:
+            return "circle.lefthalf.filled"
+        }
+    }
+}
+
 /// 主题类型
 /// - apple: 苹果风格，简洁现代
 /// - wechat: 微信风格，偏绿色调

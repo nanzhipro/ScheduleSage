@@ -591,8 +591,7 @@ enum CalendarError: LocalizedError {
 
 // MARK: - Toast Management
 extension AddScheduleViewModel {
-    func showToastMessage(_ message: String, type: ToastType = .error) {
-        // 取消之前的隐藏任务
+    func showToastMessage(_ message: String, type: ToastType = .error, duration: TimeInterval = 2.0) {
         Task { @MainActor in
             // 确保当前 toast 被隐藏
             showToast = false
@@ -605,13 +604,21 @@ extension AddScheduleViewModel {
             toastMessage = message
             showToast = true
             
-            // 3秒后自动隐藏
-            try? await Task.sleep(nanoseconds: 3_000_000_000) // 3s
+            // 2秒后自动隐藏（与 EventListView 保持一致）
+            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
             
             // 仅当消息未被更新时才隐藏
             if toastMessage == message {
                 showToast = false
             }
+        }
+    }
+    
+    // 新增方法：立即隐藏所有 toast
+    func hideAllToasts() {
+        Task { @MainActor in
+            showToast = false
+            importStatus = .none
         }
     }
 }

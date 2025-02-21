@@ -9,20 +9,12 @@ import SwiftUI
 import AppKit
 
 struct SettingsView: View {
-  @AppStorage("currentTheme") private var currentTheme = ThemeType.wechat.rawValue {
-    didSet {
-      if let theme = ThemeType(rawValue: currentTheme) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-          DesignSystem.switchTheme(to: theme)
-          NotificationCenter.default.post(name: .themeDidChange, object: theme)
-        }
-      }
-    }
-  }
-  
+  @AppStorage("currentTheme") private var currentTheme = ThemeType.wechat.rawValue
+  @AppStorage("appearanceMode") private var appearanceMode = AppearanceMode.auto.rawValue
   @StateObject private var themeManager = ThemeManager.shared
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
   @State private var showLaunchError = false
+  @Environment(\.colorScheme) private var colorScheme
   
   var body: some View {
     TabView {
@@ -34,6 +26,7 @@ struct SettingsView: View {
     .frame(width: 375, height: 500)
     .fixedSize(horizontal: true, vertical: true)
     .accentColor(DesignSystem.Colors.primary)
+    .onAppear(perform: onAppear)
   }
   
   private var generalSettings: some View {
@@ -46,28 +39,88 @@ struct SettingsView: View {
     .scrollContentBackground(.hidden)
     .background(DesignSystem.Colors.primaryBackground)
   }
+  
+  private var appearanceSection: some View {
+    SettingsSection(title: "settings_group_appearance") {
+      // 外观模式选择器
+      Picker(selection: Binding(
+        get: { AppearanceMode(rawValue: appearanceMode) ?? .auto },
+        set: { newValue in
+          appearanceMode = newValue.rawValue
+          updateAppearance(to: newValue)
+        }
+      )) {
+        ForEach(AppearanceMode.allCases) { mode in
+          Label {
+            Text(mode.localizedName)
+          } icon: {
+            Image(systemName: mode.systemImage)
+              .foregroundStyle(DesignSystem.Colors.primary)
+          }
+          .tag(mode)
+        }
+      } label: {
+        Label {
+          Text("settings_appearance_mode")
+        } icon: {
+          Image(systemName: "paintbrush.fill")
+            .foregroundStyle(DesignSystem.Colors.primary)
+        }
+      }
+      .pickerStyle(.menu)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(.vertical, 4)
+    }
+  }
+  
+  private func updateAppearance(to mode: AppearanceMode) {
+    switch mode {
+    case .light:
+      NSApp.appearance = NSAppearance(named: .aqua)
+      themeManager.setDarkMode(false)
+    case .dark:
+      NSApp.appearance = NSAppearance(named: .darkAqua)
+      themeManager.setDarkMode(true)
+    case .auto:
+      NSApp.appearance = nil // 重置为系统默认
+      // 根据当前系统外观设置
+      if let isDark = NSApp.effectiveAppearance.isDarkMode {
+        themeManager.setDarkMode(isDark)
+      }
+    }
+    
+    // 监听系统外观变化
+    if mode == .auto {
+      observeSystemAppearanceChanges()
+    }
+  }
+  
+  private func observeSystemAppearanceChanges() {
+    DistributedNotificationCenter.default().addObserver(
+      forName: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
+      object: nil,
+      queue: .main
+    ) { _ in
+      if AppearanceMode(rawValue: appearanceMode) == .auto,
+         let isDark = NSApp.effectiveAppearance.isDarkMode {
+        themeManager.setDarkMode(isDark)
+      }
+    }
+  }
+}
+
+// MARK: - View Lifecycle
+extension SettingsView {
+  private func onAppear() {
+    // 初始化时设置外观
+    if let mode = AppearanceMode(rawValue: appearanceMode) {
+      updateAppearance(to: mode)
+    }
+  }
 }
 
 // MARK: - Section Views
 private extension SettingsView {
-  var appearanceSection: some View {
-    SettingsSection(title: "settings_group_appearance") {
-      // ThemePicker(currentTheme: Binding(
-      //   get: { ThemeType(rawValue: currentTheme) ?? .wechat },
-      //   set: { currentTheme = $0.rawValue }
-      // ))
-      
-      SettingsToggle(
-        title: "settings_dark_mode",
-        icon: "moon.fill",
-        isOn: Binding(
-          get: { themeManager.isDarkModeEnabled },
-          set: { themeManager.setDarkMode($0) }
-        )
-      )
-    }
-  }
-  
   var systemSection: some View {
     SettingsSection(title: "settings_group_system") {
       SettingsToggle(
@@ -333,6 +386,20 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   func open() {
     if let url = URL(string: url) {
       NSWorkspace.shared.open(url)
+    }
+  }
+}
+
+// MARK: - NSAppearance Extension
+private extension NSAppearance {
+  var isDarkMode: Bool? {
+    switch self.name {
+    case .aqua:
+      return false
+    case .darkAqua:
+      return true
+    default:
+      return nil
     }
   }
 }

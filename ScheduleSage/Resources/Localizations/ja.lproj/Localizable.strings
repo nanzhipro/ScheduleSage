@@ -164,7 +164,7 @@
 "settings_privacy_policy" = "プライバシーポリシー";
 "settings_terms_of_service" = "利用規約";
 "settings_faq" = "よくある質問";
-"settings_feedback" = "フィードバック";
+"settings_feedback" = "要望を送る";
 
 // Screenshot
 "screenshot.success.title" = "スクリーンショット完了";
@@ -210,5 +210,10 @@
 "hint.image_import" = "画像のテキストを認識して予定を作成";
 
 // フィードバック関連
-"settings_feedback" = "フィードバック";
-"feedback_button_hint" = "改善のご提案";
+"feedback_button_hint" = "製品改善にご協力ください";
+
+// Appearance
+"settings_appearance_mode" = "外観";
+"appearance_light" = "ライト";
+"appearance_dark" = "ダーク";
+"appearance_auto" = "自動";

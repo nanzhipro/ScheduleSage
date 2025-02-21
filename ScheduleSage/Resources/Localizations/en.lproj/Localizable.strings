@@ -164,7 +164,7 @@
 "settings_privacy_policy" = "Privacy Policy";
 "settings_terms_of_service" = "Terms of Service";
 "settings_faq" = "FAQ";
-"settings_feedback" = "Feedback";
+"settings_feedback" = "Submit Request";
 
 // Screenshot
 "screenshot.success.title" = "Screenshot Completed";
@@ -210,5 +210,10 @@
 "hint.image_import" = "Create events by recognizing text from images";
 
 // Feedback related
-"settings_feedback" = "Feedback";
-"feedback_button_hint" = "Help us improve";
+"feedback_button_hint" = "Help us improve the product";
+
+// Appearance
+"settings_appearance_mode" = "Appearance";
+"appearance_light" = "Light";
+"appearance_dark" = "Dark";
+"appearance_auto" = "Auto";

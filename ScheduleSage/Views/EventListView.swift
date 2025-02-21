@@ -193,9 +193,18 @@ private extension EventListView {
         // 如果成功获取权限，执行导入
         await MainActor.run {
           onImport()
+          // 显示成功提示
           toastType = .success
           toastMessage = NSLocalizedString("import_success", comment: "")
           showToast = true
+          
+          // 2秒后关闭视图
+          Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            await MainActor.run {
+              onBack()  // 关闭视图
+            }
+          }
         }
       } catch {
         await MainActor.run {

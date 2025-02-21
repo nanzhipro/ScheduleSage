@@ -201,7 +201,7 @@
 // Powered by
 "powered_by_tencent" = "腾讯云提供技术支持";
 
-"settings_feedback" = "反馈建议";
+"settings_feedback" = "提需求给我";
 "feedback_button_hint" = "帮助我们改进产品";
 
 // Method Button Hints
@@ -211,3 +211,9 @@
 
 "no_image_selected" = "未选择任何图片";
 "image_selection_failed" = "图片选择失败";
+
+// Appearance
+"settings_appearance_mode" = "外观";
+"appearance_light" = "浅色";
+"appearance_dark" = "深色";
+"appearance_auto" = "自动";
