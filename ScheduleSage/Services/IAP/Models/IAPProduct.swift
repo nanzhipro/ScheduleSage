@@ -33,10 +33,10 @@ struct IAPProduct: Identifiable {
         self.isPopular = isPopular
         self.features = Self.getFeaturesForProduct(package.identifier)
         
-        if let intro = package.storeProduct.introductoryDiscount {
-            self.introductoryPrice = intro.localizedPriceString
-            self.introductoryPeriod = Self.formatPeriod(intro.subscriptionPeriod)
-            self.hasFreeTrial = intro.price == 0
+        if let _ = package.storeProduct.introductoryDiscount {
+            self.introductoryPrice = package.storeProduct.introductoryDiscount?.localizedPriceString
+            self.introductoryPeriod = Self.formatPeriod(package.storeProduct.introductoryDiscount?.subscriptionPeriod)
+            self.hasFreeTrial = package.storeProduct.introductoryDiscount?.price == 0
         } else {
             self.introductoryPrice = nil
             self.introductoryPeriod = nil

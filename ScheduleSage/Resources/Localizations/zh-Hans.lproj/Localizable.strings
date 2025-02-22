@@ -44,6 +44,7 @@
 "feature_unlimited_ocr" = "无限识别";
 "feature_unlimited_ocr_desc" = "无限次使用所有功能";
 "upgrade_to_pro" = "升级专业版";
+"upgrade_to_premium" = "升级至专业版";
 "pro_expiry" = "有效期至：%@";
 
 // Settings Menu
@@ -217,3 +218,57 @@
 "appearance_light" = "浅色";
 "appearance_dark" = "深色";
 "appearance_auto" = "自动";
+
+// 付费墙
+"paywall.title" = "升级至专业版";
+"paywall.description" = "解锁所有高级功能，享受更好的体验";
+"paywall.restore_purchases" = "恢复购买";
+"paywall.subscription.monthly" = "月度订阅";
+"paywall.subscription.yearly" = "年度订阅";
+"paywall.subscription.lifetime" = "终身订阅";
+"paywall.trial.free" = "免费试用";
+"paywall.trial.days_remaining" = "剩余%d天";
+"paywall.purchase.success" = "购买成功";
+"paywall.purchase.failed" = "购买失败";
+"paywall.restore.success" = "恢复购买成功";
+"paywall.restore.failed" = "恢复购买失败";
+"paywall.button.subscribe" = "立即订阅";
+"paywall.button.purchase" = "立即购买";
+"paywall.features.title" = "专业版特权";
+"paywall.best_value" = "超值优惠";
+"paywall.save_percent" = "节省%d%%";
+"paywall.terms" = "服务条款";
+"paywall.privacy" = "隐私政策";
+
+// 付费墙功能
+"paywall.feature.unlimited" = "无限次使用";
+"paywall.feature.priority" = "优先技术支持";
+"paywall.feature.early" = "抢先体验新功能";
+"paywall.close" = "关闭";
+"paywall.purchase.processing" = "正在购买...";
+"paywall.footer.terms_privacy" = "继续即表示同意我们的服务条款和隐私政策";
+
+// 订阅功能
+"subscription_feature_unlimited_usage" = "无限次使用所有功能";
+"subscription_feature_priority_support" = "专属客服支持";
+"subscription_feature_yearly_discount" = "抢先体验新功能";
+
+"paywall.button.subscribed" = "已订阅";
+"paywall.restore.already_subscribed" = "您已是高级会员";
+"paywall.restore.no_subscription" = "未找到有效订阅，请订阅以继续使用";
+
+"paywall.offerings.load_failed" = "加载订阅选项失败，请重试";
+
+"error.iap.payment_pending" = "支付正在处理中，请稍候";
+
+// 购买状态
+"paywall.purchase.failed" = "购买失败";
+"paywall.purchase.cancelled" = "已取消购买";
+"paywall.purchase.success" = "购买成功";
+"paywall.purchase.processing" = "正在处理购买...";
+
+"error.iap.configuration_error" = "配置错误，请稍后重试";
+"error.iap.store_problem" = "App Store 出现问题，请稍后重试";
+"error.iap.store_not_available" = "App Store 暂时不可用";
+"error.iap.store_auth_error" = "无法连接到 App Store，请检查网络连接后重试";
+"error.iap.platform_not_supported" = "当前平台不支持此功能";

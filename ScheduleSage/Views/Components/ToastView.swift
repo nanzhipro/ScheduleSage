@@ -11,6 +11,7 @@ import SwiftUI
 public enum ToastType {
     case success
     case error
+    case info
 }
 
 // MARK: - Toast Configuration
@@ -69,6 +70,10 @@ public struct ToastView: View {
             return colorScheme == .dark ? 
                 DesignSystem.Colors.error.opacity(0.9) :
                 DesignSystem.Colors.error
+        case .info:
+            return colorScheme == .dark ? 
+                DesignSystem.Colors.link.opacity(0.9) :
+                DesignSystem.Colors.link
         }
     }
     
@@ -78,12 +83,22 @@ public struct ToastView: View {
             return "checkmark.circle.fill"
         case .error:
             return "exclamationmark.circle.fill"
+        case .info:
+            return "info.circle.fill"
         }
     }
     
     private var iconColor: Color {
         switch configuration.type {
-        case .success, .error:
+        case .success:
+            return colorScheme == .dark ? 
+                DesignSystem.Colors.background.opacity(0.9) :
+                DesignSystem.Colors.background
+        case .error:
+            return colorScheme == .dark ? 
+                DesignSystem.Colors.background.opacity(0.9) :
+                DesignSystem.Colors.background
+        case .info:
             return colorScheme == .dark ? 
                 DesignSystem.Colors.background.opacity(0.9) :
                 DesignSystem.Colors.background
@@ -92,7 +107,7 @@ public struct ToastView: View {
     
     private var textColor: Color {
         switch configuration.type {
-        case .success, .error:
+        case .success, .error, .info:
             return colorScheme == .dark ? 
                 DesignSystem.Colors.background.opacity(0.9) :
                 DesignSystem.Colors.background

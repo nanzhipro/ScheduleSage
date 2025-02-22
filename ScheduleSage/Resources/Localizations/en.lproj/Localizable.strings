@@ -235,4 +235,54 @@
 "subscription_feature_unlimited_usage" = "Unlimited Usage";
 "subscription_feature_premium_features" = "Premium Features";
 "subscription_feature_priority_support" = "Priority Support";
-"subscription_feature_yearly_discount" = "Best Value (Save 50%)";
+"subscription_feature_yearly_discount" = "Early Access to New Features";
+
+// Paywall
+"paywall.title" = "Upgrade to Premium";
+"paywall.description" = "Unlock all premium features and enjoy a better experience";
+"paywall.restore_purchases" = "Restore Purchases";
+"paywall.subscription.monthly" = "Monthly Plan";
+"paywall.subscription.yearly" = "Annual Plan";
+"paywall.subscription.lifetime" = "Lifetime Access";
+"paywall.trial.free" = "Free Trial";
+"paywall.trial.days_remaining" = "%d Days Left";
+"paywall.purchase.success" = "Purchase successful";
+"paywall.purchase.failed" = "Purchase failed";
+"paywall.restore.success" = "Purchases Restored";
+"paywall.restore.failed" = "Restore Failed";
+"paywall.button.subscribe" = "Subscribe Now";
+"paywall.button.purchase" = "Purchase";
+"paywall.features.title" = "Premium Features";
+"paywall.best_value" = "Best Value";
+"paywall.save_percent" = "Save %d%%";
+"paywall.terms" = "Terms of Service";
+"paywall.privacy" = "Privacy Policy";
+
+"upgrade_to_premium" = "Upgrade to Premium";
+
+// Paywall Features
+"paywall.feature.unlimited" = "Unlimited Usage";
+"paywall.feature.priority" = "Priority Support";
+"paywall.feature.early" = "Early Access to New Features";
+"paywall.close" = "Close";
+"paywall.purchase.processing" = "Processing purchase...";
+"paywall.footer.terms_privacy" = "By continuing, you agree to our Terms of Service and Privacy Policy";
+
+"paywall.button.subscribed" = "Already Subscribed";
+"paywall.restore.already_subscribed" = "You are already a premium subscriber";
+"paywall.restore.no_subscription" = "No active subscription found. Please subscribe to continue.";
+
+"paywall.offerings.load_failed" = "Failed to load subscription options. Please try again.";
+
+"error.iap.payment_pending" = "Payment is being processed. Please wait.";
+"error.iap.configuration_error" = "Configuration error. Please try again later.";
+"error.iap.store_problem" = "There was a problem with the App Store. Please try again later.";
+"error.iap.store_not_available" = "App Store is not available.";
+"error.iap.store_auth_error" = "Unable to connect to App Store. Please check your internet connection and try again.";
+"error.iap.platform_not_supported" = "This feature is not supported on your platform.";
+
+// Purchase Status
+"paywall.purchase.failed" = "Purchase failed";
+"paywall.purchase.cancelled" = "Purchase cancelled";
+"paywall.purchase.success" = "Purchase successful";
+"paywall.purchase.processing" = "Processing purchase...";

@@ -14,25 +14,36 @@ enum IAPError: LocalizedError {
     case userCancelled
     case productNotFound
     case platformNotSupported
+    case paymentPending
+    case configurationError
+    case storeProblem
+    case storeNotAvailable
+    case storeAuthError
     
     var errorDescription: String? {
         switch self {
         case .purchaseFailed:
-            return NSLocalizedString("purchase_failed", comment: "")
+            return NSLocalizedString("error.iap.purchase_failed", comment: "")
         case .restoreFailed:
-            return NSLocalizedString("restore_failed", comment: "")
+            return NSLocalizedString("error.iap.restore_failed", comment: "")
         case .networkError:
-            return NSLocalizedString("network_error", comment: "")
+            return NSLocalizedString("error.iap.network_error", comment: "")
         case .userCancelled:
-            return NSLocalizedString("user_cancelled", comment: "")
+            return NSLocalizedString("error.iap.user_cancelled", comment: "")
         case .productNotFound:
-            return NSLocalizedString("product_not_found", comment: "")
+            return NSLocalizedString("error.iap.product_not_found", comment: "")
         case .platformNotSupported:
-            #if os(iOS)
-            return NSLocalizedString("feature_not_supported_ios", comment: "")
-            #else
-            return NSLocalizedString("feature_not_supported_macos", comment: "")
-            #endif
+            return NSLocalizedString("error.iap.platform_not_supported", comment: "")
+        case .paymentPending:
+            return NSLocalizedString("error.iap.payment_pending", comment: "")
+        case .configurationError:
+            return NSLocalizedString("error.iap.configuration_error", comment: "")
+        case .storeProblem:
+            return NSLocalizedString("error.iap.store_problem", comment: "")
+        case .storeNotAvailable:
+            return NSLocalizedString("error.iap.store_not_available", comment: "")
+        case .storeAuthError:
+            return NSLocalizedString("error.iap.store_auth_error", comment: "")
         }
     }
 } 

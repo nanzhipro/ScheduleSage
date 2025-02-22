@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let clipboardManager = ClipboardManager()
     private let notificationManager = NotificationManager.shared
     private let tokenProvider = APIConfig.shared.getTokenProvider()
+    private let iapService = IAPService.shared
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     private static let bundleIdentifier = AppInfo.bundleIdentifier
@@ -33,6 +34,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Setup Methods
     private func setupApplication() async {
         logger.info("AppDelegate did finish launching")
+        
+        await initializeIAPService()
         
         if !hasCompletedOnboarding {
             showOnboarding()
@@ -162,6 +165,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defaults.set(defaultTheme.rawValue, forKey: themeKey)
             DesignSystem.switchTheme(to: defaultTheme)
         }
+    }
+    
+    private func initializeIAPService() async {
+        await IAPService.shared.initialize()
     }
 }
 

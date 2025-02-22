@@ -7,15 +7,18 @@
 
 import AppKit
 import SwiftUI
+import RevenueCat
 
 /// 添加日程主页面
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
+  @EnvironmentObject private var iapService: IAPService
+  @State private var showPaywall = false
   @State private var needsRefresh = false
   
   var body: some View {
     VStack(spacing: 0) {
-      AddScheduleView_Impl(viewModel: viewModel)
+      AddScheduleView_Impl(viewModel: viewModel, showPaywall: $showPaywall)
         .withLoading()
         .sheet(isPresented: $viewModel.showEventList) {
           EventListView(
@@ -28,6 +31,11 @@ struct AddScheduleView: View {
           .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
           .presentationDragIndicator(.visible)
           .presentationBackgroundInteraction(.enabled)
+        }
+        .sheet(isPresented: $showPaywall) {
+          PaywallView {
+            proceedWithProFeature()
+          }
         }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -79,12 +87,17 @@ struct AddScheduleView: View {
       return ""
     }
   }
+  
+  private func proceedWithProFeature() {
+    // 实现具体的 Pro 功能
+  }
 }
 
 // MARK: - Add Schedule View
 private struct AddScheduleView_Impl: View {
   @ObservedObject var viewModel: AddScheduleViewModel
   @Environment(\.colorScheme) var colorScheme
+  @Binding var showPaywall: Bool
   
   var body: some View {
     ZStack {
@@ -117,7 +130,7 @@ private struct AddScheduleView_Impl: View {
             Spacer()
               .frame(height: Design.Spacing.windowTopPadding)
             
-            AddScheduleContent(viewModel: viewModel)
+            AddScheduleContent(viewModel: viewModel, showPaywall: $showPaywall)
               .padding(Design.Spacing.contentPadding)
             
             Spacer()
@@ -241,6 +254,7 @@ private struct CalendarIcon: View {
 // MARK: - Add Schedule Content
 private struct AddScheduleContent: View {
   @ObservedObject var viewModel: AddScheduleViewModel
+  @Binding var showPaywall: Bool
   
   var body: some View {
     VStack(spacing: 0) {
@@ -254,7 +268,7 @@ private struct AddScheduleContent: View {
       TitleSection()
         .padding(.bottom, Design.Spacing.titleToActions)
       
-      AddMethodSection(viewModel: viewModel)
+      AddMethodSection(viewModel: viewModel, showPaywall: $showPaywall)
         .padding(.horizontal, Design.Spacing.methodSectionHorizontal)
       
       Spacer(minLength: 0)
@@ -283,40 +297,62 @@ private struct TitleSection: View {
 // MARK: - Add Method Section
 private struct AddMethodSection: View {
     @ObservedObject var viewModel: AddScheduleViewModel
+    @EnvironmentObject private var iapService: IAPService
+    @Binding var showPaywall: Bool
     
     var body: some View {
-        HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
-            AddMethodButton(
-                iconName: "doc.text.fill",
-                title: NSLocalizedString("clipboard_import", comment: ""),
-                hintKey: "hint.clipboard_import",
-                action: viewModel.checkClipboardContent
-            )
-            
-            AddMethodButton(
-                iconName: "pencil.and.list.clipboard",
-                title: NSLocalizedString("manual_input", comment: ""),
-                hintKey: "hint.manual_input",
-                action: { viewModel.showManualInputSheet = true }
-            )
-            .sheet(isPresented: $viewModel.showManualInputSheet) {
-                ManualScheduleInputView(
-                    isPresented: $viewModel.showManualInputSheet,
-                    llmProcessor: viewModel.llmProcessor,
-                    viewModel: viewModel,
-                    onEventsProcessed: { events in
-                        viewModel.parsedEvents = events
-                        viewModel.showEventList = true
-                    }
+        VStack {
+            HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
+                AddMethodButton(
+                    iconName: "doc.text.fill",
+                    title: NSLocalizedString("clipboard_import", comment: ""),
+                    hintKey: "hint.clipboard_import",
+                    action: viewModel.checkClipboardContent
+                )
+                
+                AddMethodButton(
+                    iconName: "pencil.and.list.clipboard",
+                    title: NSLocalizedString("manual_input", comment: ""),
+                    hintKey: "hint.manual_input",
+                    action: { viewModel.showManualInputSheet = true }
+                )
+                .sheet(isPresented: $viewModel.showManualInputSheet) {
+                    ManualScheduleInputView(
+                        isPresented: $viewModel.showManualInputSheet,
+                        llmProcessor: viewModel.llmProcessor,
+                        viewModel: viewModel,
+                        onEventsProcessed: { events in
+                            viewModel.parsedEvents = events
+                            viewModel.showEventList = true
+                        }
+                    )
+                }
+                
+                AddMethodButton(
+                    iconName: "photo.fill",
+                    title: NSLocalizedString("image_import", comment: ""),
+                    hintKey: "hint.image_import",
+                    action: viewModel.handleImageSelection
                 )
             }
             
-            AddMethodButton(
-                iconName: "photo.fill",
-                title: NSLocalizedString("image_import", comment: ""),
-                hintKey: "hint.image_import",
-                action: viewModel.handleImageSelection
-            )
+            // 添加升级按钮
+            Button(action: {
+                showPaywall = true
+            }) {
+                HStack {
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.yellow)
+                    Text(NSLocalizedString("upgrade_to_premium", comment: ""))
+                        .font(DesignSystem.Typography.buttonLabel)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(DesignSystem.Colors.primary)
+                .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 16)
         }
     }
 }

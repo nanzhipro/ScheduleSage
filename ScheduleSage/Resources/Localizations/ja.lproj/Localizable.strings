@@ -45,6 +45,7 @@
 "feature_unlimited_ocr_desc" = "すべての機能を制限なく利用可能";
 "upgrade_to_pro" = "Proへアップグレード";
 "pro_expiry" = "有効期限：%@";
+"upgrade_to_premium" = "プレミアムにアップグレード";
 
 // Settings Menu
 "settings_preferences" = "設定";
@@ -224,6 +225,12 @@
 "network_error" = "ネットワーク接続エラー。";
 "user_cancelled" = "購入がキャンセルされました。";
 "product_not_found" = "商品が見つかりません。";
+"error.iap.payment_pending" = "支払い処理中です。しばらくお待ちください";
+"error.iap.configuration_error" = "設定エラーが発生しました。後でもう一度お試しください";
+"error.iap.store_problem" = "App Storeで問題が発生しました。後でもう一度お試しください";
+"error.iap.store_not_available" = "App Storeは現在利用できません";
+"error.iap.store_auth_error" = "App Storeに接続できません。インターネット接続を確認して、もう一度お試しください";
+"error.iap.platform_not_supported" = "この機能は、お使いのプラットフォームではサポートされていません";
 
 // Subscription
 "subscription_expiry_reminder_title_7" = "サブスクリプション期限が近づいています";
@@ -233,7 +240,49 @@
 
 "subscription_period_monthly" = "月額";
 "subscription_period_yearly" = "年額";
-"subscription_feature_unlimited_usage" = "無制限利用";
+"subscription_feature_unlimited_usage" = "全機能無制限利用";
 "subscription_feature_premium_features" = "プレミアム機能";
 "subscription_feature_priority_support" = "優先サポート";
-"subscription_feature_yearly_discount" = "お得な年額プラン（50%オフ）";
+"subscription_feature_yearly_discount" = "新機能を先行体験";
+
+// ペイウォール
+"paywall.title" = "プレミアムにアップグレード";
+"paywall.description" = "すべてのプレミアム機能を解除し、より良い体験を";
+"paywall.restore_purchases" = "購入を復元";
+"paywall.subscription.monthly" = "月額プラン";
+"paywall.subscription.yearly" = "年額プラン";
+"paywall.subscription.lifetime" = "永久ライセンス";
+"paywall.trial.free" = "無料トライアル";
+"paywall.trial.days_remaining" = "残り%d日";
+"paywall.purchase.success" = "購入が完了しました";
+"paywall.purchase.failed" = "購入に失敗しました";
+"paywall.restore.success" = "購入を復元しました";
+"paywall.restore.failed" = "復元に失敗しました";
+"paywall.button.subscribe" = "今すぐ登録";
+"paywall.button.purchase" = "購入する";
+"paywall.features.title" = "プレミアム特典";
+"paywall.best_value" = "おすすめプラン";
+"paywall.save_percent" = "%d%%お得";
+"paywall.terms" = "利用規約";
+"paywall.privacy" = "プライバシーポリシー";
+
+// ペイウォール機能
+"paywall.feature.unlimited" = "無制限利用";
+"paywall.feature.priority" = "優先サポート";
+"paywall.feature.early" = "新機能を先行体験";
+"paywall.close" = "閉じる";
+"paywall.purchase.processing" = "購入処理中...";
+"paywall.footer.terms_privacy" = "続行することで、利用規約とプライバシーポリシーに同意したことになります";
+
+// New keys for PaywallView
+"paywall.button.subscribed" = "購読済み";
+"paywall.restore.already_subscribed" = "すでにプレミアム会員です";
+"paywall.restore.no_subscription" = "アクティブなサブスクリプションが見つかりません。続行するには購読してください";
+
+"paywall.offerings.load_failed" = "サブスクリプションオプションの読み込みに失敗しました。もう一度お試しください";
+
+// 購入状態
+"paywall.purchase.failed" = "購入に失敗しました";
+"paywall.purchase.cancelled" = "購入をキャンセルしました";
+"paywall.purchase.success" = "購入が完了しました";
+"paywall.purchase.processing" = "購入処理中...";
