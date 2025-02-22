@@ -422,6 +422,12 @@ enum DesignSystem {
     static let eventListWidth: CGFloat = mainViewWidth * 0.8  // 640
     /// 事件列表页高度
     static let eventListHeight: CGFloat = mainViewHeight * 0.8  // 512
+    
+    /// 大尺寸方法按钮图标
+    static let largeMethodIconSize: CGFloat = 40  // 增大图标尺寸
+    
+    /// 大尺寸按钮高度
+    static let largeButtonHeight: CGFloat = 52  // 增大按钮高度
   }
 
   // MARK: - Spacing
@@ -455,6 +461,12 @@ enum DesignSystem {
     static let listContentPadding: CGFloat = 24
     /// 大页面标题间距
     static let largeHeaderSpacing: CGFloat = 12
+    
+    /// 大尺寸内容间距
+    static let largeContentSpacing: CGFloat = 32  // 增大内容间距
+    
+    /// 大尺寸按钮间距
+    static let largeButtonSpacing: CGFloat = 24  // 增大按钮间距
   }
 
   // MARK: - Shadows

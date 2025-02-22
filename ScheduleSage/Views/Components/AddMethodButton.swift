@@ -56,12 +56,12 @@ struct AddMethodButton: View {
   
   var body: some View {
     Button(action: handleButtonTap) {
-      VStack(spacing: 8) {
+      VStack(spacing: 12) {
         makeIconView()
         makeTitleView()
       }
       .frame(maxWidth: .infinity)
-      .padding(.vertical, 12)
+      .padding(.vertical, 16)
       .background(backgroundColor)
       .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
       .contentShape(Rectangle())
@@ -77,14 +77,14 @@ struct AddMethodButton: View {
   
   private func makeIconView() -> some View {
     Image(systemName: iconName)
-      .font(.system(size: DesignSystem.Dimensions.methodIconSize))
+      .font(.system(size: DesignSystem.Dimensions.largeMethodIconSize))
       .foregroundColor(iconColor)
       .symbolRenderingMode(.hierarchical)
   }
   
   private func makeTitleView() -> some View {
     Text(title)
-      .font(DesignSystem.Typography.bodyRegular)
+      .font(DesignSystem.Typography.bodyMedium)
       .foregroundColor(titleColor)
   }
   

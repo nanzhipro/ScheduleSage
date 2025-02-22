@@ -215,35 +215,30 @@ private enum Design {
     )
     
     /// 内容整体内边距
-    static let contentPadding = EdgeInsets(
-      top: 16,
-      leading: 24,
-      bottom: 24,
-      trailing: 24
-    )
+    static let contentPadding: CGFloat = 32
     
     /// 拖拽区域顶部到图标的间距
-    static let dragAreaTopPadding: CGFloat = 32
+    static let dragAreaTopPadding: CGFloat = 40
     
     /// 图标到标题的间距
-    static let iconToTitle: CGFloat = 24
+    static let iconToTitle: CGFloat = 32
     /// 标题到副标题的间距
     static let titleToSubtitle: CGFloat = 12
     /// 标题到操作按钮的间距
-    static let titleToActions: CGFloat = 40
+    static let titleToActions: CGFloat = 48
     /// 操作按钮之间的水平间距
-    static let actionButtonsHorizontal: CGFloat = 20
+    static let actionButtonsHorizontal: CGFloat = 24
     /// 方法选择区域水平内边距
-    static let methodSectionHorizontal: CGFloat = 16
+    static let methodSectionHorizontal: CGFloat = 48
     /// 内容区底部间距
     static let contentBottomPadding: CGFloat = 32
   }
   
   enum Size {
     /// 图标容器尺寸
-    static let iconContainerSize: CGFloat = 80
+    static let iconContainerSize: CGFloat = 100
     /// 图标尺寸
-    static let iconSize: CGFloat = 32
+    static let iconSize: CGFloat = 48
   }
 }
 
@@ -307,13 +302,13 @@ private struct AddScheduleContent: View {
 // MARK: - Title Section
 private struct TitleSection: View {
     var body: some View {
-        VStack(spacing: Design.Spacing.titleToSubtitle) {
+        VStack(spacing: 12) {
             Text(AppInfo.name)
                 .font(DesignSystem.Typography.title)
                 .foregroundColor(DesignSystem.Colors.primaryText)
             
             Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
-                .font(DesignSystem.Typography.caption)
+                .font(DesignSystem.Typography.largeHeaderSubtitle)
                 .foregroundColor(DesignSystem.Colors.secondaryText)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -361,6 +356,7 @@ private struct AddMethodSection: View {
                 action: viewModel.handleImageSelection
             )
         }
+        .frame(height: DesignSystem.Dimensions.largeButtonHeight)
     }
 }
 
