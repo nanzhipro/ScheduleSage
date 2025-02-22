@@ -69,15 +69,17 @@ class IAPService: NSObject, ObservableObject {
         
         configureSDK()
         setupSubscriptionMonitoring()
+        setupLifecycleObservers()
         
         logger.debug("[IAP] Fetching offerings and restoring purchases...")
         await fetchOfferings()
         
         do {
+            try await refreshCustomerInfo()
             let restored = try await restorePurchases()
             logger.notice("[IAP] Restore completed - Premium status: \(restored)")
         } catch {
-            logger.error("[IAP] Restore failed: \(error.localizedDescription)")
+            logger.error("[IAP] Restore/refresh failed: \(error.localizedDescription)")
         }
         
         logger.notice("[IAP] Initialization completed. Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
@@ -91,6 +93,8 @@ class IAPService: NSObject, ObservableObject {
         Purchases.configure(
             with: Configuration.builder(withAPIKey: IAPConfiguration.apiKey)
                 .with(storeKitVersion: .storeKit2)
+                .with(networkTimeout: 30)
+                .with(storeKit1Timeout: 30)
                 .build()
         )
         logger.debug("[IAP] SDK configuration completed")
@@ -107,6 +111,29 @@ class IAPService: NSObject, ObservableObject {
             }
         }
         Purchases.shared.delegate = self
+    }
+    
+    // MARK: - 生命周期观察
+    private func setupLifecycleObservers() {
+        #if os(macOS)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive),
+            name: NSApplication.didBecomeActiveNotification,
+            object: nil
+        )
+        #endif
+    }
+    
+    @objc private func applicationDidBecomeActive() {
+        Task {
+            do {
+                try await refreshCustomerInfo()
+                logger.debug("[IAP] Customer info refreshed after app became active")
+            } catch {
+                logger.error("[IAP] Failed to refresh customer info on app active: \(error.localizedDescription)")
+            }
+        }
     }
     
     // MARK: - 数据管理
@@ -211,6 +238,8 @@ class IAPService: NSObject, ObservableObject {
             logger.debug("[IAP] Purchase completed, updating customer info")
             await updateCustomerInfo(result.customerInfo)
             
+            try await refreshCustomerInfo()
+            
             if !isPremium {
                 logger.error("[IAP] Purchase completed but premium status not activated")
                 await updatePurchaseState(.failed)
@@ -295,6 +324,34 @@ class IAPService: NSObject, ObservableObject {
     @MainActor
     func clearError() {
         error = nil
+    }
+    
+    // MARK: - 新增便捷方法
+    
+    /// 检查用户是否有任何活跃的订阅
+    /// 这是一个便捷方法，用于快速检查用户是否有任何活跃的订阅
+    var hasActiveSubscription: Bool {
+        customerInfo?.entitlements.active.isEmpty == false
+    }
+    
+    /// 主动刷新客户信息
+    /// 在访问高级内容前调用此方法以确保状态最新
+    func refreshCustomerInfo() async throws {
+        logger.debug("[IAP] Manually refreshing customer info")
+        do {
+            let customerInfo = try await Purchases.shared.customerInfo()
+            await updateCustomerInfo(customerInfo)
+        } catch {
+            logger.error("[IAP] Failed to refresh customer info: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    /// 检查高级功能访问权限
+    /// 在访问高级功能前调用此方法
+    func checkPremiumAccess() async throws -> Bool {
+        try await refreshCustomerInfo()
+        return isPremium
     }
 }
 

@@ -237,17 +237,31 @@ private enum Design {
 // MARK: - Calendar Icon
 private struct CalendarIcon: View {
     let animation: AddScheduleViewModel.DragAnimation
+    @EnvironmentObject private var iapService: IAPService
     
     var body: some View {
         ZStack {
-            Circle()
-                .fill(DesignSystem.Colors.secondaryBackground)
-                .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
-            Image(systemName: "calendar.badge.plus")
-                .font(.system(size: Design.Size.iconSize))
-                .foregroundColor(DesignSystem.Colors.primary)
+            // 基础日历图标
+            ZStack {
+                Circle()
+                    .fill(DesignSystem.Colors.secondaryBackground)
+                    .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
+                Image(systemName: "calendar.badge.plus")
+                    .font(.system(size: Design.Size.iconSize))
+                    .foregroundColor(DesignSystem.Colors.primary)
+            }
+            .modifier(DragAnimationModifier(animation: animation))
+            
+            // Pro 用户的皇冠标识
+            if iapService.isPremium {
+                Image(systemName: "crown.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(.yellow)
+                    .shadow(color: .yellow.opacity(0.3), radius: 4)
+                    .offset(y: -Design.Size.iconContainerSize/2 - 10)
+                    .transition(.scale.combined(with: .opacity))
+            }
         }
-        .modifier(DragAnimationModifier(animation: animation))
     }
 }
 

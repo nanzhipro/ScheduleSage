@@ -407,7 +407,7 @@ enum DesignSystem {
     static let settingsButtonSize: CGFloat = 22
     
     /// 主页面宽度
-    static let mainViewWidth: CGFloat = 440
+    static let mainViewWidth: CGFloat = 480
     /// 主页面高度
     static let mainViewHeight: CGFloat = 600
     /// 事件列表页宽度
