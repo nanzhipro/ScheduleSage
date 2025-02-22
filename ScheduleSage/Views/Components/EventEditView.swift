@@ -14,6 +14,7 @@ struct EventEditView: View {
   let onSave: (CalendarEvent) -> Void
   let onCancel: () -> Void
   
+  @State private var editedEvent: CalendarEvent
   @Environment(\.dismiss) private var dismiss
   @State private var title: String
   @State private var startDate: Date
@@ -27,7 +28,7 @@ struct EventEditView: View {
     self.event = event
     self.onSave = onSave
     self.onCancel = onCancel
-    
+    _editedEvent = State(initialValue: event)
     _title = State(initialValue: event.title)
     _location = State(initialValue: event.location)
     _calendar = State(initialValue: event.calendar)
@@ -40,11 +41,16 @@ struct EventEditView: View {
     VStack(spacing: 0) {
       headerView
       
-      formContent
+      ScrollView {
+        formContent
+      }
       
       footerView
     }
-    .frame(width: DesignSystem.Dimensions.containerWidth, height: DesignSystem.Dimensions.containerHeight)
+    .frame(
+      width: DesignSystem.Dimensions.mainViewWidth * 0.8,
+      height: DesignSystem.Dimensions.mainViewHeight * 0.8
+    )
     .background(DesignSystem.Colors.background)
     .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
     .onAppear {
@@ -57,10 +63,10 @@ struct EventEditView: View {
   
   // MARK: - Header View
   private var headerView: some View {
-    VStack(alignment: .leading, spacing: DesignSystem.Spacing.textSpacing) {
+    VStack(alignment: .leading, spacing: DesignSystem.Spacing.largeHeaderSpacing) {
       HStack {
         Text(NSLocalizedString("edit_event_title", comment: ""))
-          .font(DesignSystem.Typography.headerTitle)
+          .font(DesignSystem.Typography.largeHeaderTitle)
           .foregroundColor(DesignSystem.Colors.primaryText)
         
         Spacer()
@@ -69,12 +75,12 @@ struct EventEditView: View {
       }
       
       Text(NSLocalizedString("edit_event_subtitle", comment: ""))
-        .font(DesignSystem.Typography.caption)
+        .font(DesignSystem.Typography.largeHeaderSubtitle)
         .foregroundColor(DesignSystem.Colors.secondaryText)
         .lineLimit(2)
     }
-    .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-    .padding(.top, DesignSystem.Layout.containerPadding.top)
+    .padding(.horizontal, DesignSystem.Layout.largeContainerPadding.leading)
+    .padding(.top, DesignSystem.Layout.largeContainerPadding.top)
     .padding(.bottom, DesignSystem.Spacing.sectionSpacing)
   }
   

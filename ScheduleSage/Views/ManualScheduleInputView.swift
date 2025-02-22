@@ -37,6 +37,14 @@ struct ManualScheduleInputView: View {
         self.onEventsProcessed = onEventsProcessed
     }
     
+    // 计算尺寸
+    private var viewSize: CGSize {
+        CGSize(
+            width: DesignSystem.Dimensions.mainViewWidth * 0.8,
+            height: DesignSystem.Dimensions.mainViewHeight * 0.8
+        )
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -49,7 +57,10 @@ struct ManualScheduleInputView: View {
                     action: { Task { await processInput() } }
                 )
             }
-            .frame(width: 440, height: 360)
+            .frame(
+                width: viewSize.width,   // 800 * 0.8 = 640
+                height: viewSize.height  // 640 * 0.8 = 512
+            )
             .background(DesignSystem.Colors.background)
             .toast(
                 isPresented: $showToast,
@@ -109,22 +120,22 @@ private struct HeaderView: View {
     @Binding var isPresented: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.textSpacing) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.largeHeaderSpacing) {
             HStack(spacing: DesignSystem.Spacing.iconSpacing) {
                 Text(NSLocalizedString("manual_input_title", comment: ""))
-                    .font(DesignSystem.Typography.headerTitle)
+                    .font(DesignSystem.Typography.largeHeaderTitle)
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 Spacer()
                 SageCloseButton(action: { isPresented = false })
             }
             
             Text(NSLocalizedString("manual_input_subtitle", comment: ""))
-                .font(DesignSystem.Typography.caption)
+                .font(DesignSystem.Typography.largeHeaderSubtitle)
                 .foregroundColor(DesignSystem.Colors.secondaryText)
                 .lineLimit(2)
         }
-        .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-        .padding(.top, DesignSystem.Layout.containerPadding.top)
+        .padding(.horizontal, DesignSystem.Layout.largeContainerPadding.leading)
+        .padding(.top, DesignSystem.Layout.largeContainerPadding.top)
         .padding(.bottom, DesignSystem.Spacing.sectionSpacing)
     }
 }

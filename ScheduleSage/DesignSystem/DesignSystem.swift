@@ -350,6 +350,14 @@ enum DesignSystem {
     /// 导航文本字体
     /// 用于导航栏文本，13pt 中等粗细
     static let navigationText = Font.system(size: 13, weight: .medium)
+    
+    /// 大页面标题字体
+    /// 用于宽页面(640px)的主标题，20pt 半粗体
+    static let largeHeaderTitle = Font.system(size: 20, weight: .semibold)
+    
+    /// 大页面副标题字体
+    /// 用于宽页面的副标题，14pt
+    static let largeHeaderSubtitle = Font.system(size: 14)
   }
 
   // MARK: - Dimensions
@@ -407,13 +415,13 @@ enum DesignSystem {
     static let settingsButtonSize: CGFloat = 22
     
     /// 主页面宽度
-    static let mainViewWidth: CGFloat = 480
+    static let mainViewWidth: CGFloat = 800
     /// 主页面高度
-    static let mainViewHeight: CGFloat = 600
+    static let mainViewHeight: CGFloat = 580
     /// 事件列表页宽度
-    static let eventListWidth: CGFloat = 440
+    static let eventListWidth: CGFloat = mainViewWidth * 0.8  // 640
     /// 事件列表页高度
-    static let eventListHeight: CGFloat = 563
+    static let eventListHeight: CGFloat = mainViewHeight * 0.8  // 512
   }
 
   // MARK: - Spacing
@@ -445,6 +453,8 @@ enum DesignSystem {
     static let listHeaderPadding: CGFloat = 24
     /// 列表内容内边距
     static let listContentPadding: CGFloat = 24
+    /// 大页面标题间距
+    static let largeHeaderSpacing: CGFloat = 12
   }
 
   // MARK: - Shadows
@@ -502,6 +512,13 @@ enum DesignSystem {
     static let containerPadding = EdgeInsets(top: 40, leading: 20, bottom: 20, trailing: 20)
     /// 状态栏内边距
     static let statusBarPadding = EdgeInsets(top: 12, leading: 20, bottom: 8, trailing: 20)
+    /// 大页面容器内边距
+    static let largeContainerPadding = EdgeInsets(
+      top: 48,
+      leading: 32,
+      bottom: 24,
+      trailing: 32
+    )
   }
 
   /// 切换主题

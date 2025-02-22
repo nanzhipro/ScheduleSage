@@ -41,8 +41,8 @@ struct EventListView: View {
       importButton
     }
     .frame(
-      width: DesignSystem.Dimensions.eventListWidth,
-      height: DesignSystem.Dimensions.eventListHeight
+      width: DesignSystem.Dimensions.mainViewWidth * 0.8,   // 800 * 0.8 = 640
+      height: DesignSystem.Dimensions.mainViewHeight * 0.8  // 640 * 0.8 = 512
     )
     .background(DesignSystem.Colors.background)
     .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
@@ -84,22 +84,22 @@ private struct HeaderView: View {
   let onBack: () -> Void
   
   var body: some View {
-    VStack(alignment: .leading, spacing: DesignSystem.Spacing.textSpacing) {
+    VStack(alignment: .leading, spacing: DesignSystem.Spacing.largeHeaderSpacing) {
       HStack(spacing: DesignSystem.Spacing.iconSpacing) {
         Text(NSLocalizedString("event_list_title", comment: ""))
-          .font(DesignSystem.Typography.headerTitle)
+          .font(DesignSystem.Typography.largeHeaderTitle)
           .foregroundColor(DesignSystem.Colors.primaryText)
         Spacer()
         SageCloseButton(action: onBack)
       }
       
       Text(NSLocalizedString("event_list_subtitle", comment: ""))
-        .font(DesignSystem.Typography.caption)
+        .font(DesignSystem.Typography.largeHeaderSubtitle)
         .foregroundColor(DesignSystem.Colors.secondaryText)
         .lineLimit(2)
     }
-    .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-    .padding(.top, DesignSystem.Layout.containerPadding.top)
+    .padding(.horizontal, DesignSystem.Layout.largeContainerPadding.leading)
+    .padding(.top, DesignSystem.Layout.largeContainerPadding.top)
     .padding(.bottom, DesignSystem.Spacing.sectionSpacing)
   }
 }

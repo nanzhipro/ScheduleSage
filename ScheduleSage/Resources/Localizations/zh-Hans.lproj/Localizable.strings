@@ -132,7 +132,7 @@
 "settings_cancel" = "取消";
 
 // Event List
-"event_list_title" = "识别结果";
+"event_list_title" = "日程列表";
 "event_list_subtitle" = "勾选需要添加的日程";
 
 // Notification Actions

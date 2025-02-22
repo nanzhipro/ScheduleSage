@@ -135,7 +135,7 @@
 "event_list_title" = "スケジュール一覧";
 
 /* 日程列表页副标题 */
-"event_list_subtitle" = "認識されたスケジュールをチェックしてカレンダーに追加できます";
+"event_list_subtitle" = "追加したいスケジュールを選択してください";
 
 // Notification Actions
 "view_event" = "イベントを表示";

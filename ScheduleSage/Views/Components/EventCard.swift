@@ -10,21 +10,21 @@ import SwiftUI
 // MARK: - Design Constants
 private enum Design {
   enum Card {
-    static let height: CGFloat = 154
-    static let padding = EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
-    static let cornerRadius: CGFloat = 12
+    static let height: CGFloat = 134
+    static let padding = EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+    static let cornerRadius: CGFloat = 8
   }
   
   enum Layout {
-    static let iconSpacing: CGFloat = 8
-    static let iconLabelSpacing: CGFloat = 8
-    static let titleSpacing: CGFloat = 8
-    static let timeSectionSpacing: CGFloat = 12
-    static let timeIconWidth: CGFloat = 24
-    static let timeIconSize: CGFloat = 14
-    static let iconSize: CGFloat = 32
-    static let selectionSize: CGFloat = 16
-    static let selectionInnerSize: CGFloat = 8
+    static let iconSpacing: CGFloat = 6
+    static let iconLabelSpacing: CGFloat = 6
+    static let titleSpacing: CGFloat = 6
+    static let timeSectionSpacing: CGFloat = 10
+    static let timeIconWidth: CGFloat = 20
+    static let timeIconSize: CGFloat = 12
+    static let iconSize: CGFloat = 28
+    static let selectionSize: CGFloat = 14
+    static let selectionInnerSize: CGFloat = 7
   }
   
   enum Time {

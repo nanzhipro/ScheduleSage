@@ -146,8 +146,22 @@ private struct AddScheduleView_Impl: View {
             .foregroundColor(DesignSystem.Colors.tertiaryText)
             .frame(maxWidth: .infinity)
           
-          // 右侧按钮组
           HStack(spacing: 16) {
+            // 添加升级按钮
+            Button(action: {
+              showPaywall = true
+            }) {
+              HStack(spacing: 4) {
+                Image(systemName: "star.fill")
+                  .foregroundColor(.yellow)
+                Text(NSLocalizedString("upgrade_to_premium", comment: ""))
+                  .font(DesignSystem.Typography.caption)
+                  .foregroundColor(DesignSystem.Colors.primary)
+              }
+            }
+            .buttonStyle(.plain)
+            .withHoverEffect(scale: 1.1, brightness: 0)
+            
             Spacer()
             
             // 反馈按钮
@@ -179,9 +193,8 @@ private struct AddScheduleView_Impl: View {
               )
               .frame(width: 44, height: 44)
           }
+          .padding(.horizontal, Design.Spacing.bottomBarPadding.horizontal)
         }
-        .frame(height: 44)
-        .background(DesignSystem.Colors.background.opacity(0.8))
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -315,58 +328,38 @@ private struct AddMethodSection: View {
     @Binding var showPaywall: Bool
     
     var body: some View {
-        VStack {
-            HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
-                AddMethodButton(
-                    iconName: "doc.text.fill",
-                    title: NSLocalizedString("clipboard_import", comment: ""),
-                    hintKey: "hint.clipboard_import",
-                    action: viewModel.checkClipboardContent
-                )
-                
-                AddMethodButton(
-                    iconName: "pencil.and.list.clipboard",
-                    title: NSLocalizedString("manual_input", comment: ""),
-                    hintKey: "hint.manual_input",
-                    action: { viewModel.showManualInputSheet = true }
-                )
-                .sheet(isPresented: $viewModel.showManualInputSheet) {
-                    ManualScheduleInputView(
-                        isPresented: $viewModel.showManualInputSheet,
-                        llmProcessor: viewModel.llmProcessor,
-                        viewModel: viewModel,
-                        onEventsProcessed: { events in
-                            viewModel.parsedEvents = events
-                            viewModel.showEventList = true
-                        }
-                    )
-                }
-                
-                AddMethodButton(
-                    iconName: "photo.fill",
-                    title: NSLocalizedString("image_import", comment: ""),
-                    hintKey: "hint.image_import",
-                    action: viewModel.handleImageSelection
+        HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
+            AddMethodButton(
+                iconName: "doc.text.fill",
+                title: NSLocalizedString("clipboard_import", comment: ""),
+                hintKey: "hint.clipboard_import",
+                action: viewModel.checkClipboardContent
+            )
+            
+            AddMethodButton(
+                iconName: "pencil.and.list.clipboard",
+                title: NSLocalizedString("manual_input", comment: ""),
+                hintKey: "hint.manual_input",
+                action: { viewModel.showManualInputSheet = true }
+            )
+            .sheet(isPresented: $viewModel.showManualInputSheet) {
+                ManualScheduleInputView(
+                    isPresented: $viewModel.showManualInputSheet,
+                    llmProcessor: viewModel.llmProcessor,
+                    viewModel: viewModel,
+                    onEventsProcessed: { events in
+                        viewModel.parsedEvents = events
+                        viewModel.showEventList = true
+                    }
                 )
             }
             
-            // 添加升级按钮
-            Button(action: {
-                showPaywall = true
-            }) {
-                HStack {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.yellow)
-                    Text(NSLocalizedString("upgrade_to_premium", comment: ""))
-                        .font(DesignSystem.Typography.buttonLabel)
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(DesignSystem.Colors.primary)
-                .cornerRadius(8)
-            }
-            .buttonStyle(.plain)
-            .padding(.top, 16)
+            AddMethodButton(
+                iconName: "photo.fill",
+                title: NSLocalizedString("image_import", comment: ""),
+                hintKey: "hint.image_import",
+                action: viewModel.handleImageSelection
+            )
         }
     }
 }
