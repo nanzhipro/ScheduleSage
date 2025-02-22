@@ -22,7 +22,7 @@ class IAPService: NSObject, ObservableObject {
     /// 共享实例
     static let shared = IAPService()
     
-    private let logger: Logger
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "IAPService")
     
     // MARK: - Published Properties
     
@@ -59,66 +59,50 @@ class IAPService: NSObject, ObservableObject {
     // MARK: - 初始化
     
     private override init() {
-        self.logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "IAPService")
         super.init()
-        logger.info("[IAP] Initializing IAP service")
     }
     
     /// 初始化 IAP 服务
     /// 配置 SDK、设置监听并获取产品信息
     func initialize() async {
-        logger.info("[IAP] Starting IAP service initialization")
+        logger.info("[IAP] Starting initialization at \(Date())")
         
-        // 配置 SDK 和设置监听
         configureSDK()
         setupSubscriptionMonitoring()
         
-        // 获取产品信息
+        logger.debug("[IAP] Fetching offerings and restoring purchases...")
         await fetchOfferings()
         
-        // 尝试恢复已购买的内容
         do {
-            _ = try await restorePurchases() // 使用 _ 忽略返回值
-            logger.notice("[IAP] Successfully restored previous purchases")
+            let restored = try await restorePurchases()
+            logger.notice("[IAP] Restore completed - Premium status: \(restored)")
         } catch {
-            logger.error("[IAP] Failed to restore purchases: \(error.localizedDescription)")
+            logger.error("[IAP] Restore failed: \(error.localizedDescription)")
         }
         
-        logger.notice("[IAP] IAP service initialization completed")
+        logger.notice("[IAP] Initialization completed. Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
     }
     
     // MARK: - 配置方法
     
     /// 配置 RevenueCat SDK
     private func configureSDK() {
-        logger.info("[IAP] Configuring RevenueCat with API key: \(IAPConfiguration.apiKey)")
-        Purchases.logLevel = .debug
+        logger.info("[IAP] Configuring RevenueCat SDK with API key: \(String(IAPConfiguration.apiKey.prefix(6)))...")
         Purchases.configure(
             with: Configuration.builder(withAPIKey: IAPConfiguration.apiKey)
                 .with(storeKitVersion: .storeKit2)
                 .build()
         )
-        
-        #if os(iOS)
-        setupiOSSpecificFeatures()
-        #endif
+        logger.debug("[IAP] SDK configuration completed")
     }
-    
-    #if os(iOS)
-    /// 设置 iOS 特定功能
-    private func setupiOSSpecificFeatures() {
-        if IAPConfiguration.platformSpecificSettings.showPromotionalOffers {
-            // 配置促销优惠
-        }
-    }
-    #endif
     
     /// 设置订阅状态监控
     private func setupSubscriptionMonitoring() {
         logger.info("[IAP] Setting up subscription monitoring")
         Task {
+            logger.debug("[IAP] Starting customer info stream monitoring")
             for await customerInfo in Purchases.shared.customerInfoStream {
-                logger.debug("[IAP] Received customer info update")
+                logger.debug("[IAP] Received customer info update: \(customerInfo.originalApplicationVersion ?? "unknown")")
                 await updateCustomerInfo(customerInfo)
             }
         }
@@ -129,16 +113,19 @@ class IAPService: NSObject, ObservableObject {
     
     /// 获取可用的产品组合
     private func fetchOfferings() async {
+        logger.info("[IAP] Starting offerings fetch")
         await updateOfferingsLoadingState(.loading)
-        logger.info("[IAP] Fetching available offerings")
         
         do {
             let offerings = try await Purchases.shared.offerings()
-            logger.debug("[IAP] Received offerings: \(offerings.all.keys.joined(separator: ", "))")
+            logger.debug("[IAP] Available offerings: \(offerings.all.keys.joined(separator: ", "))")
+            logger.debug("[IAP] Current offering packages: \(offerings.current?.availablePackages.map { $0.identifier } ?? [])")
+            
             await updateOfferings(offerings)
             await updateOfferingsLoadingState(.success)
+            logger.notice("[IAP] Offerings fetch completed successfully")
         } catch {
-            logger.error("[IAP] Failed to fetch offerings: \(error.localizedDescription)")
+            logger.error("[IAP] Offerings fetch failed: \(error.localizedDescription)")
             await updateError(.productNotFound)
             await updateOfferingsLoadingState(.failed)
         }
@@ -148,62 +135,52 @@ class IAPService: NSObject, ObservableObject {
     /// - Parameter info: 新的用户信息
     @MainActor
     private func updateCustomerInfo(_ info: CustomerInfo) {
-        logger.info("[IAP] Updating customer info")
-        self.customerInfo = info
+        logger.debug("[IAP] Updating customer info - Original App Version: \(info.originalApplicationVersion ?? "unknown")")
+        customerInfo = info
         
-        // 检查订阅状态
         if let entitlement = info.entitlements[IAPConfiguration.premiumEntitlementId] {
-            if entitlement.isActive {
-                subscriptionStatus = .active(expirationDate: entitlement.expirationDate)
+            let isActive = entitlement.isActive
+            let expirationDate = entitlement.expirationDate
+            logger.debug("[IAP] Premium entitlement - Active: \(isActive), Expires: \(expirationDate?.description ?? "none")")
+            
+            if isActive {
+                subscriptionStatus = .active(expirationDate: expirationDate)
                 isPremium = true
-                logger.notice("[IAP] Active subscription found, expires: \(String(describing: entitlement.expirationDate))")
+                logger.notice("[IAP] Active subscription detected")
             } else {
-                subscriptionStatus = .expired(lastExpirationDate: entitlement.expirationDate)
+                subscriptionStatus = .expired(lastExpirationDate: expirationDate)
                 isPremium = false
-                logger.notice("[IAP] Expired subscription found, last expiry: \(String(describing: entitlement.expirationDate))")
+                logger.notice("[IAP] Expired subscription detected")
             }
         } else {
             subscriptionStatus = .notSubscribed
             isPremium = false
-            logger.notice("[IAP] No subscription found")
+            logger.debug("[IAP] No subscription found")
         }
         
-        // 发送订阅状态变更通知
+        logger.info("[IAP] Customer info updated - Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
         NotificationCenter.default.post(
             name: .subscriptionStatusChanged,
             object: nil,
-            userInfo: [
-                "isPremium": self.isPremium,
-                "subscriptionStatus": self.subscriptionStatus
-            ]
+            userInfo: ["isPremium": isPremium, "subscriptionStatus": subscriptionStatus]
         )
-        logger.debug("[IAP] Posted subscription status change - isPremium: \(self.isPremium), status: \(self.subscriptionStatus.description)")
     }
     
     @MainActor
     private func updateOfferings(_ newOfferings: Offerings) {
-        logger.debug("[IAP] Updating offerings")
         offerings = newOfferings
         if let packages = newOfferings.current?.availablePackages {
-            logger.debug("[IAP] Available packages: \(packages.map { $0.identifier }.joined(separator: ", "))")
-            updateProducts(packages)
-        }
-    }
-    
-    @MainActor
-    private func updateProducts(_ packages: [Package]) {
-        logger.debug("[IAP] Updating product list")
-        products = packages.map { package in
-            IAPProduct(
-                package: package,
-                isPopular: package.identifier == IAPConfiguration.yearlySubscriptionId
-            )
+            products = packages.map { package in
+                IAPProduct(
+                    package: package,
+                    isPopular: package.identifier == IAPConfiguration.yearlySubscriptionId
+                )
+            }
         }
     }
     
     @MainActor
     private func updateError(_ error: IAPError) {
-        logger.error("[IAP] Purchase error: \(error.localizedDescription)")
         self.error = error
     }
     
@@ -218,64 +195,36 @@ class IAPService: NSObject, ObservableObject {
     /// - Parameter product: 要购买的产品
     /// - Throws: IAPError 类型的错误
     func purchase(_ product: IAPProduct) async throws {
+        logger.info("[IAP] Starting purchase for product: \(product.id) at \(Date())")
         await updatePurchaseState(.purchasing)
-        logger.info("[IAP] Starting purchase for product: \(product.id)")
         
         do {
-            // 尝试购买
+            logger.debug("[IAP] Attempting purchase with RevenueCat")
             let result = try await Purchases.shared.purchase(package: product.package)
             
-            // 检查是否是用户取消
             if result.userCancelled {
                 logger.notice("[IAP] Purchase cancelled by user")
                 await updatePurchaseState(.cancelled)
                 throw IAPError.userCancelled
             }
             
-            // 更新用户信息
+            logger.debug("[IAP] Purchase completed, updating customer info")
             await updateCustomerInfo(result.customerInfo)
             
-            // 验证订阅是否激活
             if !isPremium {
-                logger.error("[IAP] Purchase verification failed")
-                await updateError(.purchaseFailed)
+                logger.error("[IAP] Purchase completed but premium status not activated")
                 await updatePurchaseState(.failed)
                 throw IAPError.purchaseFailed
             }
             
-            logger.notice("[IAP] Purchase completed successfully")
+            logger.notice("[IAP] Purchase completed successfully - Product: \(product.id)")
             await updatePurchaseState(.completed)
-            trackPurchaseEvent(product)
         } catch {
-            // 处理其他错误
-            if let rcError = error as? RevenueCat.ErrorCode {
-                switch rcError {
-                case .purchaseCancelledError:
-                    logger.notice("[IAP] Purchase cancelled by user")
-                    await updatePurchaseState(.cancelled)
-                    throw IAPError.userCancelled
-                case .paymentPendingError:
-                    logger.notice("[IAP] Payment is pending")
-                    await updatePurchaseState(.pending)
-                    throw IAPError.paymentPending
-                case .networkError:
-                    logger.error("[IAP] Purchase failed due to network error")
-                    await updateError(.networkError)
-                    await updatePurchaseState(.failed)
-                    throw IAPError.networkError
-                default:
-                    logger.error("[IAP] Purchase failed: \(rcError.localizedDescription)")
-                    await updateError(.purchaseFailed)
-                    await updatePurchaseState(.failed)
-                    throw IAPError.purchaseFailed
-                }
-            }
-            
-            // 处理未知错误
-            logger.error("[IAP] Unknown purchase error: \(error.localizedDescription)")
-            await updateError(.purchaseFailed)
+            let iapError = handlePurchaseError(error)
+            logger.error("[IAP] Purchase failed: \(iapError.localizedDescription)")
+            await updateError(iapError)
             await updatePurchaseState(.failed)
-            throw IAPError.purchaseFailed
+            throw iapError
         }
     }
     
@@ -283,21 +232,11 @@ class IAPService: NSObject, ObservableObject {
     /// - Returns: 恢复结果，包含是否有活跃订阅
     /// - Throws: IAPError 类型的错误（仅在网络错误等情况下抛出）
     func restorePurchases() async throws -> Bool {
-        logger.info("[IAP] Attempting to restore purchases")
         do {
             let customerInfo = try await Purchases.shared.restorePurchases()
             await updateCustomerInfo(customerInfo)
-            
-            // 检查是否有活跃订阅，但不视为错误
-            if !isPremium {
-                logger.notice("[IAP] Restore completed but no active subscription found")
-                return false
-            }
-            
-            logger.notice("[IAP] Purchases restored successfully")
-            return true
+            return isPremium
         } catch {
-            logger.error("[IAP] Restore failed: \(error.localizedDescription)")
             await updateError(.restoreFailed)
             throw error
         }
@@ -326,133 +265,30 @@ class IAPService: NSObject, ObservableObject {
         guard let expirationDate = customerInfo?.entitlements[IAPConfiguration.premiumEntitlementId]?.expirationDate else {
             return false
         }
-        let thirtyDaysFromNow = Date().addingTimeInterval(30 * 24 * 60 * 60)
-        return expirationDate < thirtyDaysFromNow
-    }
-    
-    private func trackPurchaseEvent(_ product: IAPProduct) {
-        #if DEBUG
-        print("Purchase tracked: \(product.id), price: \(product.price), period: \(product.period)")
-        #endif
-        
-        // TODO: 实现实际的分析追踪
-        // Analytics.track("subscription_purchased", properties: [
-        //     "product_id": product.id,
-        //     "price": product.price,
-        //     "period": product.period
-        // ])
+        return expirationDate < Date().addingTimeInterval(30 * 24 * 60 * 60)
     }
     
     private func handlePurchaseError(_ error: Error) -> IAPError {
-        // 记录详细错误信息
-        logger.error("[IAP] Raw purchase error: \(error)")
-        
-        // 如果已经是 IAPError，直接返回
-        if let iapError = error as? IAPError {
-            return iapError
-        }
-        
-        // 处理 RevenueCat 错误
+        if let iapError = error as? IAPError { return iapError }
         if let rcError = error as? RevenueCat.ErrorCode {
             switch rcError {
-            case .networkError:
-                logger.error("[IAP] Network error during purchase")
-                return .networkError
-            case .purchaseCancelledError:
-                logger.notice("[IAP] User cancelled purchase")
-                return .userCancelled
-            case .paymentPendingError:
-                logger.notice("[IAP] Payment is pending")
-                return .paymentPending
-            case .invalidCredentialsError:
-                logger.error("[IAP] Invalid credentials for purchase")
-                return .purchaseFailed
-            case .configurationError:
-                logger.error("[IAP] Configuration error: \(rcError.localizedDescription)")
-                return .configurationError
-            case .storeProblemError:
-                logger.error("[IAP] Store problem: \(rcError.localizedDescription)")
-                return .storeProblem
-            default:
-                logger.error("[IAP] Unhandled RevenueCat error: \(rcError.localizedDescription)")
-                return .purchaseFailed
+            case .networkError: return .networkError
+            case .purchaseCancelledError: return .userCancelled
+            case .paymentPendingError: return .paymentPending
+            default: return .purchaseFailed
             }
         }
-        
-        // 处理 StoreKit 错误
-        if let storeError = error as? StoreKit.SKError {
-            switch storeError.code {
-            case .storeProductNotAvailable:
-                logger.error("[IAP] StoreKit product not available")
-                return .storeNotAvailable
-            case .cloudServiceNetworkConnectionFailed:
-                logger.error("[IAP] StoreKit network error")
-                return .networkError
-            case .paymentCancelled:
-                logger.notice("[IAP] User cancelled StoreKit payment")
-                return .userCancelled
-            case .paymentInvalid:
-                logger.error("[IAP] StoreKit invalid payment")
-                return .purchaseFailed
-            case .clientInvalid:
-                logger.error("[IAP] StoreKit client invalid")
-                return .configurationError
-            default:
-                logger.error("[IAP] Unhandled StoreKit error: \(storeError.localizedDescription)")
-                return .purchaseFailed
-            }
-        }
-        
-        // 处理 AMSErrorDomain 错误
-        let nsError = error as NSError
-        if nsError.domain == "AMSErrorDomain" {
-            switch nsError.code {
-            case 301:
-                logger.error("[IAP] App Store authorization error (403)")
-                return .storeAuthError
-            default:
-                logger.error("[IAP] App Store error: \(nsError.localizedDescription)")
-                return .storeProblem
-            }
-        }
-        
-        logger.error("[IAP] Unknown error: \(error.localizedDescription)")
         return .purchaseFailed
     }
     
     @MainActor
     private func updatePurchaseState(_ state: PurchaseState) {
         purchaseState = state
-        
-        // 根据状态发送通知并显示相应提示
-        switch state {
-        case .purchasing:
-            NotificationCenter.default.post(
-                name: .purchaseStatusChanged,
-                object: nil,
-                userInfo: ["message": NSLocalizedString("paywall.purchase.processing", comment: "")]
-            )
-        case .completed:
-            NotificationCenter.default.post(
-                name: .purchaseStatusChanged,
-                object: nil,
-                userInfo: ["message": NSLocalizedString("paywall.purchase.success", comment: "")]
-            )
-        case .cancelled:
-            NotificationCenter.default.post(
-                name: .purchaseStatusChanged,
-                object: nil,
-                userInfo: ["message": NSLocalizedString("paywall.purchase.cancelled", comment: "")]
-            )
-        case .failed:
-            NotificationCenter.default.post(
-                name: .purchaseStatusChanged,
-                object: nil,
-                userInfo: ["message": NSLocalizedString("paywall.purchase.failed", comment: "")]
-            )
-        default:
-            break
-        }
+        NotificationCenter.default.post(
+            name: .purchaseStatusChanged,
+            object: nil,
+            userInfo: ["message": state.localizedMessage]
+        )
     }
     
     /// 清除当前错误
@@ -479,6 +315,16 @@ enum PurchaseState {
         case .cancelled: return "cancelled"
         case .pending: return "pending"
         case .failed: return "failed"
+        }
+    }
+    
+    var localizedMessage: String {
+        switch self {
+        case .purchasing: return NSLocalizedString("paywall.purchase.processing", comment: "")
+        case .completed: return NSLocalizedString("paywall.purchase.success", comment: "")
+        case .cancelled: return NSLocalizedString("paywall.purchase.cancelled", comment: "")
+        case .failed: return NSLocalizedString("paywall.purchase.failed", comment: "")
+        default: return ""
         }
     }
 }
@@ -521,7 +367,6 @@ extension Notification.Name {
 // MARK: - PurchasesDelegate
 extension IAPService: PurchasesDelegate {
     func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
-        logger.debug("[IAP] Received delegate update for customer info")
         Task { @MainActor in
             updateCustomerInfo(customerInfo)
         }
@@ -532,7 +377,6 @@ extension IAPService: PurchasesDelegate {
         readyForPromotedProduct product: StoreProduct,
         purchase: @escaping StartPurchaseBlock
     ) {
-        logger.debug("[IAP] Ready for promoted product: \(product.productIdentifier)")
         Task {
             do {
                 try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
