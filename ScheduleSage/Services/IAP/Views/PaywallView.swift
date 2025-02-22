@@ -22,46 +22,47 @@ struct PaywallView: View {
     
     var body: some View {
         ZStack {
-            VStack(spacing: DesignSystem.Spacing.vertical) {
+            VStack(spacing: DesignSystem.Spacing.medium) {
                 closeButton
                 
-                VStack(spacing: DesignSystem.Spacing.vertical) {
-                    headerSection
-                    // featuresSection
-                    subscriptionOptionsSection
-                    purchaseButton
-                    footerSection
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: DesignSystem.Spacing.large) {
+                        headerSection
+                        FeatureListView()
+                        subscriptionOptionsSection
+                        purchaseButton
+                        footerSection
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.medium)
                 }
             }
         }
-        .frame(width: DesignSystem.Dimensions.containerWidth, height: DesignSystem.Dimensions.containerHeight)
+        .frame(
+            width: PaywallDimensions.containerWidth,
+            height: PaywallDimensions.containerHeight
+        )
         .background(DesignSystem.Colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .toast(isPresented: $showToast, type: .success, message: toastMessage)
     }
     
     // MARK: - UI Components
     
     private var closeButton: some View {
-        HStack {
+        HStack(spacing: DesignSystem.Spacing.iconSpacing) {
             Spacer()
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-            }
-            .buttonStyle(.plain)
-            .withHoverEffect(scale: 1.2, brightness: 0.1)
+            SageCloseButton(action: { dismiss() })
         }
-        .padding([.top, .trailing], 16)
+        .padding(.horizontal, DesignSystem.Spacing.large)
+        .padding(.top, DesignSystem.Spacing.medium)
     }
     
     private var headerSection: some View {
-        VStack(spacing: DesignSystem.Spacing.textSpacing) {
+        VStack(spacing: DesignSystem.Spacing.small) {
             Image(systemName: "star.circle.fill")
-                .font(.system(size: 44))
+                .font(.system(size: 48))
                 .foregroundColor(DesignSystem.Colors.primary)
+                .padding(.bottom, DesignSystem.Spacing.small)
             
             Text(NSLocalizedString("upgrade_to_premium", comment: ""))
                 .font(DesignSystem.Typography.title)
@@ -71,35 +72,20 @@ struct PaywallView: View {
                 .font(DesignSystem.Typography.bodyRegular)
                 .multilineTextAlignment(.center)
                 .foregroundColor(DesignSystem.Colors.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, DesignSystem.Spacing.medium)
         }
-        .padding(.top, DesignSystem.Spacing.vertical)
-    }
-    
-    private var featuresSection: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.textSpacing) {
-            ForEach(PremiumFeatures.allCases, id: \.self) { feature in
-                HStack(spacing: DesignSystem.Spacing.iconSpacing) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(DesignSystem.Colors.success)
-                    Text(feature.localizedDescription)
-                        .font(DesignSystem.Typography.bodyRegular)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                }
-            }
-        }
-        .padding(.horizontal, DesignSystem.Spacing.horizontal)
+        .padding(.top, DesignSystem.Spacing.medium)
     }
     
     private var subscriptionOptionsSection: some View {
-        VStack(spacing: DesignSystem.Spacing.sectionSpacing) {
-            // 占位视图
+        VStack(spacing: DesignSystem.Spacing.small) {
             if iapService.offeringsLoadingState == .loading {
                 ForEach(0..<2) { _ in
                     SubscriptionOptionPlaceholder()
                 }
             }
             
-            // 实际内容
             if let packages = iapService.offerings?.current?.availablePackages {
                 ForEach(packages, id: \.identifier) { package in
                     SubscriptionOptionView(
@@ -108,20 +94,26 @@ struct PaywallView: View {
                         isPopular: package.identifier == IAPConfiguration.yearlySubscriptionId,
                         action: { selectedPackage = package }
                     )
-                    .transition(.opacity)
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity
+                                .animation(.easeIn.delay(0.2)),
+                            removal: .opacity
+                                .animation(.easeOut)
+                        )
+                    )
                 }
             }
             
-            // 错误状态
             if iapService.offeringsLoadingState == .failed {
                 Text(NSLocalizedString("paywall.offerings.load_failed", comment: ""))
                     .font(DesignSystem.Typography.bodyRegular)
                     .foregroundColor(DesignSystem.Colors.error)
-                    .padding()
+                    .padding(DesignSystem.Spacing.medium)
             }
         }
-        .padding(.vertical, DesignSystem.Spacing.vertical)
-        .animation(.easeInOut, value: iapService.offeringsLoadingState)
+        .padding(.vertical, DesignSystem.Spacing.small)
+        .animation(.easeInOut(duration: 0.3), value: iapService.offeringsLoadingState)
     }
     
     private var purchaseButton: some View {
@@ -132,54 +124,70 @@ struct PaywallView: View {
                 .font(DesignSystem.Typography.buttonLabel)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: DesignSystem.Dimensions.buttonHeight)
+                .frame(height: PaywallDimensions.buttonHeight)
                 .background(buttonBackground)
-                .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
+                .cornerRadius(PaywallDimensions.buttonCornerRadius)
         }
         .buttonStyle(.plain)
         .disabled(iapService.isPremium || iapService.purchaseState == .purchasing || selectedPackage == nil)
-        .padding(.horizontal)
+        .padding(.horizontal, DesignSystem.Spacing.medium)
+        .padding(.vertical, DesignSystem.Spacing.small)
     }
     
     private var footerSection: some View {
-        VStack(spacing: DesignSystem.Spacing.textSpacing) {
-            restoreButton
-            termsAndPrivacySection
-        }
-        .padding(.bottom)
-    }
-    
-    private var restoreButton: some View {
-        Button {
-            handleRestore()
-        } label: {
-            Text(NSLocalizedString("paywall.restore_purchases", comment: ""))
-                .font(DesignSystem.Typography.bodyRegular)
-                .foregroundColor(DesignSystem.Colors.link)
-        }
-    }
-    
-    private var termsAndPrivacySection: some View {
-        VStack(spacing: DesignSystem.Spacing.textSpacing) {
+        VStack(spacing: DesignSystem.Spacing.medium) {
+            HStack(spacing: DesignSystem.Spacing.large) {
+                TextButton(
+                    title: NSLocalizedString("paywall.restore_purchases", comment: ""),
+                    action: handleRestore
+                )
+                
+                TextButton(
+                    title: NSLocalizedString("paywall.terms", comment: ""),
+                    action: openTerms
+                )
+                
+                TextButton(
+                    title: NSLocalizedString("paywall.privacy", comment: ""),
+                    action: openPrivacyPolicy
+                )
+            }
+            
             Text(NSLocalizedString("paywall.footer.terms_privacy", comment: ""))
                 .font(DesignSystem.Typography.caption)
                 .foregroundColor(DesignSystem.Colors.tertiaryText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
-            
-            HStack(spacing: DesignSystem.Spacing.iconSpacing) {
-                Button(action: { /* Open Terms */ }) {
-                    Text(NSLocalizedString("paywall.terms", comment: ""))
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.link)
-                }
-                
-                Button(action: { /* Open Privacy Policy */ }) {
-                    Text(NSLocalizedString("paywall.privacy", comment: ""))
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.link)
-                }
+        }
+        .padding(.bottom, DesignSystem.Spacing.large)
+    }
+    
+    // 新增：文字按钮组件
+    private struct TextButton: View {
+        let title: String
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: action) {
+                Text(title)
+                    .font(DesignSystem.Typography.bodyRegular)
+                    .foregroundColor(DesignSystem.Colors.link)
             }
+            .buttonStyle(.plain)
+            .withHoverEffect(scale: 1.1, brightness: 0.1)
+        }
+    }
+    
+    // 新增：按钮动作处理
+    private func openTerms() {
+        if let url = URL(string: "https://schedulesage.app/terms") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+    
+    private func openPrivacyPolicy() {
+        if let url = URL(string: "https://schedulesage.app/privacy") {
+            NSWorkspace.shared.open(url)
         }
     }
     
@@ -249,9 +257,9 @@ struct SubscriptionOptionView: View {
     
     var body: some View {
         Button(action: action) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
+            HStack(spacing: DesignSystem.Spacing.small) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
+                    HStack(spacing: DesignSystem.Spacing.small) {
                         Text(package.storeProduct.localizedTitle)
                             .font(.headline)
                         
@@ -259,7 +267,7 @@ struct SubscriptionOptionView: View {
                             Text(NSLocalizedString("paywall.best_value", comment: ""))
                                 .font(.caption)
                                 .foregroundColor(.green)
-                                .padding(.horizontal, 8)
+                                .padding(.horizontal, DesignSystem.Spacing.small)
                                 .padding(.vertical, 2)
                                 .background(Color.green.opacity(0.1))
                                 .cornerRadius(4)
@@ -269,6 +277,7 @@ struct SubscriptionOptionView: View {
                     Text(package.storeProduct.localizedDescription)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 
                 Spacer()
@@ -277,18 +286,18 @@ struct SubscriptionOptionView: View {
                     .font(.headline)
                     .foregroundColor(.primary)
             }
-            .padding()
+            .padding(DesignSystem.Spacing.medium)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isSelected ? Color.accentColor.opacity(0.1) : Color.secondary.opacity(0.1))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
-        .padding(.horizontal)
+        .padding(.horizontal, DesignSystem.Spacing.small)
     }
 }
 
@@ -371,6 +380,54 @@ struct ShimmeringEffect: ViewModifier {
     }
 }
 
+// MARK: - Feature List View
+private struct FeatureListView: View {
+    private let features = [
+        (icon: "infinity.circle.fill", key: "subscription_feature_unlimited_usage"),
+        (icon: "bubble.left.and.bubble.right.fill", key: "subscription_feature_priority_support"),
+        (icon: "star.circle.fill", key: "subscription_feature_yearly_discount")
+    ]
+    
+    var body: some View {
+        VStack(spacing: DesignSystem.Spacing.medium) {
+            ForEach(features, id: \.key) { feature in
+                HStack {
+                    Spacer()
+                    FeatureRow(
+                        icon: feature.icon,
+                        title: NSLocalizedString(feature.key, comment: "")
+                    )
+                    Spacer()
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, DesignSystem.Spacing.large)
+    }
+}
+
+// MARK: - Feature Row
+private struct FeatureRow: View {
+    let icon: String
+    let title: String
+    
+    var body: some View {
+        HStack(spacing: DesignSystem.Spacing.medium) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(DesignSystem.Colors.primary)
+                .frame(width: 24)
+            
+            Text(title)
+                .font(DesignSystem.Typography.bodyRegular)
+                .foregroundColor(DesignSystem.Colors.primaryText)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: 280) // 固定内容宽度
+    }
+}
+
 // MARK: - Premium Features
 enum PremiumFeatures: CaseIterable {
     case unlimitedUsage
@@ -387,6 +444,22 @@ enum PremiumFeatures: CaseIterable {
             return NSLocalizedString("subscription_feature_yearly_discount", comment: "")
         }
     }
+}
+
+// MARK: - Paywall Dimensions
+private enum PaywallDimensions {
+    static let containerWidth: CGFloat = 440
+    static let containerHeight: CGFloat = 640
+    static let buttonHeight: CGFloat = 44
+    static let buttonCornerRadius: CGFloat = 8
+}
+
+// MARK: - Design System Extensions
+extension DesignSystem.Spacing {
+    static let small: CGFloat = 6
+    static let medium: CGFloat = 12
+    static let large: CGFloat = 20
+    static let extraLarge: CGFloat = 28
 }
 
 #Preview {
