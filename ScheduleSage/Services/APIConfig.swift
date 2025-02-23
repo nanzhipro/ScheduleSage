@@ -30,6 +30,16 @@ final class APIConfig {
         identifier: "development"
     )
     
+    static let ngrokEnvironment = APIEnvironment(
+        baseURL: URL(string: "https://ec63-115-195-71-161.ngrok-free.app")!,
+        defaultHeaders: [
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Accept-Language": Locale.preferredLanguages.first ?? "en"
+        ],
+        identifier: "ngrok"
+    )
+    
     static let productionEnvironment = APIEnvironment(
         baseURL: URL(string: "https://www.schedulesage.cn")!,
         defaultHeaders: [
@@ -64,8 +74,14 @@ final class APIConfig {
         
         // 首先确定环境
         #if DEBUG
-        self.environment = Self.developmentEnvironment
-        logger.debug("Using development environment: \(Self.developmentEnvironment)")
+        // 使用环境变量或配置来决定是使用本地开发环境还是 ngrok 环境
+        if ProcessInfo.processInfo.environment["USE_NGROK"] == "true" {
+            self.environment = Self.ngrokEnvironment
+            logger.debug("Using ngrok environment: \(Self.ngrokEnvironment)")
+        } else {
+            self.environment = Self.developmentEnvironment
+            logger.debug("Using development environment: \(Self.developmentEnvironment)")
+        }
         #else
         self.environment = Self.productionEnvironment
         logger.debug("Using production environment: \(Self.productionEnvironment)")
