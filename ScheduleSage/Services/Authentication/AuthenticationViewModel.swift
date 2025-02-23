@@ -30,8 +30,9 @@ final class AuthenticationViewModel: ObservableObject {
         authService.currentUser
     }
     
-    private init(authService: AuthenticationServiceProtocol? = nil) {
-        self.authService = authService ?? AuthenticationService.shared
+    init() {
+        // 从 AuthenticationService 获取初始状态
+        self.authService = AuthenticationService.shared
         self.isAuthenticated = self.authService.isAuthenticated
         logger.debug("[Login] ViewModel initialized with auth status: \(self.isAuthenticated)")
     }

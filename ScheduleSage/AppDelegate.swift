@@ -10,21 +10,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindowController: NSWindowController?
     private var mainWindowController: MainWindowController?
     
-    private let logger = Logger(subsystem: AppInfo.bundleIdentifier, category: "AppDelegate")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "AppDelegate")
     private let calendarManager = CalendarManager()
     private let clipboardManager = ClipboardManager()
     private let notificationManager = NotificationManager.shared
     private let tokenProvider = APIConfig.shared.getTokenProvider()
     private let iapService = IAPService.shared
+    private let authService = AuthenticationService.shared
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     private static let bundleIdentifier = AppInfo.bundleIdentifier
     
     // MARK: - Lifecycle
     func applicationDidFinishLaunching(_ notification: Notification) {
-        initializeTheme()
-        guard checkAndActivateExistingInstance() else { return }
-        Task { await setupApplication() }
+        logger.info("[App] Application did finish launching")
+        
+        // 配置窗口行为
+        configureWindowBehavior()
+        
+        // 初始化服务
+        Task {
+            await initializeServices()
+        }
     }
     
     deinit {
@@ -32,10 +39,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // MARK: - Setup Methods
-    private func setupApplication() async {
-        logger.info("AppDelegate did finish launching")
+    private func initializeServices() async {
+        logger.debug("[App] Starting services initialization")
         
-        await initializeIAPService()
+        // 尝试恢复认证状态
+        if let user = await authService.restoreAuthentication() {
+            logger.info("[App] Authentication restored for user: \(user.id)")
+        } else {
+            logger.notice("[App] No authenticated user found")
+        }
+        
+        // 初始化其他服务...
+        
+        logger.notice("[App] Services initialization completed")
+    }
+    
+    private func configureWindowBehavior() {
+        initializeTheme()
+        guard checkAndActivateExistingInstance() else { return }
+        Task { await setupApplication() }
+    }
+    
+    private func setupApplication() async {
+        logger.info("[App] Setting up application")
         
         if !hasCompletedOnboarding {
             showOnboarding()
@@ -165,10 +191,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defaults.set(defaultTheme.rawValue, forKey: themeKey)
             DesignSystem.switchTheme(to: defaultTheme)
         }
-    }
-    
-    private func initializeIAPService() async {
-        await IAPService.shared.initialize()
     }
 }
 

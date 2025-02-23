@@ -56,36 +56,89 @@ class IAPService: NSObject, ObservableObject {
     /// 用于存储取消令牌的集合
     private var cancellables = Set<AnyCancellable>()
     
+    /// 初始化状态
+    @Published private(set) var isInitialized = false
+    
     // MARK: - 初始化
     
     private override init() {
         super.init()
+        logger.debug("[IAP] Service instance created")
     }
     
-    /// 初始化 IAP 服务
-    /// 配置 SDK、设置监听并获取产品信息
-    func initialize() async {
-        logger.info("[IAP] Starting initialization at \(Date())")
+    /// 使用用户 ID 登录 RevenueCat
+    /// - Parameter userId: Apple ID 用户标识
+    @MainActor
+    func login(userId: String) async throws {
+        logger.info("[IAP] Logging in with user ID: \(userId)")
         
-        configureSDK()
-        setupSubscriptionMonitoring()
-        setupLifecycleObservers()
-        
-        logger.debug("[IAP] Fetching offerings and restoring purchases...")
-        await fetchOfferings()
-        
-        do {
-            try await refreshCustomerInfo()
-            let restored = try await restorePurchases()
-            logger.notice("[IAP] Restore completed - Premium status: \(restored)")
-        } catch {
-            logger.error("[IAP] Restore/refresh failed: \(error.localizedDescription)")
+        guard !isInitialized else {
+            logger.notice("[IAP] Service already initialized")
+            return
         }
         
-        logger.notice("[IAP] Initialization completed. Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
+        do {
+            // 配置 SDK
+            configureSDK()
+            
+            // 登录 RevenueCat
+            logger.debug("[IAP] Logging in to RevenueCat")
+            try await Purchases.shared.logIn(userId)
+            logger.info("[IAP] Successfully logged in to RevenueCat")
+            
+            // 设置监听和初始化其他功能
+            setupSubscriptionMonitoring()
+            setupLifecycleObservers()
+            
+            // 获取产品信息
+            logger.debug("[IAP] Fetching offerings and restoring purchases")
+            await fetchOfferings()
+            
+            do {
+                try await refreshCustomerInfo()
+                let restored = try await restorePurchases()
+                logger.notice("[IAP] Restore completed - Premium status: \(restored)")
+            } catch {
+                logger.error("[IAP] Restore/refresh failed: \(error.localizedDescription)")
+            }
+            
+            isInitialized = true
+            logger.notice("[IAP] Initialization completed. Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
+        } catch {
+            logger.error("[IAP] Failed to initialize IAP service: \(error.localizedDescription)")
+            throw error
+        }
     }
     
-    // MARK: - 配置方法
+    /// 登出并清理状态
+    @MainActor
+    func logout() async {
+        logger.info("[IAP] Logging out")
+        
+        do {
+            // 登出 RevenueCat
+            try await Purchases.shared.logOut()
+            
+            // 重置状态
+            customerInfo = nil
+            offerings = nil
+            products = []
+            currentSubscription = nil
+            purchaseState = .idle
+            error = nil
+            subscriptionStatus = .loading
+            isPremium = false
+            offeringsLoadingState = .idle
+            isInitialized = false
+            
+            // 清理观察者
+            cancellables.removeAll()
+            
+            logger.notice("[IAP] Successfully logged out and cleared state")
+        } catch {
+            logger.error("[IAP] Error during logout: \(error.localizedDescription)")
+        }
+    }
     
     /// 配置 RevenueCat SDK
     private func configureSDK() {

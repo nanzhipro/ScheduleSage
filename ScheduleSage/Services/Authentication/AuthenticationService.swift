@@ -16,39 +16,29 @@ protocol AuthenticationServiceProtocol {
     var currentUser: User? { get }
     func signInWithApple() async throws -> User
     func signOut() async
+    func restoreAuthentication() async -> User?
 }
 
 /// 认证服务错误类型
 enum AuthenticationError: LocalizedError, Identifiable {
-    case signInFailed
-    case credentialInvalid
-    case userCancelled
+    case signInFailed, credentialInvalid, userCancelled
     case unknown(Error)
     
-    // 添加 Identifiable 协议要求的 id
     var id: String {
         switch self {
-        case .signInFailed:
-            return "signInFailed"
-        case .credentialInvalid:
-            return "credentialInvalid"
-        case .userCancelled:
-            return "userCancelled"
-        case .unknown(let error):
-            return "unknown.\(error.localizedDescription)"
+        case .signInFailed: return "signInFailed"
+        case .credentialInvalid: return "credentialInvalid"
+        case .userCancelled: return "userCancelled"
+        case .unknown(let error): return "unknown.\(error.localizedDescription)"
         }
     }
     
     var errorDescription: String? {
         switch self {
-        case .signInFailed:
-            return NSLocalizedString("auth_error_sign_in_failed", comment: "")
-        case .credentialInvalid:
-            return NSLocalizedString("auth_error_credential_invalid", comment: "")
-        case .userCancelled:
-            return NSLocalizedString("auth_error_user_cancelled", comment: "")
-        case .unknown(let error):
-            return error.localizedDescription
+        case .signInFailed: return NSLocalizedString("auth_error_sign_in_failed", comment: "")
+        case .credentialInvalid: return NSLocalizedString("auth_error_credential_invalid", comment: "")
+        case .userCancelled: return NSLocalizedString("auth_error_user_cancelled", comment: "")
+        case .unknown(let error): return error.localizedDescription
         }
     }
 }
@@ -58,10 +48,9 @@ enum AuthenticationError: LocalizedError, Identifiable {
 final class AuthenticationService: AuthenticationServiceProtocol {
     // MARK: - Properties
     static let shared = AuthenticationService()
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "Authentication")
     private let userDefaults = UserDefaults.standard
-    private let tokenKey = "appleIDToken"
     private let userKey = "currentUser"
-    private let logger: Logger
     
     private(set) var currentUser: User? {
         get {
@@ -71,42 +60,53 @@ final class AuthenticationService: AuthenticationServiceProtocol {
                 logger.debug("[Login] No stored user found")
                 return nil
             }
-            logger.debug("[Login] Retrieved stored user: \(user.id)")
+            logger.debug("[Login] Retrieved stored user: \(user.logDescription)")
             return user
         }
         set {
-            guard let newValue = newValue,
-                  let data = try? JSONEncoder().encode(newValue)
-            else {
+            if let newValue, let data = try? JSONEncoder().encode(newValue) {
+                logger.debug("[Login] Storing user: \(newValue.logDescription)")
+                userDefaults.set(data, forKey: userKey)
+            } else {
                 logger.notice("[Login] Removing stored user")
                 userDefaults.removeObject(forKey: userKey)
-                return
             }
-            logger.debug("[Login] Storing user: \(newValue.id)")
-            userDefaults.set(data, forKey: userKey)
         }
     }
     
     var isAuthenticated: Bool {
-        let status = currentUser != nil
-        logger.debug("[Login] Authentication status checked: \(status)")
-        return status
+        currentUser != nil
     }
     
     private init() {
-        self.logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "Authentication")
         logger.debug("[Login] Authentication service initialized")
+    }
+    
+    fileprivate func saveUser(_ user: User) async {
+        logger.debug("[Login] Saving user and initializing services")
+        
+        // 先保存用户信息
+        currentUser = user
+        
+        do {
+            // 初始化 IAP 服务（使用适当的 QoS）
+            try await Task.detached(priority: .userInitiated) {
+                try await IAPService.shared.login(userId: user.id)
+            }.value
+            
+            logger.debug("[Login] IAP service initialized for user: \(user.id)")
+        } catch {
+            logger.error("[Login] Failed to initialize IAP service: \(error.localizedDescription)")
+            // 注意：我们仍然保持用户登录状态，即使 IAP 初始化失败
+        }
     }
     
     func signInWithApple() async throws -> User {
         logger.info("[Login] Starting Apple ID sign in process")
         
         return try await withCheckedThrowingContinuation { continuation in
-            let appleIDProvider = ASAuthorizationAppleIDProvider()
-            let request = appleIDProvider.createRequest()
+            let request = ASAuthorizationAppleIDProvider().createRequest()
             request.requestedScopes = [.fullName, .email]
-            
-            logger.debug("[Login] Created authorization request with scopes: \(request.requestedScopes?.description ?? "none")")
             
             let controller = ASAuthorizationController(authorizationRequests: [request])
             let delegate = AuthorizationDelegate(service: self, continuation: continuation, logger: logger)
@@ -124,14 +124,36 @@ final class AuthenticationService: AuthenticationServiceProtocol {
     
     func signOut() async {
         logger.info("[Login] Signing out user")
+        
+        // 先登出 IAP 服务
+        await IAPService.shared.logout()
+        
         currentUser = nil
-        userDefaults.removeObject(forKey: tokenKey)
-        logger.debug("[Login] User signed out, cleared credentials")
+        logger.debug("[Login] User signed out")
     }
     
-    func saveUser(_ user: User) {
-        logger.info("[Login] Saving user: \(user.id)")
-        currentUser = user
+    /// 尝试恢复用户登录状态
+    /// - Returns: 如果有存储的用户信息，则返回用户对象；否则返回 nil
+    func restoreAuthentication() async -> User? {
+        logger.debug("[Login] Attempting to restore authentication")
+        
+        guard let user = currentUser else {
+            logger.notice("[Login] No stored user found")
+            return nil
+        }
+        
+        // 初始化 IAP 服务
+        do {
+            try await Task.detached(priority: .userInitiated) {
+                try await IAPService.shared.login(userId: user.id)
+            }.value
+            logger.info("[Login] Successfully restored authentication and initialized IAP for user: \(user.logDescription)")
+            return user
+        } catch {
+            logger.error("[Login] Failed to initialize IAP service during restore: \(error.localizedDescription)")
+            // 即使 IAP 初始化失败，我们仍然返回用户信息
+            return user
+        }
     }
 }
 
@@ -149,44 +171,17 @@ private final class AuthorizationDelegate: NSObject, ASAuthorizationControllerDe
     }
     
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        logger.debug("[Login] Providing presentation anchor for authorization")
-        #if os(iOS)
-        return UIApplication.shared.windows.first!
-        #else
-        // 修改为更安全的窗口获取方式
-        guard let window = NSApplication.shared.windows.first else {
-            logger.error("[Login] No window found for presentation anchor")
-            return NSWindow()
-        }
-        logger.debug("[Login] Found window for presentation anchor: \(window)")
-        return window
-        #endif
+        NSApplication.shared.windows.first ?? NSWindow()
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        logger.info("[Login] Authorization completed, processing credentials")
-        
-        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-            logger.error("[Login] Invalid credential type received")
+        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+              let token = credential.identityToken.flatMap({ String(data: $0, encoding: .utf8) })
+        else {
+            logger.error("[Login] Invalid credentials")
             continuation.resume(throwing: AuthenticationError.credentialInvalid)
             return
         }
-        
-        logger.debug("[Login] Received credential for user: \(credential.user)")
-        
-        guard let identityToken = credential.identityToken else {
-            logger.error("[Login] No identity token in credential")
-            continuation.resume(throwing: AuthenticationError.credentialInvalid)
-            return
-        }
-        
-        guard let token = String(data: identityToken, encoding: .utf8) else {
-            logger.error("[Login] Could not decode identity token")
-            continuation.resume(throwing: AuthenticationError.credentialInvalid)
-            return
-        }
-        
-        logger.debug("[Login] Successfully decoded identity token")
         
         let user = User(
             id: credential.user,
@@ -195,13 +190,12 @@ private final class AuthorizationDelegate: NSObject, ASAuthorizationControllerDe
             token: token
         )
         
-        logger.info("[Login] Created user object, saving to service, \(user)")
-        
         Task { @MainActor in
-            if let service = self.service {
-                logger.debug("[Login] Service available, saving user")
-                service.saveUser(user)
+            if let service {
+                // 使用 await 等待 saveUser 完成
+                await service.saveUser(user)
                 continuation.resume(returning: user)
+                logger.info("[Login] User authenticated successfully: \(user.logDescription)")
             } else {
                 logger.error("[Login] Service not available")
                 continuation.resume(throwing: AuthenticationError.signInFailed)
@@ -211,16 +205,11 @@ private final class AuthorizationDelegate: NSObject, ASAuthorizationControllerDe
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         if let error = error as? ASAuthorizationError {
-            switch error.code {
-            case .canceled:
-                logger.notice("[Login] User cancelled the authorization")
-                continuation.resume(throwing: AuthenticationError.userCancelled)
-            default:
-                logger.error("[Login] Authorization failed with error: \(error.localizedDescription)")
-                continuation.resume(throwing: AuthenticationError.signInFailed)
-            }
+            let authError: AuthenticationError = error.code == .canceled ? .userCancelled : .signInFailed
+            logger.notice("[Login] \(authError.localizedDescription)")
+            continuation.resume(throwing: authError)
         } else {
-            logger.error("[Login] Unknown error occurred during authorization: \(error.localizedDescription)")
+            logger.error("[Login] Unknown error: \(error.localizedDescription)")
             continuation.resume(throwing: AuthenticationError.unknown(error))
         }
     }
