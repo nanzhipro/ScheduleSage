@@ -286,3 +286,25 @@
 "paywall.purchase.cancelled" = "購入をキャンセルしました";
 "paywall.purchase.success" = "購入が完了しました";
 "paywall.purchase.processing" = "購入処理中...";
+
+// Authentication
+"login_subtitle" = "Apple IDでサインインして始める";
+"login_error_title" = "サインインに失敗しました";
+"auth_error_sign_in_failed" = "サインインに失敗しました。もう一度お試しください。";
+"auth_error_credential_invalid" = "サインイン認証情報が無効です";
+"auth_error_user_cancelled" = "サインインがキャンセルされました";
+"ok" = "OK";
+
+// Account Settings
+"settings_tab_account" = "アカウント";
+"settings_account_status" = "ログイン状態";
+"settings_account_signed_in" = "ログイン中";
+"settings_account_signed_out" = "未ログイン";
+"settings_account_sign_out" = "ログアウト";
+"settings_account_sign_out_confirm_title" = "ログアウトの確認";
+"settings_account_sign_out_confirm_message" = "ログアウトしてもよろしいですか？";
+"settings_account_sign_out_confirm_button" = "ログアウト";
+"settings_account_sign_out_cancel_button" = "キャンセル";
+"settings_account_user_id" = "ユーザーID";
+"settings_account_user_id_copy_hint" = "クリックしてユーザーIDをコピー";
+"settings_account_user_id_copied" = "ユーザーIDをクリップボードにコピーしました";

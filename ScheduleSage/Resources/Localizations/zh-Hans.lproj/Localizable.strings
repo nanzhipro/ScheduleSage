@@ -200,7 +200,7 @@
 "settings_always_on_top" = "窗口置顶";
 
 // Powered by
-"powered_by_tencent" = "腾讯云提供技术支持";
+"powered_by_tencent" = "由腾讯提供技术支持";
 
 "settings_feedback" = "提需求给我";
 "feedback_button_hint" = "帮助我们改进产品";
@@ -272,3 +272,25 @@
 "error.iap.store_not_available" = "App Store 暂时不可用";
 "error.iap.store_auth_error" = "无法连接到 App Store，请检查网络连接后重试";
 "error.iap.platform_not_supported" = "当前平台不支持此功能";
+
+// Authentication
+"login_subtitle" = "使用 Apple ID 登录以开始使用";
+"login_error_title" = "登录失败";
+"auth_error_sign_in_failed" = "登录失败，请重试";
+"auth_error_credential_invalid" = "登录凭证无效";
+"auth_error_user_cancelled" = "已取消登录";
+"ok" = "确定";
+
+// Account Settings
+"settings_tab_account" = "账户";
+"settings_account_status" = "登录状态";
+"settings_account_signed_in" = "已登录";
+"settings_account_signed_out" = "未登录";
+"settings_account_sign_out" = "退出登录";
+"settings_account_sign_out_confirm_title" = "确认退出";
+"settings_account_sign_out_confirm_message" = "确定要退出登录吗？";
+"settings_account_sign_out_confirm_button" = "退出";
+"settings_account_sign_out_cancel_button" = "取消";
+"settings_account_user_id" = "用户 ID";
+"settings_account_user_id_copy_hint" = "点击复制用户 ID";
+"settings_account_user_id_copied" = "用户 ID 已复制到剪贴板";

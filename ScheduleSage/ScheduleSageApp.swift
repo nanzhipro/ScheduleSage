@@ -13,6 +13,7 @@ struct ScheduleSageApp: App {
   @StateObject private var viewModel = AddScheduleViewModel()
   @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
   @StateObject private var iapService = IAPService.shared
+  @StateObject private var authViewModel = AuthenticationViewModel.shared
 
   var body: some Scene {
     WindowGroup {
@@ -21,6 +22,7 @@ struct ScheduleSageApp: App {
           AddScheduleView()
             .environmentObject(viewModel)
             .environmentObject(iapService)
+            .environmentObject(authViewModel)
             .frame(
               width: DesignSystem.Dimensions.mainViewWidth,
               height: DesignSystem.Dimensions.mainViewHeight
@@ -52,6 +54,7 @@ struct ScheduleSageApp: App {
 
     Settings {
       SettingsView()
+        .environmentObject(authViewModel)
     }
   }
 }

@@ -286,3 +286,25 @@
 "paywall.purchase.cancelled" = "Purchase cancelled";
 "paywall.purchase.success" = "Purchase successful";
 "paywall.purchase.processing" = "Processing purchase...";
+
+// Authentication
+"login_subtitle" = "Sign in with Apple ID to get started";
+"login_error_title" = "Sign In Failed";
+"auth_error_sign_in_failed" = "Sign in failed. Please try again.";
+"auth_error_credential_invalid" = "Invalid sign in credentials";
+"auth_error_user_cancelled" = "Sign in was cancelled";
+"ok" = "OK";
+
+// Account Settings
+"settings_tab_account" = "Account";
+"settings_account_status" = "Sign In Status";
+"settings_account_signed_in" = "Signed In";
+"settings_account_signed_out" = "Not Signed In";
+"settings_account_sign_out" = "Sign Out";
+"settings_account_sign_out_confirm_title" = "Confirm Sign Out";
+"settings_account_sign_out_confirm_message" = "Are you sure you want to sign out?";
+"settings_account_sign_out_confirm_button" = "Sign Out";
+"settings_account_sign_out_cancel_button" = "Cancel";
+"settings_account_user_id" = "User ID";
+"settings_account_user_id_copy_hint" = "Click to copy user ID";
+"settings_account_user_id_copied" = "User ID copied to clipboard";

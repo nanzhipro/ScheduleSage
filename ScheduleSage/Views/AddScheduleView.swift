@@ -13,56 +13,71 @@ import RevenueCat
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
   @EnvironmentObject private var iapService: IAPService
+  @EnvironmentObject private var authViewModel: AuthenticationViewModel
   @State private var showPaywall = false
   @State private var needsRefresh = false
   
   var body: some View {
-    VStack(spacing: 0) {
-      AddScheduleView_Impl(viewModel: viewModel, showPaywall: $showPaywall)
-        .withLoading()
-        .sheet(isPresented: $viewModel.showEventList) {
-          EventListView(
-            events: viewModel.parsedEvents,
-            onAdd: viewModel.resetState,
-            onImport: viewModel.importToCalendar,
-            onBack: { viewModel.showEventList = false },
-            onUpdate: viewModel.updateEvent
-          )
-          .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
-          .presentationDragIndicator(.visible)
-          .presentationBackgroundInteraction(.enabled)
-        }
-        .sheet(isPresented: $showPaywall) {
-          PaywallView {
-            proceedWithProFeature()
+    ZStack {
+      VStack(spacing: 0) {
+        AddScheduleView_Impl(viewModel: viewModel, showPaywall: $showPaywall)
+          .withLoading()
+          .sheet(isPresented: $viewModel.showEventList) {
+            EventListView(
+              events: viewModel.parsedEvents,
+              onAdd: viewModel.resetState,
+              onImport: viewModel.importToCalendar,
+              onBack: { viewModel.showEventList = false },
+              onUpdate: viewModel.updateEvent
+            )
+            .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
+            .presentationDragIndicator(.visible)
+            .presentationBackgroundInteraction(.enabled)
           }
-        }
+          .sheet(isPresented: $showPaywall) {
+            PaywallView {
+              proceedWithProFeature()
+            }
+          }
+      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .toast(
+        isPresented: $viewModel.showToast,
+        type: viewModel.toastType,
+        message: viewModel.toastMessage
+      )
+      .toast(
+        isPresented: .init(
+          get: { viewModel.importStatus != .none },
+          set: { if !$0 { viewModel.importStatus = .none } }
+        ),
+        type: toastType,
+        message: toastMessage
+      )
+      
+      // 登录页面覆盖
+      if !authViewModel.isAuthenticated {
+        LoginView()
+          .transition(
+            .asymmetric(
+              insertion: .opacity.combined(with: .scale(scale: 1.1)),
+              removal: .opacity.combined(with: .scale(scale: 0.9))
+            )
+          )
+          .animation(.easeInOut(duration: 0.3), value: authViewModel.isAuthenticated)
+      }
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .toast(
-      isPresented: $viewModel.showToast,
-      type: viewModel.toastType,
-      message: viewModel.toastMessage
-    )
-    .toast(
-      isPresented: .init(
-        get: { viewModel.importStatus != .none },
-        set: { if !$0 { viewModel.importStatus = .none } }
-      ),
-      type: toastType,
-      message: toastMessage
-    )
     .onAppear(perform: viewModel.resetState)
     .id(needsRefresh)
     .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
       needsRefresh.toggle()
     }
     .fileImporter(
-        isPresented: $viewModel.showImagePicker,
-        allowedContentTypes: ImageSupport.supportedUTTypes,
-        allowsMultipleSelection: false
+      isPresented: $viewModel.showImagePicker,
+      allowedContentTypes: ImageSupport.supportedUTTypes,
+      allowsMultipleSelection: false
     ) { result in
-        viewModel.handleImagePickerResult(result)
+      viewModel.handleImagePickerResult(result)
     }
   }
   
