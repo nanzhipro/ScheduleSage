@@ -308,3 +308,6 @@
 "settings_account_user_id" = "ユーザーID";
 "settings_account_user_id_copy_hint" = "クリックしてユーザーIDをコピー";
 "settings_account_user_id_copied" = "ユーザーIDをクリップボードにコピーしました";
+
+/* Sign in with Apple button title */
+"sign_in_with_apple" = "Appleでサインイン";

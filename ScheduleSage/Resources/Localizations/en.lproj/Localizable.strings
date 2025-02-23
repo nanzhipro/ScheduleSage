@@ -308,3 +308,6 @@
 "settings_account_user_id" = "User ID";
 "settings_account_user_id_copy_hint" = "Click to copy user ID";
 "settings_account_user_id_copied" = "User ID copied to clipboard";
+
+/* Sign in with Apple button title */
+"sign_in_with_apple" = "Sign in with Apple";

@@ -45,16 +45,26 @@ struct LoginView: View {
                 
                 // 登录按钮
                 VStack(spacing: DesignSystem.Spacing.elementSpacing) {
-                    SignInWithAppleButton(.signIn) { request in
-                        request.requestedScopes = [.fullName, .email]
-                    } onCompletion: { result in
+                    Button {
                         Task {
                             await viewModel.signInWithApple()
                         }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "apple.logo")
+                                .font(.system(size: 20, weight: .medium))
+                            
+                            Text(NSLocalizedString("sign_in_with_apple", comment: ""))
+                                .font(.system(size: 16, weight: .medium))
+                        }
+                        .frame(width: 280)
+                        .frame(height: DesignSystem.Dimensions.largeButtonHeight)
+                        .background(colorScheme == .dark ? .white : .black)
+                        .foregroundColor(colorScheme == .dark ? .black : .white)
+                        .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
                     }
-                    .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
-                    .frame(height: DesignSystem.Dimensions.largeButtonHeight)
-                    .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     
                     if viewModel.isLoading {
                         ProgressView()

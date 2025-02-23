@@ -294,3 +294,6 @@
 "settings_account_user_id" = "用户 ID";
 "settings_account_user_id_copy_hint" = "点击复制用户 ID";
 "settings_account_user_id_copied" = "用户 ID 已复制到剪贴板";
+
+/* Sign in with Apple button title */
+"sign_in_with_apple" = "通过 Apple 登录";

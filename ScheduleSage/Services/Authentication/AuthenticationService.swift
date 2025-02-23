@@ -24,21 +24,21 @@ enum AuthenticationError: LocalizedError, Identifiable {
     case signInFailed, credentialInvalid, userCancelled
     case unknown(Error)
     
-    var id: String {
+    var id: String { 
         switch self {
-        case .signInFailed: return "signInFailed"
-        case .credentialInvalid: return "credentialInvalid"
-        case .userCancelled: return "userCancelled"
-        case .unknown(let error): return "unknown.\(error.localizedDescription)"
+        case .signInFailed: "signInFailed"
+        case .credentialInvalid: "credentialInvalid"
+        case .userCancelled: "userCancelled"
+        case .unknown(let error): "unknown.\(error.localizedDescription)"
         }
     }
     
     var errorDescription: String? {
         switch self {
-        case .signInFailed: return NSLocalizedString("auth_error_sign_in_failed", comment: "")
-        case .credentialInvalid: return NSLocalizedString("auth_error_credential_invalid", comment: "")
-        case .userCancelled: return NSLocalizedString("auth_error_user_cancelled", comment: "")
-        case .unknown(let error): return error.localizedDescription
+        case .signInFailed: NSLocalizedString("auth_error_sign_in_failed", comment: "")
+        case .credentialInvalid: NSLocalizedString("auth_error_credential_invalid", comment: "")
+        case .userCancelled: NSLocalizedString("auth_error_user_cancelled", comment: "")
+        case .unknown(let error): error.localizedDescription
         }
     }
 }
@@ -52,6 +52,8 @@ final class AuthenticationService: AuthenticationServiceProtocol {
     private let userDefaults = UserDefaults.standard
     private let userKey = "currentUser"
     
+    var isAuthenticated: Bool { currentUser != nil }
+    
     private(set) var currentUser: User? {
         get {
             guard let data = userDefaults.data(forKey: userKey),
@@ -60,49 +62,25 @@ final class AuthenticationService: AuthenticationServiceProtocol {
                 logger.debug("[Login] No stored user found")
                 return nil
             }
-            logger.debug("[Login] Retrieved stored user: \(user.logDescription)")
             return user
         }
         set {
-            if let newValue, let data = try? JSONEncoder().encode(newValue) {
-                logger.debug("[Login] Storing user: \(newValue.logDescription)")
-                userDefaults.set(data, forKey: userKey)
+            if let user = newValue {
+                if let data = try? JSONEncoder().encode(user) {
+                    userDefaults.set(data, forKey: userKey)
+                    logger.debug("[Login] Stored user: \(user.logDescription)")
+                }
             } else {
-                logger.notice("[Login] Removing stored user")
                 userDefaults.removeObject(forKey: userKey)
+                logger.debug("[Login] Removed stored user")
             }
         }
     }
     
-    var isAuthenticated: Bool {
-        currentUser != nil
-    }
-    
-    private init() {
-        logger.debug("[Login] Authentication service initialized")
-    }
-    
-    fileprivate func saveUser(_ user: User) async {
-        logger.debug("[Login] Saving user and initializing services")
-        
-        // 先保存用户信息
-        currentUser = user
-        
-        do {
-            // 初始化 IAP 服务（使用适当的 QoS）
-            try await Task.detached(priority: .userInitiated) {
-                try await IAPService.shared.login(userId: user.id)
-            }.value
-            
-            logger.debug("[Login] IAP service initialized for user: \(user.id)")
-        } catch {
-            logger.error("[Login] Failed to initialize IAP service: \(error.localizedDescription)")
-            // 注意：我们仍然保持用户登录状态，即使 IAP 初始化失败
-        }
-    }
+    private init() {}
     
     func signInWithApple() async throws -> User {
-        logger.info("[Login] Starting Apple ID sign in process")
+        logger.info("[Login] Starting Apple ID sign in")
         
         return try await withCheckedThrowingContinuation { continuation in
             let request = ASAuthorizationAppleIDProvider().createRequest()
@@ -114,44 +92,47 @@ final class AuthenticationService: AuthenticationServiceProtocol {
             controller.delegate = delegate
             controller.presentationContextProvider = delegate
             
-            logger.debug("[Login] Performing authorization request")
-            controller.performRequests()
+            Task { @MainActor in
+                controller.performRequests()
+            }
             
-            // 保持 delegate 的引用直到授权完成
             objc_setAssociatedObject(controller, "delegate", delegate, .OBJC_ASSOCIATION_RETAIN)
         }
     }
     
-    func signOut() async {
-        logger.info("[Login] Signing out user")
+    func saveUser(_ user: User) async {
+        currentUser = user
         
-        // 先登出 IAP 服务
-        await IAPService.shared.logout()
-        
-        currentUser = nil
-        logger.debug("[Login] User signed out")
-    }
-    
-    /// 尝试恢复用户登录状态
-    /// - Returns: 如果有存储的用户信息，则返回用户对象；否则返回 nil
-    func restoreAuthentication() async -> User? {
-        logger.debug("[Login] Attempting to restore authentication")
-        
-        guard let user = currentUser else {
-            logger.notice("[Login] No stored user found")
-            return nil
-        }
-        
-        // 初始化 IAP 服务
         do {
             try await Task.detached(priority: .userInitiated) {
                 try await IAPService.shared.login(userId: user.id)
             }.value
-            logger.info("[Login] Successfully restored authentication and initialized IAP for user: \(user.logDescription)")
+            logger.debug("[Login] IAP service initialized")
+        } catch {
+            logger.error("[Login] IAP service initialization failed: \(error.localizedDescription)")
+        }
+    }
+    
+    func signOut() async {
+        await Task.detached(priority: .userInitiated) {
+            await IAPService.shared.logout()
+        }.value
+        
+        currentUser = nil
+        logger.info("[Login] Sign out completed")
+    }
+    
+    func restoreAuthentication() async -> User? {
+        guard let user = currentUser else { return nil }
+        
+        do {
+            try await Task.detached(priority: .userInitiated) {
+                try await IAPService.shared.login(userId: user.id)
+            }.value
+            logger.debug("[Login] Authentication restored")
             return user
         } catch {
-            logger.error("[Login] Failed to initialize IAP service during restore: \(error.localizedDescription)")
-            // 即使 IAP 初始化失败，我们仍然返回用户信息
+            logger.error("[Login] IAP service initialization failed: \(error.localizedDescription)")
             return user
         }
     }
