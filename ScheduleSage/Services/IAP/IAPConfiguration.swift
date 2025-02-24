@@ -13,14 +13,8 @@ import RevenueCat
 struct IAPConfiguration {
     /// RevenueCat API Key
     static var apiKey: String {
-        #if DEBUG
+        // TODO: 从服务端获取
         return "appl_dMdpmzBEXIUFoVMfBQkSmpLDALP"
-        #else
-        guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_API_KEY") as? String else {
-            fatalError("RevenueCat API Key not found")
-        }
-        return apiKey
-        #endif
     }
     
     /// 产品标识符
