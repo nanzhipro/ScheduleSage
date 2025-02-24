@@ -28,10 +28,43 @@ struct PaywallView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: DesignSystem.Spacing.large) {
                         headerSection
-                        FeatureListView()
                         subscriptionOptionsSection
-                        purchaseButton
-                        footerSection
+                        VStack(spacing: DesignSystem.Spacing.medium) {
+                            purchaseButton
+                            
+                            // 恢复购买按钮
+                            Button(action: handleRestore) {
+                                Text(NSLocalizedString("paywall.restore_purchases", comment: ""))
+                                    .font(DesignSystem.Typography.bodyRegular)
+                                    .foregroundColor(DesignSystem.Colors.link)
+                            }
+                            .buttonStyle(.plain)
+                            .withHoverEffect(scale: 1.1, brightness: 0.1)
+                            
+                            // 服务条款和隐私政策按钮组
+                            HStack(spacing: DesignSystem.Spacing.medium) {
+                                Button(action: openTerms) {
+                                    Text(NSLocalizedString("paywall.terms", comment: ""))
+                                        .font(DesignSystem.Typography.bodyRegular)
+                                        .foregroundColor(DesignSystem.Colors.link)
+                                }
+                                .buttonStyle(.plain)
+                                .withHoverEffect(scale: 1.1, brightness: 0.1)
+                                
+                                Text("•")
+                                    .foregroundColor(DesignSystem.Colors.tertiaryText)
+                                
+                                Button(action: openPrivacyPolicy) {
+                                    Text(NSLocalizedString("paywall.privacy", comment: ""))
+                                        .font(DesignSystem.Typography.bodyRegular)
+                                        .foregroundColor(DesignSystem.Colors.link)
+                                }
+                                .buttonStyle(.plain)
+                                .withHoverEffect(scale: 1.1, brightness: 0.1)
+                            }
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.medium)
+                        .padding(.bottom, DesignSystem.Spacing.large)
                     }
                     .padding(.horizontal, DesignSystem.Spacing.medium)
                 }
@@ -134,63 +167,6 @@ struct PaywallView: View {
         .padding(.vertical, DesignSystem.Spacing.small)
     }
     
-    private var footerSection: some View {
-        VStack(spacing: DesignSystem.Spacing.medium) {
-            HStack(spacing: DesignSystem.Spacing.large) {
-                TextButton(
-                    title: NSLocalizedString("paywall.restore_purchases", comment: ""),
-                    action: handleRestore
-                )
-                
-                TextButton(
-                    title: NSLocalizedString("paywall.terms", comment: ""),
-                    action: openTerms
-                )
-                
-                TextButton(
-                    title: NSLocalizedString("paywall.privacy", comment: ""),
-                    action: openPrivacyPolicy
-                )
-            }
-            
-            Text(NSLocalizedString("paywall.footer.terms_privacy", comment: ""))
-                .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.tertiaryText)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-        }
-        .padding(.bottom, DesignSystem.Spacing.large)
-    }
-    
-    // 新增：文字按钮组件
-    private struct TextButton: View {
-        let title: String
-        let action: () -> Void
-        
-        var body: some View {
-            Button(action: action) {
-                Text(title)
-                    .font(DesignSystem.Typography.bodyRegular)
-                    .foregroundColor(DesignSystem.Colors.link)
-            }
-            .buttonStyle(.plain)
-            .withHoverEffect(scale: 1.1, brightness: 0.1)
-        }
-    }
-    
-    // 新增：按钮动作处理
-    private func openTerms() {
-        if let url = URL(string: "https://schedulesage.app/terms") {
-            NSWorkspace.shared.open(url)
-        }
-    }
-    
-    private func openPrivacyPolicy() {
-        if let url = URL(string: "https://schedulesage.app/privacy") {
-            NSWorkspace.shared.open(url)
-        }
-    }
-    
     // MARK: - Helper Methods
     
     private func handlePurchase() {
@@ -245,6 +221,18 @@ struct PaywallView: View {
     
     private var buttonBackground: Color {
         iapService.isPremium ? DesignSystem.Colors.success : DesignSystem.Colors.primary
+    }
+    
+    private func openTerms() {
+        if let url = URL(string: AppConstants.URLs.faq) {
+            NSWorkspace.shared.open(url)
+        }
+    }
+    
+    private func openPrivacyPolicy() {
+        if let url = URL(string: AppConstants.URLs.privacyPolicy) {
+            NSWorkspace.shared.open(url)
+        }
     }
 }
 
@@ -380,76 +368,10 @@ struct ShimmeringEffect: ViewModifier {
     }
 }
 
-// MARK: - Feature List View
-private struct FeatureListView: View {
-    private let features = [
-        (icon: "infinity.circle.fill", key: "subscription_feature_unlimited_usage"),
-        (icon: "bubble.left.and.bubble.right.fill", key: "subscription_feature_priority_support"),
-        (icon: "star.circle.fill", key: "subscription_feature_yearly_discount")
-    ]
-    
-    var body: some View {
-        VStack(spacing: DesignSystem.Spacing.medium) {
-            ForEach(features, id: \.key) { feature in
-                HStack {
-                    Spacer()
-                    FeatureRow(
-                        icon: feature.icon,
-                        title: NSLocalizedString(feature.key, comment: "")
-                    )
-                    Spacer()
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, DesignSystem.Spacing.large)
-    }
-}
-
-// MARK: - Feature Row
-private struct FeatureRow: View {
-    let icon: String
-    let title: String
-    
-    var body: some View {
-        HStack(spacing: DesignSystem.Spacing.medium) {
-            Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundColor(DesignSystem.Colors.primary)
-                .frame(width: 24)
-            
-            Text(title)
-                .font(DesignSystem.Typography.bodyRegular)
-                .foregroundColor(DesignSystem.Colors.primaryText)
-                .fixedSize(horizontal: false, vertical: true)
-                .lineLimit(1)
-        }
-        .frame(maxWidth: 280) // 固定内容宽度
-    }
-}
-
-// MARK: - Premium Features
-enum PremiumFeatures: CaseIterable {
-    case unlimitedUsage
-    case prioritySupport
-    case earlyAccess
-    
-    var localizedDescription: String {
-        switch self {
-        case .unlimitedUsage:
-            return NSLocalizedString("subscription_feature_unlimited_usage", comment: "")
-        case .prioritySupport:
-            return NSLocalizedString("subscription_feature_priority_support", comment: "")
-        case .earlyAccess:
-            return NSLocalizedString("subscription_feature_yearly_discount", comment: "")
-        }
-    }
-}
-
 // MARK: - Paywall Dimensions
 private enum PaywallDimensions {
     static let containerWidth: CGFloat = 440
-    static let containerHeight: CGFloat = 640
+    static let containerHeight: CGFloat = 520 // 调整为 AddScheduleView 高度的 80%
     static let buttonHeight: CGFloat = 44
     static let buttonCornerRadius: CGFloat = 8
 }

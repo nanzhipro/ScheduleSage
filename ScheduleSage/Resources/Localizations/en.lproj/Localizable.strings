@@ -311,3 +311,5 @@
 
 /* Sign in with Apple button title */
 "sign_in_with_apple" = "Sign in with Apple";
+
+"privacy_statement" = "Your schedule data is protected with the highest level of encryption";

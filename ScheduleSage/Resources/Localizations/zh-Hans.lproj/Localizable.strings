@@ -297,3 +297,5 @@
 
 /* Sign in with Apple button title */
 "sign_in_with_apple" = "通过 Apple 登录";
+
+"privacy_statement" = "您的日程数据受最高级别加密保护";

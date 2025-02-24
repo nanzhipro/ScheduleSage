@@ -24,6 +24,11 @@ final class AuthenticationViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var error: AuthenticationError?
     
+    // Toast 相关状态
+    @Published var showToast = false
+    @Published var toastMessage = ""
+    @Published var toastType: ToastType = .error
+    
     private let authService: AuthenticationServiceProtocol
     
     var currentUser: User? {
@@ -49,9 +54,17 @@ final class AuthenticationViewModel: ObservableObject {
         } catch let error as AuthenticationError {
             logger.error("[Login] Sign in failed with error: \(error.localizedDescription)")
             self.error = error
+            // 显示 toast
+            toastMessage = error.localizedDescription
+            toastType = .error
+            showToast = true
         } catch {
             logger.error("[Login] Sign in failed with unknown error: \(error.localizedDescription)")
             self.error = .unknown(error)
+            // 显示 toast
+            toastMessage = NSLocalizedString("unknown_error", comment: "")
+            toastType = .error
+            showToast = true
         }
         
         isLoading = false

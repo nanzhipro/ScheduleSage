@@ -9,7 +9,7 @@ import SwiftUI
 import AuthenticationServices
 
 struct LoginView: View {
-    @EnvironmentObject private var viewModel: AuthenticationViewModel  // 改为 EnvironmentObject
+    @EnvironmentObject private var viewModel: AuthenticationViewModel
     @Environment(\.colorScheme) private var colorScheme
     
     // 添加动画状态
@@ -21,9 +21,8 @@ struct LoginView: View {
             DesignSystem.Gradients.containerBackground(colorScheme: colorScheme)
                 .ignoresSafeArea()
             
-            VStack(spacing: DesignSystem.Spacing.largeContentSpacing) {
-                Spacer()
-                
+            // 主要内容容器
+            VStack(spacing: 80) {
                 // Logo 和标题
                 VStack(spacing: DesignSystem.Spacing.elementSpacing) {
                     Image(systemName: "calendar")
@@ -31,58 +30,74 @@ struct LoginView: View {
                         .foregroundColor(DesignSystem.Colors.primary)
                     
                     Text(AppInfo.name)
-                        .font(DesignSystem.Typography.title)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .font(.system(size: 36, weight: .bold, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [
+                                    DesignSystem.Colors.primary,
+                                    DesignSystem.Colors.primary.opacity(0.8)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .shadow(
+                            color: colorScheme == .dark ? 
+                                DesignSystem.Colors.primary.opacity(0.3) : 
+                                .clear,
+                            radius: 10
+                        )
                     
                     Text(NSLocalizedString("login_subtitle", comment: ""))
-                        .font(DesignSystem.Typography.largeHeaderSubtitle)
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, DesignSystem.Spacing.horizontal)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .opacity(0.8)
                 }
-                
-                Spacer()
                 
                 // 登录按钮
                 VStack(spacing: DesignSystem.Spacing.elementSpacing) {
-                    Button {
-                        Task {
-                            await viewModel.signInWithApple()
+                    ZStack {
+                        // 登录按钮
+                        Button {
+                            Task {
+                                await viewModel.signInWithApple()
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "apple.logo")
+                                    .font(.system(size: 20, weight: .medium))
+                                
+                                Text(NSLocalizedString("sign_in_with_apple", comment: ""))
+                                    .font(.system(size: 16, weight: .medium))
+                            }
+                            .frame(width: 280)
+                            .frame(height: DesignSystem.Dimensions.largeButtonHeight)
+                            .background(colorScheme == .dark ? .white : .black)
+                            .foregroundColor(colorScheme == .dark ? .black : .white)
+                            .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
                         }
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "apple.logo")
-                                .font(.system(size: 20, weight: .medium))
-                            
-                            Text(NSLocalizedString("sign_in_with_apple", comment: ""))
-                                .font(.system(size: 16, weight: .medium))
+                        .buttonStyle(.plain)
+                        .opacity(viewModel.isLoading ? 0.6 : 1.0)
+                        .disabled(viewModel.isLoading)
+                        
+                        // Loading 指示器
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                                .scaleEffect(0.8)
+                                .tint(colorScheme == .dark ? .black : .white)
                         }
-                        .frame(width: 280)
-                        .frame(height: DesignSystem.Dimensions.largeButtonHeight)
-                        .background(colorScheme == .dark ? .white : .black)
-                        .foregroundColor(colorScheme == .dark ? .black : .white)
-                        .cornerRadius(DesignSystem.Dimensions.buttonCornerRadius)
-                    }
-                    .buttonStyle(.plain)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .scaleEffect(0.8)
                     }
                 }
-                .padding(.bottom, DesignSystem.Spacing.vertical)
             }
-            .padding(DesignSystem.Layout.largeContainerPadding)
         }
-        .alert(item: $viewModel.error) { error in
-            Alert(
-                title: Text(NSLocalizedString("login_error_title", comment: "")),
-                message: Text(error.localizedDescription),
-                dismissButton: .default(Text(NSLocalizedString("ok", comment: "")))
-            )
-        }
+        .toast(
+            isPresented: $viewModel.showToast,
+            type: viewModel.toastType,
+            message: viewModel.toastMessage
+        )
         // 添加动画修饰符
         .opacity(isAnimatingOut ? 0 : 1)
         .scaleEffect(isAnimatingOut ? 0.9 : 1)

@@ -156,10 +156,19 @@ private struct AddScheduleView_Impl: View {
         // 底部工具栏
         ZStack {
           // powered by 文本居中
-          Text(NSLocalizedString("powered_by_tencent", comment: ""))
-            .font(DesignSystem.Typography.caption)
-            .foregroundColor(DesignSystem.Colors.tertiaryText)
-            .frame(maxWidth: .infinity)
+          VStack(spacing: 4) {
+            Text(NSLocalizedString("powered_by_tencent", comment: ""))
+              .font(DesignSystem.Typography.caption)
+              .foregroundColor(DesignSystem.Colors.tertiaryText)
+            
+            // 隐私声明
+            Text(NSLocalizedString("privacy_statement", comment: ""))
+              .font(DesignSystem.Typography.caption)
+              .foregroundColor(DesignSystem.Colors.tertiaryText)
+              .opacity(0.8)
+              .scaleEffect(0.9)
+          }
+          .frame(maxWidth: .infinity)
           
           HStack(spacing: 16) {
             // 添加升级按钮
@@ -316,18 +325,43 @@ private struct AddScheduleContent: View {
 
 // MARK: - Title Section
 private struct TitleSection: View {
+    @State private var isHovered = false
+    @Environment(\.colorScheme) private var colorScheme
+    
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Design.Spacing.titleToSubtitle) {
+            // 主标题
             Text(AppInfo.name)
-                .font(DesignSystem.Typography.title)
-                .foregroundColor(DesignSystem.Colors.primaryText)
+                .font(.system(size: 36, weight: .bold, design: .rounded))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.primary,
+                            DesignSystem.Colors.primary.opacity(0.8)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(
+                    color: colorScheme == .dark ? 
+                        DesignSystem.Colors.primary.opacity(0.3) : 
+                        .clear,
+                    radius: isHovered ? 15 : 10
+                )
+                .scaleEffect(isHovered ? 1.05 : 1.0)
             
+            // 副标题
             Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
-                .font(DesignSystem.Typography.largeHeaderSubtitle)
+                .font(.system(size: 16, weight: .medium, design: .rounded))
                 .foregroundColor(DesignSystem.Colors.secondaryText)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
+                .opacity(isHovered ? 0.9 : 0.8)
+                .animation(.easeInOut(duration: 0.2), value: isHovered)
         }
+        .padding(.horizontal)
+        .contentShape(Rectangle())
     }
 }
 
