@@ -92,7 +92,7 @@ final class AuthenticationService: AuthenticationServiceProtocol {
             controller.delegate = delegate
             controller.presentationContextProvider = delegate
             
-            Task { @MainActor in
+            Task(priority: .userInitiated) { @MainActor in
                 controller.performRequests()
             }
             
