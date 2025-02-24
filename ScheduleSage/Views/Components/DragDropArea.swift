@@ -1,3 +1,10 @@
+//
+//  DragDropArea.swift
+//  ScheduleSage
+//
+//  Created by CursorAI on 2024-03-19.
+//
+
 import SwiftUI
 
 struct DragDropArea<Content: View>: View {
@@ -27,35 +34,26 @@ struct DragDropArea<Content: View>: View {
 
   var body: some View {
     ZStack {
-      // 渐变背景，仅在浅色模式下显示
-      if colorScheme == .light {
-        LinearGradient(
-          colors: [
-            DesignSystem.Colors.primary.opacity(0.1),
-            DesignSystem.Colors.primary.opacity(0.05),
-            DesignSystem.Colors.background
-          ],
-          startPoint: .top,
-          endPoint: .bottom
-        )
-        .ignoresSafeArea()
-      }
-      
       // 主要内容
       content
-
-      // 虚线边框
+        .zIndex(1)
+      
+      // 边框效果
       RoundedRectangle(cornerRadius: DesignSystem.Dimensions.cardCornerRadius)
         .strokeBorder(
-          style: StrokeStyle(
-            lineWidth: 2,
-            dash: [4, 4]
-          )
+          isDragging ? 
+            DesignSystem.Colors.primary.opacity(0.3) : 
+            Color(.separatorColor),
+          lineWidth: isDragging ? 2 : 1
         )
-        .foregroundColor(isDragging ? DesignSystem.Colors.primary : DesignSystem.Colors.borderGray)
+        .background(
+          RoundedRectangle(cornerRadius: DesignSystem.Dimensions.cardCornerRadius)
+            .fill(.ultraThinMaterial.opacity(0.5))
+        )
         .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
         .padding(.vertical, DesignSystem.Layout.containerPadding.top)
         .animation(.easeInOut(duration: 0.3), value: isDragging)
+        .zIndex(0)
     }
     .background(colorScheme == .dark ? DesignSystem.Colors.background : nil)
     .onDrop(
