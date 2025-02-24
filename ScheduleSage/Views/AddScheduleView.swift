@@ -13,7 +13,6 @@ import RevenueCat
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
   @EnvironmentObject private var iapService: IAPService
-  @EnvironmentObject private var authViewModel: AuthenticationViewModel
   @State private var showPaywall = false
   @State private var needsRefresh = false
   
@@ -54,18 +53,6 @@ struct AddScheduleView: View {
         type: toastType,
         message: toastMessage
       )
-      
-      // 登录页面覆盖
-      if !authViewModel.isAuthenticated {
-        LoginView()
-          .transition(
-            .asymmetric(
-              insertion: .opacity.combined(with: .scale(scale: 1.1)),
-              removal: .opacity.combined(with: .scale(scale: 0.9))
-            )
-          )
-          .animation(.easeInOut(duration: 0.3), value: authViewModel.isAuthenticated)
-      }
     }
     .onAppear(perform: viewModel.resetState)
     .id(needsRefresh)
@@ -160,13 +147,6 @@ private struct AddScheduleView_Impl: View {
             Text(NSLocalizedString("powered_by_tencent", comment: ""))
               .font(DesignSystem.Typography.caption)
               .foregroundColor(DesignSystem.Colors.tertiaryText)
-            
-            // 隐私声明
-            Text(NSLocalizedString("privacy_statement", comment: ""))
-              .font(DesignSystem.Typography.caption)
-              .foregroundColor(DesignSystem.Colors.tertiaryText)
-              .opacity(0.8)
-              .scaleEffect(0.9)
           }
           .frame(maxWidth: .infinity)
           
@@ -208,16 +188,9 @@ private struct AddScheduleView_Impl: View {
                 viewModel.feedbackButtonScale = isHovered ? 1.1 : 1.0
               }
             }
-            
-            // 设置按钮
-            SettingsButton()
-              .foregroundColor(colorScheme == .dark ? 
-                DesignSystem.Colors.secondaryText :
-                DesignSystem.Colors.secondaryGray
-              )
-              .frame(width: 44, height: 44)
           }
           .padding(.horizontal, Design.Spacing.bottomBarPadding.horizontal)
+          .padding(.bottom, Design.Spacing.bottomBarPadding.bottom)
         }
       }
     }
@@ -235,7 +208,7 @@ private enum Design {
     /// 底部工具栏内边距
     static let bottomBarPadding = (
       horizontal: 16.0,
-      bottom: 12.0
+      bottom: 24.0
     )
     
     /// 内容整体内边距

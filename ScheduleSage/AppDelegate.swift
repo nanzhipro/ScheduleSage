@@ -41,15 +41,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Setup Methods
     private func initializeServices() async {
         logger.debug("[App] Starting services initialization")
-        
-        // 尝试恢复认证状态
-        if let user = await authService.restoreAuthentication() {
-            logger.info("[App] Authentication restored for user: \(user.id)")
-        } else {
-            logger.notice("[App] No authenticated user found")
+           
+        // 初始化 IAP 服务
+        do {
+            logger.debug("[App] Initializing IAP service")
+            try await iapService.configRevenueCatSDK()
+            logger.info("[App] IAP service initialized successfully")
+        } catch {
+            logger.error("[App] Failed to initialize IAP service: \(error.localizedDescription)")
         }
-        
-        // 初始化其他服务...
         
         logger.notice("[App] Services initialization completed")
     }

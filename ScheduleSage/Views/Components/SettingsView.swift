@@ -15,20 +15,12 @@ struct SettingsView: View {
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
   @State private var showLaunchError = false
   @Environment(\.colorScheme) private var colorScheme
-  @EnvironmentObject private var authViewModel: AuthenticationViewModel
-  @State private var showSignOutConfirmation = false
-  @State private var showCopiedFeedback = false
   
   var body: some View {
     TabView {
       generalSettings
         .tabItem {
           Label(NSLocalizedString("settings_tab_general", comment: ""), systemImage: "gear")
-        }
-      
-      accountSettings
-        .tabItem {
-          Label(NSLocalizedString("settings_tab_account", comment: ""), systemImage: "person.circle")
         }
     }
     .frame(width: 375, height: 500)
@@ -171,91 +163,6 @@ private extension SettingsView {
       ForEach(AboutLink.allCases) { link in
         SettingsLinkRow(link: link)
       }
-    }
-  }
-  
-  private var accountSettings: some View {
-    Form {
-      accountStatusSection
-    }
-    .formStyle(.grouped)
-    .scrollContentBackground(.hidden)
-    .background(DesignSystem.Colors.primaryBackground)
-  }
-  
-  private var accountStatusSection: some View {
-    SettingsSection(title: "settings_account_status") {
-      if authViewModel.isAuthenticated {
-        // 登录状态
-        SettingsRow(title: "settings_account_signed_in", icon: "checkmark.circle.fill") {
-          Button(action: { showSignOutConfirmation = true }) {
-            Text("settings_account_sign_out")
-              .foregroundColor(DesignSystem.Colors.error)
-          }
-          .buttonStyle(.plain)
-        }
-        
-        // 用户 ID（隐藏显示但可复制）
-        if let userId = authViewModel.currentUser?.id {
-          SettingsRow(title: "settings_account_user_id", icon: "person.text.rectangle") {
-            Button(action: {
-              NSPasteboard.general.clearContents()
-              NSPasteboard.general.setString(userId, forType: .string)
-              
-              // 显示复制成功的反馈
-              withAnimation {
-                showCopiedFeedback = true
-              }
-              
-              // 2秒后隐藏反馈
-              DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                withAnimation {
-                  showCopiedFeedback = false
-                }
-              }
-            }) {
-              HStack(spacing: 4) {
-                Image(systemName: "doc.on.doc")
-                  .foregroundStyle(DesignSystem.Colors.primary)
-                
-                // 复制成功反馈
-                if showCopiedFeedback {
-                  Image(systemName: "checkmark")
-                    .foregroundStyle(DesignSystem.Colors.success)
-                    .transition(.opacity.combined(with: .scale))
-                }
-              }
-            }
-            .buttonStyle(.plain)
-            .help(showCopiedFeedback ? 
-                  NSLocalizedString("settings_account_user_id_copied", comment: "") :
-                  NSLocalizedString("settings_account_user_id_copy_hint", comment: ""))
-          }
-        }
-      } else {
-        SettingsRow(title: "settings_account_signed_out", icon: "xmark.circle.fill") {
-          EmptyView()
-        }
-      }
-    }
-    .alert(
-      NSLocalizedString("settings_account_sign_out_confirm_title", comment: ""),
-      isPresented: $showSignOutConfirmation
-    ) {
-      Button(
-        NSLocalizedString("settings_account_sign_out_confirm_button", comment: ""),
-        role: .destructive
-      ) {
-        Task {
-          await authViewModel.signOut()
-        }
-      }
-      Button(
-        NSLocalizedString("settings_account_sign_out_cancel_button", comment: ""),
-        role: .cancel
-      ) {}
-    } message: {
-      Text("settings_account_sign_out_confirm_message")
     }
   }
 }

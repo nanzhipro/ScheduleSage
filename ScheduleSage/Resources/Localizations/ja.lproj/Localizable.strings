@@ -203,7 +203,7 @@
 "settings_always_on_top" = "ウィンドウを最前面に表示";
 
 // Powered by
-"powered_by_tencent" = "テンセントクラウドが技術支援を提供";
+"powered_by_tencent" = "AI パワード アプリ";
 
 // Method Button Hints
 "hint.clipboard_import" = "クリップボードのテキストやウェブページリンクから予定を作成";

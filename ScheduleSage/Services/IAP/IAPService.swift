@@ -18,6 +18,7 @@ import OSLog
 /// ```swift
 /// let iapService = IAPService.shared
 /// ```
+@MainActor
 class IAPService: NSObject, ObservableObject {
     /// 共享实例
     static let shared = IAPService()
@@ -66,78 +67,44 @@ class IAPService: NSObject, ObservableObject {
         logger.debug("[IAP] Service instance created")
     }
     
-    /// 使用用户 ID 登录 RevenueCat
-    /// - Parameter userId: Apple ID 用户标识
-    @MainActor
-    func login(userId: String) async throws {
-        logger.info("[IAP] Logging in with user ID: \(userId)")
+    /// 初始化配置 RevenueCat SDK 和相关功能
+    func configRevenueCatSDK() async throws {
+        // 配置 SDK
+        configureSDK()
         
-        guard !isInitialized else {
-            logger.notice("[IAP] Service already initialized")
-            return
-        }
+        // 设置监听和初始化其他功能
+        setupObservers()
+        
+        // 获取产品信息
+        logger.debug("[IAP] Fetching offerings and restoring purchases")
+        await fetchOfferings()
         
         do {
-            // 配置 SDK
-            configureSDK()
-            
-            // 登录 RevenueCat
-            logger.debug("[IAP] Logging in to RevenueCat")
-            try await Purchases.shared.logIn(userId)
-            logger.info("[IAP] Successfully logged in to RevenueCat")
-            
-            // 设置监听和初始化其他功能
-            setupSubscriptionMonitoring()
-            setupLifecycleObservers()
-            
-            // 获取产品信息
-            logger.debug("[IAP] Fetching offerings and restoring purchases")
-            await fetchOfferings()
-            
-            do {
-                try await refreshCustomerInfo()
-                let restored = try await restorePurchases()
-                logger.notice("[IAP] Restore completed - Premium status: \(restored)")
-            } catch {
-                logger.error("[IAP] Restore/refresh failed: \(error.localizedDescription)")
-            }
-            
-            isInitialized = true
-            logger.notice("[IAP] Initialization completed. Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
+            try await initializeCustomerInfo()
+            let restored = try await restorePurchases()
+            logger.notice("[IAP] Restore completed - Premium status: \(restored)")
         } catch {
-            logger.error("[IAP] Failed to initialize IAP service: \(error.localizedDescription)")
+            logger.error("[IAP] Restore/refresh failed: \(error.localizedDescription)")
             throw error
         }
     }
-    
-    /// 登出并清理状态
-    @MainActor
-    func logout() async {
-        logger.info("[IAP] Logging out")
+
+    /// 清理 RevenueCat 状态和观察者
+    func cleanupState() async {
+        // 重置状态
+        customerInfo = nil
+        offerings = nil
+        products = []
+        currentSubscription = nil
+        purchaseState = .idle
+        error = nil
+        subscriptionStatus = .loading
+        isPremium = false
+        offeringsLoadingState = .idle
+        isInitialized = false
         
-        do {
-            // 登出 RevenueCat
-            try await Purchases.shared.logOut()
-            
-            // 重置状态
-            customerInfo = nil
-            offerings = nil
-            products = []
-            currentSubscription = nil
-            purchaseState = .idle
-            error = nil
-            subscriptionStatus = .loading
-            isPremium = false
-            offeringsLoadingState = .idle
-            isInitialized = false
-            
-            // 清理观察者
-            cancellables.removeAll()
-            
-            logger.notice("[IAP] Successfully logged out and cleared state")
-        } catch {
-            logger.error("[IAP] Error during logout: \(error.localizedDescription)")
-        }
+        // 清理观察者
+        cancellables.removeAll()
     }
     
     /// 配置 RevenueCat SDK
@@ -152,8 +119,38 @@ class IAPService: NSObject, ObservableObject {
         )
         logger.debug("[IAP] SDK configuration completed")
     }
+
+    /// 使用用户 ID 登录 RevenueCat
+    /// 因为 Apple 会处理跨设备订阅，所以这里暂时不需要 login 了
+    /// - Parameter userId: Apple ID 用户标识
+    func login(userId: String) async throws {
+        guard !isInitialized else { return }
+        
+        do {
+            try await Purchases.shared.logIn(userId)
+            try await configRevenueCatSDK()
+            isInitialized = true
+        } catch {
+            throw error
+        }
+    }
+
+    /// 登出并清理状态
+    func logout() async {
+        do {
+            try await Purchases.shared.logOut()
+            await cleanupState()
+        } catch {
+            logger.error("[IAP] Error during logout: \(error.localizedDescription)")
+        }
+    }
     
     /// 设置订阅状态监控
+    private func setupObservers() {
+        setupSubscriptionMonitoring()
+        setupLifecycleObservers()
+    }
+    
     private func setupSubscriptionMonitoring() {
         logger.info("[IAP] Setting up subscription monitoring")
         Task {
@@ -213,7 +210,6 @@ class IAPService: NSObject, ObservableObject {
     
     /// 更新用户订阅信息
     /// - Parameter info: 新的用户信息
-    @MainActor
     private func updateCustomerInfo(_ info: CustomerInfo) {
         logger.debug("[IAP] Updating customer info - Original App Version: \(info.originalApplicationVersion ?? "unknown")")
         customerInfo = info
@@ -246,7 +242,6 @@ class IAPService: NSObject, ObservableObject {
         )
     }
     
-    @MainActor
     private func updateOfferings(_ newOfferings: Offerings) {
         offerings = newOfferings
         if let packages = newOfferings.current?.availablePackages {
@@ -259,7 +254,6 @@ class IAPService: NSObject, ObservableObject {
         }
     }
     
-    @MainActor
     private func updateError(_ error: IAPError) {
         self.error = error
     }
@@ -302,11 +296,7 @@ class IAPService: NSObject, ObservableObject {
             logger.notice("[IAP] Purchase completed successfully - Product: \(product.id)")
             await updatePurchaseState(.completed)
         } catch {
-            let iapError = handlePurchaseError(error)
-            logger.error("[IAP] Purchase failed: \(iapError.localizedDescription)")
-            await updateError(iapError)
-            await updatePurchaseState(.failed)
-            throw iapError
+            await handlePurchaseError(error)
         }
     }
     
@@ -350,17 +340,10 @@ class IAPService: NSObject, ObservableObject {
         return expirationDate < Date().addingTimeInterval(30 * 24 * 60 * 60)
     }
     
-    private func handlePurchaseError(_ error: Error) -> IAPError {
-        if let iapError = error as? IAPError { return iapError }
-        if let rcError = error as? RevenueCat.ErrorCode {
-            switch rcError {
-            case .networkError: return .networkError
-            case .purchaseCancelledError: return .userCancelled
-            case .paymentPendingError: return .paymentPending
-            default: return .purchaseFailed
-            }
-        }
-        return .purchaseFailed
+    private func handlePurchaseError(_ error: Error) async {
+        let iapError = (error as? IAPError) ?? .purchaseFailed
+        await updateError(iapError)
+        await updatePurchaseState(.failed)
     }
     
     @MainActor
@@ -374,7 +357,6 @@ class IAPService: NSObject, ObservableObject {
     }
     
     /// 清除当前错误
-    @MainActor
     func clearError() {
         error = nil
     }
@@ -405,6 +387,11 @@ class IAPService: NSObject, ObservableObject {
     func checkPremiumAccess() async throws -> Bool {
         try await refreshCustomerInfo()
         return isPremium
+    }
+    
+    private func initializeCustomerInfo() async throws {
+        try await refreshCustomerInfo()
+        _ = try await restorePurchases()
     }
 }
 

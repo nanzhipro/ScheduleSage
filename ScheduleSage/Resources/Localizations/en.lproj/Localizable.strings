@@ -59,6 +59,7 @@
 "settings_version" = "Current Version";
 "settings_window_mode" = "Use Window Mode";
 "settings_theme" = "Theme";
+"settings_feedback" = "Submit Request";
 
 // Settings Groups
 "settings_group_notifications" = "Notification Settings";
@@ -164,7 +165,6 @@
 "settings_privacy_policy" = "Privacy Policy";
 "settings_terms_of_service" = "Terms of Service";
 "settings_faq" = "FAQ";
-"settings_feedback" = "Submit Request";
 
 // Screenshot
 "screenshot.success.title" = "Screenshot Completed";
@@ -202,7 +202,7 @@
 "settings_always_on_top" = "Keep Window on Top";
 
 // Powered by
-"powered_by_tencent" = "Powered by Tencent Cloud";
+"powered_by_tencent" = "AI Powered App";
 
 // Method Button Hints
 "hint.clipboard_import" = "Create events from clipboard text or webpage links";
