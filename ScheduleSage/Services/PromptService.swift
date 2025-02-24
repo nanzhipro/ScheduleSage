@@ -42,7 +42,7 @@ actor PromptService {
     // MARK: - Properties
     private let logger: Logger
     private let apiConfig: APIConfig
-    private let storage: UserDefaults
+    private let storage: UserDefaultsProtocol
     private let promptKey = "stored_prompt"
     private var refreshTask: Task<Void, Never>?
     
@@ -58,17 +58,17 @@ actor PromptService {
     init(
         logger: Logger = .init(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PromptService"),
         apiConfig: APIConfig = .shared,
-        storage: UserDefaults = .standard
+        storage: UserDefaultsProtocol
     ) {
         self.logger = logger
         self.apiConfig = apiConfig
         self.storage = storage
         
-        startPeriodicRefresh()
+        Task { await startPeriodicRefresh() }
     }
     
     deinit {
-        stopPeriodicRefresh()
+        Task { await stopPeriodicRefresh() }
     }
     
     // MARK: - Public Interface
@@ -80,7 +80,7 @@ actor PromptService {
     func fetchLatestPrompt() async throws -> StoredPrompt {
         logger.info("Fetching latest prompt...")
         
-        let currentVersion = getCurrentVersion()
+        let currentVersion = await getCurrentVersion()
         let url = URL(string: "\(apiConfig.promptsEndpoint)?version=\(currentVersion)")!
         
         do {
@@ -97,10 +97,10 @@ actor PromptService {
     /// 获取本地存储的提示词
     /// - Returns: 存储的提示词，如果不存在则返回nil
     /// - Complexity: O(1)
-    func getStoredPrompt() -> StoredPrompt? {
+    func getStoredPrompt() async -> StoredPrompt? {
         logger.debug("Retrieving stored prompt...")
         
-        guard let data = storage.data(forKey: promptKey) else {
+        guard let data = await storage.data(forKey: promptKey) else {
             logger.notice("No stored prompt found")
             return nil
         }
@@ -120,17 +120,22 @@ actor PromptService {
     func startPeriodicRefresh() {
         guard refreshTask == nil else { return }
         
-        refreshTask = Task {
-            while !Task.isCancelled {
+        let interval = refreshInterval
+        let logger = self.logger
+        
+        refreshTask = Task.detached { [weak self] in
+            repeat {
+                guard let self = self else { break }
+                
                 do {
-                    _ = try await fetchLatestPrompt()
+                    _ = try await self.fetchLatestPrompt()
                     logger.info("Scheduled prompt refresh completed")
                 } catch {
                     logger.error("Scheduled prompt refresh failed: \(error.localizedDescription)")
                 }
                 
-                try? await Task.sleep(nanoseconds: UInt64(refreshInterval * 1_000_000_000))
-            }
+                try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
+            } while !Task.isCancelled
         }
     }
     
@@ -144,8 +149,8 @@ actor PromptService {
     
     /// 获取当前提示词版本
     /// - Returns: 当前版本号，如果没有存储的提示词则返回0
-    private func getCurrentVersion() -> Int {
-        getStoredPrompt()?.version ?? 0
+    private func getCurrentVersion() async -> Int {
+        (await getStoredPrompt())?.version ?? 0
     }
     
     /// 从指定URL获取提示词
@@ -153,10 +158,11 @@ actor PromptService {
     /// - Returns: 提示词响应
     /// - Throws: PromptError
     private func fetchPrompt(from url: URL) async throws -> StoredPrompt {
-        let endpoint = PromptEndpoint.getLatest(version: getCurrentVersion())
+        let currentVersion = await getCurrentVersion()
+        let endpoint = PromptEndpoint.getLatest(version: currentVersion)
         
         let parameters: Parameters = [
-            "version": getCurrentVersion()
+            "version": currentVersion
         ]
         
         let result: Result<PromptResponse, APIError> = await APIClient.shared.request(
@@ -179,7 +185,7 @@ actor PromptService {
     private func savePrompt(_ prompt: StoredPrompt) async throws {
         do {
             let data = try JSONEncoder().encode(prompt)
-            storage.set(data, forKey: promptKey)
+            await storage.set(data, forKey: promptKey)
             logger.debug("Saved prompt to storage")
         } catch {
             throw PromptError.storage(error)

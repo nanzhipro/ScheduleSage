@@ -100,14 +100,17 @@ public actor SimpleJWTTokenProvider: TokenProvider {
         }
         
         if isTokenNearExpiration() {
-            try await refreshToken()
+            let newToken = try await fetchToken()
+            return newToken == token
         }
         
         return true
     }
     
     public func refreshToken() async throws {
-        try await fetchToken()
+        let newToken = try await fetchToken()
+        self.jwtToken = newToken
+        parseTokenExpiration(newToken)
     }
     
     public func updateTokens(access: String, refresh: String) async {

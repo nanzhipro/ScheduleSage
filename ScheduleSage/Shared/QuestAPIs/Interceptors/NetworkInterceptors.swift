@@ -31,17 +31,25 @@ public struct NetworkHeaderAdapter: RequestAdapter {
   }
 }
 
+/// 管理令牌刷新状态的 actor
+private actor RefreshStateActor {
+  private(set) var isRefreshing = false
+  
+  func setRefreshing(_ value: Bool) {
+    isRefreshing = value
+  }
+}
+
 /// Handles token refresh for unauthorized responses
 /// - Warning: May create infinite loop if refresh fails repeatedly
 public final class TokenRefreshRetrier: RequestRetrier {
   let tokenProvider: TokenProvider
   let logger: NetworkLogger
-  private var isRefreshing: Bool
+  private let refreshState = RefreshStateActor()
 
   public init(tokenProvider: TokenProvider, logger: NetworkLogger) {
     self.tokenProvider = tokenProvider
     self.logger = logger
-    self.isRefreshing = false
   }
 
   public func retry(
@@ -50,29 +58,28 @@ public final class TokenRefreshRetrier: RequestRetrier {
     dueTo error: Error,
     completion: @escaping (RetryResult) -> Void
   ) {
-    // 仅处理401未授权状态码
-    guard let statusCode = request.response?.statusCode, statusCode == 401 else {
-      return completion(.doNotRetryWithError(error))
-    }
-
-    // 重试次数和刷新状态检查
-    guard request.retryCount < 3, !isRefreshing else {
-      logger.logUnauthorizedAttempt(request: request)
-      return completion(.doNotRetryWithError(APIError.authFailed(error)))
-    }
-
-    isRefreshing = true
-
-    // 使用新的异步刷新方法
     Task {
+      // 仅处理401未授权状态码
+      guard let statusCode = request.response?.statusCode, statusCode == 401 else {
+        return completion(.doNotRetryWithError(error))
+      }
+      
+      // 重试次数和刷新状态检查
+      guard request.retryCount < 3, !(await refreshState.isRefreshing) else {
+        logger.logUnauthorizedAttempt(request: request)
+        return completion(.doNotRetryWithError(APIError.authFailed(error)))
+      }
+      
+      await refreshState.setRefreshing(true)
+      
       do {
         try await tokenProvider.refreshToken()
-        self.isRefreshing = false
-        self.logger.logTokenEvent(.refreshSuccess)
+        await refreshState.setRefreshing(false)
+        logger.logTokenEvent(.refreshSuccess)
         completion(.retry)
       } catch {
-        self.isRefreshing = false
-        self.logger.logTokenEvent(.refreshFailure(error))
+        await refreshState.setRefreshing(false)
+        logger.logTokenEvent(.refreshFailure(error))
         completion(.doNotRetryWithError(error))
       }
     }

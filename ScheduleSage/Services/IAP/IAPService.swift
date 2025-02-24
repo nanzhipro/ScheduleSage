@@ -127,7 +127,8 @@ class IAPService: NSObject, ObservableObject {
         guard !isInitialized else { return }
         
         do {
-            try await Purchases.shared.logIn(userId)
+            let result = try await Purchases.shared.logIn(userId)
+            updateCustomerInfo(result.customerInfo)
             try await configRevenueCatSDK()
             isInitialized = true
         } catch {
@@ -138,7 +139,8 @@ class IAPService: NSObject, ObservableObject {
     /// 登出并清理状态
     func logout() async {
         do {
-            try await Purchases.shared.logOut()
+            let customerInfo = try await Purchases.shared.logOut()
+            updateCustomerInfo(customerInfo)
             await cleanupState()
         } catch {
             logger.error("[IAP] Error during logout: \(error.localizedDescription)")
@@ -157,7 +159,7 @@ class IAPService: NSObject, ObservableObject {
             logger.debug("[IAP] Starting customer info stream monitoring")
             for await customerInfo in Purchases.shared.customerInfoStream {
                 logger.debug("[IAP] Received customer info update: \(customerInfo.originalApplicationVersion ?? "unknown")")
-                await updateCustomerInfo(customerInfo)
+                updateCustomerInfo(customerInfo)
             }
         }
         Purchases.shared.delegate = self
@@ -191,76 +193,83 @@ class IAPService: NSObject, ObservableObject {
     /// 获取可用的产品组合
     private func fetchOfferings() async {
         logger.info("[IAP] Starting offerings fetch")
-        await updateOfferingsLoadingState(.loading)
+        updateOfferingsLoadingState(.loading)
         
         do {
             let offerings = try await Purchases.shared.offerings()
             logger.debug("[IAP] Available offerings: \(offerings.all.keys.joined(separator: ", "))")
             logger.debug("[IAP] Current offering packages: \(offerings.current?.availablePackages.map { $0.identifier } ?? [])")
             
-            await updateOfferings(offerings)
-            await updateOfferingsLoadingState(.success)
+            updateOfferings(offerings)
+            updateOfferingsLoadingState(.success)
             logger.notice("[IAP] Offerings fetch completed successfully")
         } catch {
             logger.error("[IAP] Offerings fetch failed: \(error.localizedDescription)")
-            await updateError(.productNotFound)
-            await updateOfferingsLoadingState(.failed)
+            updateError(.productNotFound)
+            updateOfferingsLoadingState(.failed)
         }
     }
     
     /// 更新用户订阅信息
     /// - Parameter info: 新的用户信息
     private func updateCustomerInfo(_ info: CustomerInfo) {
-        logger.debug("[IAP] Updating customer info - Original App Version: \(info.originalApplicationVersion ?? "unknown")")
-        customerInfo = info
-        
-        if let entitlement = info.entitlements[IAPConfiguration.premiumEntitlementId] {
-            let isActive = entitlement.isActive
-            let expirationDate = entitlement.expirationDate
-            logger.debug("[IAP] Premium entitlement - Active: \(isActive), Expires: \(expirationDate?.description ?? "none")")
+        Task { @MainActor in
+            logger.debug("[IAP] Updating customer info - Original App Version: \(info.originalApplicationVersion ?? "unknown")")
+            customerInfo = info
             
-            if isActive {
-                subscriptionStatus = .active(expirationDate: expirationDate)
-                isPremium = true
-                logger.notice("[IAP] Active subscription detected")
+            if let entitlement = info.entitlements[IAPConfiguration.premiumEntitlementId] {
+                let isActive = entitlement.isActive
+                let expirationDate = entitlement.expirationDate
+                logger.debug("[IAP] Premium entitlement - Active: \(isActive), Expires: \(expirationDate?.description ?? "none")")
+                
+                if isActive {
+                    subscriptionStatus = .active(expirationDate: expirationDate)
+                    isPremium = true
+                    logger.notice("[IAP] Active subscription detected")
+                } else {
+                    subscriptionStatus = .expired(lastExpirationDate: expirationDate)
+                    isPremium = false
+                    logger.notice("[IAP] Expired subscription detected")
+                }
             } else {
-                subscriptionStatus = .expired(lastExpirationDate: expirationDate)
+                subscriptionStatus = .notSubscribed
                 isPremium = false
-                logger.notice("[IAP] Expired subscription detected")
+                logger.debug("[IAP] No subscription found")
             }
-        } else {
-            subscriptionStatus = .notSubscribed
-            isPremium = false
-            logger.debug("[IAP] No subscription found")
+            
+            logger.info("[IAP] Customer info updated - Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
+            NotificationCenter.default.post(
+                name: .subscriptionStatusChanged,
+                object: nil,
+                userInfo: ["isPremium": isPremium, "subscriptionStatus": subscriptionStatus]
+            )
         }
-        
-        logger.info("[IAP] Customer info updated - Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
-        NotificationCenter.default.post(
-            name: .subscriptionStatusChanged,
-            object: nil,
-            userInfo: ["isPremium": isPremium, "subscriptionStatus": subscriptionStatus]
-        )
     }
     
     private func updateOfferings(_ newOfferings: Offerings) {
-        offerings = newOfferings
-        if let packages = newOfferings.current?.availablePackages {
-            products = packages.map { package in
-                IAPProduct(
-                    package: package,
-                    isPopular: package.identifier == IAPConfiguration.yearlySubscriptionId
-                )
+        Task { @MainActor in
+            offerings = newOfferings
+            if let packages = newOfferings.current?.availablePackages {
+                products = packages.map { package in
+                    IAPProduct(
+                        package: package,
+                        isPopular: package.identifier == IAPConfiguration.yearlySubscriptionId
+                    )
+                }
             }
         }
     }
     
     private func updateError(_ error: IAPError) {
-        self.error = error
+        Task { @MainActor in
+            self.error = error
+        }
     }
     
-    @MainActor
     private func updateOfferingsLoadingState(_ state: LoadingState) {
-        offeringsLoadingState = state
+        Task { @MainActor in
+            offeringsLoadingState = state
+        }
     }
     
     // MARK: - 公共接口
@@ -270,7 +279,7 @@ class IAPService: NSObject, ObservableObject {
     /// - Throws: IAPError 类型的错误
     func purchase(_ product: IAPProduct) async throws {
         logger.info("[IAP] Starting purchase for product: \(product.id) at \(Date())")
-        await updatePurchaseState(.purchasing)
+        updatePurchaseState(.purchasing)
         
         do {
             logger.debug("[IAP] Attempting purchase with RevenueCat")
@@ -278,25 +287,25 @@ class IAPService: NSObject, ObservableObject {
             
             if result.userCancelled {
                 logger.notice("[IAP] Purchase cancelled by user")
-                await updatePurchaseState(.cancelled)
+                updatePurchaseState(.cancelled)
                 throw IAPError.userCancelled
             }
             
             logger.debug("[IAP] Purchase completed, updating customer info")
-            await updateCustomerInfo(result.customerInfo)
+            updateCustomerInfo(result.customerInfo)
             
             try await refreshCustomerInfo()
             
             if !isPremium {
                 logger.error("[IAP] Purchase completed but premium status not activated")
-                await updatePurchaseState(.failed)
+                updatePurchaseState(.failed)
                 throw IAPError.purchaseFailed
             }
             
             logger.notice("[IAP] Purchase completed successfully - Product: \(product.id)")
-            await updatePurchaseState(.completed)
+            updatePurchaseState(.completed)
         } catch {
-            await handlePurchaseError(error)
+            handlePurchaseError(error)
         }
     }
     
@@ -306,10 +315,10 @@ class IAPService: NSObject, ObservableObject {
     func restorePurchases() async throws -> Bool {
         do {
             let customerInfo = try await Purchases.shared.restorePurchases()
-            await updateCustomerInfo(customerInfo)
+            updateCustomerInfo(customerInfo)
             return isPremium
         } catch {
-            await updateError(.restoreFailed)
+            updateError(.restoreFailed)
             throw error
         }
     }
@@ -340,20 +349,23 @@ class IAPService: NSObject, ObservableObject {
         return expirationDate < Date().addingTimeInterval(30 * 24 * 60 * 60)
     }
     
-    private func handlePurchaseError(_ error: Error) async {
-        let iapError = (error as? IAPError) ?? .purchaseFailed
-        await updateError(iapError)
-        await updatePurchaseState(.failed)
+    private func handlePurchaseError(_ error: Error) {
+        Task { @MainActor in
+            let iapError = (error as? IAPError) ?? .purchaseFailed
+            self.error = iapError
+            purchaseState = .failed
+        }
     }
     
-    @MainActor
     private func updatePurchaseState(_ state: PurchaseState) {
-        purchaseState = state
-        NotificationCenter.default.post(
-            name: .purchaseStatusChanged,
-            object: nil,
-            userInfo: ["message": state.localizedMessage]
-        )
+        Task { @MainActor in
+            purchaseState = state
+            NotificationCenter.default.post(
+                name: .purchaseStatusChanged,
+                object: nil,
+                userInfo: ["message": state.localizedMessage]
+            )
+        }
     }
     
     /// 清除当前错误
@@ -375,7 +387,7 @@ class IAPService: NSObject, ObservableObject {
         logger.debug("[IAP] Manually refreshing customer info")
         do {
             let customerInfo = try await Purchases.shared.customerInfo()
-            await updateCustomerInfo(customerInfo)
+            updateCustomerInfo(customerInfo)
         } catch {
             logger.error("[IAP] Failed to refresh customer info: \(error.localizedDescription)")
             throw error
@@ -463,13 +475,13 @@ extension Notification.Name {
 
 // MARK: - PurchasesDelegate
 extension IAPService: PurchasesDelegate {
-    func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
+    nonisolated func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
         Task { @MainActor in
             updateCustomerInfo(customerInfo)
         }
     }
     
-    func purchases(
+    nonisolated func purchases(
         _ purchases: Purchases,
         readyForPromotedProduct product: StoreProduct,
         purchase: @escaping StartPurchaseBlock
@@ -509,7 +521,9 @@ extension IAPService: PurchasesDelegate {
                 logger.notice("[IAP] Promoted purchase successful")
             } catch {
                 logger.error("[IAP] Promoted purchase failed: \(error.localizedDescription)")
-                await updateError(.purchaseFailed)
+                Task { @MainActor in
+                    self.updateError(.purchaseFailed)
+                }
             }
         }
     }

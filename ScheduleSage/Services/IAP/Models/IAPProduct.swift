@@ -80,12 +80,4 @@ struct IAPProduct: Identifiable {
             return []
         }
     }
-    
-    var formattedPrice: String {
-        if let introPrice = introductoryPrice, hasFreeTrial {
-            return String(format: NSLocalizedString("free_trial_then_price", comment: ""), introductoryPeriod ?? "", price)
-        } else {
-            return price
-        }
-    }
 } 
