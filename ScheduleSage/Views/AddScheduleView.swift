@@ -15,31 +15,76 @@ struct AddScheduleView: View {
   @EnvironmentObject private var iapService: IAPService
   @State private var showPaywall = false
   @State private var needsRefresh = false
+  @Environment(\.colorScheme) private var colorScheme
   
   var body: some View {
     ZStack {
+      // 渐变背景，仅在浅色模式下显示
+      if colorScheme == .light {
+        LinearGradient(
+          colors: [
+            DesignSystem.Colors.primary.opacity(0.2),
+            DesignSystem.Colors.primary.opacity(0.1),
+            DesignSystem.Colors.background
+          ],
+          startPoint: .top,
+          endPoint: .bottom
+        )
+        .ignoresSafeArea()
+      }
+      
       VStack(spacing: 0) {
+        // 升级按钮
+        HStack {
+          Spacer()
+          VStack(spacing: 4) {
+            Button(action: {
+              showPaywall = true
+            }) {
+              HStack(spacing: 4) {
+                Image(systemName: "star.fill")
+                  .foregroundColor(.yellow)
+                Text(NSLocalizedString("upgrade_to_premium", comment: ""))
+                  .font(DesignSystem.Typography.caption)
+                  .foregroundColor(DesignSystem.Colors.primary)
+              }
+              .padding(.vertical, 6)
+              .padding(.horizontal, 12)
+              .background(
+                RoundedRectangle(cornerRadius: 6)
+                  .fill(DesignSystem.Colors.primary.opacity(0.1))
+              )
+            }
+            .buttonStyle(.plain)
+            .withHoverEffect(scale: 1.1, brightness: 0)
+          }
+          .padding(.top, 4)
+          .padding(.trailing, 12)
+        }
+
         AddScheduleView_Impl(viewModel: viewModel, showPaywall: $showPaywall)
           .withLoading()
-          .sheet(isPresented: $viewModel.showEventList) {
-            EventListView(
-              events: viewModel.parsedEvents,
-              onAdd: viewModel.resetState,
-              onImport: viewModel.importToCalendar,
-              onBack: { viewModel.showEventList = false },
-              onUpdate: viewModel.updateEvent
-            )
-            .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
-            .presentationDragIndicator(.visible)
-            .presentationBackgroundInteraction(.enabled)
-          }
-          .sheet(isPresented: $showPaywall) {
-            PaywallView {
-              proceedWithProFeature()
-            }
-          }
+          .padding(.top, -4)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .sheet(isPresented: $viewModel.showEventList) {
+        EventListView(
+          events: viewModel.parsedEvents,
+          onAdd: viewModel.resetState,
+          onImport: viewModel.importToCalendar,
+          onBack: { viewModel.showEventList = false },
+          onUpdate: viewModel.updateEvent
+        )
+        .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
+        .presentationDragIndicator(.visible)
+        .presentationBackgroundInteraction(.enabled)
+      }
+      .sheet(isPresented: $showPaywall) {
+        PaywallView {
+          proceedWithProFeature()
+        }
+      }
+      
       .toast(
         isPresented: $viewModel.showToast,
         type: viewModel.toastType,
@@ -103,20 +148,6 @@ private struct AddScheduleView_Impl: View {
   
   var body: some View {
     ZStack {
-      // 渐变背景，仅在浅色模式下显示
-      if colorScheme == .light {
-        LinearGradient(
-          colors: [
-            DesignSystem.Colors.primary.opacity(0.1),
-            DesignSystem.Colors.primary.opacity(0.05),
-            DesignSystem.Colors.background
-          ],
-          startPoint: .top,
-          endPoint: .bottom
-        )
-        .ignoresSafeArea()
-      }
-      
       // 主要内容
       VStack(spacing: 0) {
         // 扩展 DragDropArea 以包含所有内容
@@ -151,23 +182,6 @@ private struct AddScheduleView_Impl: View {
           .frame(maxWidth: .infinity)
           
           HStack(spacing: 16) {
-            // 添加升级按钮
-            Button(action: {
-              showPaywall = true
-            }) {
-              HStack(spacing: 4) {
-                Image(systemName: "star.fill")
-                  .foregroundColor(.yellow)
-                Text(NSLocalizedString("upgrade_to_premium", comment: ""))
-                  .font(DesignSystem.Typography.caption)
-                  .foregroundColor(DesignSystem.Colors.primary)
-              }
-            }
-            .buttonStyle(.plain)
-            .withHoverEffect(scale: 1.1, brightness: 0)
-            
-            Spacer()
-            
             // 反馈按钮
             Button(action: {
               if let url = URL(string: AppConstants.URLs.feedback) {
@@ -203,7 +217,7 @@ private struct AddScheduleView_Impl: View {
 private enum Design {
   enum Spacing {
     /// 窗口顶部间距
-    static let windowTopPadding: CGFloat = 32
+    static let windowTopPadding: CGFloat = 16
     
     /// 底部工具栏内边距
     static let bottomBarPadding = (
@@ -222,7 +236,7 @@ private enum Design {
     /// 标题到副标题的间距
     static let titleToSubtitle: CGFloat = 12
     /// 标题到操作按钮的间距
-    static let titleToActions: CGFloat = 48
+    static let titleToActions: CGFloat = 64
     /// 操作按钮之间的水平间距
     static let actionButtonsHorizontal: CGFloat = 24
     /// 方法选择区域水平内边距
@@ -327,7 +341,7 @@ private struct TitleSection: View {
             // 副标题
             Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
                 .font(.system(size: 16, weight: .medium, design: .rounded))
-                .foregroundColor(DesignSystem.Colors.secondaryText)
+                .foregroundColor(.black)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .opacity(isHovered ? 0.9 : 0.8)
