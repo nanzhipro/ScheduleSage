@@ -51,7 +51,7 @@ struct DragDropArea<Content: View>: View {
             .fill(.ultraThinMaterial.opacity(0.5))
         )
         .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
-        .padding(.vertical, DesignSystem.Layout.containerPadding.top)
+        .padding(.vertical, DesignSystem.Layout.containerPadding.top / 2)
         .animation(.easeInOut(duration: 0.3), value: isDragging)
         .zIndex(0)
     }

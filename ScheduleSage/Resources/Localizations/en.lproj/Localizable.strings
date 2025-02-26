@@ -43,7 +43,6 @@
 // Pro Features
 "feature_unlimited_ocr" = "Unlimited Use";
 "feature_unlimited_ocr_desc" = "Use all features without limits";
-"upgrade_to_pro" = "Go Pro";
 "pro_expiry" = "Pro until: %@";
 
 // Settings Menu

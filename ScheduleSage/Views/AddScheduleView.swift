@@ -14,8 +14,17 @@ struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
   @EnvironmentObject private var iapService: IAPService
   @State private var showPaywall = false
+  @State private var showSettings = false
   @State private var needsRefresh = false
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.openSettings) private var openSettings
+  
+  private var isModernMacOS: Bool {
+    if #available(macOS 14.0, *) {
+      return true
+    }
+    return false
+  }
   
   var body: some View {
     ZStack {
@@ -34,37 +43,8 @@ struct AddScheduleView: View {
       }
       
       VStack(spacing: 0) {
-        // 升级按钮
-        HStack {
-          Spacer()
-          VStack(spacing: 4) {
-            Button(action: {
-              showPaywall = true
-            }) {
-              HStack(spacing: 4) {
-                Image(systemName: "star.fill")
-                  .foregroundColor(.yellow)
-                Text(NSLocalizedString("upgrade_to_premium", comment: ""))
-                  .font(DesignSystem.Typography.caption)
-                  .foregroundColor(DesignSystem.Colors.primary)
-              }
-              .padding(.vertical, 6)
-              .padding(.horizontal, 12)
-              .background(
-                RoundedRectangle(cornerRadius: 6)
-                  .fill(DesignSystem.Colors.primary.opacity(0.1))
-              )
-            }
-            .buttonStyle(.plain)
-            .withHoverEffect(scale: 1.1, brightness: 0)
-          }
-          .padding(.top, 4)
-          .padding(.trailing, 12)
-        }
-
         AddScheduleView_Impl(viewModel: viewModel, showPaywall: $showPaywall)
           .withLoading()
-          .padding(.top, -4)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .sheet(isPresented: $viewModel.showEventList) {
@@ -84,6 +64,12 @@ struct AddScheduleView: View {
           proceedWithProFeature()
         }
       }
+      // 仅在旧版 macOS 上使用 sheet
+      .sheet(isPresented: $showSettings) {
+        if !isModernMacOS {
+          SettingsView()
+        }
+      }
       
       .toast(
         isPresented: $viewModel.showToast,
@@ -98,6 +84,27 @@ struct AddScheduleView: View {
         type: toastType,
         message: toastMessage
       )
+    }
+    .toolbar {
+      ToolbarItemGroup(placement: .automatic) {
+        Spacer()
+        UpgradePremiumButton(showPaywall: $showPaywall)
+        Button(action: {
+          if isModernMacOS {
+            openSettings()
+          } else {
+            showSettings = true
+          }
+        }) {
+          Image(systemName: "gearshape.fill")
+            .foregroundColor(DesignSystem.Colors.primary)
+            .font(DesignSystem.Typography.caption)
+        }
+        .buttonStyle(.plain)
+        .withHoverEffect(scale: 1.1, brightness: 0)
+        .help(NSLocalizedString("settings_button_hint", comment: ""))
+        .padding(.trailing, 16)
+      }
     }
     .onAppear(perform: viewModel.resetState)
     .id(needsRefresh)
@@ -170,6 +177,7 @@ private struct AddScheduleView_Impl: View {
           }
         }
         .frame(maxHeight: .infinity)
+        .padding(.top, 8)
         
         // 底部工具栏
         ZStack {
@@ -177,35 +185,12 @@ private struct AddScheduleView_Impl: View {
           VStack(spacing: 4) {
             Text(NSLocalizedString("powered_by_tencent", comment: ""))
               .font(DesignSystem.Typography.caption)
-              .foregroundColor(DesignSystem.Colors.tertiaryText)
+              .foregroundColor(DesignSystem.Colors.secondaryText)
+              .padding(.bottom, 16)
           }
           .frame(maxWidth: .infinity)
-          
-          HStack(spacing: 16) {
-            // 反馈按钮
-            Button(action: {
-              if let url = URL(string: AppConstants.URLs.feedback) {
-                NSWorkspace.shared.open(url)
-              }
-            }) {
-              Text(NSLocalizedString("settings_feedback", comment: ""))
-                .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.primary)
-            }
-            .buttonStyle(.plain)
-            .contentShape(Rectangle())
-            .help(NSLocalizedString("feedback_button_hint", comment: ""))
-            .scaleEffect(viewModel.feedbackButtonScale)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: viewModel.feedbackButtonScale)
-            .onHover { isHovered in
-              withAnimation {
-                viewModel.feedbackButtonScale = isHovered ? 1.1 : 1.0
-              }
-            }
-          }
-          .padding(.horizontal, Design.Spacing.bottomBarPadding.horizontal)
-          .padding(.bottom, Design.Spacing.bottomBarPadding.bottom)
         }
+        .frame(maxWidth: .infinity)
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -448,5 +433,29 @@ private struct CloseXButton: View {
         .multilineTextAlignment(.center)
     }
     .contentShape(Rectangle())
+  }
+}
+
+// MARK: - Upgrade Premium Button
+private struct UpgradePremiumButton: View {
+  @Binding var showPaywall: Bool
+  
+  var body: some View {
+    Button(action: {
+      showPaywall = true
+    }) {
+      HStack(spacing: 4) {
+        Image(systemName: "sparkles")
+          .foregroundColor(.yellow)
+        Text(NSLocalizedString("upgrade_to_premium", comment: ""))
+          .font(DesignSystem.Typography.caption)
+          .foregroundColor(DesignSystem.Colors.primary)
+      }
+      .padding(.vertical, 6)
+      .padding(.horizontal, 12)
+    }
+    .buttonStyle(.plain)
+    .withHoverEffect(scale: 1.1, brightness: 0)
+    .help(NSLocalizedString("upgrade_button_hint", comment: ""))
   }
 }

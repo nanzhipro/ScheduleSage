@@ -43,7 +43,6 @@
 // Pro Features
 "feature_unlimited_ocr" = "無制限利用";
 "feature_unlimited_ocr_desc" = "すべての機能を制限なく利用可能";
-"upgrade_to_pro" = "Proへアップグレード";
 "pro_expiry" = "有効期限：%@";
 "upgrade_to_premium" = "プレミアムにアップグレード";
 

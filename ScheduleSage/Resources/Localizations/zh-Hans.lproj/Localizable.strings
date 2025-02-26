@@ -43,7 +43,6 @@
 // Pro Features
 "feature_unlimited_ocr" = "无限识别";
 "feature_unlimited_ocr_desc" = "无限次使用所有功能";
-"upgrade_to_pro" = "升级专业版";
 "upgrade_to_premium" = "升级至专业版";
 "pro_expiry" = "有效期至：%@";
 
