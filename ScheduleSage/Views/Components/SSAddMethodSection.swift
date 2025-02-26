@@ -42,9 +42,7 @@ struct SSAddMethodSection: View {
           action: config.action
         )
         .sheet(isPresented: config.sheetBinding ?? .constant(false)) {
-          if let content = config.sheetContent {
-            content
-          }
+          config.sheetContent
         }
       }
     }
@@ -99,7 +97,7 @@ struct SSAddMethodSection: View {
       hintKey: String,
       action: @escaping () -> Void,
       sheetBinding: Binding<Bool>,
-      @ViewBuilder sheetContent: @escaping () -> Content
+      @ViewBuilder sheetContent: () -> Content
     ) {
       self.iconName = iconName
       self.title = title
@@ -141,15 +139,12 @@ extension SSAddMethodSection {
         sheetBinding: manualInputSheetBinding,
         sheetContent: AnyView(
           ManualScheduleInputView(
-            isPresented: manualInputSheetBinding,
             llmProcessor: viewModel.llmProcessor,
-            viewModel: viewModel,
-            onEventsProcessed: { events in
-              viewModel.parsedEvents = events
-              viewModel.showEventList = true
-              manualInputContent(events)
-            }
-          )
+            viewModel: viewModel
+          ) { events in
+            viewModel.parsedEvents = events
+            viewModel.showEventList = true
+          }
         )
       ),
       

@@ -41,7 +41,7 @@ struct SSAddScheduleContent: View {
       // 日历图标
       SSCalendarIcon(
         animation: convertAnimation(viewModel.dragAnimation),
-        showPremiumBadge: viewModel.proStatus.isPro
+        showPremiumBadge: IAPService.shared.isPremium
       )
       .padding(.bottom, spacing.iconToTitle)
       

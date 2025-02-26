@@ -23,56 +23,73 @@ struct AddScheduleView: View {
       SSGradientBackground(primaryColorWithStartOpacity: 0.2)
       
       VStack(spacing: 0) {
-        // 升级按钮
-        HStack {
-          Spacer()
-          VStack(spacing: 4) {
-            SSPremiumButton(action: {
-              showPaywall = true
-            })
-            .padding(.top, 4)
-            .padding(.trailing, 12)
-          }
-        }
-
         // 主要内容
         AddScheduleView_Impl(viewModel: viewModel, showPaywall: $showPaywall)
-          .withLoading()
           .padding(.top, -32)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .sheet(isPresented: $viewModel.showEventList) {
-        EventListView(
-          events: viewModel.parsedEvents,
-          onAdd: viewModel.resetState,
-          onImport: viewModel.importToCalendar,
-          onBack: { viewModel.showEventList = false },
-          onUpdate: viewModel.updateEvent
-        )
-        .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
-        .presentationDragIndicator(.visible)
-        .presentationBackgroundInteraction(.enabled)
-      }
-      .sheet(isPresented: $showPaywall) {
-        PaywallView {
-          proceedWithProFeature()
-        }
-      }
-      
-      .toast(
-        isPresented: $viewModel.showToast,
-        type: viewModel.toastType,
-        message: viewModel.toastMessage
-      )
-      .toast(
-        isPresented: .init(
-          get: { viewModel.importStatus != .none },
-          set: { if !$0 { viewModel.importStatus = .none } }
-        ),
-        type: toastType,
-        message: toastMessage
-      )
     }
+    .withLoading()
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .toolbar {
+      ToolbarItemGroup(placement: .automatic) {
+        Spacer()
+        
+        SSPremiumButton(action: {
+          showPaywall = true
+        })
+        .help(NSLocalizedString("upgrade_prompt", comment: ""))
+        
+        Button(action: {
+          NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        }) {
+          Label(NSLocalizedString("settings_preferences", comment: ""), systemImage: "gear")
+        }
+        .help(NSLocalizedString("settings_preferences", comment: ""))
+        
+        Button(action: {
+          viewModel.showImagePicker = true
+        }) {
+          Label(NSLocalizedString("image_import", comment: ""), systemImage: "photo.on.rectangle")
+        }
+        .help(NSLocalizedString("hint.image_import", comment: ""))
+        
+        SSFeedbackButton(url: AppConstants.URLs.feedback)
+          .help(NSLocalizedString("feedback_help", comment: ""))
+      }
+    }
+    .toolbarBackground(.clear, for: .automatic)
+    .sheet(isPresented: $viewModel.showEventList) {
+      EventListView(
+        events: viewModel.parsedEvents,
+        onAdd: viewModel.resetState,
+        onImport: viewModel.importToCalendar,
+        onBack: { viewModel.showEventList = false },
+        onUpdate: viewModel.updateEvent
+      )
+      .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
+      .presentationDragIndicator(.visible)
+      .presentationBackgroundInteraction(.enabled)
+    }
+    .sheet(isPresented: $showPaywall) {
+      PaywallView {
+        proceedWithProFeature()
+      }
+    }
+    
+    .toast(
+      isPresented: $viewModel.showToast,
+      type: viewModel.toastType,
+      message: viewModel.toastMessage
+    )
+    .toast(
+      isPresented: .init(
+        get: { viewModel.importStatus != .none },
+        set: { if !$0 { viewModel.importStatus = .none } }
+      ),
+      type: toastType,
+      message: toastMessage
+    )
     .onAppear(perform: viewModel.resetState)
     .id(needsRefresh)
     .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
@@ -110,7 +127,15 @@ struct AddScheduleView: View {
   }
   
   private func proceedWithProFeature() {
-    // 实现具体的 Pro 功能
+    Task {
+      do {
+        if try await iapService.checkPremiumAccess() {
+          // 执行高级功能
+        }
+      } catch {
+        // 处理错误
+      }
+    }
   }
 }
 

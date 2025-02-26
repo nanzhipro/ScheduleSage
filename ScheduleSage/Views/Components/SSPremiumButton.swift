@@ -18,6 +18,8 @@ struct SSPremiumButton: View {
   let iconName: String
   // 按钮样式配置
   let style: Style
+  // 是否显示按钮
+  let shouldShow: Bool
   
   /// 初始化高级会员按钮
   /// - Parameters:
@@ -25,26 +27,31 @@ struct SSPremiumButton: View {
   ///   - title: 按钮文本，默认为"升级到高级会员"
   ///   - iconName: 按钮图标，默认为"star.fill"
   ///   - style: 按钮样式配置，默认为.compact
+  ///   - shouldShow: 是否显示按钮，默认为 true
   init(
     action: @escaping () -> Void,
     title: String? = nil,
     iconName: String = "star.fill",
-    style: Style = .compact
+    style: Style = .compact,
+    shouldShow: Bool = true
   ) {
     self.action = action
     self.title = title ?? NSLocalizedString("upgrade_to_premium", comment: "")
     self.iconName = iconName
     self.style = style
+    self.shouldShow = shouldShow
   }
   
   var body: some View {
-    SSButton(
-      title,
-      iconName: iconName,
-      style: style.toSSButtonStyle(),
-      action: action
-    )
-    .foregroundColor(.yellow, for: .icon)
+    if shouldShow {
+      SSButton(
+        title,
+        iconName: iconName,
+        style: style.toSSButtonStyle(),
+        action: action
+      )
+      .foregroundColor(.yellow, for: .icon)
+    }
   }
   
   /// 按钮样式配置

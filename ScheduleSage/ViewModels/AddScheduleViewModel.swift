@@ -14,7 +14,6 @@ class AddScheduleViewModel: ObservableObject {
     @Published var showUpgradeSheet = false
     @Published var showManualInputSheet = false
     @Published private(set) var canImport = false
-    @Published private(set) var proStatus: ProStatus
     @Published var llmResponse: String = ""
     @Published var isLLMProcessing = false
     @Published var parsedEvents: [CalendarEvent] = []
@@ -76,8 +75,7 @@ class AddScheduleViewModel: ObservableObject {
     let llmProcessor: LLMEventProcessor
     
     // MARK: - Initialization
-    init(proStatus: ProStatus = .free(remainingUses: 12)) {
-        self.proStatus = proStatus
+    init() {
         self.promptViewModel = PromptViewModel()
         self.llmProcessor = DefaultLLMEventProcessor(promptViewModel: self.promptViewModel)
         
@@ -480,16 +478,6 @@ extension AddScheduleViewModel {
 extension AddScheduleViewModel {
     func showUpgradeSheetAction() {
         showUpgradeSheet = true
-    }
-    
-    func canPerformAction(_ action: ProFeature.Action) -> Bool {
-        if proStatus.isPro { return true }
-        
-        switch action {
-        case .ocr: return proStatus.remainingUses ?? 0 > 0
-        case .export: return true
-        case .advanced: return false
-        }
     }
 }
 

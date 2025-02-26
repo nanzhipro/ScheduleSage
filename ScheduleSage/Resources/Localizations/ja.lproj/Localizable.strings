@@ -313,3 +313,7 @@
 "sign_in_with_apple" = "Appleでサインイン";
 
 "privacy_statement" = "スケジュールデータは最高レベルの暗号化で保護されています";
+
+"clear_text" = "テキストをクリア";
+"copy_text" = "テキストをコピー";
+"paste_text" = "テキストを貼り付け";

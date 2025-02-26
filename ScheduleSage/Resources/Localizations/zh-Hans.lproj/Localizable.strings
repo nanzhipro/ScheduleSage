@@ -299,3 +299,7 @@
 "sign_in_with_apple" = "通过 Apple 登录";
 
 "privacy_statement" = "您的日程数据受最高级别加密保护";
+
+"clear_text" = "清除文本";
+"copy_text" = "复制文本";
+"paste_text" = "粘贴文本";

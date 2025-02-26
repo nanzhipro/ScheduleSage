@@ -313,3 +313,7 @@
 "sign_in_with_apple" = "Sign in with Apple";
 
 "privacy_statement" = "Your schedule data is protected with the highest level of encryption";
+
+"clear_text" = "Clear Text";
+"copy_text" = "Copy Text";
+"paste_text" = "Paste Text";

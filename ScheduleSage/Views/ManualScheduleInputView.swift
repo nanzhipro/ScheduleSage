@@ -3,6 +3,7 @@
 //  ScheduleSage
 //
 //  Created by CursorAI on 2024-03-20.
+//  Created by CursorAI on 2024-07-xx.  // 当前日期
 //
 
 import SwiftUI
@@ -13,25 +14,18 @@ import SwiftUI
  */
 struct ManualScheduleInputView: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var isPresented: Bool
-    @State private var inputText = ""
-    @State private var isProcessing = false
-    @State private var showToast = false
-    @State private var toastType: ToastType = .error
-    @State private var toastMessage = ""
-    @State private var navigateToEventList = false
-    @State private var processedEvents: [CalendarEvent] = []
+    @StateObject private var inputState = InputState()
     @FocusState private var isFocused: Bool
     
     private let llmProcessor: LLMEventProcessor
     private let viewModel: AddScheduleViewModel
     var onEventsProcessed: ([CalendarEvent]) -> Void
     
-    init(isPresented: Binding<Bool>, 
-         llmProcessor: LLMEventProcessor, 
-         viewModel: AddScheduleViewModel,
-         onEventsProcessed: @escaping ([CalendarEvent]) -> Void) {
-        self._isPresented = isPresented
+    init(
+        llmProcessor: LLMEventProcessor,
+        viewModel: AddScheduleViewModel,
+        onEventsProcessed: @escaping ([CalendarEvent]) -> Void
+    ) {
         self.llmProcessor = llmProcessor
         self.viewModel = viewModel
         self.onEventsProcessed = onEventsProcessed
@@ -48,37 +42,66 @@ struct ManualScheduleInputView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                HeaderView(isPresented: $isPresented)
-                InputArea(text: $inputText, isFocused: _isFocused)
+                HeaderView(dismiss: dismiss)
+                InputArea(
+                    text: $inputState.inputText,
+                    isFocused: $isFocused
+                )
                 Spacer()
                 RecognizeButton(
-                    isProcessing: isProcessing,
-                    isDisabled: isProcessing || inputText.isEmpty,
+                    isProcessing: inputState.isProcessing,
+                    isDisabled: inputState.isProcessing || inputState.inputText.isEmpty,
                     action: { Task { await processInput() } }
                 )
             }
             .frame(
-                width: viewSize.width,   // 800 * 0.8 = 640
-                height: viewSize.height  // 640 * 0.8 = 512
+                width: viewSize.width,
+                height: viewSize.height
             )
             .background(DesignSystem.Colors.background)
+            .toolbar {
+                ToolbarItemGroup {
+                    Button(action: {
+                        inputState.inputText = ""
+                    }) {
+                        Label(NSLocalizedString("clear_text", comment: ""), systemImage: "trash")
+                    }
+                    .disabled(inputState.inputText.isEmpty)
+                    
+                    Button(action: {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(inputState.inputText, forType: .string)
+                    }) {
+                        Label(NSLocalizedString("copy_text", comment: ""), systemImage: "doc.on.doc")
+                    }
+                    .disabled(inputState.inputText.isEmpty)
+                    
+                    Button(action: {
+                        if let text = NSPasteboard.general.string(forType: .string) {
+                            inputState.inputText = text
+                        }
+                    }) {
+                        Label(NSLocalizedString("paste_text", comment: ""), systemImage: "doc.on.clipboard")
+                    }
+                }
+            }
             .toast(
-                isPresented: $showToast,
-                type: toastType,
-                message: toastMessage
+                isPresented: $inputState.showToast,
+                type: inputState.toastType,
+                message: inputState.toastMessage
             )
-            .navigationDestination(isPresented: $navigateToEventList) {
+            .navigationDestination(isPresented: $inputState.navigateToEventList) {
                 EventListView(
-                    events: processedEvents,
-                    onAdd: { navigateToEventList = false },
+                    events: inputState.processedEvents,
+                    onAdd: { inputState.navigateToEventList = false },
                     onImport: {},
-                    onBack: { navigateToEventList = false },
+                    onBack: { inputState.navigateToEventList = false },
                     onUpdate: viewModel.updateEvent
                 )
             }
             .onChange(of: viewModel.showEventList) { oldValue, newValue in
                 if newValue {
-                    isPresented = false
+                    dismiss()
                 }
             }
             .onAppear {
@@ -92,32 +115,43 @@ struct ManualScheduleInputView: View {
     }
     
     private func processInput() async {
-        guard !inputText.isEmpty else { return }
-        isProcessing = true
+        guard !inputState.inputText.isEmpty else { return }
+        inputState.isProcessing = true
         
-        let trimmedInput = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedInput = inputState.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         if let url = URL(string: trimmedInput), url.isValidWebURL {
             viewModel.handleURLContent(url)
-            isPresented = false
+            dismiss()
         } else {
             do {
-                processedEvents = try await llmProcessor.processContent(inputText)
-                onEventsProcessed(processedEvents)
-                isPresented = false
+                inputState.processedEvents = try await llmProcessor.processContent(inputState.inputText)
+                onEventsProcessed(inputState.processedEvents)
+                dismiss()
             } catch {
-                toastType = .error
-                toastMessage = error.localizedDescription
-                showToast = true
+                inputState.toastType = .error
+                inputState.toastMessage = error.localizedDescription
+                inputState.showToast = true
             }
         }
         
-        isProcessing = false
+        inputState.isProcessing = false
     }
+}
+
+// MARK: - Input State
+private class InputState: ObservableObject {
+    @Published var inputText = ""
+    @Published var isProcessing = false
+    @Published var showToast = false
+    @Published var toastType: ToastType = .error
+    @Published var toastMessage = ""
+    @Published var navigateToEventList = false
+    @Published var processedEvents: [CalendarEvent] = []
 }
 
 // MARK: - Subviews
 private struct HeaderView: View {
-    @Binding var isPresented: Bool
+    let dismiss: DismissAction
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.largeHeaderSpacing) {
@@ -126,7 +160,7 @@ private struct HeaderView: View {
                     .font(DesignSystem.Typography.largeHeaderTitle)
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 Spacer()
-                SageCloseButton(action: { isPresented = false })
+                SageCloseButton(action: { dismiss() })
             }
             
             Text(NSLocalizedString("manual_input_subtitle", comment: ""))
@@ -142,12 +176,12 @@ private struct HeaderView: View {
 
 private struct InputArea: View {
     @Binding var text: String
-    @FocusState var isFocused: Bool
+    let isFocused: FocusState<Bool>.Binding
     
     var body: some View {
         TextEditor(text: $text)
             .font(DesignSystem.Typography.bodyRegular)
-            .focused($isFocused)
+            .focused(isFocused)
             .scrollContentBackground(.hidden)
             .background(placeholderView)
             .padding(DesignSystem.Spacing.contentPadding)
@@ -158,7 +192,7 @@ private struct InputArea: View {
     
     private var placeholderView: some View {
         ZStack(alignment: .topLeading) {
-            if text.isEmpty && !isFocused {
+            if text.isEmpty && !isFocused.wrappedValue {
                 Text(NSLocalizedString("schedule_input_placeholder", comment: ""))
                     .font(DesignSystem.Typography.bodyRegular)
                     .foregroundColor(DesignSystem.Colors.tertiaryText)
@@ -204,7 +238,6 @@ private struct RecognizeButton: View {
 struct ManualScheduleInputView_Previews: PreviewProvider {
     static var previews: some View {
         ManualScheduleInputView(
-            isPresented: .constant(true),
             llmProcessor: PreviewData.mockLLMProcessor,
             viewModel: PreviewData.mockAddScheduleViewModel
         ) { _ in }
