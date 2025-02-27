@@ -9,7 +9,7 @@
 
 // Titles
 "schedule_add_title" = "予定を追加";
-"schedule_add_subtitle" = "テキスト・画像・手動入力から簡単に予定を作成";
+"schedule_add_subtitle" = "AI搭載のスマート認識で、ワンクリックの簡単スケジュール作成";
 "settings_window_title" = "設定";
 
 // Add Schedule Methods
@@ -312,3 +312,8 @@
 "sign_in_with_apple" = "Appleでサインイン";
 
 "privacy_statement" = "スケジュールデータは最高レベルの暗号化で保護されています";
+
+"subscribed_status" = "購読済み";
+"subscribed_hint" = "プレミアムメンバーです";
+
+"upgrade_button_hint" = "プレミアム版にアップグレードしてすべての機能を利用可能に";

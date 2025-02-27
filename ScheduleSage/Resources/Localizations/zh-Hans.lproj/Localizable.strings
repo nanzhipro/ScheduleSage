@@ -9,7 +9,7 @@
 
 // Titles
 "schedule_add_title" = "快速创建日程";
-"schedule_add_subtitle" = "支持多种便捷方式，轻松创建日程";
+"schedule_add_subtitle" = "AI 智能识别，一键创建，让日程管理更轻松";
 "settings_window_title" = "设置";
 
 // Add Schedule Methods
@@ -298,3 +298,8 @@
 "sign_in_with_apple" = "通过 Apple 登录";
 
 "privacy_statement" = "您的日程数据受最高级别加密保护";
+
+"subscribed_status" = "已订阅";
+"subscribed_hint" = "您已是高级会员";
+
+"upgrade_button_hint" = "升级到高级版以解锁所有功能";

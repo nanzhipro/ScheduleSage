@@ -439,23 +439,28 @@ private struct CloseXButton: View {
 // MARK: - Upgrade Premium Button
 private struct UpgradePremiumButton: View {
   @Binding var showPaywall: Bool
+  @EnvironmentObject private var iapService: IAPService
+  
+  private var buttonText: LocalizedStringKey {
+    iapService.isPremium ? "subscribed_status" : "upgrade_to_premium"
+  }
   
   var body: some View {
     Button(action: {
       showPaywall = true
     }) {
       HStack(spacing: 4) {
-        Image(systemName: "sparkles")
-          .foregroundColor(.yellow)
-        Text(NSLocalizedString("upgrade_to_premium", comment: ""))
+        Image(systemName: iapService.isPremium ? "checkmark.circle.fill" : "sparkles")
+          .foregroundColor(iapService.isPremium ? .green : .yellow)
+        Text(buttonText)
           .font(DesignSystem.Typography.caption)
-          .foregroundColor(DesignSystem.Colors.primary)
+          .foregroundColor(iapService.isPremium ? .green : DesignSystem.Colors.primary)
       }
       .padding(.vertical, 6)
       .padding(.horizontal, 12)
     }
     .buttonStyle(.plain)
     .withHoverEffect(scale: 1.1, brightness: 0)
-    .help(NSLocalizedString("upgrade_button_hint", comment: ""))
+    .help(NSLocalizedString(iapService.isPremium ? "subscribed_hint" : "upgrade_button_hint", comment: ""))
   }
 }

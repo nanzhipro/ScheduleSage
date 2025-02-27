@@ -44,7 +44,7 @@ struct DragDropArea<Content: View>: View {
           isDragging ? 
             DesignSystem.Colors.primary.opacity(0.3) : 
             Color(.separatorColor),
-          lineWidth: isDragging ? 2 : 1
+          lineWidth: isDragging ? 3 : 0
         )
         .background(
           RoundedRectangle(cornerRadius: DesignSystem.Dimensions.cardCornerRadius)

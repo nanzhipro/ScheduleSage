@@ -9,7 +9,7 @@
 
 // Titles
 "schedule_add_title" = "Quick Add";
-"schedule_add_subtitle" = "Create events easily from text, images, or manual input";
+"schedule_add_subtitle" = "AI-powered smart recognition, one-click creation for effortless scheduling";
 "settings_window_title" = "Settings";
 
 // Add Schedule Methods
@@ -312,3 +312,8 @@
 "sign_in_with_apple" = "Sign in with Apple";
 
 "privacy_statement" = "Your schedule data is protected with the highest level of encryption";
+
+"subscribed_status" = "Subscribed";
+"subscribed_hint" = "You are a premium member";
+
+"upgrade_button_hint" = "Upgrade to premium to unlock all features";
