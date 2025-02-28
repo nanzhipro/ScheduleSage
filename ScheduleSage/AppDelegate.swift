@@ -8,7 +8,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Properties
     private var keyboardMonitor: Any?
     private var onboardingWindowController: NSWindowController?
-    private var mainWindowController: MainWindowController?
     
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "AppDelegate")
     private let calendarManager = CalendarManager()

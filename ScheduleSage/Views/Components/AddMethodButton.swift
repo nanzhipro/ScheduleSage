@@ -72,6 +72,7 @@ struct AddMethodButton: View {
         isHovered = hovering
       }
     }
+    .withHoverEffect(scale: 1.02, brightness: 0)
     .help(NSLocalizedString(hintKey, comment: ""))
   }
   

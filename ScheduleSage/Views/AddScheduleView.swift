@@ -450,8 +450,8 @@ private struct UpgradePremiumButton: View {
       showPaywall = true
     }) {
       HStack(spacing: 4) {
-        Image(systemName: iapService.isPremium ? "checkmark.circle.fill" : "sparkles")
-          .foregroundColor(iapService.isPremium ? .green : .yellow)
+        Image(systemName: "sparkles")
+          .foregroundColor(.yellow)
         Text(buttonText)
           .font(DesignSystem.Typography.caption)
           .foregroundColor(iapService.isPremium ? .green : DesignSystem.Colors.primary)

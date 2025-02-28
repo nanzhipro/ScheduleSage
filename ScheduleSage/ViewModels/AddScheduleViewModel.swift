@@ -11,10 +11,8 @@ class AddScheduleViewModel: ObservableObject {
     @Published var isDragging = false
     @Published var dragAnimation: DragAnimation = .none
     @Published var isOCRProcessing = false
-    @Published var showUpgradeSheet = false
     @Published var showManualInputSheet = false
     @Published private(set) var canImport = false
-    @Published private(set) var proStatus: ProStatus
     @Published var llmResponse: String = ""
     @Published var isLLMProcessing = false
     @Published var parsedEvents: [CalendarEvent] = []
@@ -26,9 +24,6 @@ class AddScheduleViewModel: ObservableObject {
     @Published var showImagePicker = false
     @Published var feedbackButtonScale: CGFloat = 1.0
     
-    // 添加窗口控制器引用
-    weak var windowController: MainWindowController?
-    
     // MARK: - Import Status
     enum ImportStatus: Equatable {
         case none
@@ -38,17 +33,17 @@ class AddScheduleViewModel: ObservableObject {
         
         static func == (lhs: ImportStatus, rhs: ImportStatus) -> Bool {
             switch (lhs, rhs) {
-            case (.none, .none):
-                return true
-            case (.importing, .importing):
-                return true
-            case (.success, .success):
+            case (.none, .none),
+                 (.importing, .importing),
+                 (.success, .success):
                 return true
             case (.failure, .failure):
-                // 注意：这里我们只比较是否都是失败状态，不比较具体错误
-                // 因为 Error 协议没有遵循 Equatable
+                // 由于 Error 不遵循 Equatable，我们只能比较类型是否相同
                 return true
-            default:
+            case (.none, _),
+                 (.importing, _),
+                 (.success, _),
+                 (.failure, _):
                 return false
             }
         }
@@ -76,8 +71,7 @@ class AddScheduleViewModel: ObservableObject {
     let llmProcessor: LLMEventProcessor
     
     // MARK: - Initialization
-    init(proStatus: ProStatus = .free(remainingUses: 12)) {
-        self.proStatus = proStatus
+    init() {
         self.promptViewModel = PromptViewModel()
         self.llmProcessor = DefaultLLMEventProcessor(promptViewModel: self.promptViewModel)
         
@@ -107,40 +101,6 @@ class AddScheduleViewModel: ObservableObject {
         
         // 检查剪贴板内容
         checkClipboardContent()
-    }
-    
-    // MARK: - Window State Handling
-    func handlePopoverDisappear() {
-        // 确保所有 sheet 和状态都被重置
-        Task { @MainActor in
-            showManualInputSheet = false
-            showEventList = false
-            showUpgradeSheet = false
-            resetState()
-        }
-    }
-    
-    // MARK: - Public Methods
-    func closePopover() {
-        // 先重置所有状态
-        Task { @MainActor in
-            // 1. 重置所有 sheet 状态
-            showManualInputSheet = false
-            showEventList = false
-            showUpgradeSheet = false
-            
-            // 2. 重置其他状态
-            resetState()
-            
-            // 3. 根据模式选择关闭方式
-            if let windowController = windowController {
-                // Window 模式：关闭窗口
-                windowController.closeWindow()
-            } else {
-                // Popover 模式：关闭 popover
-                NSApp.sendAction(#selector(NSPopover.performClose(_:)), to: nil, from: nil)
-            }
-        }
     }
     
     // MARK: - Keyboard Monitor Control
@@ -476,23 +436,6 @@ extension AddScheduleViewModel {
     }
 }
 
-// MARK: - Pro Features
-extension AddScheduleViewModel {
-    func showUpgradeSheetAction() {
-        showUpgradeSheet = true
-    }
-    
-    func canPerformAction(_ action: ProFeature.Action) -> Bool {
-        if proStatus.isPro { return true }
-        
-        switch action {
-        case .ocr: return proStatus.remainingUses ?? 0 > 0
-        case .export: return true
-        case .advanced: return false
-        }
-    }
-}
-
 // MARK: - Helper Extensions
 private extension URL {
     var isValidImageFile: Bool {
@@ -659,26 +602,6 @@ extension AddScheduleViewModel {
                 object: nil,
                 userInfo: ["event": updatedEvent]
             )
-        }
-    }
-}
-
-// MARK: - Modified closePopover method
-extension AddScheduleViewModel {
-    func closeWindow() {
-        Task { @MainActor in
-            // 1. 重置所有 sheet 状态
-            showManualInputSheet = false
-            showEventList = false
-            showUpgradeSheet = false
-            
-            // 2. 重置其他状态
-            resetState()
-            
-            // 3. 关闭窗口
-            if let windowController = windowController {
-                windowController.closeWindow()
-            }
         }
     }
 }
