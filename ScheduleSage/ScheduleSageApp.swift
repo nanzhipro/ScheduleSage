@@ -14,6 +14,9 @@ struct ScheduleSageApp: App {
   @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
   @StateObject private var iapService = IAPService.shared
   @StateObject private var authViewModel = AuthenticationViewModel.shared
+  
+  // 跟踪主窗口是否已创建
+  @State private var hasCreatedMainWindow = false
 
   var body: some Scene {
     WindowGroup {
@@ -27,6 +30,19 @@ struct ScheduleSageApp: App {
               width: DesignSystem.Dimensions.mainViewWidth,
               height: DesignSystem.Dimensions.mainViewHeight
             )
+            .onAppear {
+              // 确保只创建一个主窗口
+              if !hasCreatedMainWindow {
+                hasCreatedMainWindow = true
+              } else {
+                // 如果已经创建过主窗口，关闭新创建的窗口
+                DispatchQueue.main.async {
+                  if let window = NSApp.windows.last {
+                    window.close()
+                  }
+                }
+              }
+            }
         }
       }
     }
@@ -50,6 +66,12 @@ struct ScheduleSageApp: App {
       window.titleVisibility = .hidden
       window.backgroundColor = .clear
       window.contentView?.wantsLayer = true
+      
+      // 禁用标签栏
+      window.tabbingMode = .disallowed
+      
+      // 确保窗口居中显示
+      window.center()
     }
 
     Settings {

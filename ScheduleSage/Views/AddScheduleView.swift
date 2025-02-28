@@ -186,7 +186,7 @@ private struct AddScheduleView_Impl: View {
             Text(NSLocalizedString("powered_by_tencent", comment: ""))
               .font(DesignSystem.Typography.caption)
               .foregroundColor(DesignSystem.Colors.secondaryText)
-              .padding(.bottom, 16)
+              .padding(.vertical, 16)
           }
           .frame(maxWidth: .infinity)
         }

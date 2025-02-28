@@ -54,6 +54,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func configureWindowBehavior() {
+        // 配置为单一标签栏应用
+        NSWindow.allowsAutomaticWindowTabbing = false
+        
         initializeTheme()
         guard checkAndActivateExistingInstance() else { return }
         Task { await setupApplication() }
@@ -64,17 +67,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         if !hasCompletedOnboarding {
             showOnboarding()
-        } else {
-            showMainWindow()
         }
         
         configureKeyboardMonitor()
         configureSentry()
-        
-        // 初始化窗口层级
-        if let window = NSApp.mainWindow {
-            window.level = .normal
-        }
     }
     
     private func configureSentry() {
@@ -177,11 +173,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func showMainWindow() {
-        guard let mainWindow = NSApp.windows.first else { return }
-                
-        // 显示主窗口
-        NSApp.activate(ignoringOtherApps: true)
-        mainWindow.makeKeyAndOrderFront(nil)
+        if let mainWindow = NSApp.windows.first(where: { $0.isVisible }) {
+            NSApp.activate(ignoringOtherApps: true)
+            mainWindow.makeKeyAndOrderFront(nil)
+            mainWindow.orderFrontRegardless()
+        }
     }
     
     private func initializeTheme() {
@@ -201,8 +197,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension AppDelegate {
     func application(_ application: NSApplication, open urls: [URL]) {
+        logger.info("[App] Application open urls: \(urls)")
         guard let url = urls.first,
-              url.scheme == "schedulesage",
-              url.host == "show" else { return }
+              url.scheme == "schedulesage" else { return }
+        
+        switch url.host {
+        case "show":
+            // 如果已经有窗口，则激活它
+            if let existingWindow = NSApp.windows.first(where: { $0.isVisible }) {
+                NSApp.activate(ignoringOtherApps: true)
+                existingWindow.makeKeyAndOrderFront(nil)
+                existingWindow.orderFrontRegardless()
+            } else {
+                // 如果没有可见窗口，显示主窗口
+                showMainWindow()
+            }
+        default:
+            break
+        }
     }
 }

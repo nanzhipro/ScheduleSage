@@ -30,7 +30,7 @@
 // Loading
 "loading_ocr" = "正在识别图片...";
 "loading_network" = "正在加载...";
-"loading_processing" = "正在处理...";
+"loading_processing" = "AI识别中...";
 "loading_url" = "正在解析网页...";
 
 // Image Picker

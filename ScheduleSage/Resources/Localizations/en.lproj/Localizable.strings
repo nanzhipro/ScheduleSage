@@ -30,7 +30,7 @@
 // Loading
 "loading_ocr" = "Reading Image...";
 "loading_network" = "Loading...";
-"loading_processing" = "Processing...";
+"loading_processing" = "AI Recognition...";
 "loading_url" = "Reading Webpage...";
 
 // Image Picker
