@@ -81,6 +81,8 @@ public final class ThemeManager: ObservableObject {
             // 只在值发生变化时更新，避免不必要的通知
             if self.isDarkMode != newIsDarkMode {
                 self.isDarkMode = newIsDarkMode
+                // 主动更新应用外观
+                self.updateAppearance()
                 
                 // 发送主题变更通知
                 NotificationCenter.default.post(name: .themeDidChange, object: nil)
