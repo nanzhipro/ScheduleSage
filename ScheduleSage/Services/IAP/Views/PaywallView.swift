@@ -77,6 +77,21 @@ struct PaywallView: View {
         .background(DesignSystem.Colors.background)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .toast(isPresented: $showToast, type: .success, message: toastMessage)
+        .task {
+            // 静默刷新订阅数据
+            await refreshSubscriptionData()
+        }
+    }
+    
+    // MARK: - Subscription Refresh
+    
+    private func refreshSubscriptionData() async {
+        do {
+            await iapService.lazyLoadOfferings()
+            try await iapService.refreshCustomerInfo()
+        } catch {
+            print("[PaywallView] Failed to refresh subscription data: \(error)")
+        }
     }
     
     // MARK: - UI Components

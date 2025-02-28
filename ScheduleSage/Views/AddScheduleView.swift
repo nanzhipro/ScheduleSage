@@ -356,6 +356,7 @@ private struct AddMethodSection: View {
                 iconName: "doc.text.fill",
                 title: NSLocalizedString("clipboard_import", comment: ""),
                 hintKey: "hint.clipboard_import",
+                showPaywall: $showPaywall,
                 action: viewModel.checkClipboardContent
             )
             
@@ -363,6 +364,7 @@ private struct AddMethodSection: View {
                 iconName: "pencil.and.list.clipboard",
                 title: NSLocalizedString("manual_input", comment: ""),
                 hintKey: "hint.manual_input",
+                showPaywall: $showPaywall,
                 action: { viewModel.showManualInputSheet = true }
             )
             .sheet(isPresented: $viewModel.showManualInputSheet) {
@@ -381,6 +383,7 @@ private struct AddMethodSection: View {
                 iconName: "photo.fill",
                 title: NSLocalizedString("image_import", comment: ""),
                 hintKey: "hint.image_import",
+                showPaywall: $showPaywall,
                 action: viewModel.handleImageSelection
             )
         }

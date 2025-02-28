@@ -17,14 +17,13 @@ struct IAPConfiguration {
         return "appl_dMdpmzBEXIUFoVMfBQkSmpLDALP"
     }
     
-    /// 产品标识符
-    #if os(iOS)
-    static let monthlySubscriptionId = "com.schedulesage.ios.subscription.monthly"
-    static let yearlySubscriptionId = "com.schedulesage.ios.subscription.yearly"
-    #elseif os(macOS)
-    static let monthlySubscriptionId = "com.schedulesage.macos.subscription.monthly"
-    static let yearlySubscriptionId = "com.schedulesage.macos.subscription.yearly"
-    #endif
+    /// 对应 RevenueCat 中的产品Identifier，且对应App Store Connect中的产品ID
+    // 周订阅
+    static let weeklySubscriptionId = "com.tiwenlab.schedulesage.weekly"
+    // 月订阅
+    static let monthlySubscriptionId = "com.tiwenlab.schedulesage.monthly"
+    // 年订阅
+    static let yearlySubscriptionId = "com.tiwenlab.schedulesage.yearly"
     
     /// 权限标识符： 必须和 RevenueCat 中的权限标识符一致
     /// 见：https://app.revenuecat.com/projects/d74a0317/entitlements

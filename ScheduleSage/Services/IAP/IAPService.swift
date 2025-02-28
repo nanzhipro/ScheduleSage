@@ -75,10 +75,6 @@ class IAPService: NSObject, ObservableObject {
         // 设置监听和初始化其他功能
         setupObservers()
         
-        // 获取产品信息
-        logger.debug("[IAP] Fetching offerings and restoring purchases")
-        await fetchOfferings()
-        
         do {
             try await initializeCustomerInfo()
             let restored = try await restorePurchases()
@@ -404,6 +400,26 @@ class IAPService: NSObject, ObservableObject {
     private func initializeCustomerInfo() async throws {
         try await refreshCustomerInfo()
         _ = try await restorePurchases()
+    }
+    
+    // MARK: - Public Methods
+    
+    /// 刷新所有订阅相关数据
+    /// 包括产品列表和用户订阅状态
+    func refreshSubscriptionData() async throws {
+        await fetchOfferings()
+        try await refreshCustomerInfo()
+    }
+    
+    /// 延迟加载订阅产品信息
+    /// 仅在需要时调用此方法，例如打开付费墙时
+    func lazyLoadOfferings() async {
+        // 如果已经有数据，就不需要再次加载
+        if offerings != nil && !products.isEmpty {
+            return
+        }
+        
+        await fetchOfferings()
     }
 }
 
