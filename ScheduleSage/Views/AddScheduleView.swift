@@ -247,28 +247,80 @@ private enum Design {
 private struct CalendarIcon: View {
     let animation: AddScheduleViewModel.DragAnimation
     @EnvironmentObject private var iapService: IAPService
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var isPremium = false
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .center) {
             // 基础日历图标
             ZStack {
                 Circle()
                     .fill(DesignSystem.Colors.secondaryBackground)
                     .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
+                    .if(isPremium) { view in
+                        view.shadow(
+                            color: .yellow.opacity(colorScheme == .dark ? 0.3 : 0.2),
+                            radius: 15,
+                            x: 0,
+                            y: 0
+                        )
+                    }
+                
                 Image(systemName: "calendar.badge.plus")
-                    .font(.system(size: Design.Size.iconSize))
-                    .foregroundColor(DesignSystem.Colors.primary)
+                    .font(.system(size: Design.Size.iconSize, weight: isPremium ? .medium : .regular))
+                    .foregroundStyle(
+                        isPremium ?
+                        LinearGradient(
+                            colors: [
+                                .yellow,
+                                .orange.opacity(0.8)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ) :
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.primary,
+                                DesignSystem.Colors.primary
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .symbolEffect(.bounce, value: isPremium)
             }
             .modifier(DragAnimationModifier(animation: animation))
+            .zIndex(1) // 确保图标始终在最上层
             
-            // Pro 用户的皇冠标识
-            if iapService.isPremium {
-                Image(systemName: "crown.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(.yellow)
-                    .shadow(color: .yellow.opacity(0.3), radius: 4)
-                    .offset(y: -Design.Size.iconContainerSize/2 - 10)
-                    .transition(.scale.combined(with: .opacity))
+            // 会员光晕效果
+            if isPremium {
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            gradient: Gradient(colors: [
+                                .yellow.opacity(0.3),
+                                .yellow.opacity(0.1),
+                                .clear
+                            ]),
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: Design.Size.iconContainerSize
+                        )
+                    )
+                    .frame(
+                        width: Design.Size.iconContainerSize * 1.5,
+                        height: Design.Size.iconContainerSize * 1.5
+                    )
+                    .blur(radius: 15)
+                    .zIndex(0) // 确保光晕在图标下层
+            }
+        }
+        .frame(width: Design.Size.iconContainerSize * 1.5, height: Design.Size.iconContainerSize * 1.5)
+        .task {
+            do {
+                isPremium = try await iapService.checkPremiumAccess()
+            } catch {
+                isPremium = false
             }
         }
     }
@@ -443,9 +495,10 @@ private struct CloseXButton: View {
 private struct UpgradePremiumButton: View {
   @ObservedObject var viewModel: AddScheduleViewModel
   @EnvironmentObject private var iapService: IAPService
+  @State private var isPremium = false
   
   private var buttonText: LocalizedStringKey {
-    iapService.isPremium ? "subscribed_status" : "upgrade_to_premium"
+    isPremium ? "subscribed_status" : "upgrade_to_premium"
   }
   
   var body: some View {
@@ -458,14 +511,21 @@ private struct UpgradePremiumButton: View {
           .foregroundColor(.yellow)
         Text(buttonText)
           .font(DesignSystem.Typography.caption)
-          .foregroundColor(iapService.isPremium ? .green : DesignSystem.Colors.primary)
+          .foregroundColor(isPremium ? .green : DesignSystem.Colors.primary)
       }
       .padding(.vertical, 6)
       .padding(.horizontal, 12)
     }
     .buttonStyle(.plain)
     .withHoverEffect(scale: 1.1, brightness: 0)
-    .help(NSLocalizedString(iapService.isPremium ? "subscribed_hint" : "upgrade_button_hint", comment: ""))
+    .help(NSLocalizedString(isPremium ? "subscribed_hint" : "upgrade_button_hint", comment: ""))
+    .task {
+        do {
+            isPremium = try await iapService.checkPremiumAccess()
+        } catch {
+            isPremium = false
+        }
+    }
   }
 }
 
@@ -558,4 +618,16 @@ extension View {
   ) -> some View {
     modifier(PressEventsModifier(onPress: onPress, onRelease: onRelease))
   }
+}
+
+// MARK: - View Extension
+extension View {
+    @ViewBuilder
+    fileprivate func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
 }

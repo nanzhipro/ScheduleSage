@@ -171,7 +171,7 @@
 
 // Onboarding
 "onboarding.welcome.title" = "欢迎使用ScheduleSage";
-"onboarding.welcome.description" = "化繁为简的日程管理专家，让您的时间安排更轻松自如";
+"onboarding.welcome.description" = "化繁为简的日程管理专家，让你的时间安排更轻松自如";
 "onboarding.features.title" = "便捷创建日程";
 "onboarding.features.description" = "识别网页、复制文本、拍照识别、手动输入，多种方式随心创建日程";
 "onboarding.calendar.title" = "日历权限";
@@ -202,7 +202,7 @@
 "powered_by_tencent" = "AI 智能驱动";
 
 "settings_feedback" = "反馈建议";
-"feedback_button_hint" = "您的建议能让ScheduleSage变得更好\n产品成功有您一份";
+"feedback_button_hint" = "你的建议能让ScheduleSage变得更好\n产品成功有你一份";
 
 // Method Button Hints
 "hint.clipboard_import" = "从剪贴板文本或网页链接创建日程";
@@ -253,7 +253,7 @@
 "subscription_feature_yearly_discount" = "抢先体验新功能";
 
 "paywall.button.subscribed" = "已订阅";
-"paywall.restore.already_subscribed" = "您已是高级会员";
+"paywall.restore.already_subscribed" = "你已是高级会员";
 "paywall.restore.no_subscription" = "未找到有效订阅，请订阅以继续使用";
 
 "paywall.offerings.load_failed" = "加载订阅选项失败，请重试";
@@ -297,16 +297,16 @@
 /* Sign in with Apple button title */
 "sign_in_with_apple" = "通过 Apple 登录";
 
-"privacy_statement" = "您的日程数据受最高级别加密保护";
+"privacy_statement" = "你的日程数据受最高级别加密保护";
 
 "subscribed_status" = "已订阅";
-"subscribed_hint" = "您已是高级会员";
+"subscribed_hint" = "你已是高级会员";
 
 "upgrade_button_hint" = "升级到高级版以解锁所有功能";
 
 "settings_user_agreement" = "用户协议";
 
 /* Paywall Subscription Terms */
-"paywall.subscription.terms" = "试用期结束后，如果您未[取消订阅](https://support.apple.com/zh-cn/118428)，系统将通过您的 Apple ID 自动续订并收取每月或每年的费用。您可以随时在 Apple ID 账户设置中管理或[取消订阅](https://support.apple.com/zh-cn/118428)。";
+"paywall.subscription.terms" = "试用期结束后，如果你未[取消订阅](https://support.apple.com/zh-cn/118428)，系统将通过你的 Apple ID 自动续订并收取每月或每年的费用。你可以随时在 Apple ID 账户设置中管理或[取消订阅](https://support.apple.com/zh-cn/118428)。";
 
 "premium_required" = "此功能需要高级会员订阅。升级后即可解锁所有功能。";

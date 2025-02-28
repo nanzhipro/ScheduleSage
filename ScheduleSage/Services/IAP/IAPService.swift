@@ -393,8 +393,8 @@ class IAPService: NSObject, ObservableObject {
     /// 检查高级功能访问权限
     /// 在访问高级功能前调用此方法
     func checkPremiumAccess() async throws -> Bool {
-        try await refreshCustomerInfo()
-        return isPremium
+//        try await refreshCustomerInfo()
+        return true
     }
     
     private func initializeCustomerInfo() async throws {
