@@ -154,6 +154,10 @@ private struct InputArea: View {
             .background(DesignSystem.Colors.lightGray)
             .cornerRadius(DesignSystem.Dimensions.cardCornerRadius)
             .padding(.horizontal, DesignSystem.Layout.containerPadding.leading)
+            .onExitCommand {
+                isFocused = false
+            }
+            .textEditorStyle(.automatic)
     }
     
     private var placeholderView: some View {

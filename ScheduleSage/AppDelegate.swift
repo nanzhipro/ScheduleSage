@@ -89,6 +89,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return event }
             
+            // 如果当前第一响应者是文本编辑器，不拦截 Command+V
+            if let firstResponder = NSApp.keyWindow?.firstResponder,
+               firstResponder.isKind(of: NSTextView.self) {
+                return event
+            }
+            
             if event.modifierFlags.contains(.command),
                event.keyCode == 9,
                NSApp.isActive {

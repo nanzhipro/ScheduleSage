@@ -209,18 +209,6 @@ extension AddScheduleViewModel {
             
             let contentText = try result.get()
 
-#if false
-            // 使用 ContentPreprocessor 进行预处理，检查是否包含时间信息。
-            let preprocessor = DefaultContentPreprocessor()
-            guard try await preprocessor.containsTimeInformation(contentText) else {
-                await MainActor.run {
-                    self.isLLMProcessing = false
-                    LoadingManager.shared.hide()
-                    showToastMessage(ContentPreprocessorError.noTimeInformation.localizedDescription)
-                }
-                return
-            }
-#endif
             do {
                 var events = try await llmProcessor.processContent(contentText)
                 // 为所有事件设置 URL
@@ -247,11 +235,11 @@ extension AddScheduleViewModel {
                     self.parsedEvents = events
                     self.isLLMProcessing = false
                     LoadingManager.shared.hide()
-                    self.canImport = true
+                    self.canImport = !events.isEmpty
                     self.showEventList = true
                 }
                 
-                logger.info("Web content processing completed successfully")
+                logger.info("Web content processing completed successfully with \(events.count) events")
             } catch {
                 logger.error("LLM processing failed: \(error.localizedDescription)")
                 await MainActor.run {
@@ -352,7 +340,7 @@ extension AddScheduleViewModel {
                 self.parsedEvents = events
                 self.isLLMProcessing = false
                 LoadingManager.shared.hide()
-                self.canImport = true
+                self.canImport = !events.isEmpty
                 self.showEventList = true
             }
             

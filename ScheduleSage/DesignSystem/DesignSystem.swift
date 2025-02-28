@@ -521,7 +521,7 @@ enum DesignSystem {
     /// 表单字段内边距
     static let formFieldPadding = EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
     /// 容器内边距
-    static let containerPadding = EdgeInsets(top: 40, leading: 20, bottom: 20, trailing: 20)
+    static let containerPadding = EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20)
     /// 状态栏内边距
     static let statusBarPadding = EdgeInsets(top: 12, leading: 20, bottom: 8, trailing: 20)
     /// 大页面容器内边距

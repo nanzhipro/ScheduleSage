@@ -88,13 +88,27 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
         let prompt = try await buildPrompt(forContent: content, withCalendars: calendarNames)
         let response = try await llmService.chat(with: prompt)
         
-        guard let event = CalendarEvent.from(llmResponse: response.content, logger: logger) else {
+        do {
+            guard let events = CalendarEvent.from(llmResponse: response.content, logger: logger) else {
+                logger.error("Failed to parse LLM response into calendar events")
+                throw LLMEventProcessorError.parsingFailed
+            }
+            
+            // 验证每个事件的必需字段
+            for event in events {
+                try validateRequiredFields(in: event)
+            }
+            
+            logger.info("Successfully processed \(events.count) events")
+            return events
+            
+        } catch let decodingError as DecodingError {
+            logger.error("JSON decoding error: \(decodingError.localizedDescription)")
             throw LLMEventProcessorError.parsingFailed
+        } catch {
+            logger.error("Unexpected error: \(error.localizedDescription)")
+            throw LLMEventProcessorError.processingFailed(error)
         }
-        
-        try validateRequiredFields(in: event)
-        
-        return [event]
     }
     
     // MARK: - Private Methods

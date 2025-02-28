@@ -122,18 +122,29 @@ public struct CalendarEvent: Codable, Identifiable {
 // MARK: - JSON Conversion
 extension CalendarEvent {
     /// 从 LLM 响应内容创建事件模型
-    public static func from(llmResponse content: String, logger: Logger) -> CalendarEvent? {
+    public static func from(llmResponse content: String, logger: Logger) -> [CalendarEvent]? {
         do {
+            logger.info("Parsing LLM response: \(content)")
             // 尝试将字符串解析为 JSON 数据
             guard let jsonData = content.data(using: .utf8) else {
                 logger.error("Failed to convert string to data: \(content)")
                 return nil
             }
             
-            // 解码 JSON 数据为事件模型
             let decoder = JSONDecoder()
-            let event = try decoder.decode(CalendarEvent.self, from: jsonData)
-            return event
+            
+            // 首先尝试解析为数组
+            if let events = try? decoder.decode([CalendarEvent].self, from: jsonData) {
+                return events
+            }
+            
+            // 如果不是数组，尝试解析为单个对象并将其包装在数组中
+            if let event = try? decoder.decode(CalendarEvent.self, from: jsonData) {
+                return [event]
+            }
+            
+            logger.error("Failed to decode calendar event(s) from JSON")
+            return nil
             
         } catch {
             logger.error("Failed to decode calendar event: \(error.localizedDescription)")

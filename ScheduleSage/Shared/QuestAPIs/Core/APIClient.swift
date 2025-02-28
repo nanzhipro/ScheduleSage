@@ -54,7 +54,7 @@ public final class APIClient {
 
     // 配置URLSession参数
     let configuration = URLSessionConfiguration.default
-    configuration.timeoutIntervalForRequest = 30
+    configuration.timeoutIntervalForRequest = 60
     configuration.headers = environment.defaultHeaders
 
     // 使用正确的日志方法

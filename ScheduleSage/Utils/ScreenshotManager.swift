@@ -101,7 +101,7 @@ public final class ScreenshotManager {
             .replacingOccurrences(of: ":", with: "-")
             .replacingOccurrences(of: " ", with: "_")
         
-        return "\(AppInfo.displayName)_Screenshot_\(title)_\(timestamp).png"
+        return "\(AppInfo.name)_Screenshot_\(title)_\(timestamp).png"
     }
     
     private func getDownloadsDirectory() -> URL {

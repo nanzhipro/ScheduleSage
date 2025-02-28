@@ -38,6 +38,7 @@ struct EventListView: View {
     VStack(spacing: 0) {
       HeaderView(onBack: onBack)
       contentArea
+      listHeader
       importButton
     }
     .frame(
@@ -108,7 +109,6 @@ private struct HeaderView: View {
 private extension EventListView {
   var contentArea: some View {
     VStack(spacing: DesignSystem.Dimensions.listContentSpacing) {
-      listHeader
       eventListView
     }
     .padding(.horizontal, DesignSystem.Spacing.listContentPadding)
@@ -130,6 +130,7 @@ private extension EventListView {
       }
     }
     .frame(height: DesignSystem.Dimensions.listHeaderHeight)
+    .padding(.horizontal, DesignSystem.Spacing.listContentPadding)
   }
   
   var eventListView: some View {
@@ -224,12 +225,12 @@ private extension EventListView {
     }
   }
   
-  func deleteEvent(_ event: CalendarEvent) {
+  func deleteEvent(_ eventToDelete: CalendarEvent) {
     withAnimation(.easeInOut(duration: 0.3)) {
-      displayEvents.removeAll { event in
-        event.eventIdentifier == event.eventIdentifier
+      displayEvents.removeAll { existingEvent in
+        existingEvent.eventIdentifier == eventToDelete.eventIdentifier
       }
-      selectedEventIds.remove(event.eventIdentifier)
+      selectedEventIds.remove(eventToDelete.eventIdentifier)
       
       // 显示删除成功提示
       toastType = .success

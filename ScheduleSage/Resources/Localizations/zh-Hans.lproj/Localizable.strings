@@ -93,7 +93,7 @@
 // Manual Schedule Input
 "manual_input_title" = "手动创建";
 "manual_input_subtitle" = "输入日程内容，支持自然语言识别";
-"recognize_button" = "识别";
+"recognize_button" = "开始识别";
 "schedule_input_placeholder" = "请输入日程内容";
 
 // LLM Errors
@@ -170,10 +170,10 @@
 "screenshot.failure.message" = "请检查窗口状态";
 
 // Onboarding
-"onboarding.welcome.title" = "欢迎使用日程助手";
+"onboarding.welcome.title" = "欢迎使用ScheduleSage";
 "onboarding.welcome.description" = "化繁为简的日程管理专家，让您的时间安排更轻松自如";
 "onboarding.features.title" = "便捷创建日程";
-"onboarding.features.description" = "复制文本、拍照识别、手动输入，多种方式随心创建日程";
+"onboarding.features.description" = "识别网页、复制文本、拍照识别、手动输入，多种方式随心创建日程";
 "onboarding.calendar.title" = "日历权限";
 "onboarding.calendar.description" = "授权日历访问，即刻开启智能日程管理之旅";
 "onboarding.notification.title" = "通知提醒";
