@@ -528,7 +528,6 @@ private struct HelpCenterButton: View {
         isPressed = false
       }
     })
-    .help(NSLocalizedString("help_center_button_hint", comment: ""))
   }
 }
 

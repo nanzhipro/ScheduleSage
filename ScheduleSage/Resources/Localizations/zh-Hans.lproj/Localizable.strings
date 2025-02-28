@@ -303,3 +303,5 @@
 "subscribed_hint" = "您已是高级会员";
 
 "upgrade_button_hint" = "升级到高级版以解锁所有功能";
+
+"settings_user_agreement" = "用户协议";

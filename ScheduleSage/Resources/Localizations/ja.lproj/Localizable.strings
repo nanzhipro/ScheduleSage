@@ -165,6 +165,7 @@
 "settings_terms_of_service" = "利用規約";
 "settings_faq" = "よくある質問";
 "settings_feedback" = "要望を送る";
+"settings_user_agreement" = "利用規約";
 
 // Screenshot
 "screenshot.success.title" = "スクリーンショット完了";

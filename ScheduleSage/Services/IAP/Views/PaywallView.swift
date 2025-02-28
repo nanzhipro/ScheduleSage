@@ -224,7 +224,7 @@ struct PaywallView: View {
     }
     
     private func openTerms() {
-        if let url = URL(string: AppConstants.URLs.faq) {
+        if let url = URL(string: AppConstants.URLs.userAgreement) {
             NSWorkspace.shared.open(url)
         }
     }

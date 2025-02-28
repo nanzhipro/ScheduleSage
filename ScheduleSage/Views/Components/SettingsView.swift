@@ -355,6 +355,7 @@ private extension ThemeType {
 private enum AboutLink: String, CaseIterable, Identifiable {
   case feedback
   case privacyPolicy
+  case userAgreement
   case faq
   
   var id: String { rawValue }
@@ -363,6 +364,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
     switch self {
     case .feedback: return "settings_feedback"
     case .privacyPolicy: return "settings_privacy_policy"
+    case .userAgreement: return "settings_user_agreement"
     case .faq: return "settings_faq"
     }
   }
@@ -371,6 +373,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
     switch self {
     case .feedback: return "megaphone.fill"
     case .privacyPolicy: return "hand.raised.fill"
+    case .userAgreement: return "doc.text.fill"
     case .faq: return "questionmark.circle.fill"
     }
   }
@@ -379,6 +382,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
     switch self {
     case .feedback: return AppConstants.URLs.feedback
     case .privacyPolicy: return AppConstants.URLs.privacyPolicy
+    case .userAgreement: return AppConstants.URLs.userAgreement
     case .faq: return AppConstants.URLs.faq
     }
   }
