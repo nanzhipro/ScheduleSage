@@ -65,6 +65,24 @@ struct PaywallView: View {
                         }
                         .padding(.horizontal, DesignSystem.Spacing.medium)
                         .padding(.bottom, DesignSystem.Spacing.large)
+                        
+                        // 订阅说明文本
+                        Text(LocalizedStringKey("paywall.subscription.terms"))
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.tertiaryText)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.horizontal, DesignSystem.Spacing.large)
+                            .padding(.bottom, DesignSystem.Spacing.medium)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .environment(\.openURL, OpenURLAction { url in
+                                if url.scheme == "cancel" {
+                                    openCancelSubscription()
+                                    return .handled
+                                }
+                                return .systemAction
+                            })
+                            .tint(DesignSystem.Colors.link)
                     }
                     .padding(.horizontal, DesignSystem.Spacing.medium)
                 }
@@ -107,7 +125,8 @@ struct PaywallView: View {
     
     private var headerSection: some View {
         VStack(spacing: DesignSystem.Spacing.small) {
-            Image(systemName: "star.circle.fill")
+            Image(systemName: "sparkles")
+                .foregroundColor(.yellow)
                 .font(.system(size: 48))
                 .foregroundColor(DesignSystem.Colors.primary)
                 .padding(.bottom, DesignSystem.Spacing.small)
@@ -249,6 +268,12 @@ struct PaywallView: View {
             NSWorkspace.shared.open(url)
         }
     }
+    
+    private func openCancelSubscription() {
+        if let url = URL(string: AppConstants.URLs.cancelSubscription) {
+            NSWorkspace.shared.open(url)
+        }
+    }
 }
 
 // MARK: - Subscription Option View
@@ -386,7 +411,7 @@ struct ShimmeringEffect: ViewModifier {
 // MARK: - Paywall Dimensions
 private enum PaywallDimensions {
     static let containerWidth: CGFloat = 440
-    static let containerHeight: CGFloat = 520 // 调整为 AddScheduleView 高度的 80%
+    static let containerHeight: CGFloat = 540
     static let buttonHeight: CGFloat = 44
     static let buttonCornerRadius: CGFloat = 8
 }

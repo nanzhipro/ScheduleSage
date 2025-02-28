@@ -332,8 +332,8 @@ private struct TitleSection: View {
             
             // 副标题
             Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
-                .font(.system(size: 16, weight: .medium, design: .rounded))
-                .foregroundColor(.black)
+                .font(.system(size: 16, weight: .regular, design: .rounded))
+                .foregroundColor(colorScheme == .dark ? .white : .black)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .opacity(isHovered ? 0.9 : 0.8)
@@ -505,12 +505,16 @@ private struct HelpCenterButton: View {
         )
         .background(
           Circle()
-            .fill(colorScheme == .dark ? .black : .white)
+            .fill(colorScheme == .dark ? 
+                Color.black.opacity(0.3) : 
+                Color.white.opacity(0.8))
             .shadow(
-              color: DesignSystem.Colors.primary.opacity(isHovered ? 0.3 : 0.2),
+              color: colorScheme == .dark ?
+                DesignSystem.Colors.primary.opacity(isHovered ? 0.4 : 0.3) :
+                DesignSystem.Colors.primary.opacity(isHovered ? 0.3 : 0.2),
               radius: isHovered ? 8 : 6,
               x: 0,
-              y: 2
+              y: colorScheme == .dark ? 1 : 2
             )
         )
         .scaleEffect(isPressed ? 0.95 : (isHovered ? 1.05 : 1.0))

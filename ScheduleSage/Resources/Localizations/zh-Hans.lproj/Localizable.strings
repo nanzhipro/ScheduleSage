@@ -305,3 +305,6 @@
 "upgrade_button_hint" = "升级到高级版以解锁所有功能";
 
 "settings_user_agreement" = "用户协议";
+
+/* Paywall Subscription Terms */
+"paywall.subscription.terms" = "试用期结束后，如果您未[取消订阅](https://support.apple.com/zh-cn/118428)，系统将通过您的 Apple ID 自动续订并收取每月或每年的费用。您可以随时在 Apple ID 账户设置中管理或[取消订阅](https://support.apple.com/zh-cn/118428)。";
