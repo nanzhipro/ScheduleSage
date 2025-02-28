@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// MARK: - Event Edit View
+// MARK: - Event Edit View | 事件编辑视图
 struct EventEditView: View {
   // MARK: - Properties
   let event: CalendarEvent

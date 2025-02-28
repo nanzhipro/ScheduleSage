@@ -9,7 +9,7 @@ import AppKit
 import SwiftUI
 import RevenueCat
 
-/// 添加日程主页面
+/// 添加日程主页面 | 首页
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
   @EnvironmentObject private var iapService: IAPService
@@ -269,16 +269,7 @@ private struct CalendarIcon: View {
                 Image(systemName: "calendar.badge.plus")
                     .font(.system(size: Design.Size.iconSize, weight: isPremium ? .medium : .regular))
                     .foregroundStyle(
-                        isPremium ?
-                        LinearGradient(
-                            colors: [
-                                .yellow,
-                                .orange.opacity(0.8)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ) :
-                        LinearGradient(
+                      LinearGradient(
                             colors: [
                                 DesignSystem.Colors.primary,
                                 DesignSystem.Colors.primary
@@ -332,10 +323,6 @@ private struct AddScheduleContent: View {
   
   var body: some View {
     VStack(spacing: 0) {
-      // 顶部空间，确保图标不会紧贴边缘
-      Spacer()
-        .frame(height: Design.Spacing.dragAreaTopPadding)
-      
       CalendarIcon(animation: viewModel.dragAnimation)
         .padding(.bottom, Design.Spacing.iconToTitle)
       

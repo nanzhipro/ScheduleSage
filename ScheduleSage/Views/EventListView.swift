@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 事件列表视图 | 日程列表
 struct EventListView: View {
   // MARK: - Properties
   let events: [CalendarEvent]
