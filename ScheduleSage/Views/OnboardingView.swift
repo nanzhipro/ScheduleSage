@@ -152,8 +152,8 @@ struct OnboardingView: View {
                 // 渐变背景
                 LinearGradient(
                     colors: [
+                        DesignSystem.Colors.primary.opacity(0.2),
                         DesignSystem.Colors.primary.opacity(0.1),
-                        DesignSystem.Colors.primary.opacity(0.05),
                         DesignSystem.Colors.background
                     ],
                     startPoint: .top,

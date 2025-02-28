@@ -104,3 +104,16 @@ public extension OnboardingPage {
         ]
     }
 }
+
+public extension OnboardingPage {
+    var iconColor: Color {
+        switch iconName {
+        case "sparkles":
+            return .yellow
+        case "calendar":
+            return .red
+        default:
+            return DesignSystem.Colors.primary
+        }
+    }
+}

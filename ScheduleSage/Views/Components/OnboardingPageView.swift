@@ -43,7 +43,7 @@ struct OnboardingPageView: View {
             .symbolRenderingMode(.hierarchical)
             .frame(width: DesignSystem.Dimensions.emptyStateIconSize, 
                    height: DesignSystem.Dimensions.emptyStateIconSize)
-            .foregroundStyle(DesignSystem.Colors.primary)
+            .foregroundStyle(page.iconColor)
             .symbolEffect(.bounce, value: isAnimating)
             .transition(.scale.combined(with: .opacity))
             .contentShape(Rectangle())
