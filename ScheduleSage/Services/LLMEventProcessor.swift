@@ -27,6 +27,8 @@ public enum LLMEventProcessorError: LocalizedError {
     case parsingFailed
     /// 缺少必需字段
     case missingRequiredFields([String])
+    /// 需要会员权限
+    case requiresPremium
     
     public var errorDescription: String? {
         switch self {
@@ -41,6 +43,8 @@ public enum LLMEventProcessorError: LocalizedError {
                 format: NSLocalizedString("llm_missing_fields", comment: ""),
                 fields.joined(separator: ", ")
             )
+        case .requiresPremium:
+            return NSLocalizedString("premium_required", comment: "")
         }
     }
 }
@@ -83,6 +87,12 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
     /// - Complexity: O(n), n 为输入文本的长度
     public func processContent(_ content: String) async throws -> [CalendarEvent] {
         logger.info("Processing content with LLM")
+        
+        // 检查会员权限
+        guard await IAPService.shared.isPremium else {
+            logger.info("Premium required for LLM processing")
+            throw LLMEventProcessorError.requiresPremium
+        }
         
         let calendarNames = await fetchAvailableCalendarNames()
         let prompt = try await buildPrompt(forContent: content, withCalendars: calendarNames)

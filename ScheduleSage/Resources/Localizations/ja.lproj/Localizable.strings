@@ -321,3 +321,5 @@
 
 /* Paywall Subscription Terms */
 "paywall.subscription.terms" = "無料トライアル期間終了後、[解約](https://support.apple.com/zh-cn/118428)されない場合は、Apple IDを通じて月額または年額料金が自動的に請求されます。サブスクリプションはApple IDアカウント設定でいつでも管理・[解約](https://support.apple.com/zh-cn/118428)できます。";
+
+"premium_required" = "この機能はプレミアム会員限定です。アップグレードして全ての機能をご利用ください。";

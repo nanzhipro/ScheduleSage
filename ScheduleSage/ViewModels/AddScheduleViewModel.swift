@@ -23,6 +23,7 @@ class AddScheduleViewModel: ObservableObject {
     @Published var isKeyboardMonitorEnabled = true
     @Published var showImagePicker = false
     @Published var feedbackButtonScale: CGFloat = 1.0
+    @Published var showPaywall = false
     
     // MARK: - Import Status
     enum ImportStatus: Equatable {
@@ -345,13 +346,12 @@ extension AddScheduleViewModel {
             }
             
             logger.info("LLM processing completed successfully with \(events.count) events")
-        } catch {
+        } catch let error as LLMEventProcessorError {
             logger.error("LLM processing failed: \(error.localizedDescription)")
-            await MainActor.run {
-                self.isLLMProcessing = false
-                LoadingManager.shared.hide()
-                showToastMessage(error.localizedDescription)
-            }
+            await handleError(error)
+        } catch {
+            logger.error("Unexpected error: \(error.localizedDescription)")
+            await handleError(error)
         }
     }
     
@@ -373,7 +373,13 @@ extension AddScheduleViewModel {
             isLLMProcessing = false
             LoadingManager.shared.hide()
             canImport = false
-            showToastMessage(error.localizedDescription)
+            
+            if let llmError = error as? LLMEventProcessorError,
+               case .requiresPremium = llmError {
+                showPaywall = true
+            } else {
+                showToastMessage(error.localizedDescription)
+            }
         }
     }
 }
@@ -597,4 +603,21 @@ extension AddScheduleViewModel {
 // MARK: - Notification Name Extension
 extension Notification.Name {
     static let commandVPressed = Notification.Name("commandVPressed")
+}
+
+// MARK: - Premium Features
+extension AddScheduleViewModel {
+    /// 处理付费功能
+    func proceedWithProFeature() {
+        // 重置状态
+        showPaywall = false
+        
+        // 继续之前的操作
+        Task {
+            await MainActor.run {
+                LoadingManager.shared.show(.processing)
+            }
+            // 其他处理逻辑...
+        }
+    }
 }

@@ -13,7 +13,6 @@ import RevenueCat
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
   @EnvironmentObject private var iapService: IAPService
-  @State private var showPaywall = false
   @State private var showSettings = false
   @State private var needsRefresh = false
   @Environment(\.colorScheme) private var colorScheme
@@ -43,7 +42,7 @@ struct AddScheduleView: View {
       }
       
       VStack(spacing: 0) {
-        AddScheduleView_Impl(viewModel: viewModel, showPaywall: $showPaywall)
+        AddScheduleView_Impl(viewModel: viewModel)
           .withLoading()
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -59,9 +58,9 @@ struct AddScheduleView: View {
         .presentationDragIndicator(.visible)
         .presentationBackgroundInteraction(.enabled)
       }
-      .sheet(isPresented: $showPaywall) {
+      .sheet(isPresented: $viewModel.showPaywall) {
         PaywallView {
-          proceedWithProFeature()
+          viewModel.proceedWithProFeature()
         }
       }
       // 仅在旧版 macOS 上使用 sheet
@@ -88,7 +87,7 @@ struct AddScheduleView: View {
     .toolbar {
       ToolbarItemGroup(placement: .automatic) {
         Spacer()
-        UpgradePremiumButton(showPaywall: $showPaywall)
+        UpgradePremiumButton(viewModel: viewModel)
         Button(action: {
           if isModernMacOS {
             openSettings()
@@ -151,7 +150,6 @@ struct AddScheduleView: View {
 private struct AddScheduleView_Impl: View {
   @ObservedObject var viewModel: AddScheduleViewModel
   @Environment(\.colorScheme) var colorScheme
-  @Binding var showPaywall: Bool
   
   var body: some View {
     ZStack {
@@ -170,7 +168,7 @@ private struct AddScheduleView_Impl: View {
             Spacer()
               .frame(height: Design.Spacing.windowTopPadding)
             
-            AddScheduleContent(viewModel: viewModel, showPaywall: $showPaywall)
+            AddScheduleContent(viewModel: viewModel)
               .padding(Design.Spacing.contentPadding)
             
             Spacer()
@@ -279,7 +277,6 @@ private struct CalendarIcon: View {
 // MARK: - Add Schedule Content
 private struct AddScheduleContent: View {
   @ObservedObject var viewModel: AddScheduleViewModel
-  @Binding var showPaywall: Bool
   
   var body: some View {
     VStack(spacing: 0) {
@@ -293,7 +290,7 @@ private struct AddScheduleContent: View {
       TitleSection()
         .padding(.bottom, Design.Spacing.titleToActions)
       
-      AddMethodSection(viewModel: viewModel, showPaywall: $showPaywall)
+      AddMethodSection(viewModel: viewModel)
         .padding(.horizontal, Design.Spacing.methodSectionHorizontal)
       
       Spacer(minLength: 0)
@@ -348,7 +345,6 @@ private struct TitleSection: View {
 private struct AddMethodSection: View {
     @ObservedObject var viewModel: AddScheduleViewModel
     @EnvironmentObject private var iapService: IAPService
-    @Binding var showPaywall: Bool
     
     var body: some View {
         HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
@@ -356,7 +352,6 @@ private struct AddMethodSection: View {
                 iconName: "doc.text.fill",
                 title: NSLocalizedString("clipboard_import", comment: ""),
                 hintKey: "hint.clipboard_import",
-                showPaywall: $showPaywall,
                 action: viewModel.checkClipboardContent
             )
             
@@ -364,7 +359,6 @@ private struct AddMethodSection: View {
                 iconName: "pencil.and.list.clipboard",
                 title: NSLocalizedString("manual_input", comment: ""),
                 hintKey: "hint.manual_input",
-                showPaywall: $showPaywall,
                 action: { viewModel.showManualInputSheet = true }
             )
             .sheet(isPresented: $viewModel.showManualInputSheet) {
@@ -383,7 +377,6 @@ private struct AddMethodSection: View {
                 iconName: "photo.fill",
                 title: NSLocalizedString("image_import", comment: ""),
                 hintKey: "hint.image_import",
-                showPaywall: $showPaywall,
                 action: viewModel.handleImageSelection
             )
         }
@@ -448,7 +441,7 @@ private struct CloseXButton: View {
 
 // MARK: - Upgrade Premium Button
 private struct UpgradePremiumButton: View {
-  @Binding var showPaywall: Bool
+  @ObservedObject var viewModel: AddScheduleViewModel
   @EnvironmentObject private var iapService: IAPService
   
   private var buttonText: LocalizedStringKey {
@@ -457,7 +450,8 @@ private struct UpgradePremiumButton: View {
   
   var body: some View {
     Button(action: {
-      showPaywall = true
+      // 无论是否是会员，都显示 Paywall
+      viewModel.showPaywall = true
     }) {
       HStack(spacing: 4) {
         Image(systemName: "sparkles")

@@ -322,3 +322,5 @@
 
 /* Paywall Subscription Terms */
 "paywall.subscription.terms" = "After the free trial ends, if you don't [cancel](https://support.apple.com/zh-cn/118428), your subscription will automatically renew and charge monthly or yearly through your Apple ID. You can manage and [cancel](https://support.apple.com/zh-cn/118428) your subscription anytime in your Apple ID account settings.";
+
+"premium_required" = "This feature requires Premium subscription. Upgrade to unlock all features.";

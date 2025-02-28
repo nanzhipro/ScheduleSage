@@ -14,7 +14,6 @@ struct AddMethodButton: View {
   let title: String
   let hintKey: String
   let action: (() -> Void)?
-  let showPaywall: Binding<Bool>
   
   @State private var isHovered = false
   @State private var isPressed = false
@@ -25,13 +24,11 @@ struct AddMethodButton: View {
     iconName: String,
     title: String,
     hintKey: String,
-    showPaywall: Binding<Bool>,
     action: (() -> Void)? = nil
   ) {
     self.iconName = iconName
     self.title = title
     self.hintKey = hintKey
-    self.showPaywall = showPaywall
     self.action = action
   }
   
@@ -105,18 +102,8 @@ struct AddMethodButton: View {
         isPressed = false
       }
       
-      Task {
-        // 检查是否需要显示付费墙
-        if !iapService.isPremium {
-          // 如果没有订阅信息，先加载
-          await iapService.lazyLoadOfferings()
-          showPaywall.wrappedValue = true
-          return
-        }
-        
-        // 如果是高级用户，直接执行操作
-        action?()
-      }
+      // 直接执行操作
+      action?()
     }
   }
 }
@@ -127,8 +114,7 @@ struct AddMethodButton_Previews: PreviewProvider {
     AddMethodButton(
       iconName: "doc.text.fill",
       title: "从剪贴板导入",
-      hintKey: "hint.clipboard_import",
-      showPaywall: .constant(false)
+      hintKey: "hint.clipboard_import"
     )
     .padding()
     .previewLayout(.sizeThatFits)
