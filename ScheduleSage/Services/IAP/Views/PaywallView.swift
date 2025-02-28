@@ -32,17 +32,19 @@ struct PaywallView: View {
                         VStack(spacing: DesignSystem.Spacing.medium) {
                             purchaseButton
                             
-                            // 恢复购买按钮
-                            Button(action: handleRestore) {
-                                Text(NSLocalizedString("paywall.restore_purchases", comment: ""))
-                                    .font(DesignSystem.Typography.bodyRegular)
-                                    .foregroundColor(DesignSystem.Colors.link)
-                            }
-                            .buttonStyle(.plain)
-                            .withHoverEffect(scale: 1.1, brightness: 0.1)
-                            
-                            // 服务条款和隐私政策按钮组
+                            // 恢复购买、服务条款和隐私政策按钮组
                             HStack(spacing: DesignSystem.Spacing.medium) {
+                                Button(action: handleRestore) {
+                                    Text(NSLocalizedString("paywall.restore_purchases", comment: ""))
+                                        .font(DesignSystem.Typography.bodyRegular)
+                                        .foregroundColor(DesignSystem.Colors.link)
+                                }
+                                .buttonStyle(.plain)
+                                .withHoverEffect(scale: 1.1, brightness: 0.1)
+                                
+                                Text("•")
+                                    .foregroundColor(DesignSystem.Colors.tertiaryText)
+                                
                                 Button(action: openTerms) {
                                     Text(NSLocalizedString("paywall.terms", comment: ""))
                                         .font(DesignSystem.Typography.bodyRegular)
@@ -62,6 +64,7 @@ struct PaywallView: View {
                                 .buttonStyle(.plain)
                                 .withHoverEffect(scale: 1.1, brightness: 0.1)
                             }
+                            .padding(.horizontal, DesignSystem.Spacing.medium)
                         }
                         .padding(.horizontal, DesignSystem.Spacing.medium)
                         .padding(.bottom, DesignSystem.Spacing.large)
@@ -73,7 +76,7 @@ struct PaywallView: View {
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.horizontal, DesignSystem.Spacing.large)
-                            .padding(.bottom, DesignSystem.Spacing.medium)
+                            .padding(.bottom, 16)
                             .frame(maxWidth: .infinity, alignment: .center)
                             .environment(\.openURL, OpenURLAction { url in
                                 if url.scheme == "cancel" {

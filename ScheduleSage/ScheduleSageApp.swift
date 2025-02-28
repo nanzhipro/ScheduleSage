@@ -72,6 +72,14 @@ struct ScheduleSageApp: App {
       
       // 确保窗口居中显示
       window.center()
+      
+      // 如果是自动外观模式，更新当前外观
+      if let appearanceMode = UserDefaults.standard.string(forKey: "appearanceMode"),
+         appearanceMode == AppearanceMode.auto.rawValue {
+        if let isDark = NSApp.effectiveAppearance.isDarkMode {
+          ThemeManager.shared.setDarkMode(isDark)
+        }
+      }
     }
 
     Settings {

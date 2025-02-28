@@ -24,7 +24,15 @@ public final class ThemeManager: ObservableObject {
         // 初始化外观
         self.currentAppearance = NSAppearance(named: isDarkMode ? .darkAqua : .aqua) ?? .init(named: .aqua)!
         
-        // 设置观察者
+        // 设置观察者监听系统外观变化
+        DistributedNotificationCenter.default().addObserver(
+            self,
+            selector: #selector(handleAppearanceChange),
+            name: Notification.Name("AppleInterfaceThemeChangedNotification"),
+            object: nil
+        )
+        
+        // 同时监听应用程序外观变化
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleAppearanceChange),
@@ -65,9 +73,19 @@ public final class ThemeManager: ObservableObject {
     
     /// 处理系统外观变化
     @objc private func handleAppearanceChange() {
-        let appearance = NSApplication.shared.effectiveAppearance
-        currentAppearance = appearance
-        isDarkMode = appearance.name == .darkAqua
+        DispatchQueue.main.async {
+            let appearance = NSApp.effectiveAppearance
+            self.currentAppearance = appearance
+            let newIsDarkMode = appearance.isDarkMode ?? false
+            
+            // 只在值发生变化时更新，避免不必要的通知
+            if self.isDarkMode != newIsDarkMode {
+                self.isDarkMode = newIsDarkMode
+                
+                // 发送主题变更通知
+                NotificationCenter.default.post(name: .themeDidChange, object: nil)
+            }
+        }
     }
     
     deinit {

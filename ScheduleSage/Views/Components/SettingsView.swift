@@ -89,22 +89,24 @@ struct SettingsView: View {
       }
     }
     
-    // 监听系统外观变化
-    if mode == .auto {
-      observeSystemAppearanceChanges()
-    }
+    // 发送主题变更通知
+    NotificationCenter.default.post(name: .themeDidChange, object: nil)
   }
   
   private func observeSystemAppearanceChanges() {
+    // 移除旧的观察者
+    DistributedNotificationCenter.default().removeObserver(self)
+    
+    // 添加新的观察者
     DistributedNotificationCenter.default().addObserver(
-      forName: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
+      forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
       object: nil,
       queue: .main
     ) { _ in
-      if AppearanceMode(rawValue: appearanceMode) == .auto,
-         let isDark = NSApp.effectiveAppearance.isDarkMode {
-        themeManager.setDarkMode(isDark)
-      }
+      guard AppearanceMode(rawValue: self.appearanceMode) == .auto,
+            let isDark = NSApp.effectiveAppearance.isDarkMode else { return }
+      
+      self.themeManager.setDarkMode(isDark)
     }
   }
 }
@@ -395,7 +397,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
 }
 
 // MARK: - NSAppearance Extension
-private extension NSAppearance {
+extension NSAppearance {
   var isDarkMode: Bool? {
     switch self.name {
     case .aqua:
