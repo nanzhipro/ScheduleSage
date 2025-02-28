@@ -189,6 +189,13 @@ private struct AddScheduleView_Impl: View {
               .padding(.vertical, 16)
           }
           .frame(maxWidth: .infinity)
+          
+          // 帮助中心按钮靠右对齐
+          HStack {
+            Spacer()
+            HelpCenterButton()
+              .padding(.trailing, 20)
+          }
         }
         .frame(maxWidth: .infinity)
       }
@@ -462,5 +469,93 @@ private struct UpgradePremiumButton: View {
     .buttonStyle(.plain)
     .withHoverEffect(scale: 1.1, brightness: 0)
     .help(NSLocalizedString(iapService.isPremium ? "subscribed_hint" : "upgrade_button_hint", comment: ""))
+  }
+}
+
+// MARK: - Help Center Button
+private struct HelpCenterButton: View {
+  @Environment(\.colorScheme) private var colorScheme
+  @State private var isHovered = false
+  @State private var isPressed = false
+  
+  var body: some View {
+    Button {
+      // 添加触感反馈
+      NSHapticFeedbackManager.defaultPerformer.perform(.generic, performanceTime: .default)
+      
+      // 打开 FAQ 页面
+      if let url = URL(string: AppConstants.URLs.faq) {
+        NSWorkspace.shared.open(url)
+      }
+    } label: {
+      Image(systemName: "questionmark.circle.fill")
+        .font(.system(size: 20))  // 调整大小以匹配文本
+        .foregroundStyle(
+          LinearGradient(
+            colors: [
+              DesignSystem.Colors.primary,
+              DesignSystem.Colors.primary.opacity(0.8)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+          )
+        )
+        .background(
+          Circle()
+            .fill(colorScheme == .dark ? .black : .white)
+            .shadow(
+              color: DesignSystem.Colors.primary.opacity(isHovered ? 0.3 : 0.2),
+              radius: isHovered ? 8 : 6,
+              x: 0,
+              y: 2
+            )
+        )
+        .scaleEffect(isPressed ? 0.95 : (isHovered ? 1.05 : 1.0))
+        .padding(.vertical, 16)  // 添加垂直内边距以对齐文本
+    }
+    .buttonStyle(.plain)
+    .onHover { hovering in
+      withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+        isHovered = hovering
+      }
+    }
+    .pressEvents(onPress: {
+      withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+        isPressed = true
+      }
+    }, onRelease: {
+      withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+        isPressed = false
+      }
+    })
+    .help(NSLocalizedString("help_center_button_hint", comment: ""))
+  }
+}
+
+// MARK: - Press Event Modifier
+private struct PressEventsModifier: ViewModifier {
+  var onPress: () -> Void
+  var onRelease: () -> Void
+  
+  func body(content: Content) -> some View {
+    content
+      .simultaneousGesture(
+        DragGesture(minimumDistance: 0)
+          .onChanged { _ in
+            onPress()
+          }
+          .onEnded { _ in
+            onRelease()
+          }
+      )
+  }
+}
+
+extension View {
+  fileprivate func pressEvents(
+    onPress: @escaping () -> Void,
+    onRelease: @escaping () -> Void
+  ) -> some View {
+    modifier(PressEventsModifier(onPress: onPress, onRelease: onRelease))
   }
 }

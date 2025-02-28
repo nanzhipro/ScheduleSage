@@ -201,8 +201,8 @@
 // Powered by
 "powered_by_tencent" = "AI 智能驱动";
 
-"settings_feedback" = "提需求给我";
-"feedback_button_hint" = "帮助我们改进产品";
+"settings_feedback" = "反馈建议";
+"feedback_button_hint" = "您的建议能让ScheduleSage变得更好\n产品成功有您一份";
 
 // Method Button Hints
 "hint.clipboard_import" = "从剪贴板文本或网页链接创建日程";
