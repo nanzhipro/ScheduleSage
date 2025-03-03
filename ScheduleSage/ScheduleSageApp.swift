@@ -14,9 +14,6 @@ struct ScheduleSageApp: App {
   @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
   @StateObject private var iapService = IAPService.shared
   @StateObject private var authViewModel = AuthenticationViewModel.shared
-  
-  // 跟踪主窗口是否已创建
-  @State private var hasCreatedMainWindow = false
 
   var body: some Scene {
     WindowGroup {
@@ -32,16 +29,6 @@ struct ScheduleSageApp: App {
             )
             .onAppear {
               // 确保只创建一个主窗口
-              if !hasCreatedMainWindow {
-                hasCreatedMainWindow = true
-              } else {
-                // 如果已经创建过主窗口，关闭新创建的窗口
-                DispatchQueue.main.async {
-                  if let window = NSApp.windows.last {
-                    window.close()
-                  }
-                }
-              }
             }
         }
       }
