@@ -22,6 +22,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     
     // MARK: - Lifecycle
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // 打印应用启动信息
+        logAppLaunchInfo()
+        
         logger.info("[App] Application did finish launching")
         
         // 配置窗口行为
@@ -188,6 +191,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defaults.set(defaultTheme.rawValue, forKey: themeKey)
             DesignSystem.switchTheme(to: defaultTheme)
         }
+    }
+    
+    // MARK: - Logging
+    private func logAppLaunchInfo() {
+        let processInfo = ProcessInfo.processInfo
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let launchTime = dateFormatter.string(from: Date())
+        
+        // 应用基本信息
+        logger.info("[App Launch Info] ==========================================")
+        logger.info("App Information:")
+        logger.info("  Name: \(AppInfo.name)")
+        logger.info("  Version: \(AppInfo.version) (\(AppInfo.buildNumber))")
+        logger.info("  Bundle ID: \(AppInfo.bundleIdentifier)")
+        logger.info("  Launch Time: \(launchTime)")
+        logger.info("")
+        
+        // 系统信息
+        logger.info("System Information:")
+        logger.info("  macOS Version: \(processInfo.operatingSystemVersionString)")
+        let memoryGB = Double(processInfo.physicalMemory) / 1024.0 / 1024.0 / 1024.0
+        logger.info("  Physical Memory: \(String(format: "%.2f", memoryGB))GB")
+        logger.info("  Processor Count: \(processInfo.processorCount)")
+        logger.info("  Active Processor Count: \(processInfo.activeProcessorCount)")
+        logger.info("")
+        
+        // 环境信息
+        logger.info("Environment Information:")
+        logger.info("  Debug Mode: \(processInfo.environment["DEBUG"] != nil ? "Yes" : "No")")
+        logger.info("  Development: \(AppInfo.isDebug ? "Yes" : "No")")
+        logger.info("=====================================================")
     }
 }
 

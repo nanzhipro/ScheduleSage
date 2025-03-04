@@ -102,8 +102,9 @@ class IAPService: NSObject, ObservableObject {
         
         do {
             try await initializeCustomerInfo()
+            // 在初始化时调用一次 restorePurchases，确保恢复之前的购买状态
             let restored = try await restorePurchases()
-            logger.notice("[IAP] Service initialization completed - Premium status: \(restored)")
+            logger.info("[IAP] Service initialization completed - Premium status: \(restored)")
         } catch {
             logger.error("[IAP] Service initialization failed: \(error.localizedDescription)")
             throw error
@@ -321,11 +322,17 @@ class IAPService: NSObject, ObservableObject {
     /// - Returns: 恢复结果，包含是否有活跃订阅
     /// - Throws: IAPError 类型的错误（仅在网络错误等情况下抛出）
     func restorePurchases() async throws -> Bool {
+        logger.info("[IAP] Starting purchase restoration")
         do {
             let customerInfo = try await Purchases.shared.restorePurchases()
+            logger.debug("[IAP] Purchase restoration completed, updating customer info")
             updateCustomerInfo(customerInfo)
-            return isPremium
+            
+            let hasActiveSubscription = isPremium
+            logger.info("[IAP] Purchase restoration result - Has active subscription: \(hasActiveSubscription)")
+            return hasActiveSubscription
         } catch {
+            logger.error("[IAP] Purchase restoration failed: \(error.localizedDescription)")
             updateError(.restoreFailed)
             throw error
         }
@@ -447,7 +454,6 @@ class IAPService: NSObject, ObservableObject {
     
     private func initializeCustomerInfo() async throws {
         try await refreshCustomerInfo()
-        _ = try await restorePurchases()
     }
     
     // MARK: - Public Methods

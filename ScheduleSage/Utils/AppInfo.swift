@@ -52,4 +52,13 @@ public enum AppInfo {
     public static var currentLanguage: String {
         Bundle.main.preferredLocalizations.first ?? "en"
     }
+    
+    /// 返回应用是否在调试模式下运行
+    public static var isDebug: Bool {
+        #if DEBUG
+            return true
+        #else
+            return false
+        #endif
+    }
 }

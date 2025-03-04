@@ -234,19 +234,16 @@ struct PaywallView: View {
     
     private func handleRestore() {
         Task {
-            if iapService.isPremium {
-                toastMessage = NSLocalizedString("paywall.restore.already_subscribed", comment: "")
+            do {
+                let hasActiveSubscription = try await iapService.restorePurchases()
+                toastMessage = hasActiveSubscription ?
+                    NSLocalizedString("paywall.restore.success", comment: "") :
+                    NSLocalizedString("paywall.restore.no_subscription", comment: "")
                 showToast = true
-            } else {
-                do {
-                    let hasActiveSubscription = try await iapService.restorePurchases()
-                    toastMessage = hasActiveSubscription ?
-                        NSLocalizedString("paywall.restore.success", comment: "") :
-                        NSLocalizedString("paywall.restore.no_subscription", comment: "")
-                    showToast = true
-                } catch {
-                    print("Restore failed: \(error)")
-                }
+            } catch {
+                toastMessage = NSLocalizedString("paywall.restore.failed", comment: "")
+                showToast = true
+                print("Restore failed: \(error)")
             }
         }
     }
