@@ -61,4 +61,44 @@ public enum AppInfo {
             return false
         #endif
     }
+    
+    /// 返回应用基本信息字符串
+    public static var appInformation: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let launchTime = dateFormatter.string(from: Date())
+        
+        return """
+        App Information:
+          Name: \(name)
+          Version: \(version) (\(buildNumber))
+          Bundle ID: \(bundleIdentifier)
+          Launch Time: \(launchTime)
+        """
+    }
+    
+    /// 返回系统信息字符串
+    public static var systemInformation: String {
+        let processInfo = ProcessInfo.processInfo
+        let memoryGB = Double(processInfo.physicalMemory) / 1024.0 / 1024.0 / 1024.0
+        
+        return """
+        System Information:
+          macOS Version: \(processInfo.operatingSystemVersionString)
+          Physical Memory: \(String(format: "%.2f", memoryGB))GB
+          Processor Count: \(processInfo.processorCount)
+          Active Processor Count: \(processInfo.activeProcessorCount)
+        """
+    }
+    
+    /// 返回环境信息字符串
+    public static var environmentInformation: String {
+        let processInfo = ProcessInfo.processInfo
+        
+        return """
+        Environment Information:
+          Debug Mode: \(processInfo.environment["DEBUG"] != nil ? "Yes" : "No")
+          Development: \(isDebug ? "Yes" : "No")
+        """
+    }
 }
