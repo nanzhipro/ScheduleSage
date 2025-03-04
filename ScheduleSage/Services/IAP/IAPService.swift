@@ -60,31 +60,56 @@ class IAPService: NSObject, ObservableObject {
     /// 初始化状态
     @Published private(set) var isInitialized = false
     
-    // MARK: - 初始化
+    @Published private(set) var isConfigured: Bool = false
     
+    private let configuredSubject = PassthroughSubject<Void, Never>()
+    
+    // MARK: - 初始化
     private override init() {
         super.init()
         logger.debug("[IAP] Service instance created")
+        // 初始化时只配置一次
+        configureSDK()
     }
     
-    /// 初始化配置 RevenueCat SDK 和相关功能
-    func configRevenueCatSDK() async throws {
-        // 配置 SDK
-        configureSDK()
+    /// 配置 RevenueCat SDK
+    private func configureSDK() {
+        logger.info("[IAP] Configuring RevenueCat SDK with API key: \(String(IAPConfiguration.apiKey.prefix(6)))...")
         
+        // 如果已经配置过，直接返回
+        guard !isConfigured else {
+            logger.debug("[IAP] SDK already configured, skipping configuration")
+            return
+        }
+        
+        Purchases.configure(
+            with: Configuration.Builder(withAPIKey: IAPConfiguration.apiKey)
+                .with(storeKitVersion: .storeKit2)
+                .with(networkTimeout: 30)
+                .with(storeKit1Timeout: 30)
+                .build()
+        )
+        
+        isConfigured = true
+        configuredSubject.send()
+        logger.debug("[IAP] SDK configuration completed")
+    }
+    
+    /// 初始化 RevenueCat SDK 和相关功能
+    func initializeIAPService() async throws {
         // 设置监听和初始化其他功能
         setupObservers()
         
         do {
             try await initializeCustomerInfo()
             let restored = try await restorePurchases()
-            logger.notice("[IAP] Restore completed - Premium status: \(restored)")
+            logger.notice("[IAP] Service initialization completed - Premium status: \(restored)")
         } catch {
-            logger.error("[IAP] Restore/refresh failed: \(error.localizedDescription)")
+            logger.error("[IAP] Service initialization failed: \(error.localizedDescription)")
             throw error
         }
     }
-
+    
     /// 清理 RevenueCat 状态和观察者
     func cleanupState() async {
         // 重置状态
@@ -103,19 +128,6 @@ class IAPService: NSObject, ObservableObject {
         cancellables.removeAll()
     }
     
-    /// 配置 RevenueCat SDK
-    private func configureSDK() {
-        logger.info("[IAP] Configuring RevenueCat SDK with API key: \(String(IAPConfiguration.apiKey.prefix(6)))...")
-        Purchases.configure(
-            with: Configuration.builder(withAPIKey: IAPConfiguration.apiKey)
-                .with(storeKitVersion: .storeKit2)
-                .with(networkTimeout: 30)
-                .with(storeKit1Timeout: 30)
-                .build()
-        )
-        logger.debug("[IAP] SDK configuration completed")
-    }
-
     /// 使用用户 ID 登录 RevenueCat
     /// 因为 Apple 会处理跨设备订阅，所以这里暂时不需要 login 了
     /// - Parameter userId: Apple ID 用户标识
@@ -125,7 +137,7 @@ class IAPService: NSObject, ObservableObject {
         do {
             let result = try await Purchases.shared.logIn(userId)
             updateCustomerInfo(result.customerInfo)
-            try await configRevenueCatSDK()
+            try await initializeIAPService()
             isInitialized = true
         } catch {
             throw error
@@ -393,8 +405,44 @@ class IAPService: NSObject, ObservableObject {
     /// 检查高级功能访问权限
     /// 在访问高级功能前调用此方法
     func checkPremiumAccess() async throws -> Bool {
-//        try await refreshCustomerInfo()
-        return true
+        // 如果尚未配置完成，等待配置
+        if !isConfigured {
+            return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
+                // 创建一个临时的 Set 来存储 cancellable
+                var subscriptions = Set<AnyCancellable>()
+                
+                configuredSubject
+                    .first()
+                    .sink { [weak self] _ in
+                        guard let self = self else {
+                            continuation.resume(throwing: IAPError.configurationFailed)
+                            return
+                        }
+                        
+                        Task {
+                            do {
+                                let customerInfo = try await Purchases.shared.customerInfo()
+                                let isPremium = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
+                                DispatchQueue.main.async {
+                                    self.isPremium = isPremium
+                                }
+                                continuation.resume(returning: isPremium)
+                            } catch {
+                                continuation.resume(throwing: error)
+                            }
+                        }
+                    }
+                    .store(in: &subscriptions) // 存储到 Set 中
+            }
+        }
+        
+        // 已配置完成，直接检查订阅状态
+        let customerInfo = try await Purchases.shared.customerInfo()
+        let isPremium = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
+        DispatchQueue.main.async {
+            self.isPremium = isPremium
+        }
+        return isPremium
     }
     
     private func initializeCustomerInfo() async throws {
@@ -551,4 +599,16 @@ enum LoadingState {
     case loading
     case success
     case failed
+}
+
+// 在 AppDelegate 或 App 的入口处调用初始化
+extension IAPService {
+    /// 应用启动时调用此方法完成初始化
+    static func bootstrap() async {
+        do {
+            try await shared.initializeIAPService()
+        } catch {
+            shared.logger.error("[IAP] Bootstrap failed: \(error.localizedDescription)")
+        }
+    }
 } 

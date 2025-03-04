@@ -311,8 +311,13 @@ private struct CalendarIcon: View {
             do {
                 isPremium = try await iapService.checkPremiumAccess()
             } catch {
+                print("[CalendarIcon] Failed to check premium access: \(error)")
                 isPremium = false
             }
+        }
+        // 使用新版本的 onChange API
+        .onChange(of: iapService.isPremium) { oldValue, newValue in
+            isPremium = newValue
         }
     }
 }
@@ -490,7 +495,6 @@ private struct UpgradePremiumButton: View {
   
   var body: some View {
     Button(action: {
-      // 无论是否是会员，都显示 Paywall
       viewModel.showPaywall = true
     }) {
       HStack(spacing: 4) {
@@ -507,11 +511,16 @@ private struct UpgradePremiumButton: View {
     .withHoverEffect(scale: 1.1, brightness: 0)
     .help(NSLocalizedString(isPremium ? "subscribed_hint" : "upgrade_button_hint", comment: ""))
     .task {
-        do {
-            isPremium = try await iapService.checkPremiumAccess()
-        } catch {
-            isPremium = false
-        }
+      do {
+        isPremium = try await iapService.checkPremiumAccess()
+      } catch {
+        print("[UpgradePremiumButton] Failed to check premium access: \(error)")
+        isPremium = false
+      }
+    }
+    // 使用新版本的 onChange API
+    .onChange(of: iapService.isPremium) { oldValue, newValue in
+      isPremium = newValue
     }
   }
 }

@@ -7,12 +7,14 @@
 
 import Foundation
 
-enum IAPError: LocalizedError {
+enum IAPError: Error {
+    case configurationFailed
     case purchaseFailed
     case restoreFailed
-    case networkError
     case userCancelled
     case productNotFound
+    case networkError
+    case invalidPurchase
     case platformNotSupported
     case paymentPending
     case configurationError
@@ -20,18 +22,22 @@ enum IAPError: LocalizedError {
     case storeNotAvailable
     case storeAuthError
     
-    var errorDescription: String? {
+    var localizedDescription: String {
         switch self {
+        case .configurationFailed:
+            return NSLocalizedString("iap.error.configuration_failed", comment: "")
         case .purchaseFailed:
-            return NSLocalizedString("error.iap.purchase_failed", comment: "")
+            return NSLocalizedString("iap.error.purchase_failed", comment: "")
         case .restoreFailed:
-            return NSLocalizedString("error.iap.restore_failed", comment: "")
-        case .networkError:
-            return NSLocalizedString("error.iap.network_error", comment: "")
+            return NSLocalizedString("iap.error.restore_failed", comment: "")
         case .userCancelled:
-            return NSLocalizedString("error.iap.user_cancelled", comment: "")
+            return NSLocalizedString("iap.error.user_cancelled", comment: "")
         case .productNotFound:
-            return NSLocalizedString("error.iap.product_not_found", comment: "")
+            return NSLocalizedString("iap.error.product_not_found", comment: "")
+        case .networkError:
+            return NSLocalizedString("iap.error.network_error", comment: "")
+        case .invalidPurchase:
+            return NSLocalizedString("iap.error.invalid_purchase", comment: "")
         case .platformNotSupported:
             return NSLocalizedString("error.iap.platform_not_supported", comment: "")
         case .paymentPending:

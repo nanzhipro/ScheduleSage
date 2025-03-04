@@ -14,7 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let clipboardManager = ClipboardManager()
     private let notificationManager = NotificationManager.shared
     private let tokenProvider = APIConfig.shared.getTokenProvider()
-    private let iapService = IAPService.shared
+    @ObservedObject private var iapService = IAPService.shared
     private let authService = AuthenticationService.shared
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -42,12 +42,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         logger.debug("[App] Starting services initialization")
            
         // 初始化 IAP 服务
-        do {
-            logger.debug("[App] Initializing IAP service")
-            try await iapService.configRevenueCatSDK()
-            logger.info("[App] IAP service initialized successfully")
-        } catch {
-            logger.error("[App] Failed to initialize IAP service: \(error.localizedDescription)")
+        Task {
+            await IAPService.bootstrap()
         }
         
         logger.notice("[App] Services initialization completed")
