@@ -23,7 +23,7 @@ struct IAPConfiguration {
     // 月订阅
     static let monthlySubscriptionId = "com.tiwenlab.schedulesage.monthly"
     // 年订阅
-    static let yearlySubscriptionId = "com.tiwenlab.schedulesage.yearly"
+    static let yearlySubscriptionId = "com.tiwenlab.schedulesage.yearly2"
     
     /// 权限标识符： 必须和 RevenueCat 中的权限标识符一致
     /// 见：https://app.revenuecat.com/projects/d74a0317/entitlements

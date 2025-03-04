@@ -26,9 +26,13 @@ struct PaywallView: View {
                 closeButton
                 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: DesignSystem.Spacing.large) {
+                    VStack(spacing: DesignSystem.Spacing.small) {
                         headerSection
+                            .padding(.bottom, DesignSystem.Spacing.small)
+                        
                         subscriptionOptionsSection
+                            .padding(.bottom, DesignSystem.Spacing.small)
+                        
                         VStack(spacing: DesignSystem.Spacing.medium) {
                             purchaseButton
                             
@@ -64,10 +68,10 @@ struct PaywallView: View {
                                 .buttonStyle(.plain)
                                 .withHoverEffect(scale: 1.1, brightness: 0.1)
                             }
-                            .padding(.horizontal, DesignSystem.Spacing.medium)
+                            .padding(.horizontal, DesignSystem.Spacing.small)
                         }
-                        .padding(.horizontal, DesignSystem.Spacing.medium)
-                        .padding(.bottom, DesignSystem.Spacing.large)
+                        .padding(.horizontal, DesignSystem.Spacing.small)
+                        .padding(.bottom, DesignSystem.Spacing.medium)
                         
                         // 订阅说明文本
                         Text(LocalizedStringKey("paywall.subscription.terms"))
@@ -76,7 +80,7 @@ struct PaywallView: View {
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.horizontal, DesignSystem.Spacing.large)
-                            .padding(.bottom, 16)
+                            .padding(.bottom, DesignSystem.Spacing.large)
                             .frame(maxWidth: .infinity, alignment: .center)
                             .environment(\.openURL, OpenURLAction { url in
                                 if url.scheme == "cancel" {
@@ -313,9 +317,14 @@ struct SubscriptionOptionView: View {
                 
                 Spacer()
                 
-                Text(package.storeProduct.localizedPriceString)
-                    .font(.headline)
-                    .foregroundColor(.primary)
+                HStack(spacing: DesignSystem.Spacing.medium) {
+                    Text(package.storeProduct.localizedPriceString)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    // 添加选择指示器
+                    SubscriptionSelectionIndicator(isSelected: isSelected)
+                }
             }
             .padding(DesignSystem.Spacing.medium)
             .background(
@@ -329,6 +338,30 @@ struct SubscriptionOptionView: View {
         }
         .buttonStyle(.plain)
         .padding(.horizontal, DesignSystem.Spacing.small)
+    }
+}
+
+// MARK: - Subscription Selection Indicator
+private struct SubscriptionSelectionIndicator: View {
+    let isSelected: Bool
+    
+    private enum Design {
+        static let outerSize: CGFloat = 20
+        static let innerSize: CGFloat = 10
+    }
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(DesignSystem.Colors.primary.opacity(0.2))
+                .frame(width: Design.outerSize, height: Design.innerSize)
+            
+            if isSelected {
+                Circle()
+                    .fill(DesignSystem.Colors.primary)
+                    .frame(width: Design.innerSize, height: Design.innerSize)
+            }
+        }
     }
 }
 
@@ -414,17 +447,17 @@ struct ShimmeringEffect: ViewModifier {
 // MARK: - Paywall Dimensions
 private enum PaywallDimensions {
     static let containerWidth: CGFloat = 440
-    static let containerHeight: CGFloat = 540
+    static let containerHeight: CGFloat = 600
     static let buttonHeight: CGFloat = 44
     static let buttonCornerRadius: CGFloat = 8
 }
 
 // MARK: - Design System Extensions
 extension DesignSystem.Spacing {
-    static let small: CGFloat = 6
-    static let medium: CGFloat = 12
-    static let large: CGFloat = 20
-    static let extraLarge: CGFloat = 28
+    static let small: CGFloat = 8
+    static let medium: CGFloat = 16
+    static let large: CGFloat = 24
+    static let extraLarge: CGFloat = 32
 }
 
 #Preview {
