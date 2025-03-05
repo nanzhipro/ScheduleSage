@@ -329,10 +329,12 @@ private struct AddScheduleContent: View {
   var body: some View {
     VStack(spacing: 0) {
       CalendarIcon(animation: viewModel.dragAnimation)
-        .padding(.bottom, Design.Spacing.iconToTitle)
       
       TitleSection()
         .padding(.bottom, Design.Spacing.titleToActions)
+
+      Spacer(minLength: 0)
+      Spacer(minLength: 0)
       
       AddMethodSection(viewModel: viewModel)
         .padding(.horizontal, Design.Spacing.methodSectionHorizontal)
@@ -393,14 +395,14 @@ private struct AddMethodSection: View {
     var body: some View {
         HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
             AddMethodButton(
-                iconName: "doc.text.fill",
+                iconName: "clipboard.fill",
                 title: NSLocalizedString("clipboard_import", comment: ""),
                 hintKey: "hint.clipboard_import",
                 action: viewModel.checkClipboardContent
             )
             
             AddMethodButton(
-                iconName: "pencil.and.list.clipboard",
+                iconName: "text.page.fill",
                 title: NSLocalizedString("manual_input", comment: ""),
                 hintKey: "hint.manual_input",
                 action: { viewModel.showManualInputSheet = true }
