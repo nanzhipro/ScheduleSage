@@ -18,44 +18,18 @@ struct AddScheduleView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.openSettings) private var openSettings
   
-  private var isModernMacOS: Bool {
-    if #available(macOS 14.0, *) {
-      return true
-    }
-    return false
-  }
-  
   var body: some View {
     ZStack {
       // 渐变背景，仅在浅色模式下显示
-      if colorScheme == .light {
-        LinearGradient(
-          colors: [
-            DesignSystem.Colors.primary.opacity(0.1),
-            DesignSystem.Colors.background
-          ],
-          startPoint: .top,
-          endPoint: .bottom
-        )
-        .ignoresSafeArea()
-      }
+      BackgroundView(colorScheme: colorScheme)
       
       VStack(spacing: 0) {
-        AddScheduleView_Impl(viewModel: viewModel)
+        MainContentView(viewModel: viewModel)
           .withLoading()
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .sheet(isPresented: $viewModel.showEventList) {
-        EventListView(
-          events: viewModel.parsedEvents,
-          onAdd: viewModel.resetState,
-          onImport: viewModel.importToCalendar,
-          onBack: { viewModel.showEventList = false },
-          onUpdate: viewModel.updateEvent
-        )
-        .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
-        .presentationDragIndicator(.visible)
-        .presentationBackgroundInteraction(.enabled)
+        EventListSheet(viewModel: viewModel)
       }
       .sheet(isPresented: $viewModel.showPaywall) {
         PaywallView {
@@ -87,21 +61,11 @@ struct AddScheduleView: View {
       ToolbarItemGroup(placement: .automatic) {
         Spacer()
         UpgradePremiumButton(viewModel: viewModel)
-        Button(action: {
-          if isModernMacOS {
-            openSettings()
-          } else {
-            showSettings = true
-          }
-        }) {
-          Image(systemName: "gearshape.fill")
-            .foregroundColor(DesignSystem.Colors.primary)
-            .font(DesignSystem.Typography.caption)
-        }
-        .buttonStyle(.plain)
-        .withHoverEffect(scale: 1.1, brightness: 0)
-        .help(NSLocalizedString("settings_button_hint", comment: ""))
-        .padding(.trailing, 16)
+        SettingsButton(
+          isModernMacOS: isModernMacOS,
+          openSettings: openSettings,
+          showSettings: $showSettings
+        )
       }
     }
     .onAppear(perform: viewModel.resetState)
@@ -116,6 +80,13 @@ struct AddScheduleView: View {
     ) { result in
       viewModel.handleImagePickerResult(result)
     }
+  }
+  
+  private var isModernMacOS: Bool {
+    if #available(macOS 14.0, *) {
+      return true
+    }
+    return false
   }
   
   private var toastType: ToastType {
@@ -139,22 +110,78 @@ struct AddScheduleView: View {
       return ""
     }
   }
+}
+
+// MARK: - Background View
+private struct BackgroundView: View {
+  let colorScheme: ColorScheme
   
-  private func proceedWithProFeature() {
-    // 实现具体的 Pro 功能
+  var body: some View {
+    if colorScheme == .light {
+      LinearGradient(
+        colors: [
+          DesignSystem.Colors.primary.opacity(0.15),
+          DesignSystem.Colors.background
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+      )
+      .ignoresSafeArea()
+    }
   }
 }
 
-// MARK: - Add Schedule View
-private struct AddScheduleView_Impl: View {
+// MARK: - Settings Button
+private struct SettingsButton: View {
+  let isModernMacOS: Bool
+  let openSettings: OpenSettingsAction
+  @Binding var showSettings: Bool
+  
+  var body: some View {
+    Button(action: {
+      if isModernMacOS {
+        openSettings()
+      } else {
+        showSettings = true
+      }
+    }) {
+      Image(systemName: "gearshape.fill")
+        .foregroundColor(DesignSystem.Colors.primary)
+        .font(DesignSystem.Typography.caption)
+    }
+    .buttonStyle(.plain)
+    .withHoverEffect(scale: 1.1, brightness: 0)
+    .help(NSLocalizedString("settings_button_hint", comment: ""))
+    .padding(.trailing, 16)
+  }
+}
+
+// MARK: - Event List Sheet
+private struct EventListSheet: View {
+  @ObservedObject var viewModel: AddScheduleViewModel
+  
+  var body: some View {
+    EventListView(
+      events: viewModel.parsedEvents,
+      onAdd: viewModel.resetState,
+      onImport: viewModel.importToCalendar,
+      onBack: { viewModel.showEventList = false },
+      onUpdate: viewModel.updateEvent
+    )
+    .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
+    .presentationDragIndicator(.visible)
+    .presentationBackgroundInteraction(.enabled)
+  }
+}
+
+// MARK: - Main Content View
+private struct MainContentView: View {
   @ObservedObject var viewModel: AddScheduleViewModel
   @Environment(\.colorScheme) var colorScheme
   
   var body: some View {
     ZStack {
-      // 主要内容
       VStack(spacing: 0) {
-        // 扩展 DragDropArea 以包含所有内容
         DragDropArea(
           isDragging: $viewModel.isDragging,
           isOCRProcessing: $viewModel.isOCRProcessing,
@@ -163,7 +190,6 @@ private struct AddScheduleView_Impl: View {
           onDragExited: viewModel.handleDragExited
         ) {
           VStack(spacing: 0) {
-            // 顶部留白
             Spacer()
               .frame(height: Design.Spacing.windowTopPadding)
             
@@ -176,29 +202,35 @@ private struct AddScheduleView_Impl: View {
         .frame(maxHeight: .infinity)
         .padding(.top, 8)
         
-        // 底部工具栏
-        ZStack {
-          // powered by 文本居中
-          VStack(spacing: 4) {
-            Text(NSLocalizedString("powered_by_tencent", comment: ""))
-              .font(DesignSystem.Typography.caption)
-              .foregroundColor(DesignSystem.Colors.secondaryText)
-              .padding(.vertical, 16)
-          }
-          .frame(maxWidth: .infinity)
-          
-          // 帮助中心按钮靠右对齐
-          HStack {
-            Spacer()
-            HelpCenterButton()
-              .padding(.trailing, 20)
-          }
-        }
-        .frame(maxWidth: .infinity)
+        FooterView()
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(colorScheme == .dark ? DesignSystem.Colors.background : nil)
+  }
+}
+
+// MARK: - Footer View
+private struct FooterView: View {
+  var body: some View {
+    ZStack {
+      // powered by 文本居中
+      VStack(spacing: 4) {
+        Text(NSLocalizedString("powered_by_tencent", comment: ""))
+          .font(DesignSystem.Typography.caption)
+          .foregroundColor(DesignSystem.Colors.secondaryText)
+          .padding(.vertical, 16)
+      }
+      .frame(maxWidth: .infinity)
+      
+      // 帮助中心按钮靠右对齐
+      HStack {
+        Spacer()
+        HelpCenterButton()
+          .padding(.trailing, 20)
+      }
+    }
+    .frame(maxWidth: .infinity)
   }
 }
 
@@ -252,57 +284,11 @@ private struct CalendarIcon: View {
     var body: some View {
         ZStack(alignment: .center) {
             // 基础日历图标
-            ZStack {
-                Circle()
-                    .fill(DesignSystem.Colors.secondaryBackground)
-                    .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
-                    .if(isPremium) { view in
-                        view.shadow(
-                            color: .yellow.opacity(colorScheme == .dark ? 0.3 : 0.2),
-                            radius: 15,
-                            x: 0,
-                            y: 0
-                        )
-                    }
-                
-                Image(systemName: "calendar.badge.plus")
-                    .font(.system(size: Design.Size.iconSize, weight: isPremium ? .medium : .regular))
-                    .foregroundStyle(
-                      LinearGradient(
-                            colors: [
-                                DesignSystem.Colors.primary,
-                                DesignSystem.Colors.primary
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .symbolEffect(.bounce, value: isPremium)
-            }
-            .modifier(DragAnimationModifier(animation: animation))
-            .zIndex(1) // 确保图标始终在最上层
+            BaseIconView(isPremium: isPremium, animation: animation)
             
             // 会员光晕效果
             if isPremium {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            gradient: Gradient(colors: [
-                                .yellow.opacity(0.3),
-                                .yellow.opacity(0.1),
-                                .clear
-                            ]),
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: Design.Size.iconContainerSize
-                        )
-                    )
-                    .frame(
-                        width: Design.Size.iconContainerSize * 1.5,
-                        height: Design.Size.iconContainerSize * 1.5
-                    )
-                    .blur(radius: 15)
-                    .zIndex(0) // 确保光晕在图标下层
+                PremiumHaloEffect()
             }
         }
         .frame(width: Design.Size.iconContainerSize * 1.5, height: Design.Size.iconContainerSize * 1.5)
@@ -314,10 +300,73 @@ private struct CalendarIcon: View {
                 isPremium = false
             }
         }
-        // 使用新版本的 onChange API
         .onChange(of: iapService.isPremium) { oldValue, newValue in
             isPremium = newValue
         }
+    }
+}
+
+// MARK: - Base Icon View
+private struct BaseIconView: View {
+    let isPremium: Bool
+    let animation: AddScheduleViewModel.DragAnimation
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(DesignSystem.Colors.secondaryBackground)
+                .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
+                .if(isPremium) { view in
+                    view.shadow(
+                        color: .yellow.opacity(colorScheme == .dark ? 0.3 : 0.2),
+                        radius: 15,
+                        x: 0,
+                        y: 0
+                    )
+                }
+            
+            Image(systemName: "calendar.badge.plus")
+                .font(.system(size: Design.Size.iconSize, weight: isPremium ? .medium : .regular))
+                .foregroundStyle(
+                  LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.primary,
+                            DesignSystem.Colors.primary
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .symbolEffect(.bounce, value: isPremium)
+        }
+        .modifier(DragAnimationModifier(animation: animation))
+        .zIndex(1)
+    }
+}
+
+// MARK: - Premium Halo Effect
+private struct PremiumHaloEffect: View {
+    var body: some View {
+        Circle()
+            .fill(
+                RadialGradient(
+                    gradient: Gradient(colors: [
+                        .yellow.opacity(0.3),
+                        .yellow.opacity(0.1),
+                        .clear
+                    ]),
+                    center: .center,
+                    startRadius: 0,
+                    endRadius: Design.Size.iconContainerSize
+                )
+            )
+            .frame(
+                width: Design.Size.iconContainerSize * 1.5,
+                height: Design.Size.iconContainerSize * 1.5
+            )
+            .blur(radius: 15)
+            .zIndex(0)
     }
 }
 
@@ -352,37 +401,57 @@ private struct TitleSection: View {
     var body: some View {
         VStack(spacing: Design.Spacing.titleToSubtitle) {
             // 主标题
-            Text(AppInfo.name)
-                .font(.system(size: 36, weight: .bold, design: .rounded))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [
-                            DesignSystem.Colors.primary,
-                            DesignSystem.Colors.primary.opacity(0.8)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .shadow(
-                    color: colorScheme == .dark ? 
-                        DesignSystem.Colors.primary.opacity(0.3) : 
-                        .clear,
-                    radius: isHovered ? 15 : 10
-                )
-                .scaleEffect(isHovered ? 1.05 : 1.0)
+            AppTitleView(isHovered: isHovered)
             
             // 副标题
-            Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
-                .font(.system(size: 16, weight: .regular, design: .rounded))
-                .foregroundColor(colorScheme == .dark ? .white : .black)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .opacity(isHovered ? 0.9 : 0.8)
-                .animation(.easeInOut(duration: 0.2), value: isHovered)
+            AppSubtitleView(isHovered: isHovered)
         }
         .padding(.horizontal)
         .contentShape(Rectangle())
+    }
+}
+
+// MARK: - App Title View
+private struct AppTitleView: View {
+    let isHovered: Bool
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        Text(AppInfo.name)
+            .font(.system(size: 36, weight: .bold, design: .rounded))
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.primary,
+                        DesignSystem.Colors.primary.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .shadow(
+                color: colorScheme == .dark ? 
+                    DesignSystem.Colors.primary.opacity(0.3) : 
+                    .clear,
+                radius: isHovered ? 15 : 10
+            )
+            .scaleEffect(isHovered ? 1.05 : 1.0)
+    }
+}
+
+// MARK: - App Subtitle View
+private struct AppSubtitleView: View {
+    let isHovered: Bool
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
+            .font(.system(size: 16, weight: .regular, design: .rounded))
+            .foregroundColor(colorScheme == .dark ? .white : .black)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            .opacity(isHovered ? 0.9 : 0.8)
+            .animation(.easeInOut(duration: 0.2), value: isHovered)
     }
 }
 
@@ -393,39 +462,78 @@ private struct AddMethodSection: View {
     
     var body: some View {
         HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
-            AddMethodButton(
-                iconName: "clipboard.fill",
-                title: NSLocalizedString("clipboard_import", comment: ""),
-                hintKey: "hint.clipboard_import",
-                action: viewModel.checkClipboardContent
-            )
+            // 剪贴板导入按钮
+            ClipboardImportButton(viewModel: viewModel)
             
-            AddMethodButton(
-                iconName: "text.page.fill",
-                title: NSLocalizedString("manual_input", comment: ""),
-                hintKey: "hint.manual_input",
-                action: { viewModel.showManualInputSheet = true }
-            )
-            .sheet(isPresented: $viewModel.showManualInputSheet) {
-                ManualScheduleInputView(
-                    isPresented: $viewModel.showManualInputSheet,
-                    llmProcessor: viewModel.llmProcessor,
-                    viewModel: viewModel,
-                    onEventsProcessed: { events in
-                        viewModel.parsedEvents = events
-                        viewModel.showEventList = true
-                    }
-                )
-            }
+            // 手动输入按钮
+            ManualInputButton(viewModel: viewModel)
             
-            AddMethodButton(
-                iconName: "photo.fill",
-                title: NSLocalizedString("image_import", comment: ""),
-                hintKey: "hint.image_import",
-                action: viewModel.handleImageSelection
-            )
+            // 图片导入按钮
+            ImageImportButton(viewModel: viewModel)
         }
         .frame(height: DesignSystem.Dimensions.largeButtonHeight)
+    }
+}
+
+// MARK: - Clipboard Import Button
+private struct ClipboardImportButton: View {
+    @ObservedObject var viewModel: AddScheduleViewModel
+    
+    var body: some View {
+        AddMethodButton(
+            iconName: "clipboard.fill",
+            title: NSLocalizedString("clipboard_import", comment: ""),
+            hintKey: "hint.clipboard_import",
+            action: viewModel.checkClipboardContent
+        )
+    }
+}
+
+// MARK: - Manual Input Button
+private struct ManualInputButton: View {
+    @ObservedObject var viewModel: AddScheduleViewModel
+    
+    var body: some View {
+        AddMethodButton(
+            iconName: "text.page.fill",
+            title: NSLocalizedString("manual_input", comment: ""),
+            hintKey: "hint.manual_input",
+            action: { viewModel.showManualInputSheet = true }
+        )
+        .sheet(isPresented: $viewModel.showManualInputSheet) {
+            ManualInputSheet(viewModel: viewModel)
+        }
+    }
+}
+
+// MARK: - Manual Input Sheet
+private struct ManualInputSheet: View {
+    @ObservedObject var viewModel: AddScheduleViewModel
+    
+    var body: some View {
+        ManualScheduleInputView(
+            isPresented: $viewModel.showManualInputSheet,
+            llmProcessor: viewModel.llmProcessor,
+            viewModel: viewModel,
+            onEventsProcessed: { events in
+                viewModel.parsedEvents = events
+                viewModel.showEventList = true
+            }
+        )
+    }
+}
+
+// MARK: - Image Import Button
+private struct ImageImportButton: View {
+    @ObservedObject var viewModel: AddScheduleViewModel
+    
+    var body: some View {
+        AddMethodButton(
+            iconName: "photo.fill",
+            title: NSLocalizedString("image_import", comment: ""),
+            hintKey: "hint.image_import",
+            action: viewModel.handleImageSelection
+        )
     }
 }
 
@@ -519,7 +627,6 @@ private struct UpgradePremiumButton: View {
         isPremium = false
       }
     }
-    // 使用新版本的 onChange API
     .onChange(of: iapService.isPremium) { oldValue, newValue in
       isPremium = newValue
     }
@@ -542,34 +649,7 @@ private struct HelpCenterButton: View {
         NSWorkspace.shared.open(url)
       }
     } label: {
-      Image(systemName: "questionmark.circle.fill")
-        .font(.system(size: 20))  // 调整大小以匹配文本
-        .foregroundStyle(
-          LinearGradient(
-            colors: [
-              DesignSystem.Colors.primary,
-              DesignSystem.Colors.primary.opacity(0.8)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-          )
-        )
-        .background(
-          Circle()
-            .fill(colorScheme == .dark ? 
-                Color.black.opacity(0.3) : 
-                Color.white.opacity(0.8))
-            .shadow(
-              color: colorScheme == .dark ?
-                DesignSystem.Colors.primary.opacity(isHovered ? 0.4 : 0.3) :
-                DesignSystem.Colors.primary.opacity(isHovered ? 0.3 : 0.2),
-              radius: isHovered ? 8 : 6,
-              x: 0,
-              y: colorScheme == .dark ? 1 : 2
-            )
-        )
-        .scaleEffect(isPressed ? 0.95 : (isHovered ? 1.05 : 1.0))
-        .padding(.vertical, 16)  // 添加垂直内边距以对齐文本
+      HelpButtonLabel(isHovered: isHovered, isPressed: isPressed)
     }
     .buttonStyle(.plain)
     .onHover { hovering in
@@ -586,6 +666,44 @@ private struct HelpCenterButton: View {
         isPressed = false
       }
     })
+  }
+}
+
+// MARK: - Help Button Label
+private struct HelpButtonLabel: View {
+  let isHovered: Bool
+  let isPressed: Bool
+  @Environment(\.colorScheme) private var colorScheme
+  
+  var body: some View {
+    Image(systemName: "questionmark.circle.fill")
+      .font(.system(size: 20))
+      .foregroundStyle(
+        LinearGradient(
+          colors: [
+            DesignSystem.Colors.primary,
+            DesignSystem.Colors.primary.opacity(0.8)
+          ],
+          startPoint: .topLeading,
+          endPoint: .bottomTrailing
+        )
+      )
+      .background(
+        Circle()
+          .fill(colorScheme == .dark ? 
+              Color.black.opacity(0.3) : 
+              Color.white.opacity(0.8))
+          .shadow(
+            color: colorScheme == .dark ?
+              DesignSystem.Colors.primary.opacity(isHovered ? 0.4 : 0.3) :
+              DesignSystem.Colors.primary.opacity(isHovered ? 0.3 : 0.2),
+            radius: isHovered ? 8 : 6,
+            x: 0,
+            y: colorScheme == .dark ? 1 : 2
+          )
+      )
+      .scaleEffect(isPressed ? 0.95 : (isHovered ? 1.05 : 1.0))
+      .padding(.vertical, 16)
   }
 }
 
