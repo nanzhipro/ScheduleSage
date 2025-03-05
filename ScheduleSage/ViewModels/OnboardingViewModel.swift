@@ -154,10 +154,10 @@ public final class OnboardingViewModel: ObservableObject {
     private func checkPermissions() async {
         // 只检查日历权限
         do {
-            calendarPermissionGranted = try await calendarManager.checkCalendarAuthorizationStatus()
+            calendarPermissionGranted = try await calendarManager.requestAccess()
         } catch {
-            logger.error("Calendar permission check failed: \(error.localizedDescription)")
             calendarPermissionGranted = false
+            logger.error("Calendar permission check failed: \(error.localizedDescription)")
         }
     }
 }

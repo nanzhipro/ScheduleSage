@@ -183,37 +183,19 @@ private extension EventListView {
   private func handleImport() {
     guard hasSelectedEvents else { return }
     
+    // 直接执行导入
+    onImport()
+    
+    // 显示成功提示
+    toastType = .success
+    toastMessage = NSLocalizedString("import_success", comment: "")
+    showToast = true
+    
+    // 2秒后关闭视图
     Task {
-      do {
-        // 先检查日历权限
-        let hasAccess = try await CalendarManager().checkCalendarAuthorizationStatus()
-        if !hasAccess {
-          // 如果没有权限，请求权限
-          _ = try await CalendarManager().requestAccess()
-        }
-        
-        // 如果成功获取权限，执行导入
-        await MainActor.run {
-          onImport()
-          // 显示成功提示
-          toastType = .success
-          toastMessage = NSLocalizedString("import_success", comment: "")
-          showToast = true
-          
-          // 2秒后关闭视图
-          Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
-            await MainActor.run {
-              onBack()  // 关闭视图
-            }
-          }
-        }
-      } catch {
-        await MainActor.run {
-          toastType = .error
-          toastMessage = error.localizedDescription
-          showToast = true
-        }
+      try? await Task.sleep(nanoseconds: 2_000_000_000)
+      await MainActor.run {
+        onBack()  // 关闭视图
       }
     }
   }

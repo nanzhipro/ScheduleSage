@@ -612,12 +612,7 @@ extension AddScheduleViewModel {
         // 重置状态
         showPaywall = false
         
-        // 继续之前的操作
-        Task {
-            await MainActor.run {
-                LoadingManager.shared.show(.processing)
-            }
-            // 其他处理逻辑...
-        }
+        // 不再显示加载状态
+        LoadingManager.shared.hide()
     }
 }

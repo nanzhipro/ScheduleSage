@@ -31,7 +31,6 @@ struct AddScheduleView: View {
       if colorScheme == .light {
         LinearGradient(
           colors: [
-            DesignSystem.Colors.primary.opacity(0.2),
             DesignSystem.Colors.primary.opacity(0.1),
             DesignSystem.Colors.background
           ],
