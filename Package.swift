@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/Kitura/Swift-JWT.git", from: "4.0.0"),
         .package(url: "https://github.com/auth0/JWTDecode.swift.git", from: "3.1.0"),
         .package(url: "https://github.com/getsentry/sentry-cocoa.git", from: "8.45.0"),
-        .package(url: "https://github.com/RevenueCat/purchases-ios-spm.git", from: "5.0.0"),
+        .package(url: "https://github.com/RevenueCat/purchases-ios-spm.git", from: "5.19.0"),
     ],
     targets: [
         .target(

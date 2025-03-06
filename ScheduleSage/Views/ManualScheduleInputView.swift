@@ -23,16 +23,16 @@ struct ManualScheduleInputView: View {
     @State private var processedEvents: [CalendarEvent] = []
     @FocusState private var isFocused: Bool
     
-    private let llmProcessor: LLMEventProcessor
+    private let processInput: (String) async throws -> [CalendarEvent]
     private let viewModel: AddScheduleViewModel
     var onEventsProcessed: ([CalendarEvent]) -> Void
     
     init(isPresented: Binding<Bool>, 
-         llmProcessor: LLMEventProcessor, 
+         processInput: @escaping (String) async throws -> [CalendarEvent],
          viewModel: AddScheduleViewModel,
          onEventsProcessed: @escaping ([CalendarEvent]) -> Void) {
         self._isPresented = isPresented
-        self.llmProcessor = llmProcessor
+        self.processInput = processInput
         self.viewModel = viewModel
         self.onEventsProcessed = onEventsProcessed
     }
@@ -54,7 +54,7 @@ struct ManualScheduleInputView: View {
                 RecognizeButton(
                     isProcessing: isProcessing,
                     isDisabled: isProcessing || inputText.isEmpty,
-                    action: { Task { await processInput() } }
+                    action: { Task { await processInputText() } }
                 )
             }
             .frame(
@@ -91,7 +91,7 @@ struct ManualScheduleInputView: View {
         }
     }
     
-    private func processInput() async {
+    private func processInputText() async {
         guard !inputText.isEmpty else { return }
         isProcessing = true
         
@@ -101,7 +101,7 @@ struct ManualScheduleInputView: View {
             isPresented = false
         } else {
             do {
-                processedEvents = try await llmProcessor.processContent(inputText)
+                processedEvents = try await processInput(inputText)
                 onEventsProcessed(processedEvents)
                 isPresented = false
             } catch {
@@ -209,7 +209,7 @@ struct ManualScheduleInputView_Previews: PreviewProvider {
     static var previews: some View {
         ManualScheduleInputView(
             isPresented: .constant(true),
-            llmProcessor: PreviewData.mockLLMProcessor,
+            processInput: { _ in [] },
             viewModel: PreviewData.mockAddScheduleViewModel
         ) { _ in }
     }

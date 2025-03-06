@@ -87,8 +87,8 @@
         "repositoryURL": "https://github.com/RevenueCat/purchases-ios-spm.git",
         "state": {
           "branch": null,
-          "revision": "1467e98e21bbe67e14ac04da34d71b09f08eba08",
-          "version": "5.17.0"
+          "revision": "a037a1fa19548b6ebc778b8d425df914d16b96e3",
+          "version": "5.19.0"
         }
       },
       {
@@ -120,7 +120,7 @@
       },
       {
         "package": "swift-log",
-        "repositoryURL": "https://github.com/apple/swift-log",
+        "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": null,
           "revision": "96a2f8a0fa41e9e09af4585e2724c4e825410b91",

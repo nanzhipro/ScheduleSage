@@ -513,7 +513,7 @@ private struct ManualInputSheet: View {
     var body: some View {
         ManualScheduleInputView(
             isPresented: $viewModel.showManualInputSheet,
-            llmProcessor: viewModel.llmProcessor,
+            processInput: viewModel.processManualInput,
             viewModel: viewModel,
             onEventsProcessed: { events in
                 viewModel.parsedEvents = events

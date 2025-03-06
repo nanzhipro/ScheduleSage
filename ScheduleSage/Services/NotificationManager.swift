@@ -20,6 +20,7 @@ public final class NotificationManager: NSObject {
     public static let shared = NotificationManager()
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "NotificationManager")
     private let notificationCenter = UNUserNotificationCenter.current()
+    private let calendarManager = CalendarManager()
     
     // MARK: - Initialization
     
@@ -33,22 +34,23 @@ public final class NotificationManager: NSObject {
     
     private func setupNotificationCategories() {
         // 定义日历事件通知的操作
-        let viewAction = UNNotificationAction(
-            identifier: "VIEW_EVENT",
-            title: NSLocalizedString("view_event", comment: "View Event"),
-            options: .foreground
-        )
+        // TODO：暂未找到正确定位到日历事件的方法，实现暂时空置。
+        // let viewAction = UNNotificationAction(
+        //     identifier: "VIEW_EVENT",
+        //     title: NSLocalizedString("view_event", comment: "View Event"),
+        //     options: .foreground
+        // )
         
-        let dismissAction = UNNotificationAction(
-            identifier: "DISMISS",
-            title: NSLocalizedString("dismiss", comment: "Dismiss"),
-            options: .destructive
-        )
+        // let dismissAction = UNNotificationAction(
+        //     identifier: "DISMISS",
+        //     title: NSLocalizedString("dismiss", comment: "Dismiss"),
+        //     options: .destructive
+        // )
         
         // 创建通知类别
         let calendarCategory = UNNotificationCategory(
             identifier: "calendar_event",
-            actions: [viewAction, dismissAction],
+            actions: [],
             intentIdentifiers: [],
             options: .customDismissAction
         )
@@ -140,7 +142,7 @@ public final class NotificationManager: NSObject {
     ) {
         let content = UNMutableNotificationContent()
         content.title = title
-        content.body = body
+        // content.body = body
         content.sound = .default
         content.userInfo = ["eventId": eventId]
         content.categoryIdentifier = "calendar_event"  // 设置通知类别
@@ -193,11 +195,6 @@ private extension NotificationManager {
         guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") else { return }
         NSWorkspace.shared.open(url)
     }
-    
-    func openCalendarEvent(_ eventId: String) {
-        guard let url = URL(string: "calshow://\(eventId)") else { return }
-        NSWorkspace.shared.open(url)
-    }
 }
 
 // MARK: - UNUserNotificationCenterDelegate
@@ -211,12 +208,16 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         switch response.actionIdentifier {
         case "VIEW_EVENT":
             if let eventId = response.notification.request.content.userInfo["eventId"] as? String {
-                openCalendarEvent(eventId)
+                Task {
+                    await calendarManager.openCalendarEvent(eventId)
+                }
             }
         case UNNotificationDefaultActionIdentifier:
             // 用户点击通知本身
             if let eventId = response.notification.request.content.userInfo["eventId"] as? String {
-                openCalendarEvent(eventId)
+                Task {
+                    await calendarManager.openCalendarEvent(eventId)
+                }
             }
         case UNNotificationDismissActionIdentifier:
             // 用户主动关闭通知
