@@ -1,20 +1,20 @@
 // Status
-"remaining_uses" = "%d Uses Left Today";
-"upgrade_prompt" = "Get Unlimited Access";
-"separator" = "｜";
+"remaining_uses" = "Remaining uses today: %d";
+"upgrade_prompt" = "Upgrade to unlock all features";
+"separator" = " | ";
 
 // Error Messages
-"no_time_information_found" = "No time found. Please try again";
-"invalid_content" = "Please check and try again";
+"no_time_information_found" = "No time info detected, please try again";
+"invalid_content" = "Invalid format, please check and retry";
 
 // Titles
-"schedule_add_title" = "Quick Add";
-"schedule_add_subtitle" = "AI-powered smart recognition, one-click creation for effortless scheduling";
+"schedule_add_title" = "Quick Add Event";
+"schedule_add_subtitle" = "AI-powered, one-click event management";
 "settings_window_title" = "Settings";
 
 // Add Schedule Methods
-"add_schedule_title" = "Add Event";
-"clipboard_import" = "From Text";
+"add_schedule_title" = "Add Method";
+"clipboard_import" = "From Clipboard";
 "manual_input" = "Manual Entry";
 "image_import" = "From Image";
 
@@ -23,193 +23,193 @@
 "close_popover" = "Close";
 
 // Event List
-"detected_events" = "%d Events Found";
-"selected_events" = "%d Selected";
-"recurring" = "Repeats";
+"detected_events" = "Found %d events";
+"selected_events" = "Selected %d events";
+"recurring" = "Recurring";
 
 // Loading
-"loading_ocr" = "Reading Image...";
+"loading_ocr" = "Scanning image...";
 "loading_network" = "Loading...";
-"loading_processing" = "AI Recognition...";
-"loading_url" = "Reading Webpage...";
+"loading_processing" = "Processing...";
+"loading_url" = "Parsing webpage...";
 
 // Image Picker
-"select_image" = "Select Image";
-"select_image_message" = "Please select an image to recognize";
+"select_image" = "Pick Image";
+"select_image_message" = "Choose an image to scan";
 
 // Navigation
 "back_to_add" = "Back";
 
 // Pro Features
-"feature_unlimited_ocr" = "Unlimited Use";
-"feature_unlimited_ocr_desc" = "Use all features without limits";
-"pro_expiry" = "Pro until: %@";
+"feature_unlimited_ocr" = "Unlimited Scans";
+"feature_unlimited_ocr_desc" = "Full feature access";
+"upgrade_to_premium" = "Go Premium";
+"pro_expiry" = "Expires: %@";
 
 // Settings Menu
-"settings_preferences" = "Settings";
+"settings_preferences" = "Preferences";
 "settings_quit" = "Quit";
 "settings_tab_general" = "General";
 "settings_tab_advanced" = "Advanced";
-"settings_notifications" = "Allow Notifications";
+"settings_notifications" = "Notifications";
 "settings_dark_mode" = "Dark Mode";
-"settings_auto_start" = "Launch at Login";
+"settings_auto_start" = "Start at Login";
 "settings_show_previews" = "Show Previews";
 "settings_font_size" = "Font Size";
-"settings_version" = "Current Version";
-"settings_window_mode" = "Use Window Mode";
+"settings_version" = "Version";
+"settings_window_mode" = "Separate Window";
 "settings_theme" = "Theme";
-"settings_feedback" = "Submit Request";
 
 // Settings Groups
-"settings_group_notifications" = "Notification Settings";
-"settings_group_appearance" = "Appearance Settings";
-"settings_group_system" = "System Settings";
+"settings_group_notifications" = "Notifications";
+"settings_group_appearance" = "Appearance";
+"settings_group_system" = "System";
 "settings_group_about" = "About";
-"settings_group_preview" = "Preview Settings";
-"settings_group_font" = "Font Settings";
-"settings_group_theme" = "Theme Style";
+"settings_group_preview" = "Preview";
+"settings_group_font" = "Font";
+"settings_group_theme" = "Theme";
 
 // Theme Names
-"theme.apple" = "Apple Style";
-"theme.wechat" = "WeChat Style";
-"theme.airbnb" = "Airbnb Style";
+"theme.apple" = "Apple";
+"theme.wechat" = "WeChat";
+"theme.airbnb" = "Airbnb";
 
 // Calendar Manager
-"calendar.error.access_denied" = "Please allow calendar access in Settings";
-"calendar.error.write_only_access" = "Full calendar access needed";
-"calendar.error.unknown_status" = "Unknown calendar permission status";
-"calendar.error.color_generation_failed" = "Failed to generate calendar color";
-"calendar.error.create_failed" = "Couldn't create event. Try again";
-"calendar.error.invalid_date_format" = "Invalid schedule time format, please check date and time";
+"calendar.error.access_denied" = "Allow calendar access in Settings";
+"calendar.error.write_only_access" = "Grant full calendar access in Settings";
+"calendar.error.unknown_status" = "Calendar permission issue, try again";
+"calendar.error.color_generation_failed" = "Failed to set calendar color";
+"calendar.error.create_failed" = "Event creation failed, try again";
+"calendar.error.invalid_date_format" = "Wrong time format, check and retry";
 
 // Import Status
-"import_started" = "Starting to import schedules...";
-"import_success" = "Successfully added to calendar";
-"import_in_progress" = "Importing schedules...";
-"click_to_view_event" = "Click to view in Calendar";
+"import_started" = "Adding event...";
+"import_success" = "Event added";
+"import_in_progress" = "Adding...";
+"click_to_view_event" = "See Details";
 
-"invalid_clipboard_url" = "Please copy a valid webpage link first, then try importing";
+"invalid_clipboard_url" = "Copy a valid link and retry";
 
 // Manual Schedule Input
-"manual_input_title" = "Manual Input";
-"manual_input_subtitle" = "Use natural language to describe schedule, or paste schedule text directly";
-"recognize_button" = "Start Recognition";
-"schedule_input_placeholder" = "Please enter schedule details";
+"manual_input_title" = "Manual Add";
+"manual_input_subtitle" = "Use natural language";
+"recognize_button" = "Scan";
+"schedule_input_placeholder" = "Enter event details";
 
 // LLM Errors
-"llm_invalid_response" = "Unable to process response, please try again";
-"llm_parsing_failed" = "Failed to parse schedule information, please check input and try again";
-"llm_missing_fields" = "Missing required information: %@, please complete and try again";
+"llm_invalid_response" = "AI scan failed, try again";
+"llm_parsing_failed" = "Can’t recognize, check input";
+"llm_missing_fields" = "Missing %@, please add";
 
 // Event Fields
 "event_field_title" = "Title";
-"event_field_start_date" = "Starts";
-"event_field_end_date" = "Ends";
+"event_field_start_date" = "Start";
+"event_field_end_date" = "End";
 "event_field_location" = "Location";
 "event_field_notes" = "Notes";
 "event_field_url" = "Link";
 "event_field_calendar" = "Calendar";
 
-/* Image format error message */
-"invalid_image_format" = "Unsupported image format, please use PNG, JPEG, or HEIC format";
+// Image Format Error
+"invalid_image_format" = "Supports PNG, JPEG, HEIC, WebP only";
 
 // Error Messages
-"invalid_clipboard_content" = "Please copy a valid webpage link, image file, or schedule text first, then try importing";
+"invalid_clipboard_content" = "Invalid clipboard, copy a link, image, or text";
 
 // Drag and Drop
-"drag_drop_hint" = "Drop Image Here";
+"drag_drop_hint" = "Drop image here";
 
 // Settings - Launch
-"settings_launch_error_title" = "Launch Settings Failed";
-"settings_launch_error_message" = "Unable to update launch settings, please check system preferences and try again";
+"settings_launch_error_title" = "Startup setting failed";
+"settings_launch_error_message" = "Check system permissions for startup";
 "settings_ok" = "OK";
 
 // Settings - Notifications
-"settings_notification_error_title" = "Notification Permission Required";
-"settings_notification_error_message" = "Please enable notifications in System Settings to receive update alerts";
-"settings_open_settings" = "Open Settings";
+"settings_notification_error_title" = "Notifications off";
+"settings_notification_error_message" = "Enable notifications in Settings";
+"settings_open_settings" = "Go to Settings";
 "settings_cancel" = "Cancel";
 
-/* 日程列表页标题 */
-"event_list_title" = "Event List";
-
-/* 日程列表页副标题 */
-"event_list_subtitle" = "Select recognized events to add to your calendar";
+// Event List
+"event_list_title" = "Events";
+"event_list_subtitle" = "Pick events to add";
 
 // Notification Actions
-"view_event" = "View Event";
+"view_event" = "View";
 "dismiss" = "Dismiss";
 
-"event_time_range_format" = "%@ to %@";
+"event_time_range_format" = "%@ - %@";
 
 // Event Card Menu
 "edit_event" = "Edit";
 "delete_event" = "Delete";
-"delete_success" = "Event deleted";
+"delete_success" = "Deleted";
 
 // Event Edit View
 "edit_event_title" = "Edit Event";
-"edit_event_subtitle" = "Modify event details";
+"edit_event_subtitle" = "Update Event";
 "save" = "Save";
 "cancel" = "Cancel";
-"update_success" = "Event updated successfully";
+"update_success" = "Updated";
 
 // Date Formats
 "date_format.event_time" = "MMM d, HH:mm";
 "date_format.time_separator" = " - ";
-"date_format.same_day" = "%@ - %@"; // For same day events: "Nov 6, 14:00 - 17:00"
-"date_format.different_days" = "%@ - %@"; // For different days: "Nov 6, 14:00 - Nov 7, 17:00"
+"date_format.same_day" = "%@ - %@";
+"date_format.different_days" = "%@ - %@";
 
 // Settings - About
 "settings_privacy_policy" = "Privacy Policy";
-"settings_terms_of_service" = "Terms of Service";
+"settings_terms_of_service" = "Terms";
 "settings_faq" = "FAQ";
 
 // Screenshot
-"screenshot.success.title" = "Screenshot Completed";
-"screenshot.success.message" = "Saved to Downloads folder";
+"screenshot.success.title" = "Screenshot Saved";
+"screenshot.success.message" = "Saved to Downloads";
 "screenshot.failure.title" = "Screenshot Failed";
-"screenshot.failure.message" = "Please check window status";
+"screenshot.failure.message" = "Check if window is open";
 
 // Onboarding
 "onboarding.welcome.title" = "Welcome to ScheduleSage";
-"onboarding.welcome.description" = "Your personal time wizard - making schedule management a breeze";
-"onboarding.features.title" = "Quick Event Creation";
-"onboarding.features.description" = "Create events instantly from text, photos, or manual input - the choice is yours";
+"onboarding.welcome.description" = "Simplify your scheduling";
+"onboarding.features.title" = "Multiple Ways to Add";
+"onboarding.features.description" = "Web, text, image, or manual";
 "onboarding.calendar.title" = "Calendar Access";
-"onboarding.calendar.description" = "Grant calendar access to unlock smart scheduling features";
-"onboarding.notification.title" = "Stay Notified";
-"onboarding.notification.description" = "Stay on top of your schedule with timely reminders";
+"onboarding.calendar.description" = "Authorize to manage events";
+"onboarding.notification.title" = "Reminders";
+"onboarding.notification.description" = "Stay on top of events";
 
 "onboarding.button.next" = "Next";
 "onboarding.button.back" = "Back";
 "onboarding.button.finish" = "Done";
 
-"onboarding.permission.calendar.title" = "Calendar Access";
-"onboarding.permission.calendar.description" = "Allow access to add and manage calendar events";
-"onboarding.permission.calendar.button" = "Allow Calendar Access";
+"onboarding.permission.calendar.title" = "Calendar";
+"onboarding.permission.calendar.description" = "Allow access to manage events";
+"onboarding.permission.calendar.button" = "Allow";
 
 "onboarding.permission.notification.title" = "Notifications";
-"onboarding.permission.notification.description" = "Enable notifications for event reminders";
-"onboarding.permission.notification.button" = "Allow Notifications";
+"onboarding.permission.notification.description" = "Enable reminders";
+"onboarding.permission.notification.button" = "Allow";
 
-// New keys for granted permissions
-"onboarding.permission.calendar.granted" = "Calendar access granted";
-"onboarding.permission.notification.granted" = "Notifications enabled";
+"onboarding.permission.calendar.granted" = "Calendar Approved";
+"onboarding.permission.notification.granted" = "Notifications On";
 
-// Settings - Always on Top
-"settings_always_on_top" = "Keep Window on Top";
+// Settings - Window
+"settings_always_on_top" = "Always on Top";
 
 // Powered by
-"powered_by_tencent" = "AI Powered App";
+"powered_by_tencent" = "AI-Powered Assistant";
+
+"settings_feedback" = "Feedback";
+"feedback_button_hint" = "Your input improves ScheduleSage";
 
 // Method Button Hints
-"hint.clipboard_import" = "Create events from clipboard text or webpage links";
-"hint.manual_input" = "Manually enter event details with natural language support";
-"hint.image_import" = "Create events by recognizing text from images";
+"hint.clipboard_import" = "Import text or link from clipboard";
+"hint.manual_input" = "Natural language entry";
+"hint.image_import" = "Scan text from image";
 
-// Feedback related
-"feedback_button_hint" = "Help us improve the product";
+"no_image_selected" = "No image picked";
+"image_selection_failed" = "Image pick failed";
 
 // Appearance
 "settings_appearance_mode" = "Appearance";
@@ -217,110 +217,95 @@
 "appearance_dark" = "Dark";
 "appearance_auto" = "Auto";
 
-"purchase_failed" = "Purchase failed. Please try again.";
-"restore_failed" = "Failed to restore purchases.";
-"network_error" = "Network connection error.";
-"user_cancelled" = "Purchase was cancelled.";
-"product_not_found" = "Product not found.";
-
-// Subscription
-"subscription_expiry_reminder_title_7" = "Subscription Expiring Soon";
-"subscription_expiry_reminder_body_7" = "Your premium subscription will expire in 7 days. Renew now to keep enjoying premium features.";
-"subscription_expiry_reminder_title_1" = "Last Day of Subscription";
-"subscription_expiry_reminder_body_1" = "Your premium subscription expires tomorrow. Don't miss out on premium features!";
-
-"subscription_period_monthly" = "Monthly";
-"subscription_period_yearly" = "Yearly";
-"subscription_feature_unlimited_usage" = "Unlimited Usage";
-"subscription_feature_premium_features" = "Premium Features";
-"subscription_feature_priority_support" = "Priority Support";
-"subscription_feature_yearly_discount" = "Early Access to New Features";
-
 // Paywall
-"paywall.title" = "Upgrade to Premium";
-"paywall.description" = "Unlock all premium features and enjoy a better experience";
+"paywall.title" = "Go Premium";
+"paywall.description" = "Unlock top features";
 "paywall.restore_purchases" = "Restore Purchases";
-"paywall.subscription.monthly" = "Monthly Plan";
-"paywall.subscription.yearly" = "Annual Plan";
-"paywall.subscription.lifetime" = "Lifetime Access";
+"paywall.subscription.monthly" = "Monthly";
+"paywall.subscription.yearly" = "Yearly";
+"paywall.subscription.lifetime" = "Lifetime";
 "paywall.trial.free" = "Free Trial";
-"paywall.trial.days_remaining" = "%d Days Left";
-"paywall.purchase.success" = "Purchase successful";
-"paywall.purchase.failed" = "Purchase failed";
-"paywall.restore.success" = "Purchases Restored";
+"paywall.trial.days_remaining" = "%d days left";
+"paywall.purchase.success" = "Purchased";
+"paywall.purchase.failed" = "Purchase Failed";
+"paywall.restore.success" = "Restored";
 "paywall.restore.failed" = "Restore Failed";
-"paywall.button.subscribe" = "Subscribe Now";
-"paywall.button.purchase" = "Purchase";
-"paywall.features.title" = "Premium Features";
-"paywall.best_value" = "Best Value";
+"paywall.button.subscribe" = "Subscribe";
+"paywall.button.purchase" = "Buy Now";
+"paywall.features.title" = "Premium Perks";
+"paywall.best_value" = "Best Deal";
 "paywall.save_percent" = "Save %d%%";
-"paywall.terms" = "Terms of Service";
-"paywall.privacy" = "Privacy Policy";
-
-"upgrade_to_premium" = "Upgrade to Premium";
+"paywall.terms" = "Terms";
+"paywall.privacy" = "Privacy";
 
 // Paywall Features
-"paywall.feature.unlimited" = "Unlimited Usage";
+"paywall.feature.unlimited" = "Unlimited Use";
 "paywall.feature.priority" = "Priority Support";
-"paywall.feature.early" = "Early Access to New Features";
+"paywall.feature.early" = "Early Access";
 "paywall.close" = "Close";
-"paywall.purchase.processing" = "Processing purchase...";
-"paywall.footer.terms_privacy" = "By continuing, you agree to our Terms of Service and Privacy Policy";
+"paywall.purchase.processing" = "Processing...";
+"paywall.footer.terms_privacy" = "By continuing, you agree to our Terms and Privacy Policy";
 
-"paywall.button.subscribed" = "Already Subscribed";
-"paywall.restore.already_subscribed" = "You are already a premium subscriber";
-"paywall.restore.no_subscription" = "No active subscription found. Please subscribe to continue.";
+// Subscription Features
+"subscription_feature_unlimited_usage" = "Unlimited features";
+"subscription_feature_priority_support" = "VIP support";
+"subscription_feature_yearly_discount" = "Early feature access";
 
-"paywall.offerings.load_failed" = "Failed to load subscription options. Please try again.";
+"paywall.button.subscribed" = "Subscribed";
+"paywall.restore.already_subscribed" = "You’re already Premium";
+"paywall.restore.no_subscription" = "No subscription found, please subscribe";
 
-"error.iap.payment_pending" = "Payment is being processed. Please wait.";
-"error.iap.configuration_error" = "Configuration error. Please try again later.";
-"error.iap.store_problem" = "There was a problem with the App Store. Please try again later.";
-"error.iap.store_not_available" = "App Store is not available.";
-"error.iap.store_auth_error" = "Unable to connect to App Store. Please check your internet connection and try again.";
-"error.iap.platform_not_supported" = "This feature is not supported on your platform.";
+"paywall.offerings.load_failed" = "Load failed, retry";
+
+"error.iap.payment_pending" = "Payment in progress, please wait";
 
 // Purchase Status
 "paywall.purchase.failed" = "Purchase failed";
-"paywall.purchase.cancelled" = "Purchase cancelled";
-"paywall.purchase.success" = "Purchase successful";
-"paywall.purchase.processing" = "Processing purchase...";
+"paywall.purchase.cancelled" = "Purchase canceled";
+"paywall.purchase.success" = "Purchase complete";
+"paywall.purchase.processing" = "Processing...";
+
+"error.iap.configuration_error" = "Setup error, try later";
+"error.iap.store_problem" = "Store issue, try later";
+"error.iap.store_not_available" = "Store down, try later";
+"error.iap.store_auth_error" = "Can’t connect to Store, check network";
+"error.iap.platform_not_supported" = "Feature not supported here";
 
 // Authentication
-"login_subtitle" = "Sign in with Apple ID to get started";
-"login_error_title" = "Sign In Failed";
-"auth_error_sign_in_failed" = "Sign in failed. Please try again.";
-"auth_error_credential_invalid" = "Invalid sign in credentials";
-"auth_error_user_cancelled" = "Sign in was cancelled";
+"login_subtitle" = "Sign in with Apple ID";
+"login_error_title" = "Login Failed";
+"auth_error_sign_in_failed" = "Login failed, retry";
+"auth_error_credential_invalid" = "Invalid credentials";
+"auth_error_user_cancelled" = "Login canceled";
 "ok" = "OK";
 
 // Account Settings
 "settings_tab_account" = "Account";
-"settings_account_status" = "Sign In Status";
+"settings_account_status" = "Status";
 "settings_account_signed_in" = "Signed In";
-"settings_account_signed_out" = "Not Signed In";
+"settings_account_signed_out" = "Signed Out";
 "settings_account_sign_out" = "Sign Out";
 "settings_account_sign_out_confirm_title" = "Confirm Sign Out";
-"settings_account_sign_out_confirm_message" = "Are you sure you want to sign out?";
+"settings_account_sign_out_confirm_message" = "Sure you want to sign out?";
 "settings_account_sign_out_confirm_button" = "Sign Out";
 "settings_account_sign_out_cancel_button" = "Cancel";
 "settings_account_user_id" = "User ID";
-"settings_account_user_id_copy_hint" = "Click to copy user ID";
-"settings_account_user_id_copied" = "User ID copied to clipboard";
+"settings_account_user_id_copy_hint" = "Click to copy ID";
+"settings_account_user_id_copied" = "ID copied";
 
 /* Sign in with Apple button title */
 "sign_in_with_apple" = "Sign in with Apple";
 
-"privacy_statement" = "Your schedule data is protected with the highest level of encryption";
+"privacy_statement" = "Your data is fully encrypted";
 
 "subscribed_status" = "Subscribed";
-"subscribed_hint" = "You are a premium member";
+"subscribed_hint" = "You’re a Premium member";
 
-"upgrade_button_hint" = "Upgrade to premium to unlock all features";
+"upgrade_button_hint" = "Upgrade for all features";
 
 "settings_user_agreement" = "User Agreement";
 
 /* Paywall Subscription Terms */
-"paywall.subscription.terms" = "After the free trial ends, if you don't [cancel](https://support.apple.com/zh-cn/118428), your subscription will automatically renew and charge monthly or yearly through your Apple ID. You can manage and [cancel](https://support.apple.com/zh-cn/118428) your subscription anytime in your Apple ID account settings.";
+"paywall.subscription.terms" = "After trial, auto-renews unless canceled. Manage in Apple ID settings.";
 
-"premium_required" = "This feature requires Premium subscription. Upgrade to unlock all features.";
+"premium_required" = "Premium needed. Upgrade to unlock all features.";

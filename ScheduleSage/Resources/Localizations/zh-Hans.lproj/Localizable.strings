@@ -1,59 +1,59 @@
 // Status
 "remaining_uses" = "今日剩余 %d 次";
-"upgrade_prompt" = "升级解锁所有功能";
+"upgrade_prompt" = "升级以解锁全部功能";
 "separator" = "｜";
 
 // Error Messages
-"no_time_information_found" = "未能识别出时间信息，请尝试重新输入";
-"invalid_content" = "内容格式不正确，请检查后重试";
+"no_time_information_found" = "未识别到时间信息，请重试";
+"invalid_content" = "内容格式错误，请检查并重试";
 
 // Titles
-"schedule_add_title" = "快速创建日程";
-"schedule_add_subtitle" = "AI 智能识别，一键创建，让日程管理更轻松";
+"schedule_add_title" = "快速添加日程";
+"schedule_add_subtitle" = "AI智能识别，一键添加，轻松管理日程";
 "settings_window_title" = "设置";
 
 // Add Schedule Methods
-"add_schedule_title" = "选择创建方式";
-"clipboard_import" = "剪切板创建";
+"add_schedule_title" = "选择添加方式";
+"clipboard_import" = "从剪贴板导入";
 "manual_input" = "手动输入";
-"image_import" = "图片识别";
+"image_import" = "从图片识别";
 
 // Actions
 "import_calendar" = "添加到日历";
 "close_popover" = "关闭";
 
 // Event List
-"detected_events" = "已识别 %d 个日程";
-"selected_events" = "已选择 %d 个";
+"detected_events" = "识别到 %d 个日程";
+"selected_events" = "已选 %d 个日程";
 "recurring" = "重复";
 
 // Loading
-"loading_ocr" = "正在识别图片...";
+"loading_ocr" = "图片识别中...";
 "loading_network" = "正在加载...";
-"loading_processing" = "AI识别中...";
-"loading_url" = "正在解析网页...";
+"loading_processing" = "AI处理中...";
+"loading_url" = "网页解析中...";
 
 // Image Picker
 "select_image" = "选择图片";
-"select_image_message" = "选择需要识别的图片";
+"select_image_message" = "请选择要识别的图片";
 
 // Navigation
 "back_to_add" = "返回";
 
 // Pro Features
-"feature_unlimited_ocr" = "无限识别";
-"feature_unlimited_ocr_desc" = "无限次使用所有功能";
-"upgrade_to_premium" = "升级至专业版";
+"feature_unlimited_ocr" = "无限次识别";
+"feature_unlimited_ocr_desc" = "无限制使用全部功能";
+"upgrade_to_premium" = "升级到高级版";
 "pro_expiry" = "有效期至：%@";
 
 // Settings Menu
-"settings_preferences" = "偏好设置";
+"settings_preferences" = "偏好";
 "settings_quit" = "退出";
 "settings_tab_general" = "通用";
 "settings_tab_advanced" = "高级";
 "settings_notifications" = "接收通知";
 "settings_dark_mode" = "深色模式";
-"settings_auto_start" = "开机启动";
+"settings_auto_start" = "开机自启";
 "settings_show_previews" = "显示预览";
 "settings_font_size" = "字体大小";
 "settings_version" = "版本";
@@ -75,31 +75,31 @@
 "theme.airbnb" = "Airbnb风格";
 
 // Calendar Manager
-"calendar.error.access_denied" = "需要日历访问权限，请在系统设置中允许访问";
-"calendar.error.write_only_access" = "需要完整的日历权限，请在系统设置中修改";
-"calendar.error.unknown_status" = "日历权限状态异常，请重试";
+"calendar.error.access_denied" = "请在系统设置中允许日历访问";
+"calendar.error.write_only_access" = "请在系统设置中授予完整日历权限";
+"calendar.error.unknown_status" = "日历权限异常，请重试";
 "calendar.error.color_generation_failed" = "日历颜色设置失败";
-"calendar.error.create_failed" = "创建日程失败，请重试";
-"calendar.error.invalid_date_format" = "日程时间格式有误，请检查后重试";
+"calendar.error.create_failed" = "日程创建失败，请重试";
+"calendar.error.invalid_date_format" = "时间格式错误，请检查并重试";
 
 // Import Status
-"import_started" = "正在添加日程...";
-"import_success" = "日程添加成功";
-"import_in_progress" = "正在添加...";
-"click_to_view_event" = "点击查看详情";
+"import_started" = "正在导入日程...";
+"import_success" = "日程导入成功";
+"import_in_progress" = "导入中...";
+"click_to_view_event" = "查看详情";
 
-"invalid_clipboard_url" = "请复制有效的网页链接后重试";
+"invalid_clipboard_url" = "请复制有效链接后重试";
 
 // Manual Schedule Input
-"manual_input_title" = "手动创建";
-"manual_input_subtitle" = "输入日程内容，支持自然语言识别";
-"recognize_button" = "开始识别";
-"schedule_input_placeholder" = "请输入日程内容";
+"manual_input_title" = "手动添加";
+"manual_input_subtitle" = "支持自然语言输入";
+"recognize_button" = "识别";
+"schedule_input_placeholder" = "输入日程内容";
 
 // LLM Errors
-"llm_invalid_response" = "识别失败，请重试";
-"llm_parsing_failed" = "无法识别日程信息，请检查输入内容";
-"llm_missing_fields" = "缺少%@信息，请补充后重试";
+"llm_invalid_response" = "AI识别失败，请重试";
+"llm_parsing_failed" = "无法识别，请检查输入";
+"llm_missing_fields" = "缺少%@，请补充";
 
 // Event Fields
 "event_field_title" = "主题";
@@ -111,34 +111,34 @@
 "event_field_calendar" = "日历";
 
 // Image format error
-"invalid_image_format" = "仅支持 PNG、JPEG 或 HEIC 格式的图片";
+"invalid_image_format" = "仅支持PNG、JPEG、HEIC、WebP格式";
 
 // Error Messages
-"invalid_clipboard_content" = "剪贴板内容无法识别，请复制网页链接、图片或日程文本";
+"invalid_clipboard_content" = "剪贴板内容无效，请复制链接、图片或文本";
 
 // Drag and Drop
-"drag_drop_hint" = "拖放图片到这里";
+"drag_drop_hint" = "拖动图片至此";
 
 // Settings - Launch
-"settings_launch_error_title" = "启动设置失败";
-"settings_launch_error_message" = "无法设置开机启动，请检查系统权限";
+"settings_launch_error_title" = "开机自启设置失败";
+"settings_launch_error_message" = "请检查系统权限以设置开机自启";
 "settings_ok" = "确定";
 
 // Settings - Notifications
-"settings_notification_error_title" = "需要通知权限";
-"settings_notification_error_message" = "请在系统设置中允许通知，以便接收提醒";
-"settings_open_settings" = "去设置";
+"settings_notification_error_title" = "通知权限未开启";
+"settings_notification_error_message" = "请在系统设置中启用通知";
+"settings_open_settings" = "前往设置";
 "settings_cancel" = "取消";
 
 // Event List
 "event_list_title" = "日程列表";
-"event_list_subtitle" = "勾选需要添加的日程";
+"event_list_subtitle" = "选择要添加的日程";
 
 // Notification Actions
 "view_event" = "查看";
 "dismiss" = "关闭";
 
-"event_time_range_format" = "%@ 至 %@";
+"event_time_range_format" = "%@ - %@";
 
 // Event Card Menu
 "edit_event" = "编辑";
@@ -147,7 +147,7 @@
 
 // Event Edit View
 "edit_event_title" = "编辑日程";
-"edit_event_subtitle" = "修改日程信息";
+"edit_event_subtitle" = "修改日程";
 "save" = "保存";
 "cancel" = "取消";
 "update_success" = "更新成功";
@@ -164,52 +164,52 @@
 "settings_faq" = "常见问题";
 
 // Screenshot
-"screenshot.success.title" = "截图完成";
-"screenshot.success.message" = "已保存到下载文件夹";
+"screenshot.success.title" = "截图成功";
+"screenshot.success.message" = "已保存至下载文件夹";
 "screenshot.failure.title" = "截图失败";
-"screenshot.failure.message" = "请检查窗口状态";
+"screenshot.failure.message" = "请检查窗口是否打开";
 
 // Onboarding
 "onboarding.welcome.title" = "欢迎使用ScheduleSage";
-"onboarding.welcome.description" = "化繁为简的日程管理专家，让你的时间安排更轻松自如";
-"onboarding.features.title" = "便捷创建日程";
-"onboarding.features.description" = "识别网页、复制文本、拍照识别、手动输入，多种方式随心创建日程";
+"onboarding.welcome.description" = "轻松管理日程，化繁为简";
+"onboarding.features.title" = "多种创建方式";
+"onboarding.features.description" = "支持网页、文本、图片和手动输入";
 "onboarding.calendar.title" = "日历权限";
-"onboarding.calendar.description" = "授权日历访问，即刻开启智能日程管理之旅";
+"onboarding.calendar.description" = "授权后即可管理日程";
 "onboarding.notification.title" = "通知提醒";
-"onboarding.notification.description" = "及时获取日程提醒，重要事项绝不错过";
+"onboarding.notification.description" = "不错过任何重要日程";
 
 "onboarding.button.next" = "下一步";
 "onboarding.button.back" = "返回";
 "onboarding.button.finish" = "完成";
 
 "onboarding.permission.calendar.title" = "日历访问";
-"onboarding.permission.calendar.description" = "允许访问日历以添加和管理日程";
-"onboarding.permission.calendar.button" = "允许访问日历";
+"onboarding.permission.calendar.description" = "允许访问以管理日程";
+"onboarding.permission.calendar.button" = "允许访问";
 
-"onboarding.permission.notification.title" = "通知权限";
-"onboarding.permission.notification.description" = "开启通知以接收日程提醒";
-"onboarding.permission.notification.button" = "允许通知";
+"onboarding.permission.notification.title" = "通知";
+"onboarding.permission.notification.description" = "开启以接收提醒";
+"onboarding.permission.notification.button" = "允许";
 
 // New keys for granted permissions
-"onboarding.permission.calendar.granted" = "日历访问已授权";
+"onboarding.permission.calendar.granted" = "日历已授权";
 "onboarding.permission.notification.granted" = "通知已启用";
 
 // 设置 - 窗口置顶
 "settings_always_on_top" = "窗口置顶";
 
 // Powered by
-"powered_by_tencent" = "AI 智能驱动";
+"powered_by_tencent" = "AI 驱动的日程助手";
 
 "settings_feedback" = "反馈建议";
-"feedback_button_hint" = "你的建议能让ScheduleSage变得更好\n产品成功有你一份";
+"feedback_button_hint" = "你的反馈让ScheduleSage更出色";
 
 // Method Button Hints
-"hint.clipboard_import" = "从剪贴板文本或网页链接创建日程";
-"hint.manual_input" = "支持自然语言的手动输入方式";
-"hint.image_import" = "识别图片中的文字创建日程";
+"hint.clipboard_import" = "从剪贴板导入文本或链接";
+"hint.manual_input" = "自然语言输入";
+"hint.image_import" = "识别图片文字";
 
-"no_image_selected" = "未选择任何图片";
+"no_image_selected" = "未选图片";
 "image_selection_failed" = "图片选择失败";
 
 // Appearance
@@ -219,8 +219,8 @@
 "appearance_auto" = "自动";
 
 // 付费墙
-"paywall.title" = "升级至专业版";
-"paywall.description" = "解锁所有高级功能，享受更好的体验";
+"paywall.title" = "升级到高级版";
+"paywall.description" = "解锁高级功能，体验更佳";
 "paywall.restore_purchases" = "恢复购买";
 "paywall.subscription.monthly" = "月度订阅";
 "paywall.subscription.yearly" = "年度订阅";
@@ -248,17 +248,17 @@
 "paywall.footer.terms_privacy" = "继续即表示同意我们的服务条款和隐私政策";
 
 // 订阅功能
-"subscription_feature_unlimited_usage" = "无限次使用所有功能";
+"subscription_feature_unlimited_usage" = "无限制使用全部功能";
 "subscription_feature_priority_support" = "专属客服支持";
 "subscription_feature_yearly_discount" = "抢先体验新功能";
 
 "paywall.button.subscribed" = "已订阅";
 "paywall.restore.already_subscribed" = "你已是高级会员";
-"paywall.restore.no_subscription" = "未找到有效订阅，请订阅以继续使用";
+"paywall.restore.no_subscription" = "未找到订阅，请订阅继续";
 
-"paywall.offerings.load_failed" = "加载订阅选项失败，请重试";
+"paywall.offerings.load_failed" = "加载失败，请重试";
 
-"error.iap.payment_pending" = "支付正在处理中，请稍候";
+"error.iap.payment_pending" = "支付处理中，请稍候";
 
 // 购买状态
 "paywall.purchase.failed" = "购买失败";
@@ -266,14 +266,14 @@
 "paywall.purchase.success" = "购买成功";
 "paywall.purchase.processing" = "正在处理购买...";
 
-"error.iap.configuration_error" = "配置错误，请稍后重试";
-"error.iap.store_problem" = "App Store 出现问题，请稍后重试";
+"error.iap.configuration_error" = "配置有误，请稍后重试";
+"error.iap.store_problem" = "App Store 故障，请稍后重试";
 "error.iap.store_not_available" = "App Store 暂时不可用";
-"error.iap.store_auth_error" = "无法连接到 App Store，请检查网络连接后重试";
+"error.iap.store_auth_error" = "无法连接 App Store，请检查网络";
 "error.iap.platform_not_supported" = "当前平台不支持此功能";
 
 // Authentication
-"login_subtitle" = "使用 Apple ID 登录以开始使用";
+"login_subtitle" = "用 Apple ID 登录开始";
 "login_error_title" = "登录失败";
 "auth_error_sign_in_failed" = "登录失败，请重试";
 "auth_error_credential_invalid" = "登录凭证无效";
@@ -302,11 +302,11 @@
 "subscribed_status" = "已订阅";
 "subscribed_hint" = "你已是高级会员";
 
-"upgrade_button_hint" = "升级到高级版以解锁所有功能";
+"upgrade_button_hint" = "升级解锁全部功能";
 
 "settings_user_agreement" = "用户协议";
 
 /* Paywall Subscription Terms */
-"paywall.subscription.terms" = "试用期结束后，如果你未[取消订阅](https://support.apple.com/zh-cn/118428)，系统将通过你的 Apple ID 自动续订并收取每月或每年的费用。你可以随时在 Apple ID 账户设置中管理或[取消订阅](https://support.apple.com/zh-cn/118428)。";
+"paywall.subscription.terms" = "试用期后未取消订阅，将自动续订并收费。可在 Apple ID 设置中管理。";
 
-"premium_required" = "此功能需要高级会员订阅。升级后即可解锁所有功能。";
+"premium_required" = "此功能需高级会员。升级解锁全部功能。";
