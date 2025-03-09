@@ -11,11 +11,6 @@ import RevenueCat
 /// IAP Configuration
 /// 内购配置
 struct IAPConfiguration {
-    /// RevenueCat API Key
-    static var apiKey: String {
-        // TODO: 从服务端获取
-        return "appl_dMdpmzBEXIUFoVMfBQkSmpLDALP"
-    }
     
     /// 对应 RevenueCat 中的产品Identifier，且对应App Store Connect中的产品ID
     // 周订阅

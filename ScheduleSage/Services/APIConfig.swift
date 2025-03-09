@@ -10,14 +10,20 @@ import OSLog
 import Alamofire
 
 // MARK: - APIConfig
-final class APIConfig {
+/// API 配置管理器
+/// 负责管理 API 环境配置和认证状态
+actor APIConfig {
     // MARK: - Singleton
     static let shared = APIConfig()
     
     // MARK: - Properties
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "APIConfig")
     private let tokenProvider: SimpleJWTTokenProvider
-    private let environment: APIEnvironment
+    
+    // 将 environment 改为 nonisolated，因为它在初始化后不会改变
+    private nonisolated let environment: APIEnvironment
+    private var isTokenInitialized = false
+    private var tokenInitializationTask: Task<Void, Error>?
     
     // MARK: - API Environment
     static let developmentEnvironment = APIEnvironment(
@@ -51,20 +57,20 @@ final class APIConfig {
     )
     
     // MARK: - Current Environment
-    var currentAPIEnvironment: APIEnvironment {
-        environment
+    nonisolated var currentAPIEnvironment: APIEnvironment {
+        environment // 现在可以安全访问 nonisolated 的 environment
     }
     
     // MARK: - Computed Properties
-    var baseURL: String {
+    nonisolated var baseURL: String {
         currentAPIEnvironment.baseURL.absoluteString
     }
     
-    var promptsEndpoint: String {
+    nonisolated var promptsEndpoint: String {
         "\(baseURL)/api/v1/prompts"
     }
     
-    var llmEndpoint: String {
+    nonisolated var llmEndpoint: String {
         "\(baseURL)/api/v1/llm/chat"
     }
     
@@ -74,7 +80,6 @@ final class APIConfig {
         
         // 首先确定环境
         #if DEBUG
-        // 使用环境变量或配置来决定是使用本地开发环境还是 ngrok 环境
         if ProcessInfo.processInfo.environment["USE_NGROK"] == "true" {
             self.environment = Self.ngrokEnvironment
             logger.debug("Using ngrok environment: \(Self.ngrokEnvironment)")
@@ -98,15 +103,46 @@ final class APIConfig {
             with: environment,
             tokenProvider: tokenProvider
         )
+    }
+    
+    // MARK: - Token Management
+    
+    /// 确保 JWT token 已经初始化
+    /// - Throws: 如果 token 初始化失败则抛出错误
+    public func ensureTokenInitialized() async throws {
+        // 如果已经初始化完成，直接返回
+        if isTokenInitialized {
+            return
+        }
         
-        // 初始化 token
-        Task { [self] in
+        // 如果已经有任务在运行，等待其完成
+        if let existingTask = tokenInitializationTask {
+            try await existingTask.value
+            return
+        }
+        
+        // 创建新的初始化任务
+        let task = Task {
+            logger.info("Initializing JWT token...")
             do {
                 _ = try await tokenProvider.fetchToken()
+                isTokenInitialized = true
                 logger.info("Successfully initialized JWT token")
             } catch {
                 logger.error("Failed to initialize JWT token: \(error.localizedDescription)")
+                throw error
             }
+        }
+        
+        tokenInitializationTask = task
+        
+        // 等待任务完成并清理
+        do {
+            try await task.value
+            tokenInitializationTask = nil
+        } catch {
+            tokenInitializationTask = nil
+            throw error
         }
     }
     
@@ -114,7 +150,7 @@ final class APIConfig {
     
     /// 获取当前的 token provider
     /// - Returns: SimpleJWTTokenProvider 实例
-    public func getTokenProvider() -> SimpleJWTTokenProvider {
+    nonisolated public func getTokenProvider() -> SimpleJWTTokenProvider {
         tokenProvider
     }
 } 

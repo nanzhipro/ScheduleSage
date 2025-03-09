@@ -45,9 +45,22 @@
 		D57ADFE32CF54D36000D9DB1 /* ScheduleSageUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleSageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D5CC6CA32D7DCF6B00FD6DAE /* Exceptions for "ScheduleSage" folder in "ScheduleSage" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D57ADFC52CF54D34000D9DB1 /* ScheduleSage */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D57ADFC82CF54D34000D9DB1 /* ScheduleSage */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D5CC6CA32D7DCF6B00FD6DAE /* Exceptions for "ScheduleSage" folder in "ScheduleSage" target */,
+			);
 			path = ScheduleSage;
 			sourceTree = "<group>";
 		};

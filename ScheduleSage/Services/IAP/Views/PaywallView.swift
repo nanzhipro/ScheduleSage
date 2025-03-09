@@ -89,9 +89,13 @@ struct PaywallView: View {
                 .foregroundColor(.yellow)
                 .padding(.bottom, DesignSystem.Spacing.small)
             
-            Text(NSLocalizedString("upgrade_to_premium", comment: ""))
+            Text(iapService.isPremium ? 
+                NSLocalizedString("paywall.button.subscribed", comment: "") :
+                NSLocalizedString("upgrade_to_premium", comment: ""))
                 .font(DesignSystem.Typography.title)
-                .foregroundColor(DesignSystem.Colors.primaryText)
+                .foregroundColor(iapService.isPremium ? 
+                    DesignSystem.Colors.primary :
+                    DesignSystem.Colors.primaryText)
             
             Text(NSLocalizedString("paywall.description", comment: ""))
                 .font(DesignSystem.Typography.bodyRegular)

@@ -14,7 +14,7 @@ public final class NetworkLogger: EventMonitor {
 
   public static let shared = NetworkLogger()
   private let logLevel: LogLevel
-  private let sensitiveHeaders: Set<String> = ["Authorization", "Cookie"]
+  private let sensitiveHeaders: Set<String> = ["Cookie"]
 
   init(logLevel: LogLevel = .debug) {
     self.logLevel = logLevel

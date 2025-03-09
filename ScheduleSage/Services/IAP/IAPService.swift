@@ -24,6 +24,7 @@ class IAPService: NSObject, ObservableObject {
     static let shared = IAPService()
     
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "IAPService")
+    private let configService = ConfigService()
     
     // MARK: - Published Properties
     
@@ -71,36 +72,47 @@ class IAPService: NSObject, ObservableObject {
     private override init() {
         super.init()
         logger.debug("[IAP] Service instance created")
-        // 初始化时只配置一次
-        configureSDK()
         
-        // 自动启动初始化过程
+        // 初始化时自动启动配置过程
         Task {
-            try? await initializeIAPService()
+            try? await configureSDK()
         }
     }
     
     /// 配置 RevenueCat SDK
-    private func configureSDK() {
-        logger.info("[IAP] Configuring RevenueCat SDK with API key: \(String(IAPConfiguration.apiKey.prefix(6)))...")
-        
+    private func configureSDK() async throws {
         // 如果已经配置过，直接返回
         guard !isConfigured else {
             logger.debug("[IAP] SDK already configured, skipping configuration")
             return
         }
         
-        Purchases.configure(
-            with: Configuration.Builder(withAPIKey: IAPConfiguration.apiKey)
-                .with(storeKitVersion: .storeKit2)
-                .with(networkTimeout: 30)
-                .with(storeKit1Timeout: 30)
-                .build()
-        )
-        
-        isConfigured = true
-        configuredSubject.send()
-        logger.debug("[IAP] SDK configuration completed")
+        do {
+            // 首先获取应用配置
+            logger.info("[IAP] Fetching app configuration...")
+            let appConfig = try await configService.fetchConfig()
+            
+            logger.info("[IAP] Configuring RevenueCat SDK with fetched API key...")
+            
+            // 使用获取到的 API key 配置 RevenueCat
+            Purchases.configure(
+                with: Configuration.Builder(withAPIKey: appConfig.revenuecatApiKey)
+                    .with(storeKitVersion: .storeKit2)
+                    .with(networkTimeout: 30)
+                    .with(storeKit1Timeout: 30)
+                    .build()
+            )
+            
+            isConfigured = true
+            configuredSubject.send()
+            logger.debug("[IAP] SDK configuration completed")
+            
+            // 配置完成后启动初始化过程
+            try await initializeIAPService()
+        } catch {
+            logger.error("[IAP] Failed to configure SDK: \(error.localizedDescription)")
+            throw error
+        }
     }
     
     /// 初始化 RevenueCat SDK 和相关功能
