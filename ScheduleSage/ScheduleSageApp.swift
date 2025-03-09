@@ -12,7 +12,6 @@ struct ScheduleSageApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   @StateObject private var viewModel = AddScheduleViewModel()
   @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-  @StateObject private var iapService = IAPService.shared
   @StateObject private var authViewModel = AuthenticationViewModel.shared
 
   var body: some Scene {
@@ -21,7 +20,6 @@ struct ScheduleSageApp: App {
         if hasCompletedOnboarding {
           AddScheduleView()
             .environmentObject(viewModel)
-            .environmentObject(iapService)
             .environmentObject(authViewModel)
             .frame(
               width: DesignSystem.Dimensions.mainViewWidth,

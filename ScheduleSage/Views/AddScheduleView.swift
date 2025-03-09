@@ -12,7 +12,6 @@ import RevenueCat
 /// 添加日程主页面 | 首页
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
-  @EnvironmentObject private var iapService: IAPService
   @State private var showSettings = false
   @State private var needsRefresh = false
   @Environment(\.colorScheme) private var colorScheme
@@ -277,32 +276,20 @@ private enum Design {
 // MARK: - Calendar Icon
 private struct CalendarIcon: View {
     let animation: AddScheduleViewModel.DragAnimation
-    @EnvironmentObject private var iapService: IAPService
     @Environment(\.colorScheme) private var colorScheme
-    @State private var isPremium = false
+    @EnvironmentObject private var viewModel: AddScheduleViewModel
     
     var body: some View {
         ZStack(alignment: .center) {
             // 基础日历图标
-            BaseIconView(isPremium: isPremium, animation: animation)
+            BaseIconView(isPremium: viewModel.isPremium, animation: animation)
             
             // 会员光晕效果
-            if isPremium {
+            if viewModel.isPremium {
                 PremiumHaloEffect()
             }
         }
         .frame(width: Design.Size.iconContainerSize * 1.5, height: Design.Size.iconContainerSize * 1.5)
-        .task {
-            do {
-                isPremium = try await iapService.checkPremiumAccess()
-            } catch {
-                print("[CalendarIcon] Failed to check premium access: \(error)")
-                isPremium = false
-            }
-        }
-        .onChange(of: iapService.isPremium) { oldValue, newValue in
-            isPremium = newValue
-        }
     }
 }
 
@@ -458,7 +445,6 @@ private struct AppSubtitleView: View {
 // MARK: - Add Method Section
 private struct AddMethodSection: View {
     @ObservedObject var viewModel: AddScheduleViewModel
-    @EnvironmentObject private var iapService: IAPService
     
     var body: some View {
         HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
@@ -595,41 +581,28 @@ private struct CloseXButton: View {
 // MARK: - Upgrade Premium Button
 private struct UpgradePremiumButton: View {
   @ObservedObject var viewModel: AddScheduleViewModel
-  @EnvironmentObject private var iapService: IAPService
-  @State private var isPremium = false
   
   private var buttonText: LocalizedStringKey {
-    isPremium ? "subscribed_status" : "upgrade_to_premium"
+    viewModel.isPremium ? "subscribed_status" : "upgrade_to_premium"
   }
   
   var body: some View {
     Button(action: {
-      viewModel.showPaywall = true
+      viewModel.showPaywallView()
     }) {
       HStack(spacing: 4) {
         Image(systemName: "sparkles")
           .foregroundColor(.yellow)
         Text(buttonText)
           .font(DesignSystem.Typography.caption)
-          .foregroundColor(isPremium ? .green : DesignSystem.Colors.primary)
+          .foregroundColor(viewModel.isPremium ? .green : DesignSystem.Colors.primary)
       }
       .padding(.vertical, 6)
       .padding(.horizontal, 12)
     }
     .buttonStyle(.plain)
     .withHoverEffect(scale: 1.1, brightness: 0)
-    .help(NSLocalizedString(isPremium ? "subscribed_hint" : "upgrade_button_hint", comment: ""))
-    .task {
-      do {
-        isPremium = try await iapService.checkPremiumAccess()
-      } catch {
-        print("[UpgradePremiumButton] Failed to check premium access: \(error)")
-        isPremium = false
-      }
-    }
-    .onChange(of: iapService.isPremium) { oldValue, newValue in
-      isPremium = newValue
-    }
+    .help(NSLocalizedString(viewModel.isPremium ? "subscribed_hint" : "upgrade_button_hint", comment: ""))
   }
 }
 

@@ -17,12 +17,14 @@ struct PaywallView: View {
     // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var iapService: IAPService
     
     // MARK: - State
     @State private var selectedPackage: Package?
     @State private var showToast = false
     @State private var toastMessage = ""
+    
+    // 使用 StateObject 观察 IAPService 单例
+    @StateObject private var iapService = IAPService.shared
     
     // MARK: - Body
     var body: some View {
@@ -527,5 +529,4 @@ extension DesignSystem.Spacing {
 
 #Preview {
     PaywallView(onPurchaseCompleted: {})
-        .environmentObject(IAPService.shared)
 } 

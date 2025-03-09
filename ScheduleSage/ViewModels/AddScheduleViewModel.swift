@@ -24,6 +24,7 @@ class AddScheduleViewModel: ObservableObject {
     @Published var showImagePicker = false
     @Published var feedbackButtonScale: CGFloat = 1.0
     @Published var showPaywall = false
+    @Published private(set) var isPremium = false
     
     // MARK: - Services & Managers
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "AddScheduleViewModel")
@@ -32,6 +33,7 @@ class AddScheduleViewModel: ObservableObject {
     private let calendarManager = CalendarManager()
     private let webCrawler: WebCrawler
     private let llmProcessor: LLMEventProcessor
+    private let iapService = IAPService.shared
     
     // MARK: - Private Properties
     private var promptViewModel: PromptViewModel
@@ -49,9 +51,12 @@ class AddScheduleViewModel: ObservableObject {
             await promptViewModel.loadInitialPrompt()
             await promptViewModel.refreshPrompt()
             logger.info("Initialization completed")
+            
+            await checkPremiumStatus()
         }
         
         setupNotifications()
+        setupSubscriptionObserver()
     }
     
     private static func createWebCrawler() -> WebCrawler {
@@ -86,6 +91,54 @@ class AddScheduleViewModel: ObservableObject {
     
     func enableKeyboardMonitor() {
         isKeyboardMonitorEnabled = true
+    }
+    
+    // MARK: - 订阅状态管理
+    private func setupSubscriptionObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleSubscriptionChange),
+            name: .subscriptionStatusChanged,
+            object: nil
+        )
+    }
+    
+    @objc private func handleSubscriptionChange(_ notification: Notification) {
+        if let isPremium = notification.userInfo?["isPremium"] as? Bool {
+            Task { @MainActor in
+                self.isPremium = isPremium
+            }
+        }
+    }
+    
+    /// 检查高级会员状态
+    func checkPremiumStatus() async {
+        do {
+            let isPremium = try await iapService.checkPremiumAccess()
+            await MainActor.run {
+                self.isPremium = isPremium
+            }
+        } catch {
+            logger.error("Failed to check premium status: \(error.localizedDescription)")
+            await MainActor.run {
+                self.isPremium = false
+            }
+        }
+    }
+    
+    /// 打开付费墙
+    func showPaywallView() {
+        showPaywall = true
+    }
+    
+    /// 刷新订阅状态
+    func refreshSubscriptionStatus() async {
+        await checkPremiumStatus()
+    }
+    
+    // 在 deinit 中移除观察者
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 

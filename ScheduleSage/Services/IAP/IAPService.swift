@@ -64,12 +64,20 @@ class IAPService: NSObject, ObservableObject {
     
     private let configuredSubject = PassthroughSubject<Void, Never>()
     
+    // 新增初始化完成的 Subject
+    private let initializationCompletedSubject = PassthroughSubject<Void, Never>()
+    
     // MARK: - 初始化
     private override init() {
         super.init()
         logger.debug("[IAP] Service instance created")
         // 初始化时只配置一次
         configureSDK()
+        
+        // 自动启动初始化过程
+        Task {
+            try? await initializeIAPService()
+        }
     }
     
     /// 配置 RevenueCat SDK
@@ -97,6 +105,12 @@ class IAPService: NSObject, ObservableObject {
     
     /// 初始化 RevenueCat SDK 和相关功能
     func initializeIAPService() async throws {
+        // 如果已经初始化，直接返回
+        guard !isInitialized else {
+            logger.debug("[IAP] Service already initialized")
+            return
+        }
+        
         // 设置监听和初始化其他功能
         setupObservers()
         
@@ -105,9 +119,33 @@ class IAPService: NSObject, ObservableObject {
             // 在初始化时调用一次 restorePurchases，确保恢复之前的购买状态
             let restored = try await restorePurchases()
             logger.info("[IAP] Service initialization completed - Premium status: \(restored)")
+            
+            await MainActor.run {
+                isInitialized = true
+                // 通知初始化完成
+                initializationCompletedSubject.send()
+            }
         } catch {
             logger.error("[IAP] Service initialization failed: \(error.localizedDescription)")
             throw error
+        }
+    }
+    
+    /// 等待初始化完成
+    /// 可以在需要确保 IAP 服务已初始化的地方调用此方法
+    func waitForInitialization() async {
+        if isInitialized {
+            return
+        }
+        
+        return await withCheckedContinuation { continuation in
+            let cancellable = initializationCompletedSubject
+                .first()
+                .sink { _ in
+                    continuation.resume()
+                }
+            
+            cancellables.insert(cancellable)
         }
     }
     
@@ -412,6 +450,11 @@ class IAPService: NSObject, ObservableObject {
     /// 检查高级功能访问权限
     /// 在访问高级功能前调用此方法
     func checkPremiumAccess() async throws -> Bool {
+        // 确保服务已初始化
+        if !isInitialized {
+            await waitForInitialization()
+        }
+        
         // 如果尚未配置完成，等待配置
         if !isConfigured {
             return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
@@ -461,6 +504,11 @@ class IAPService: NSObject, ObservableObject {
     /// 刷新所有订阅相关数据
     /// 包括产品列表和用户订阅状态
     func refreshSubscriptionData() async throws {
+        // 确保服务已初始化
+        if !isInitialized {
+            await waitForInitialization()
+        }
+        
         await fetchOfferings()
         try await refreshCustomerInfo()
     }
@@ -468,6 +516,11 @@ class IAPService: NSObject, ObservableObject {
     /// 延迟加载订阅产品信息
     /// 仅在需要时调用此方法，例如打开付费墙时
     func lazyLoadOfferings() async {
+        // 确保服务已初始化
+        if !isInitialized {
+            await waitForInitialization()
+        }
+        
         // 如果已经有数据，就不需要再次加载
         if offerings != nil && !products.isEmpty {
             return
@@ -611,10 +664,8 @@ enum LoadingState {
 extension IAPService {
     /// 应用启动时调用此方法完成初始化
     static func bootstrap() async {
-        do {
-            try await shared.initializeIAPService()
-        } catch {
-            shared.logger.error("[IAP] Bootstrap failed: \(error.localizedDescription)")
-        }
+        // 服务在初始化时已经自动开始初始化过程
+        // 这里只需等待初始化完成
+        await shared.waitForInitialization()
     }
 } 

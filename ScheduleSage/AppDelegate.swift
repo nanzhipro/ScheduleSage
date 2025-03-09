@@ -45,9 +45,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         logger.debug("[App] Starting services initialization")
            
         // 初始化 IAP 服务
-        Task {
-            await IAPService.bootstrap()
-        }
+        logger.info("[App] Initializing IAP service")
+        await IAPService.bootstrap()
+        logger.info("[App] IAP service initialization completed")
         
         logger.notice("[App] Services initialization completed")
     }
