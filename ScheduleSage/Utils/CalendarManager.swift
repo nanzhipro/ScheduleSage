@@ -143,8 +143,8 @@ private extension CalendarManager {
             event.notes = model.notes
         }
         
-        // 添加默认提醒（30分钟前）
-        event.addAlarm(EKAlarm(relativeOffset: -1800))
+//        // 添加默认提醒（30分钟前）
+//        event.addAlarm(EKAlarm(relativeOffset: -1800))
         
         do {
             try eventStore.save(event, span: .thisEvent, commit: true)
