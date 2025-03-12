@@ -59,10 +59,12 @@ class AddScheduleViewModel: ObservableObject {
         setupSubscriptionObserver()
     }
     
+    // TODO: 如果频繁爬取网页，有可能会被封IP，需要使用代理池？
+    // 试验表明，如果UserAgent是固定的，比如产品名ScheduleSage，频繁爬取网页，就会被拦截。
     private static func createWebCrawler() -> WebCrawler {
         let config = CrawlerConfiguration(
             obeyRobotsTxt: false,
-            userAgent: "ScheduleSage/1.0",
+            userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
             minRequestInterval: 1.0,
             proxy: nil,
             maxConcurrentTasks: 3
