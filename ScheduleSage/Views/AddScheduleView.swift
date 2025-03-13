@@ -204,7 +204,7 @@ private struct MainContentView: View {
         
         // 底部留出空间给悬浮面板
         Spacer()
-          .frame(height: 70)
+          .frame(height: 16)
         
         FooterView()
       }
@@ -238,7 +238,7 @@ private struct MainContentView: View {
         }
       }
       .padding(.horizontal, 80)
-      .padding(.bottom, 49)
+      .padding(.bottom, 60)
       .zIndex(10) // 确保悬浮面板始终在最上层
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)

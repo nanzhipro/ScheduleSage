@@ -48,12 +48,12 @@ struct DragDropArea<Content: View>: View {
           isDragging ? 
             DesignSystem.Colors.primary.opacity(0.4) : 
             Color(.separatorColor).opacity(0),
-          lineWidth: isDragging ? 2 : 0
+          lineWidth: isDragging ? 2 : 0.5
         )
         .background(
           RoundedRectangle(cornerRadius: 16)
             .fill(Material.ultraThinMaterial)
-            .opacity(isDragging ? 1 : 0)
+            .opacity(isDragging ? 1 : 0.5)
         )
         .overlay(
           // 拖放提示效果
