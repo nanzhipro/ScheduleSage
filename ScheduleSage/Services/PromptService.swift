@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OSLog
 import Alamofire
 
 // MARK: - Error Types
@@ -40,7 +39,7 @@ public enum PromptError: LocalizedError {
 /// 负责管理提示词的获取、存储和自动更新
 actor PromptService {
     // MARK: - Properties
-    private let logger: Logger
+    private let logger: LoggerService
     private let apiConfig: APIConfig
     private let storage: UserDefaultsProtocol
     private let promptKey = "stored_prompt"
@@ -56,7 +55,7 @@ actor PromptService {
     ///   - apiConfig: API配置
     ///   - storage: 用户默认设置存储
     init(
-        logger: Logger = .init(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "PromptService"),
+        logger: LoggerService = .makeCompatible(category: "PromptService"),
         apiConfig: APIConfig = .shared,
         storage: UserDefaultsProtocol
     ) {

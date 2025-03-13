@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OSLog
 import Alamofire
 
 // MARK: - APIConfig
@@ -17,7 +16,7 @@ actor APIConfig {
     static let shared = APIConfig()
     
     // MARK: - Properties
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "APIConfig")
+    private let logger = LoggerService.makeCompatible(category: "APIConfig")
     private let tokenProvider: SimpleJWTTokenProvider
     
     // 将 environment 改为 nonisolated，因为它在初始化后不会改变

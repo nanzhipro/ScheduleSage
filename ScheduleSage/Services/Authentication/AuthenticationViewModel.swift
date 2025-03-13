@@ -7,12 +7,11 @@
 
 import Foundation
 import SwiftUI
-import os
 
 @MainActor
 final class AuthenticationViewModel: ObservableObject {
     static let shared = AuthenticationViewModel()
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "Authentication")
+    private let logger = LoggerService.makeCompatible(category: "Authentication")
     
     @Published private(set) var isAuthenticated = false {
         willSet {

@@ -8,7 +8,6 @@
 import Foundation
 import UserNotifications
 import AppKit
-import OSLog
 
 /// 通知管理器
 /// 管理应用程序的通知功能，包括权限管理、发送通知、处理通知交互等
@@ -18,7 +17,7 @@ public final class NotificationManager: NSObject {
     // MARK: - Properties
     
     public static let shared = NotificationManager()
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "NotificationManager")
+    private let logger = LoggerService.makeCompatible(category: "NotificationManager")
     private let notificationCenter = UNUserNotificationCenter.current()
     private let calendarManager = CalendarManager()
     

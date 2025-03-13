@@ -1,6 +1,5 @@
 import AppKit
 import SwiftUI
-import OSLog
 import Sentry
 
 @MainActor
@@ -9,7 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var keyboardMonitor: Any?
     private var onboardingWindowController: NSWindowController?
     
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "AppDelegate")
+    private let logger = LoggerService.makeCompatible(category: "AppDelegate")
     private let calendarManager = CalendarManager()
     private let clipboardManager = ClipboardManager()
     private let notificationManager = NotificationManager.shared

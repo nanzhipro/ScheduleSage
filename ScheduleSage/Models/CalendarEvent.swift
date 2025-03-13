@@ -122,7 +122,7 @@ public struct CalendarEvent: Codable, Identifiable {
 // MARK: - JSON Conversion
 extension CalendarEvent {
     /// 从 LLM 响应内容创建事件模型
-    public static func from(llmResponse content: String, logger: Logger) -> [CalendarEvent]? {
+    public static func from(llmResponse content: String, logger: LoggerService) -> [CalendarEvent]? {
         do {
             logger.info("Parsing LLM response: \(content)")
             // 尝试将字符串解析为 JSON 数据
@@ -153,7 +153,7 @@ extension CalendarEvent {
     }
     
     /// 将事件模型转换为 JSON 字符串
-    public func toJSONString(logger: Logger) -> String? {
+    public func toJSONString(logger: LoggerService) -> String? {
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

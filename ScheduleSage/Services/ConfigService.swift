@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OSLog
 import Alamofire
 
 // MARK: - ConfigService
@@ -14,12 +13,12 @@ import Alamofire
 /// 负责从服务器获取应用配置信息
 actor ConfigService {
     // MARK: - Properties
-    private let logger: Logger
+    private let logger: LoggerService
     private let apiConfig: APIConfig
     
     // MARK: - Initialization
     init(
-        logger: Logger = .init(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "ConfigService"),
+        logger: LoggerService = .makeCompatible(category: "ConfigService"),
         apiConfig: APIConfig = .shared
     ) {
         self.logger = logger

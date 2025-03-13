@@ -27,7 +27,7 @@ class AddScheduleViewModel: ObservableObject {
     @Published private(set) var isPremium = false
     
     // MARK: - Services & Managers
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "AddScheduleViewModel")
+    private let logger = LoggerService.makeCompatible(category: "AddScheduleViewModel")
     private let processor = OCRProcessor()
     private let clipboardManager = ClipboardManager()
     private let calendarManager = CalendarManager()

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OSLog
 
 /// 处理自然语言输入并转换为日历事件的协议
 public protocol LLMEventProcessor {
@@ -53,7 +52,7 @@ public enum LLMEventProcessorError: LocalizedError {
 public final class DefaultLLMEventProcessor: LLMEventProcessor {
     // MARK: - Dependencies
     
-    private let logger: Logger
+    private let logger: LoggerService
     private let llmService: LLMService
     private let promptViewModel: PromptViewModel
     private let calendarManager: CalendarManager
@@ -70,7 +69,7 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
         llmService: LLMService = .shared,
         promptViewModel: PromptViewModel,
         calendarManager: CalendarManager = CalendarManager(),
-        logger: Logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "LLMEventProcessor")
+        logger: LoggerService = .makeCompatible(category: "LLMEventProcessor")
     ) {
         self.llmService = llmService
         self.promptViewModel = promptViewModel

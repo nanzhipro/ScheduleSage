@@ -1,6 +1,5 @@
 import SwiftUI
 import UniformTypeIdentifiers
-import OSLog
 import QuestOCR
 
 @MainActor
@@ -11,7 +10,7 @@ struct ImageDropDelegate: DropDelegate {
   let onOCRStateChange: (Bool) -> Void
   
   private let processor: OCRProcessor
-  private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "ImageDropDelegate")
+  private let logger = LoggerService.makeCompatible(category: "ImageDropDelegate")
 
   init(
     onDrop: @escaping ([URL]) -> Void,

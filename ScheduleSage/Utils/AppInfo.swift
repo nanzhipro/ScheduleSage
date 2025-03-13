@@ -71,9 +71,14 @@ public enum AppInfo {
         return """
         App Information:
           Name: \(name)
+          Display Name: \(displayName)
           Version: \(version) (\(buildNumber))
           Bundle ID: \(bundleIdentifier)
           Launch Time: \(launchTime)
+          Executable Path: \(Bundle.main.executablePath ?? "Unknown")
+          Resource Path: \(Bundle.main.resourcePath ?? "Unknown")
+          Info.plist Path: \(Bundle.main.infoDictionary?["CFBundleInfoPlistPath"] as? String ?? "Unknown")
+          Minimum OS Version: \(Bundle.main.infoDictionary?["LSMinimumSystemVersion"] as? String ?? "Unknown")
         """
     }
     
@@ -81,24 +86,41 @@ public enum AppInfo {
     public static var systemInformation: String {
         let processInfo = ProcessInfo.processInfo
         let memoryGB = Double(processInfo.physicalMemory) / 1024.0 / 1024.0 / 1024.0
+        let hostName = Host.current().localizedName ?? "Unknown"
+        let userName = NSUserName()
+        let homeDirectory = NSHomeDirectory()
+        let tempDirectory = NSTemporaryDirectory()
         
         return """
         System Information:
+          Host Name: \(hostName)
+          User Name: \(userName)
           macOS Version: \(processInfo.operatingSystemVersionString)
           Physical Memory: \(String(format: "%.2f", memoryGB))GB
           Processor Count: \(processInfo.processorCount)
           Active Processor Count: \(processInfo.activeProcessorCount)
+          System Uptime: \(processInfo.systemUptime) seconds
+          Home Directory: \(homeDirectory)
+          Temp Directory: \(tempDirectory)
+          Process ID: \(processInfo.processIdentifier)
+          Process Name: \(processInfo.processName)
         """
     }
     
     /// 返回环境信息字符串
     public static var environmentInformation: String {
         let processInfo = ProcessInfo.processInfo
+        let environment = processInfo.environment
         
         return """
         Environment Information:
-          Debug Mode: \(processInfo.environment["DEBUG"] != nil ? "Yes" : "No")
+          Debug Mode: \(environment["DEBUG"] != nil ? "Yes" : "No")
           Development: \(isDebug ? "Yes" : "No")
+          Language: \(currentLanguage)
+          Supported Languages: \(supportedLanguages.joined(separator: ", "))
+          Time Zone: \(TimeZone.current.identifier)
+          Locale: \(Locale.current.identifier)
+          Calendar: \(Calendar.current.identifier)
         """
     }
 }

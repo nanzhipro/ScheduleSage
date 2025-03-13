@@ -9,13 +9,12 @@ import EventKit
 import Foundation
 import AppKit
 import SwiftDate
-import os
 
 /// 日历管理器
 public final class CalendarManager { 
     // MARK: - 属性
     private let eventStore = EKEventStore()
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "CalendarManager")
+    private let logger = LoggerService.makeCompatible(category: "CalendarManager")
     
     public init() {}
 }

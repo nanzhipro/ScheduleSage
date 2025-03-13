@@ -7,7 +7,6 @@
 
 import Foundation
 import AuthenticationServices
-import OSLog
 
 /// 认证服务协议
 @MainActor
@@ -48,7 +47,7 @@ enum AuthenticationError: LocalizedError, Identifiable {
 final class AuthenticationService: AuthenticationServiceProtocol {
     // MARK: - Properties
     static let shared = AuthenticationService()
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "Authentication")
+    private let logger = LoggerService.makeCompatible(category: "Authentication")
     private let userDefaults = UserDefaults.standard
     private let userKey = "currentUser"
     
@@ -142,9 +141,9 @@ final class AuthenticationService: AuthenticationServiceProtocol {
 private final class AuthorizationDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     private let continuation: CheckedContinuation<User, Error>
     private weak var service: AuthenticationService?
-    private let logger: Logger
+    private let logger: LoggerService
     
-    init(service: AuthenticationService, continuation: CheckedContinuation<User, Error>, logger: Logger) {
+    init(service: AuthenticationService, continuation: CheckedContinuation<User, Error>, logger: LoggerService) {
         self.service = service
         self.continuation = continuation
         self.logger = logger

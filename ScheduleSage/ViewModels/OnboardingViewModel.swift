@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import OSLog
 
 /// OnboardingViewModel
 /// Onboarding 页面的视图模型
@@ -35,7 +34,7 @@ public final class OnboardingViewModel: ObservableObject {
     
     private let calendarManager = CalendarManager()
     private var cancellables = Set<AnyCancellable>()
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.schedulesage", category: "OnboardingViewModel")
+    private let logger = LoggerService.makeCompatible(category: "OnboardingViewModel")
     
     // MARK: - Computed Properties
     

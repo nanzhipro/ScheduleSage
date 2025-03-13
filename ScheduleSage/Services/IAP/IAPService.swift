@@ -9,7 +9,6 @@ import Foundation
 import RevenueCat
 import Combine
 import StoreKit
-import OSLog
 
 /// 内购服务
 /// 负责管理应用内购买、订阅状态和产品展示
@@ -23,7 +22,7 @@ class IAPService: NSObject, ObservableObject {
     /// 共享实例
     static let shared = IAPService()
     
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ScheduleSage", category: "IAPService")
+    private let logger = LoggerService.makeCompatible(category: "IAPService")
     private let configService = ConfigService()
     
     // MARK: - Published Properties
