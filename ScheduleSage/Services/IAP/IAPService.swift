@@ -24,6 +24,7 @@ class IAPService: NSObject, ObservableObject {
     
     private let logger = LoggerService.makeCompatible(category: "IAPService")
     private let configService = ConfigService()
+    private var appConfig: AppConfig = AppConfig(revenuecatApiKey: "", enablePremiumFeaturesWhenUnsubscribed: false)
     
     // MARK: - Published Properties
     
@@ -90,7 +91,8 @@ class IAPService: NSObject, ObservableObject {
             // 首先获取应用配置
             logger.info("[IAP] Fetching app configuration...")
             let appConfig = try await configService.fetchConfig()
-            
+            self.appConfig = appConfig
+
             logger.info("[IAP] Configuring RevenueCat SDK with fetched API key...")
             
             // 使用获取到的 API key 配置 RevenueCat
@@ -503,7 +505,8 @@ class IAPService: NSObject, ObservableObject {
         DispatchQueue.main.async {
             self.isPremium = isPremium
         }
-        return isPremium
+
+        return isPremium || appConfig.enablePremiumFeaturesWhenUnsubscribed
     }
     
     private func initializeCustomerInfo() async throws {
@@ -652,9 +655,9 @@ extension IAPService: PurchasesDelegate {
                         }
                     }
                 }
-                logger.notice("[IAP] Promoted purchase successful")
+                await logger.notice("[IAP] Promoted purchase successful")
             } catch {
-                logger.error("[IAP] Promoted purchase failed: \(error.localizedDescription)")
+                await logger.error("[IAP] Promoted purchase failed: \(error.localizedDescription)")
                 Task { @MainActor in
                     self.updateError(.purchaseFailed)
                 }

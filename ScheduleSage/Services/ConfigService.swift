@@ -53,6 +53,8 @@ actor ConfigService {
 /// 应用配置模型
 struct AppConfig: Codable {
     let revenuecatApiKey: String
+    // 当未订阅时，是否启用高级功能, 默认是 false，可用于 App 初次上架推广
+    let enablePremiumFeaturesWhenUnsubscribed: Bool
 }
 
 // MARK: - Endpoint
