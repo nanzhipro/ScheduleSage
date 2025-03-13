@@ -179,7 +179,8 @@ private struct MainContentView: View {
   @Environment(\.colorScheme) var colorScheme
   
   var body: some View {
-    ZStack {
+    ZStack(alignment: .bottom) {
+      // 主内容区域
       VStack(spacing: 0) {
         DragDropArea(
           isDragging: $viewModel.isDragging,
@@ -201,11 +202,50 @@ private struct MainContentView: View {
         .frame(maxHeight: .infinity)
         .padding(.top, 8)
         
+        // 底部留出空间给悬浮面板
+        Spacer()
+          .frame(height: 70)
+        
         FooterView()
       }
+      
+      // 悬浮操作面板
+      FloatingActionPanel {
+        HStack(spacing: 48) {
+          // 剪贴板导入按钮
+          FloatingActionButton(
+            iconName: "clipboard.fill",
+            title: NSLocalizedString("clipboard_import", comment: ""),
+            hintKey: "hint.clipboard_import",
+            action: viewModel.checkClipboardContent
+          )
+          
+          // 手动输入按钮
+          FloatingActionButton(
+            iconName: "text.page.fill",
+            title: NSLocalizedString("manual_input", comment: ""),
+            hintKey: "hint.manual_input",
+            action: { viewModel.showManualInputSheet = true }
+          )
+          
+          // 图片导入按钮
+          FloatingActionButton(
+            iconName: "photo.fill",
+            title: NSLocalizedString("image_import", comment: ""),
+            hintKey: "hint.image_import",
+            action: viewModel.handleImageSelection
+          )
+        }
+      }
+      .padding(.horizontal, 80)
+      .padding(.bottom, 49)
+      .zIndex(10) // 确保悬浮面板始终在最上层
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(colorScheme == .dark ? DesignSystem.Colors.background : nil)
+    .sheet(isPresented: $viewModel.showManualInputSheet) {
+      ManualInputSheet(viewModel: viewModel)
+    }
   }
 }
 
@@ -218,7 +258,7 @@ private struct FooterView: View {
         Text(NSLocalizedString("powered_by_tencent", comment: ""))
           .font(DesignSystem.Typography.caption)
           .foregroundColor(DesignSystem.Colors.secondaryText)
-          .padding(.vertical, 16)
+          .padding(.vertical, 8)
       }
       .frame(maxWidth: .infinity)
       
@@ -230,6 +270,7 @@ private struct FooterView: View {
       }
     }
     .frame(maxWidth: .infinity)
+    .padding(.bottom, 4)
   }
 }
 
@@ -267,7 +308,7 @@ private enum Design {
   
   enum Size {
     /// 图标容器尺寸
-    static let iconContainerSize: CGFloat = 100
+    static let iconContainerSize: CGFloat = 80
     /// 图标尺寸
     static let iconSize: CGFloat = 48
   }
@@ -366,14 +407,9 @@ private struct AddScheduleContent: View {
       CalendarIcon(animation: viewModel.dragAnimation)
       
       TitleSection()
+        .padding(.top, 12)
         .padding(.bottom, Design.Spacing.titleToActions)
 
-      Spacer(minLength: 0)
-      Spacer(minLength: 0)
-      
-      AddMethodSection(viewModel: viewModel)
-        .padding(.horizontal, Design.Spacing.methodSectionHorizontal)
-      
       Spacer(minLength: 0)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -442,56 +478,6 @@ private struct AppSubtitleView: View {
     }
 }
 
-// MARK: - Add Method Section
-private struct AddMethodSection: View {
-    @ObservedObject var viewModel: AddScheduleViewModel
-    
-    var body: some View {
-        HStack(spacing: Design.Spacing.actionButtonsHorizontal) {
-            // 剪贴板导入按钮
-            ClipboardImportButton(viewModel: viewModel)
-            
-            // 手动输入按钮
-            ManualInputButton(viewModel: viewModel)
-            
-            // 图片导入按钮
-            ImageImportButton(viewModel: viewModel)
-        }
-        .frame(height: DesignSystem.Dimensions.largeButtonHeight)
-    }
-}
-
-// MARK: - Clipboard Import Button
-private struct ClipboardImportButton: View {
-    @ObservedObject var viewModel: AddScheduleViewModel
-    
-    var body: some View {
-        AddMethodButton(
-            iconName: "clipboard.fill",
-            title: NSLocalizedString("clipboard_import", comment: ""),
-            hintKey: "hint.clipboard_import",
-            action: viewModel.checkClipboardContent
-        )
-    }
-}
-
-// MARK: - Manual Input Button
-private struct ManualInputButton: View {
-    @ObservedObject var viewModel: AddScheduleViewModel
-    
-    var body: some View {
-        AddMethodButton(
-            iconName: "text.page.fill",
-            title: NSLocalizedString("manual_input", comment: ""),
-            hintKey: "hint.manual_input",
-            action: { viewModel.showManualInputSheet = true }
-        )
-        .sheet(isPresented: $viewModel.showManualInputSheet) {
-            ManualInputSheet(viewModel: viewModel)
-        }
-    }
-}
-
 // MARK: - Manual Input Sheet
 private struct ManualInputSheet: View {
     @ObservedObject var viewModel: AddScheduleViewModel
@@ -505,20 +491,6 @@ private struct ManualInputSheet: View {
                 viewModel.parsedEvents = events
                 viewModel.showEventList = true
             }
-        )
-    }
-}
-
-// MARK: - Image Import Button
-private struct ImageImportButton: View {
-    @ObservedObject var viewModel: AddScheduleViewModel
-    
-    var body: some View {
-        AddMethodButton(
-            iconName: "photo.fill",
-            title: NSLocalizedString("image_import", comment: ""),
-            hintKey: "hint.image_import",
-            action: viewModel.handleImageSelection
         )
     }
 }
@@ -676,7 +648,7 @@ private struct HelpButtonLabel: View {
           )
       )
       .scaleEffect(isPressed ? 0.95 : (isHovered ? 1.05 : 1.0))
-      .padding(.vertical, 16)
+      .padding(.vertical, 8)
   }
 }
 

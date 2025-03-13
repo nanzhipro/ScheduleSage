@@ -42,7 +42,7 @@ struct ScheduleSageApp: App {
       guard hasCompletedOnboarding,
             let window = NSApp.mainWindow else { return }
       
-      // 配置窗口基本属性
+      // // 配置窗口基本属性
       window.styleMask.remove([.resizable, .miniaturizable, .fullScreen])
       window.collectionBehavior.remove([.fullScreenPrimary, .fullScreenAuxiliary])
       
