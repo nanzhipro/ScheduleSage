@@ -332,10 +332,7 @@ private struct CalendarIcon: View {
             // 基础日历图标
             BaseIconView(isPremium: viewModel.isPremium, animation: animation)
             
-            // 会员光晕效果
-            if viewModel.isPremium {
-                PremiumHaloEffect()
-            }
+            // 移除会员光晕效果
         }
         .frame(width: Design.Size.iconContainerSize * 1.5, height: Design.Size.iconContainerSize * 1.5)
     }
@@ -352,14 +349,6 @@ private struct BaseIconView: View {
             Circle()
                 .fill(DesignSystem.Colors.secondaryBackground)
                 .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
-                .if(isPremium) { view in
-                    view.shadow(
-                        color: .yellow.opacity(colorScheme == .dark ? 0.3 : 0.2),
-                        radius: 15,
-                        x: 0,
-                        y: 0
-                    )
-                }
             
             Image(systemName: "calendar.badge.plus")
                 .font(.system(size: Design.Size.iconSize, weight: isPremium ? .medium : .regular))
@@ -377,31 +366,6 @@ private struct BaseIconView: View {
         }
         .modifier(DragAnimationModifier(animation: animation))
         .zIndex(1)
-    }
-}
-
-// MARK: - Premium Halo Effect
-private struct PremiumHaloEffect: View {
-    var body: some View {
-        Circle()
-            .fill(
-                RadialGradient(
-                    gradient: Gradient(colors: [
-                        .yellow.opacity(0.3),
-                        .yellow.opacity(0.1),
-                        .clear
-                    ]),
-                    center: .center,
-                    startRadius: 0,
-                    endRadius: Design.Size.iconContainerSize
-                )
-            )
-            .frame(
-                width: Design.Size.iconContainerSize * 1.5,
-                height: Design.Size.iconContainerSize * 1.5
-            )
-            .blur(radius: 15)
-            .zIndex(0)
     }
 }
 
