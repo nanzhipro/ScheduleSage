@@ -176,10 +176,10 @@ private struct EventFeedItem: View {
     private var backgroundGradient: LinearGradient {
         LinearGradient(
             stops: [
-                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.15 : 0.03), location: 0),
-                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.25 : 0.08), location: 0.4),
-                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.25 : 0.08), location: 0.6),
-                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.15 : 0.03), location: 1)
+                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.15 : 0.01), location: 0),
+                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.25 : 0.05), location: 0.4),
+                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.25 : 0.05), location: 0.6),
+                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.15 : 0.01), location: 1)
             ],
             startPoint: .leading,
             endPoint: .trailing

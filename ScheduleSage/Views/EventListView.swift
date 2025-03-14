@@ -219,6 +219,17 @@ private extension EventListView {
       toastType = .success
       toastMessage = NSLocalizedString("delete_success", comment: "")
       showToast = true
+      
+      // 如果删除后列表为空，则返回到主界面
+      if displayEvents.isEmpty {
+        // 延迟一小段时间以便用户看到删除成功的提示
+        Task {
+          try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒
+          await MainActor.run {
+            onBack()
+          }
+        }
+      }
     }
   }
 }
