@@ -80,6 +80,8 @@ struct DragDropArea<Content: View>: View {
         .zIndex(0)
     }
     .background(colorScheme == .dark ? DesignSystem.Colors.background : nil)
+    // 使用 allowsHitTesting 确保即使窗口失去焦点也能保持交互性
+    .allowsHitTesting(true)
     .onHover { hovering in
       isHovered = hovering
     }

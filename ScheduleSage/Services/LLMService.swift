@@ -36,7 +36,7 @@ public final class LLMService {
     /// - Complexity: O(1)，但网络延迟可能显著影响响应时间
     public func chat(
         with content: String,
-        temperature: Double = 0.7,
+        temperature: Double = 0.3,
         model: String = ""
     ) async throws -> LLMResponse {
         let message = LLMMessage(role: .user, content: content)

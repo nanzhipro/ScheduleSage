@@ -501,7 +501,7 @@ extension AddScheduleViewModel {
         }
     }
     
-    func importToCalendar() {
+    func importToCalendar(selectedEventIds: Set<String> = []) {
         Task {
             await MainActor.run {
                 importStatus = .importing
@@ -514,7 +514,9 @@ extension AddScheduleViewModel {
                 }
                 
                 var lastEventId: String?
-                for event in parsedEvents {
+                let eventsToImport = selectedEventIds.isEmpty ? parsedEvents : parsedEvents.filter { selectedEventIds.contains($0.eventIdentifier) }
+                
+                for event in eventsToImport {
                     lastEventId = try await calendarManager.createEvent(from: event)
                 }
                 

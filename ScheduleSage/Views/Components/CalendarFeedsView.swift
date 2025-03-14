@@ -13,6 +13,7 @@ import EventKit
 struct CalendarFeedsView: View {
     // MARK: - 属性
     @StateObject private var viewModel = CalendarFeedsViewModel()
+    @Environment(\.colorScheme) private var colorScheme
     private let maxEventsToShow = 2 // 最多显示两条日程
     
     // MARK: - 初始化
@@ -23,7 +24,7 @@ struct CalendarFeedsView: View {
         VStack(spacing: 0) {
             // 内容
             if viewModel.isLoading {
-                EmptyView()
+                loadingStateView
             } else if viewModel.hasError {
                 errorStateView
             } else if viewModel.events.isEmpty {
@@ -50,7 +51,9 @@ struct CalendarFeedsView: View {
                     Spacer()
                     Text(String(format: NSLocalizedString("more_events_count", comment: "还有 %d 个日程"), viewModel.events.count - maxEventsToShow))
                         .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.7))
+                        .foregroundColor(colorScheme == .dark ? 
+                            DesignSystem.Colors.secondaryText.opacity(0.9) : 
+                            DesignSystem.Colors.secondaryText.opacity(0.7))
                     Spacer()
                 }
                 .padding(.top, 4)
@@ -58,16 +61,31 @@ struct CalendarFeedsView: View {
         }
     }
     
+    // MARK: - 加载状态视图
+    private var loadingStateView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "clock")
+                .font(.system(size: 24))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
+            
+            Text(NSLocalizedString("loading_events", comment: "加载中..."))
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
+        }
+        .padding()
+        .opacity(0.7)
+    }
+    
     // MARK: - 空状态视图
     private var emptyStateView: some View {
         VStack(spacing: 8) {
             Image(systemName: "calendar.badge.exclamationmark")
                 .font(.system(size: 24))
-                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
             
             Text(NSLocalizedString("no_events_today", comment: ""))
                 .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
         }
         .padding()
         .opacity(0.7)
@@ -78,11 +96,11 @@ struct CalendarFeedsView: View {
         VStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 24))
-                .foregroundColor(DesignSystem.Colors.error.opacity(0.5))
+                .foregroundColor(DesignSystem.Colors.error.opacity(colorScheme == .dark ? 0.7 : 0.5))
             
             Text(NSLocalizedString("calendar_access_required", comment: ""))
                 .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
                 .multilineTextAlignment(.center)
         }
         .padding()
@@ -106,20 +124,20 @@ private struct EventFeedItem: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(event.title)
                     .font(DesignSystem.Typography.bodyMedium)
-                    .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.9))
+                    .foregroundColor(DesignSystem.Colors.primaryText.opacity(colorScheme == .dark ? 1.0 : 0.9))
                     .lineLimit(1)
                 
                 HStack(spacing: 8) {
                     // 日历名称
                     Text(event.calendar)
                         .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.8))
+                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.9 : 0.8))
                     
                     // 时间范围
                     if !event.isAllDay {
                         Text(timeRangeText)
                             .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.8))
+                            .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.9 : 0.8))
                     }
                 }
             }
@@ -139,7 +157,7 @@ private struct EventFeedItem: View {
     private var timeIndicator: some View {
         ZStack {
             Circle()
-                .fill(Color(nsColor: event.calendarColor.withAlphaComponent(0.15)))
+                .fill(Color(nsColor: event.calendarColor.withAlphaComponent(colorScheme == .dark ? 0.25 : 0.15)))
                 .frame(width: 40, height: 40)
             
             if event.isAllDay {
@@ -158,10 +176,10 @@ private struct EventFeedItem: View {
     private var backgroundGradient: LinearGradient {
         LinearGradient(
             stops: [
-                .init(color: backgroundColor.opacity(0.03), location: 0),
-                .init(color: backgroundColor.opacity(0.08), location: 0.4),
-                .init(color: backgroundColor.opacity(0.08), location: 0.6),
-                .init(color: backgroundColor.opacity(0.03), location: 1)
+                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.15 : 0.03), location: 0),
+                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.25 : 0.08), location: 0.4),
+                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.25 : 0.08), location: 0.6),
+                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.15 : 0.03), location: 1)
             ],
             startPoint: .leading,
             endPoint: .trailing
@@ -192,4 +210,5 @@ private struct EventFeedItem: View {
         .frame(width: 400, height: 300)
         .padding()
         .background(DesignSystem.Colors.background)
+        .preferredColorScheme(.dark) // 添加暗黑模式预览
 } 

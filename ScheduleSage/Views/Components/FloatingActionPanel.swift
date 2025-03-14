@@ -31,14 +31,14 @@ struct FloatingActionPanel<Content: View>: View {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(
                         colorScheme == .dark ? 
-                            DesignSystem.Colors.cardBackground.opacity(0.85) : 
-                            Color.white.opacity(0.85)
+                            DesignSystem.Colors.cardBackground.opacity(0.75) : 
+                            Color.white.opacity(0.5)
                     )
                 
                 // 毛玻璃效果
                 RoundedRectangle(cornerRadius: 20)
                     .fill(.ultraThinMaterial)
-                    .opacity(colorScheme == .dark ? 0.7 : 0.5)
+                    .opacity(colorScheme == .dark ? 0.6 : 0.4)
                 
                 // 边框效果
                 RoundedRectangle(cornerRadius: 20)
@@ -94,6 +94,15 @@ struct FloatingActionButton: View {
         self.action = action
     }
     
+    // 根据系统版本和图标名称返回适配的图标名称
+    private var adaptedIconName: String {
+        // 如果是 macOS 14 及以上版本，且图标是 text.page.fill，则使用 doc.plaintext.fill
+        if #available(macOS 14.0, *), iconName == "text.page.fill" {
+            return "doc.plaintext.fill"
+        }
+        return iconName
+    }
+    
     var body: some View {
         Button(action: handleButtonTap) {
             VStack(spacing: 6) { // 减少垂直间距
@@ -114,8 +123,8 @@ struct FloatingActionButton: View {
                             y: isHovered ? 2 : 1
                         )
                     
-                    // 图标
-                    Image(systemName: iconName)
+                    // 图标 - 使用适配的图标名称
+                    Image(systemName: adaptedIconName)
                         .font(.system(size: 24))
                         .foregroundStyle(
                             LinearGradient(

@@ -154,6 +154,7 @@
 
 // 日付形式
 "date_format.event_time" = "M月d日 HH:mm";
+"date_format.event_time_with_year" = "yyyy年M月d日 HH:mm";
 "date_format.time_separator" = " - ";
 "date_format.same_day" = "%@ - %@";
 "date_format.different_days" = "%@ - %@";

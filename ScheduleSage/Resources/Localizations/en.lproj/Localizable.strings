@@ -98,7 +98,7 @@
 
 // LLM Errors
 "llm_invalid_response" = "AI scan failed, try again";
-"llm_parsing_failed" = "Can’t recognize, check input";
+"llm_parsing_failed" = "Can't recognize, check input";
 "llm_missing_fields" = "Missing %@, please add";
 
 // Event Fields
@@ -154,6 +154,7 @@
 
 // Date Formats
 "date_format.event_time" = "MMM d, HH:mm";
+"date_format.event_time_with_year" = "MMM d, yyyy HH:mm";
 "date_format.time_separator" = " - ";
 "date_format.same_day" = "%@ - %@";
 "date_format.different_days" = "%@ - %@";
@@ -252,7 +253,7 @@
 "subscription_feature_yearly_discount" = "Early feature access";
 
 "paywall.button.subscribed" = "Subscribed";
-"paywall.restore.already_subscribed" = "You’re already Premium";
+"paywall.restore.already_subscribed" = "You're already Premium";
 "paywall.restore.no_subscription" = "No subscription found, please subscribe";
 
 "paywall.offerings.load_failed" = "Load failed, retry";
@@ -268,7 +269,7 @@
 "error.iap.configuration_error" = "Setup error, try later";
 "error.iap.store_problem" = "Store issue, try later";
 "error.iap.store_not_available" = "Store down, try later";
-"error.iap.store_auth_error" = "Can’t connect to Store, check network";
+"error.iap.store_auth_error" = "Can't connect to Store, check network";
 "error.iap.platform_not_supported" = "Feature not supported here";
 
 // Authentication
@@ -299,7 +300,7 @@
 "privacy_statement" = "Your data is fully encrypted";
 
 "subscribed_status" = "Subscribed";
-"subscribed_hint" = "You’re a Premium member";
+"subscribed_hint" = "You're a Premium member";
 
 "upgrade_button_hint" = "Upgrade for all features";
 

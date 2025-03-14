@@ -12,7 +12,7 @@ struct EventListView: View {
   // MARK: - Properties
   let events: [CalendarEvent]
   let onAdd: () -> Void
-  let onImport: () -> Void
+  let onImport: (Set<String>) -> Void
   let onBack: () -> Void
   let onUpdate: (CalendarEvent) -> Void
 
@@ -25,7 +25,7 @@ struct EventListView: View {
 
   private var hasSelectedEvents: Bool { !selectedEventIds.isEmpty }
 
-  init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping () -> Void, onBack: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void) {
+  init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping (Set<String>) -> Void, onBack: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void) {
     self.events = events
     self.onAdd = onAdd
     self.onImport = onImport
@@ -183,8 +183,8 @@ private extension EventListView {
   private func handleImport() {
     guard hasSelectedEvents else { return }
     
-    // 直接执行导入
-    onImport()
+    // 传递选中的事件ID
+    onImport(selectedEventIds)
     
     // 显示成功提示
     toastType = .success
@@ -232,7 +232,7 @@ struct EventListView_Previews: PreviewProvider {
       EventListView(
         events: PreviewData.mockCalendarEvents,
         onAdd: {},
-        onImport: {},
+        onImport: { _ in },
         onBack: {},
         onUpdate: { _ in }
       )
@@ -242,7 +242,7 @@ struct EventListView_Previews: PreviewProvider {
       EventListView(
         events: PreviewData.mockCalendarEvents,
         onAdd: {},
-        onImport: {},
+        onImport: { _ in },
         onBack: {},
         onUpdate: { _ in }
       )
@@ -253,7 +253,7 @@ struct EventListView_Previews: PreviewProvider {
       EventListView(
         events: [],
         onAdd: {},
-        onImport: {},
+        onImport: { _ in },
         onBack: {},
         onUpdate: { _ in }
       )

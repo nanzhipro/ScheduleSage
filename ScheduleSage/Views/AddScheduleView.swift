@@ -168,7 +168,9 @@ private struct EventListSheet: View {
     EventListView(
       events: viewModel.parsedEvents,
       onAdd: viewModel.resetState,
-      onImport: viewModel.importToCalendar,
+      onImport: { selectedEventIds in
+        viewModel.importToCalendar(selectedEventIds: selectedEventIds)
+      },
       onBack: { viewModel.showEventList = false },
       onUpdate: viewModel.updateEvent
     )
@@ -227,7 +229,7 @@ private struct MainContentView: View {
           
           // 手动输入按钮
           FloatingActionButton(
-            iconName: "text.page.fill",
+            iconName: getManualInputIcon(),
             title: NSLocalizedString("manual_input", comment: ""),
             hintKey: "hint.manual_input",
             action: { viewModel.showManualInputSheet = true }
@@ -292,7 +294,7 @@ private enum Design {
     )
     
     /// 内容整体内边距
-    static let contentPadding: CGFloat = 32
+    static let contentPadding: CGFloat = 12
     
     /// 拖拽区域顶部到图标的间距
     static let dragAreaTopPadding: CGFloat = 40
@@ -412,7 +414,7 @@ private struct AddScheduleContent: View {
       CalendarIcon(animation: viewModel.dragAnimation)
       
       TitleSection()
-        .padding(.top, 12)
+        .padding(.top, 4) // 减小间距，从 12 减小到 4
         .padding(.bottom, Design.Spacing.titleToActions)
 
       Spacer(minLength: 0)
@@ -695,4 +697,13 @@ extension View {
             self
         }
     }
+}
+
+// MARK: - Helper Functions
+private func getManualInputIcon() -> String {
+  if #available(macOS 14.0, *) {
+    return "doc.plaintext.fill"
+  } else {
+    return "text.page.fill"
+  }
 }

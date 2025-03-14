@@ -43,6 +43,17 @@ public enum DateFormatters {
         return formatter
     }()
     
+    /// 带年份的事件时间显示格式化器
+    /// 用于事件卡片中显示带年份的时间，支持本地化
+    public static let eventTimeWithYear: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = NSLocalizedString("date_format.event_time_with_year", comment: "Date format for event time display with year")
+        formatter.timeZone = .current
+        formatter.locale = .current
+        formatter.doesRelativeDateFormatting = false
+        return formatter
+    }()
+    
     /// 格式化日期范围
     /// - Parameters:
     ///   - start: 开始日期
@@ -51,17 +62,20 @@ public enum DateFormatters {
     public static func formatDateRange(start: Date, end: Date) -> String {
         let calendar = Calendar.current
         
+        // 始终使用带年份的格式化器
+        let formatter = eventTimeWithYear
+        
         // 如果是同一天，只显示一次日期
         if calendar.isDate(start, inSameDayAs: end) {
-            let dateStr = eventTime.string(from: start)
+            let dateStr = formatter.string(from: start)
             return String(
                 format: NSLocalizedString("date_format.same_day", comment: "Format for same day events"),
                 dateStr,
-                String(eventTime.string(from: end).suffix(5))  // 直接使用
+                String(formatter.string(from: end).suffix(5))  // 只取时间部分
             )
         } else {
-            let startStr = eventTime.string(from: start)
-            let endStr = eventTime.string(from: end)
+            let startStr = formatter.string(from: start)
+            let endStr = formatter.string(from: end)
             
             return String(
                 format: NSLocalizedString("date_format.different_days", comment: "Format for events spanning multiple days"),
