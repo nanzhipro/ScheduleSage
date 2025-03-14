@@ -309,3 +309,11 @@
 "paywall.subscription.terms" = "トライアル後、キャンセルしない限り自動更新されます。Apple IDの設定で管理できます。";
 
 "premium_required" = "プレミアムが必要です。全機能をアンロックするためにアップグレードしてください。";
+
+
+/* カレンダーイベント - 日本語 */
+"untitled_event" = "無題のイベント";
+"all_day" = "終日";
+"no_events_today" = "今日の予定はありません";
+"calendar_access_required" = "カレンダーへのアクセスが必要です"; 
+"today_events" = "今日の予定";

@@ -10,6 +10,30 @@ import Foundation
 import AppKit
 import SwiftDate
 
+/// 日历事件模型
+public struct CalendarEventSummary: Identifiable {
+    public let id: String
+    public let title: String
+    public let startDate: Date
+    public let endDate: Date
+    public let calendar: String
+    public let calendarColor: NSColor
+    
+    public var duration: TimeInterval {
+        endDate.timeIntervalSince(startDate)
+    }
+    
+    public var isAllDay: Bool {
+        // 判断是否为全天事件的简单逻辑
+        let calendar = Calendar.current
+        return calendar.isDate(startDate, equalTo: endDate, toGranularity: .day) &&
+               calendar.component(.hour, from: startDate) == 0 &&
+               calendar.component(.minute, from: startDate) == 0 &&
+               calendar.component(.hour, from: endDate) == 23 &&
+               calendar.component(.minute, from: endDate) == 59
+    }
+}
+
 /// 日历管理器
 public final class CalendarManager { 
     // MARK: - 属性
@@ -83,6 +107,42 @@ public extension CalendarManager {
         // TODO：暂未找到正确定位到日历事件的方法，实现暂时空置。
         logger.info("Opening calendar event: \(eventId)")
         return true
+    }
+    
+    /// 获取当日日历事件
+    /// - Returns: 当日事件列表，按开始时间排序
+    func fetchTodayEvents() async throws -> [CalendarEventSummary] {
+        guard try await requestAccess() else {
+            throw CalendarError.accessDenied
+        }
+        
+        let today = Date()
+        let calendar = Calendar.current
+        
+        // 获取今天的开始和结束时间
+        guard let startOfDay = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: today),
+              let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: today) else {
+            throw CalendarError.invalidDateFormat
+        }
+        
+        // 创建谓词来过滤事件
+        let predicate = eventStore.predicateForEvents(withStart: startOfDay, end: endOfDay, calendars: nil)
+        
+        // 获取事件
+        let events = eventStore.events(matching: predicate)
+        
+        // 转换为 CalendarEventSummary 模型
+        return events.map { event in
+            CalendarEventSummary(
+                id: event.eventIdentifier,
+                title: event.title ?? NSLocalizedString("untitled_event", comment: ""),
+                startDate: event.startDate ?? today,
+                endDate: event.endDate ?? today,
+                calendar: event.calendar.title,
+                calendarColor: event.calendar.color
+            )
+        }
+        .sorted { $0.startDate < $1.startDate }
     }
 }
 

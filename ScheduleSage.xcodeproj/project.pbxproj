@@ -471,7 +471,7 @@
 				CODE_SIGN_ENTITLEMENTS = ScheduleSage/ScheduleSage.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 27;
 				DEVELOPMENT_ASSET_PATHS = "\"ScheduleSage/Preview Content\"";
 				DEVELOPMENT_TEAM = YSM8K853CQ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -485,7 +485,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.26;
+				MARKETING_VERSION = 1.0.27;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tiwenlab.schedulesage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -502,7 +502,7 @@
 				CODE_SIGN_ENTITLEMENTS = ScheduleSage/ScheduleSage.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 27;
 				DEVELOPMENT_ASSET_PATHS = "\"ScheduleSage/Preview Content\"";
 				DEVELOPMENT_TEAM = YSM8K853CQ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -516,7 +516,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.26;
+				MARKETING_VERSION = 1.0.27;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tiwenlab.schedulesage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

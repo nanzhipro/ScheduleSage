@@ -309,3 +309,10 @@
 "paywall.subscription.terms" = "After trial, auto-renews unless canceled. Manage in Apple ID settings.";
 
 "premium_required" = "Premium needed. Upgrade to unlock all features.";
+
+/* Calendar Events - English */
+"untitled_event" = "Untitled Event";
+"all_day" = "All Day";
+"no_events_today" = "No Events Today";
+"calendar_access_required" = "Calendar Access Required";
+"today_events" = "Today's Events";

@@ -22,6 +22,10 @@ struct AddScheduleView: View {
       // 渐变背景，仅在浅色模式下显示
       BackgroundView(colorScheme: colorScheme)
       
+      // 日历事件流背景 - 放在背景之上，主内容之下
+      CalendarFeedsBackgroundView()
+        .zIndex(1)
+      
       VStack(spacing: 0) {
         MainContentView(viewModel: viewModel)
           .withLoading()
@@ -55,6 +59,7 @@ struct AddScheduleView: View {
         type: toastType,
         message: toastMessage
       )
+      .zIndex(2)
     }
     .toolbar {
       ToolbarItemGroup(placement: .automatic) {
@@ -427,7 +432,7 @@ private struct TitleSection: View {
             AppTitleView(isHovered: isHovered)
             
             // 副标题
-            AppSubtitleView(isHovered: isHovered)
+            // AppSubtitleView(isHovered: isHovered)
         }
         .padding(.horizontal)
         .contentShape(Rectangle())

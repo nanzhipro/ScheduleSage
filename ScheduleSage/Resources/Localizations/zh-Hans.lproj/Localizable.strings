@@ -310,3 +310,11 @@
 "paywall.subscription.terms" = "试用期后未取消订阅，将自动续订并收费。可在 Apple ID 设置中管理。";
 
 "premium_required" = "此功能需高级会员。升级解锁全部功能。";
+
+/* 日历事件相关 */
+"untitled_event" = "未命名事件";
+"all_day" = "全天";
+"no_events_today" = "今日无日程";
+"calendar_access_required" = "需要日历访问权限";
+"today_events" = "今日日程";
+"more_events_count" = "还有 %d 个日程";

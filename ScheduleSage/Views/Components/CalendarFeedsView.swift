@@ -1,0 +1,195 @@
+//
+//  CalendarFeedsView.swift
+//  ScheduleSage
+//
+//  Created by CursorAI on 2024-05-15.
+//
+
+import SwiftUI
+import EventKit
+
+/// 日历事件流视图
+/// 以若隐若现的方式展示当日日历事件
+struct CalendarFeedsView: View {
+    // MARK: - 属性
+    @StateObject private var viewModel = CalendarFeedsViewModel()
+    private let maxEventsToShow = 2 // 最多显示两条日程
+    
+    // MARK: - 初始化
+    init() {}
+    
+    // MARK: - 视图主体
+    var body: some View {
+        VStack(spacing: 0) {
+            // 内容
+            if viewModel.isLoading {
+                EmptyView()
+            } else if viewModel.hasError {
+                errorStateView
+            } else if viewModel.events.isEmpty {
+                emptyStateView
+            } else {
+                feedsContent
+            }
+        }
+        .onAppear {
+            viewModel.loadTodayEvents()
+        }
+    }
+    
+    // MARK: - 事件流内容
+    private var feedsContent: some View {
+        VStack(spacing: 12) {
+            ForEach(viewModel.events.prefix(maxEventsToShow)) { event in
+                EventFeedItem(event: event)
+            }
+            
+            // 如果有更多事件，显示"更多"提示
+            if viewModel.events.count > maxEventsToShow {
+                HStack {
+                    Spacer()
+                    Text(String(format: NSLocalizedString("more_events_count", comment: "还有 %d 个日程"), viewModel.events.count - maxEventsToShow))
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.7))
+                    Spacer()
+                }
+                .padding(.top, 4)
+            }
+        }
+    }
+    
+    // MARK: - 空状态视图
+    private var emptyStateView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "calendar.badge.exclamationmark")
+                .font(.system(size: 24))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+            
+            Text(NSLocalizedString("no_events_today", comment: ""))
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+        }
+        .padding()
+        .opacity(0.7)
+    }
+    
+    // MARK: - 错误状态视图
+    private var errorStateView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 24))
+                .foregroundColor(DesignSystem.Colors.error.opacity(0.5))
+            
+            Text(NSLocalizedString("calendar_access_required", comment: ""))
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.5))
+                .multilineTextAlignment(.center)
+        }
+        .padding()
+        .opacity(0.7)
+    }
+}
+
+// MARK: - 事件流项目
+private struct EventFeedItem: View {
+    // MARK: - 属性
+    let event: CalendarEventSummary
+    @Environment(\.colorScheme) private var colorScheme
+    
+    // MARK: - 视图主体
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            // 时间指示器
+            timeIndicator
+            
+            // 事件内容
+            VStack(alignment: .leading, spacing: 4) {
+                Text(event.title)
+                    .font(DesignSystem.Typography.bodyMedium)
+                    .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.9))
+                    .lineLimit(1)
+                
+                HStack(spacing: 8) {
+                    // 日历名称
+                    Text(event.calendar)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.8))
+                    
+                    // 时间范围
+                    if !event.isAllDay {
+                        Text(timeRangeText)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.8))
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(backgroundGradient)
+        )
+        .contentShape(Rectangle())
+    }
+    
+    // MARK: - 时间指示器
+    private var timeIndicator: some View {
+        ZStack {
+            Circle()
+                .fill(Color(nsColor: event.calendarColor.withAlphaComponent(0.15)))
+                .frame(width: 40, height: 40)
+            
+            if event.isAllDay {
+                Text(NSLocalizedString("all_day", comment: ""))
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(Color(nsColor: event.calendarColor))
+            } else {
+                Text(timeText)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(Color(nsColor: event.calendarColor))
+            }
+        }
+    }
+    
+    // MARK: - 背景渐变
+    private var backgroundGradient: LinearGradient {
+        LinearGradient(
+            stops: [
+                .init(color: backgroundColor.opacity(0.03), location: 0),
+                .init(color: backgroundColor.opacity(0.08), location: 0.4),
+                .init(color: backgroundColor.opacity(0.08), location: 0.6),
+                .init(color: backgroundColor.opacity(0.03), location: 1)
+            ],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+    
+    // MARK: - 辅助计算属性
+    private var backgroundColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
+    
+    private var timeText: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: event.startDate)
+    }
+    
+    private var timeRangeText: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return "\(formatter.string(from: event.startDate)) - \(formatter.string(from: event.endDate))"
+    }
+}
+
+// MARK: - 预览
+#Preview {
+    CalendarFeedsView()
+        .frame(width: 400, height: 300)
+        .padding()
+        .background(DesignSystem.Colors.background)
+} 
