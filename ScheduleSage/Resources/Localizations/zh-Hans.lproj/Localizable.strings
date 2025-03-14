@@ -205,9 +205,9 @@
 "feedback_button_hint" = "你的反馈让ScheduleSage更出色";
 
 // Method Button Hints
-"hint.clipboard_import" = "从剪贴板导入文本或链接";
+"hint.clipboard_import" = "也可以直接粘贴图片或网址";
 "hint.manual_input" = "自然语言输入";
-"hint.image_import" = "识别图片文字";
+"hint.image_import" = "选择图片";
 
 "no_image_selected" = "未选图片";
 "image_selection_failed" = "图片选择失败";

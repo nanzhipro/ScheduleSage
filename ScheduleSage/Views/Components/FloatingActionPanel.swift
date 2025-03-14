@@ -104,7 +104,7 @@ struct FloatingActionButton: View {
                         .fill(colorScheme == .dark ? 
                               Color.black.opacity(0.2) : 
                               Color.white.opacity(0.9))
-                        .frame(width: 36, height: 36)
+                        .frame(width: 48, height: 48)
                         .shadow(
                             color: colorScheme == .dark ?
                                 DesignSystem.Colors.primary.opacity(isHovered ? 0.2 : 0.1) :
@@ -116,7 +116,7 @@ struct FloatingActionButton: View {
                     
                     // 图标
                     Image(systemName: iconName)
-                        .font(.system(size: 16)) // 减小图标尺寸50%
+                        .font(.system(size: 24))
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [
