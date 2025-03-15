@@ -360,130 +360,64 @@ private enum Design {
   }
 }
 
-// MARK: - Calendar Icon
-private struct CalendarIcon: View {
-    let animation: AddScheduleViewModel.DragAnimation
-    @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var viewModel: AddScheduleViewModel
-    
-    var body: some View {
-        ZStack(alignment: .center) {
-            // 基础日历图标
-            BaseIconView(isPremium: viewModel.isPremium, animation: animation)
-            
-            // 移除会员光晕效果
-        }
-        .frame(width: Design.Size.iconContainerSize * 1.5, height: Design.Size.iconContainerSize * 1.5)
-        .zIndex(Double(viewModel.isDragging ? ZIndex.dragElevated : ZIndex.content)) // 拖拽时提升层级
-    }
-}
-
-// MARK: - Base Icon View
-private struct BaseIconView: View {
-    let isPremium: Bool
-    let animation: AddScheduleViewModel.DragAnimation
-    @Environment(\.colorScheme) private var colorScheme
-    
-    var body: some View {
-        ZStack {
-            Image(systemName: "calendar.badge.plus")
-                .font(.system(size: Design.Size.iconSize, weight: isPremium ? .medium : .regular))
-                .foregroundStyle(
-                  LinearGradient(
-                        colors: [
-                            DesignSystem.Colors.primary,
-                            DesignSystem.Colors.primary
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .symbolEffect(.bounce, value: isPremium)
-        }
-        .modifier(DragAnimationModifier(animation: animation))
-        .zIndex(Double(ZIndex.background))
-    }
-}
-
 // MARK: - Add Schedule Content
 private struct AddScheduleContent: View {
   @ObservedObject var viewModel: AddScheduleViewModel
+  @Environment(\.colorScheme) private var colorScheme
+  @State private var isTitleHovered = false
   
   var body: some View {
     VStack(spacing: 0) {
-      CalendarIcon(animation: viewModel.dragAnimation)
+      // 日历图标 - 直接集成了原来的CalendarIcon和BaseIconView
+      ZStack(alignment: .center) {
+        Image(systemName: "calendar.badge.plus")
+          .font(.system(size: Design.Size.iconSize, weight: viewModel.isPremium ? .medium : .regular))
+          .foregroundStyle(
+            LinearGradient(
+              colors: [
+                DesignSystem.Colors.primary,
+                DesignSystem.Colors.primary
+              ],
+              startPoint: .topLeading,
+              endPoint: .bottomTrailing
+            )
+          )
+          .symbolEffect(.bounce, value: viewModel.isPremium)
+          .modifier(DragAnimationModifier(animation: viewModel.dragAnimation))
+      }
+      .frame(width: Design.Size.iconContainerSize * 1.5, height: Design.Size.iconContainerSize * 1.5)
+      .zIndex(Double(viewModel.isDragging ? ZIndex.dragElevated : ZIndex.content))
       
-      TitleSection()
-        .padding(.top, 4) // 减小间距，从 12 减小到 4
+      // 标题 - 直接集成了原来的TitleSection和AppTitleView
+      Text(AppInfo.name)
+        .font(.system(size: 32, weight: .bold, design: .rounded))
+        .foregroundStyle(
+          LinearGradient(
+            colors: [
+              DesignSystem.Colors.primary,
+              DesignSystem.Colors.primary.opacity(0.8)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+          )
+        )
+        .shadow(
+          color: colorScheme == .dark ? 
+            DesignSystem.Colors.primary.opacity(0.3) : 
+            .clear,
+          radius: isTitleHovered ? 15 : 10
+        )
+        .scaleEffect(isTitleHovered ? 1.05 : 1.0)
+        .padding(.top, 4)
         .padding(.bottom, Design.Spacing.titleToActions)
+        .padding(.horizontal)
+        .contentShape(Rectangle())
 
       Spacer(minLength: 0)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .offset(y: -36) // 整体向上移动 64px
+    .offset(y: -36)
   }
-}
-
-// MARK: - Title Section
-private struct TitleSection: View {
-    @State private var isHovered = false
-    @Environment(\.colorScheme) private var colorScheme
-    
-    var body: some View {
-        VStack(spacing: Design.Spacing.titleToSubtitle) {
-            // 主标题
-            AppTitleView(isHovered: isHovered)
-            
-            // 副标题
-            // AppSubtitleView(isHovered: isHovered)
-        }
-        .padding(.horizontal)
-        .contentShape(Rectangle())
-    }
-}
-
-// MARK: - App Title View
-private struct AppTitleView: View {
-    let isHovered: Bool
-    @Environment(\.colorScheme) private var colorScheme
-    
-    var body: some View {
-        Text(AppInfo.name)
-            .font(.system(size: 32, weight: .bold, design: .rounded))
-            .foregroundStyle(
-                LinearGradient(
-                    colors: [
-                        DesignSystem.Colors.primary,
-                        DesignSystem.Colors.primary.opacity(0.8)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .shadow(
-                color: colorScheme == .dark ? 
-                    DesignSystem.Colors.primary.opacity(0.3) : 
-                    .clear,
-                radius: isHovered ? 15 : 10
-            )
-            .scaleEffect(isHovered ? 1.05 : 1.0)
-    }
-}
-
-// MARK: - App Subtitle View
-private struct AppSubtitleView: View {
-    let isHovered: Bool
-    @Environment(\.colorScheme) private var colorScheme
-    
-    var body: some View {
-        Text(NSLocalizedString("schedule_add_subtitle", comment: ""))
-            .font(.system(size: 16, weight: .regular, design: .rounded))
-            .foregroundColor(colorScheme == .dark ? .white : .black)
-            .multilineTextAlignment(.center)
-            .fixedSize(horizontal: false, vertical: true)
-            .opacity(isHovered ? 0.9 : 0.8)
-            .animation(.easeInOut(duration: 0.2), value: isHovered)
-    }
 }
 
 // MARK: - Manual Input Sheet
