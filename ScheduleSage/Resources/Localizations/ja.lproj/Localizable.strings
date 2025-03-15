@@ -26,6 +26,8 @@
 "detected_events" = "%d件の予定を検出";
 "selected_events" = "%d件の予定を選択";
 "recurring" = "繰り返し";
+"select_all" = "すべて選択";
+"deselect_all" = "すべて選択解除";
 
 // 読み込み中
 "loading_ocr" = "画像をスキャン中...";

@@ -24,6 +24,7 @@ struct EventListView: View {
   @State private var needsRefresh = false
 
   private var hasSelectedEvents: Bool { !selectedEventIds.isEmpty }
+  private var allEventsSelected: Bool { selectedEventIds.count == displayEvents.count && !displayEvents.isEmpty }
 
   init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping (Set<String>) -> Void, onBack: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void) {
     self.events = events
@@ -37,7 +38,7 @@ struct EventListView: View {
   // MARK: - Body
   var body: some View {
     VStack(spacing: 0) {
-      HeaderView(onBack: onBack)
+      compactHeaderView
       contentArea
       listHeader
       importButton
@@ -79,30 +80,22 @@ struct EventListView: View {
       showToast = true
     }
   }
-}
-
-// MARK: - Header View
-private struct HeaderView: View {
-  let onBack: () -> Void
   
-  var body: some View {
-    VStack(alignment: .leading, spacing: DesignSystem.Spacing.largeHeaderSpacing) {
-      HStack(spacing: DesignSystem.Spacing.iconSpacing) {
-        Text(NSLocalizedString("event_list_title", comment: ""))
-          .font(DesignSystem.Typography.largeHeaderTitle)
-          .foregroundColor(DesignSystem.Colors.primaryText)
-        Spacer()
-        SageCloseButton(action: onBack)
-      }
+  // MARK: - Compact Header View
+  private var compactHeaderView: some View {
+    HStack {
+      Text(NSLocalizedString("event_list_title", comment: ""))
+        .font(DesignSystem.Typography.largeHeaderTitle)
+        .foregroundColor(DesignSystem.Colors.primaryText)
+        .padding(.leading, 20)
       
-      Text(NSLocalizedString("event_list_subtitle", comment: ""))
-        .font(DesignSystem.Typography.largeHeaderSubtitle)
-        .foregroundColor(DesignSystem.Colors.secondaryText)
-        .lineLimit(2)
+      Spacer()
+      
+      SageCloseButton(action: onBack)
+        .padding(.trailing, 20)
     }
-    .padding(.horizontal, DesignSystem.Layout.largeContainerPadding.leading)
-    .padding(.top, DesignSystem.Layout.largeContainerPadding.top)
-    .padding(.bottom, DesignSystem.Spacing.sectionSpacing)
+    .padding(.vertical, 16)
+    .background(DesignSystem.Colors.background)
   }
 }
 
@@ -119,15 +112,41 @@ private extension EventListView {
   
   var listHeader: some View {
     HStack {
-      Text(String(format: NSLocalizedString("detected_events", comment: ""), displayEvents.count))
-        .font(DesignSystem.Typography.eventCount)
-        .foregroundColor(DesignSystem.Colors.secondaryText)
-      
-      if hasSelectedEvents {
-        Text("·").foregroundColor(DesignSystem.Colors.secondaryText)
-        Text(String(format: NSLocalizedString("selected_events", comment: ""), selectedEventIds.count))
+      // 左侧：事件计数信息
+      HStack(spacing: 4) {
+        Text(String(format: NSLocalizedString("detected_events", comment: ""), displayEvents.count))
           .font(DesignSystem.Typography.eventCount)
           .foregroundColor(DesignSystem.Colors.secondaryText)
+        
+        if hasSelectedEvents {
+          Text("·").foregroundColor(DesignSystem.Colors.secondaryText)
+          Text(String(format: NSLocalizedString("selected_events", comment: ""), selectedEventIds.count))
+            .font(DesignSystem.Typography.eventCount)
+            .foregroundColor(DesignSystem.Colors.secondaryText)
+        }
+      }
+      
+      Spacer()
+      
+      // 右侧：全选/全不选按钮
+      HStack(spacing: 12) {
+        // 全选按钮
+        Button(action: selectAllEvents) {
+          Text(NSLocalizedString("select_all", comment: ""))
+            .font(DesignSystem.Typography.eventCount)
+            .foregroundColor(allEventsSelected ? DesignSystem.Colors.secondaryText : DesignSystem.Colors.primary)
+        }
+        .buttonStyle(.plain)
+        .disabled(allEventsSelected || displayEvents.isEmpty)
+        
+        // 全不选按钮
+        Button(action: deselectAllEvents) {
+          Text(NSLocalizedString("deselect_all", comment: ""))
+            .font(DesignSystem.Typography.eventCount)
+            .foregroundColor(hasSelectedEvents ? DesignSystem.Colors.primary : DesignSystem.Colors.secondaryText)
+        }
+        .buttonStyle(.plain)
+        .disabled(!hasSelectedEvents)
       }
     }
     .frame(height: DesignSystem.Dimensions.listHeaderHeight)
@@ -175,6 +194,20 @@ private extension EventListView {
   var buttonBackground: some View {
     DesignSystem.Colors.primary
       .opacity(hasSelectedEvents ? 1 : 0.5)
+  }
+  
+  // MARK: - Selection Actions
+  
+  /// 全选所有事件
+  func selectAllEvents() {
+    for event in displayEvents {
+      selectedEventIds.insert(event.eventIdentifier)
+    }
+  }
+  
+  /// 取消选择所有事件
+  func deselectAllEvents() {
+    selectedEventIds.removeAll()
   }
 }
 

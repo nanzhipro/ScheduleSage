@@ -26,6 +26,8 @@
 "detected_events" = "Found %d events";
 "selected_events" = "Selected %d events";
 "recurring" = "Recurring";
+"select_all" = "Select All";
+"deselect_all" = "Deselect All";
 
 // Loading
 "loading_ocr" = "Scanning image...";

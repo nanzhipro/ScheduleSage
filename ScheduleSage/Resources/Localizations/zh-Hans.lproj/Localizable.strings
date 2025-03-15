@@ -26,6 +26,8 @@
 "detected_events" = "识别到 %d 个日程";
 "selected_events" = "已选 %d 个日程";
 "recurring" = "重复";
+"select_all" = "全选";
+"deselect_all" = "全不选";
 
 // Loading
 "loading_ocr" = "图片识别中...";
