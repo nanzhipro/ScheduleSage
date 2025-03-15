@@ -115,6 +115,7 @@ class AddScheduleViewModel: ObservableObject {
     func checkPremiumStatus() async {
         do {
             let isPremium = try await iapService.checkPremiumAccess()
+            logger.info("Premium status: \(isPremium)")
             await MainActor.run {
                 self.isPremium = isPremium
             }

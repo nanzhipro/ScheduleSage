@@ -71,7 +71,7 @@ class IAPService: NSObject, ObservableObject {
     // MARK: - 初始化
     private override init() {
         super.init()
-        logger.debug("[IAP] Service instance created")
+        logger.info("[IAP] Service instance created")
         
         // 初始化时自动启动配置过程
         Task {
@@ -83,7 +83,7 @@ class IAPService: NSObject, ObservableObject {
     private func configureSDK() async throws {
         // 如果已经配置过，直接返回
         guard !isConfigured else {
-            logger.debug("[IAP] SDK already configured, skipping configuration")
+            logger.info("[IAP] SDK already configured, skipping configuration")
             return
         }
         
@@ -106,7 +106,7 @@ class IAPService: NSObject, ObservableObject {
             
             isConfigured = true
             configuredSubject.send()
-            logger.debug("[IAP] SDK configuration completed")
+            logger.info("[IAP] SDK configuration completed")
             
             // 配置完成后启动初始化过程
             try await initializeIAPService()
@@ -120,7 +120,7 @@ class IAPService: NSObject, ObservableObject {
     func initializeIAPService() async throws {
         // 如果已经初始化，直接返回
         guard !isInitialized else {
-            logger.debug("[IAP] Service already initialized")
+            logger.info("[IAP] Service already initialized")
             return
         }
         
@@ -216,9 +216,9 @@ class IAPService: NSObject, ObservableObject {
     private func setupSubscriptionMonitoring() {
         logger.info("[IAP] Setting up subscription monitoring")
         Task {
-            logger.debug("[IAP] Starting customer info stream monitoring")
+            logger.info("[IAP] Starting customer info stream monitoring")
             for await customerInfo in Purchases.shared.customerInfoStream {
-                logger.debug("[IAP] Received customer info update: \(customerInfo.originalApplicationVersion ?? "unknown")")
+                logger.info("[IAP] Received customer info update: \(customerInfo.originalApplicationVersion ?? "unknown")")
                 updateCustomerInfo(customerInfo)
             }
         }
@@ -241,7 +241,7 @@ class IAPService: NSObject, ObservableObject {
         Task {
             do {
                 try await refreshCustomerInfo()
-                logger.debug("[IAP] Customer info refreshed after app became active")
+                logger.info("[IAP] Customer info refreshed after app became active")
             } catch {
                 logger.error("[IAP] Failed to refresh customer info on app active: \(error.localizedDescription)")
             }
@@ -257,8 +257,8 @@ class IAPService: NSObject, ObservableObject {
         
         do {
             let offerings = try await Purchases.shared.offerings()
-            logger.debug("[IAP] Available offerings: \(offerings.all.keys.joined(separator: ", "))")
-            logger.debug("[IAP] Current offering packages: \(offerings.current?.availablePackages.map { $0.identifier } ?? [])")
+            logger.info("[IAP] Available offerings: \(offerings.all.keys.joined(separator: ", "))")
+            logger.info("[IAP] Current offering packages: \(offerings.current?.availablePackages.map { $0.identifier } ?? [])")
             
             updateOfferings(offerings)
             updateOfferingsLoadingState(.success)
@@ -274,13 +274,13 @@ class IAPService: NSObject, ObservableObject {
     /// - Parameter info: 新的用户信息
     private func updateCustomerInfo(_ info: CustomerInfo) {
         Task { @MainActor in
-            logger.debug("[IAP] Updating customer info - Original App Version: \(info.originalApplicationVersion ?? "unknown")")
+            logger.info("[IAP] Updating customer info - Original App Version: \(info.originalApplicationVersion ?? "unknown")")
             customerInfo = info
             
             if let entitlement = info.entitlements[IAPConfiguration.premiumEntitlementId] {
                 let isActive = entitlement.isActive
                 let expirationDate = entitlement.expirationDate
-                logger.debug("[IAP] Premium entitlement - Active: \(isActive), Expires: \(expirationDate?.description ?? "none")")
+                logger.info("[IAP] Premium entitlement - Active: \(isActive), Expires: \(expirationDate?.description ?? "none")")
                 
                 if isActive {
                     subscriptionStatus = .active(expirationDate: expirationDate)
@@ -294,7 +294,7 @@ class IAPService: NSObject, ObservableObject {
             } else {
                 subscriptionStatus = .notSubscribed
                 isPremium = false
-                logger.debug("[IAP] No subscription found")
+                logger.info("[IAP] No subscription found")
             }
             
             logger.info("[IAP] Customer info updated - Premium: \(self.isPremium), Status: \(self.subscriptionStatus.description)")
@@ -342,7 +342,7 @@ class IAPService: NSObject, ObservableObject {
         updatePurchaseState(.purchasing)
         
         do {
-            logger.debug("[IAP] Attempting purchase with RevenueCat")
+            logger.info("[IAP] Attempting purchase with RevenueCat")
             let result = try await Purchases.shared.purchase(package: product.package)
             
             if result.userCancelled {
@@ -351,7 +351,7 @@ class IAPService: NSObject, ObservableObject {
                 throw IAPError.userCancelled
             }
             
-            logger.debug("[IAP] Purchase completed, updating customer info")
+            logger.info("[IAP] Purchase completed, updating customer info")
             updateCustomerInfo(result.customerInfo)
             
             try await refreshCustomerInfo()
@@ -376,7 +376,7 @@ class IAPService: NSObject, ObservableObject {
         logger.info("[IAP] Starting purchase restoration")
         do {
             let customerInfo = try await Purchases.shared.restorePurchases()
-            logger.debug("[IAP] Purchase restoration completed, updating customer info")
+            logger.info("[IAP] Purchase restoration completed, updating customer info")
             updateCustomerInfo(customerInfo)
             
             let hasActiveSubscription = isPremium
@@ -450,7 +450,7 @@ class IAPService: NSObject, ObservableObject {
     /// 主动刷新客户信息
     /// 在访问高级内容前调用此方法以确保状态最新
     func refreshCustomerInfo() async throws {
-        logger.debug("[IAP] Manually refreshing customer info")
+        logger.info("[IAP] Manually refreshing customer info")
         do {
             let customerInfo = try await Purchases.shared.customerInfo()
             updateCustomerInfo(customerInfo)
