@@ -52,11 +52,10 @@ class CalendarFeedsViewModel: ObservableObject {
                 // 获取所有当日事件
                 let allEvents = try await calendarManager.fetchTodayEvents()
                 
-                // 只返回当前时间之后的事件
                 let currentTime = Date()
                 let futureEvents = allEvents.filter { event in
                     // 全天事件或者开始时间在当前时间之后的事件
-                    event.isAllDay || event.startDate > currentTime
+                    event.isAllDay || event.endDate > currentTime
                 }
                 
                 // 按开始时间排序
