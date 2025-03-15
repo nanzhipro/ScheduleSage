@@ -9,6 +9,25 @@ import AppKit
 import SwiftUI
 import RevenueCat
 
+/// 定义应用中的视图层级常量
+enum ZIndex {
+  /// 背景层 - 最底层
+  static let background = 1
+  /// 中间层 - 位于背景之上，内容之下
+  static let midLayer = 2
+  /// 内容层 - 主要交互元素
+  static let content = 3
+  /// 顶层 - 最高优先级元素
+  static let topLayer = 4
+  
+  /// 拖拽状态下的提升层级
+  static let dragElevated = 10
+  /// 弹窗层级
+  static let modal = 20
+  /// 全局提示层级
+  static let toast = 30
+}
+
 /// 添加日程主页面 | 首页
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
@@ -21,11 +40,8 @@ struct AddScheduleView: View {
     ZStack {
       // 渐变背景，仅在浅色模式下显示
       BackgroundView(colorScheme: colorScheme)
-      
-      // 日历事件流背景 - 放在背景之上，主内容之下
-      CalendarFeedsBackgroundView()
-        .zIndex(1)
-      
+            .zIndex(Double(ZIndex.background)) // 背景层级最低
+
       VStack(spacing: 0) {
         MainContentView(viewModel: viewModel)
           .withLoading()
@@ -59,7 +75,7 @@ struct AddScheduleView: View {
         type: toastType,
         message: toastMessage
       )
-      .zIndex(2)
+      .zIndex(Double(ZIndex.content)) // 主内容区域在背景之上
     }
     .toolbar {
       ToolbarItemGroup(placement: .automatic) {
@@ -131,6 +147,17 @@ private struct BackgroundView: View {
         endPoint: .bottom
       )
       .ignoresSafeArea()
+    } else {
+      // 深色模式下的背景
+      LinearGradient(
+        colors: [
+          DesignSystem.Colors.primary.opacity(0.05),
+          DesignSystem.Colors.background
+        ],
+        startPoint: .top,
+        endPoint: .bottom
+      )
+      .ignoresSafeArea()
     }
   }
 }
@@ -187,6 +214,10 @@ private struct MainContentView: View {
   
   var body: some View {
     ZStack(alignment: .bottom) {
+      // 日历事件流背景 - 放在背景之上，主内容之下
+      CalendarFeedsBackgroundView()
+            .zIndex(Double(ZIndex.midLayer)) // 日历事件流背景在基础背景之上
+
       // 主内容区域
       VStack(spacing: 0) {
         DragDropArea(
@@ -215,6 +246,7 @@ private struct MainContentView: View {
         
         FooterView()
       }
+      .zIndex(Double(ZIndex.background)) // 主内容在底层
       
       // 悬浮操作面板
       FloatingActionPanel {
@@ -246,10 +278,11 @@ private struct MainContentView: View {
       }
       .padding(.horizontal, 80)
       .padding(.bottom, 60)
-      .zIndex(10) // 确保悬浮面板始终在最上层
+      .zIndex(Double(ZIndex.midLayer)) // 悬浮面板在主内容之上
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(colorScheme == .dark ? DesignSystem.Colors.background : nil)
+    // 移除深色模式下的不透明背景，改为使用透明背景
+    .background(Color.clear)
     .sheet(isPresented: $viewModel.showManualInputSheet) {
       ManualInputSheet(viewModel: viewModel)
     }
@@ -335,6 +368,7 @@ private struct CalendarIcon: View {
             // 移除会员光晕效果
         }
         .frame(width: Design.Size.iconContainerSize * 1.5, height: Design.Size.iconContainerSize * 1.5)
+        .zIndex(Double(viewModel.isDragging ? ZIndex.dragElevated : ZIndex.content)) // 拖拽时提升层级
     }
 }
 
@@ -346,10 +380,6 @@ private struct BaseIconView: View {
     
     var body: some View {
         ZStack {
-            Circle()
-                .fill(DesignSystem.Colors.secondaryBackground)
-                .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
-            
             Image(systemName: "calendar.badge.plus")
                 .font(.system(size: Design.Size.iconSize, weight: isPremium ? .medium : .regular))
                 .foregroundStyle(
@@ -365,7 +395,7 @@ private struct BaseIconView: View {
                 .symbolEffect(.bounce, value: isPremium)
         }
         .modifier(DragAnimationModifier(animation: animation))
-        .zIndex(1)
+        .zIndex(Double(ZIndex.background))
     }
 }
 
@@ -582,6 +612,7 @@ private struct HelpCenterButton: View {
         isPressed = false
       }
     })
+    .zIndex(Double(ZIndex.topLayer)) // 确保帮助按钮始终可点击
   }
 }
 

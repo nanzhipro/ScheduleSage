@@ -14,9 +14,9 @@ struct CalendarFeedsBackgroundView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var isHovered = false
     
-    // 控制整体透明度 - 提高暗黑模式下的可见度
+    // 控制整体透明度 - 进一步降低不透明度
     private var baseOpacity: Double {
-        colorScheme == .dark ? 0.9 : 0.75
+        colorScheme == .dark ? 0.5 : 0.6  // 降低整体不透明度
     }
     
     // MARK: - 视图主体
@@ -31,37 +31,38 @@ struct CalendarFeedsBackgroundView: View {
                         .padding(.vertical, 16)
                         .background(
                             ZStack {
-                                // 毛玻璃效果 - 移除了底层背景色
+                                // 毛玻璃效果 - 进一步降低不透明度
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(.ultraThinMaterial)
-                                    .opacity(colorScheme == .dark ? 0.5 : 0.3)
+                                    .opacity(colorScheme == .dark ? 0.2 : 0.25)
                                 
-                                // 边框效果 - 增强暗黑模式下的边框可见度
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(
-                                        colorScheme == .dark ?
-                                            DesignSystem.Colors.primary.opacity(0.2) :
-                                            DesignSystem.Colors.primary.opacity(0.05),
-                                        lineWidth: 0.5
-                                    )
+                                // 仅在浅色模式下保留极淡的边框
+                                if colorScheme == .light {
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(
+                                            DesignSystem.Colors.primary.opacity(0.03),
+                                            lineWidth: 0.5
+                                        )
+                                }
                             }
                         )
+                        // 减弱阴影效果
                         .shadow(
                             color: colorScheme == .dark ?
-                                DesignSystem.Colors.primary.opacity(0.2) :
-                                Color.black.opacity(0.05),
-                            radius: 12,
-                            x: 0,
-                            y: 4
-                        )
-                        // 添加第二层阴影，增强深度感
-                        .shadow(
-                            color: colorScheme == .dark ?
-                                Color.black.opacity(0.3) :
+                                DesignSystem.Colors.primary.opacity(0.08) :
                                 Color.black.opacity(0.03),
-                            radius: 3,
+                            radius: 10,
                             x: 0,
-                            y: 2
+                            y: 3
+                        )
+                        // 几乎移除第二层阴影
+                        .shadow(
+                            color: colorScheme == .dark ?
+                                Color.black.opacity(0.1) :
+                                Color.black.opacity(0.02),
+                            radius: 2,
+                            x: 0,
+                            y: 1
                         )
                 }
                 .opacity(baseOpacity)

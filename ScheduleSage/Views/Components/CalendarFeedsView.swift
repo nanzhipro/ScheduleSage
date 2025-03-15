@@ -36,6 +36,8 @@ struct CalendarFeedsView: View {
         .onAppear {
             viewModel.loadTodayEvents()
         }
+        // 整体降低不透明度，减少存在感
+        .opacity(colorScheme == .dark ? 0.5 : 0.6)
     }
     
     // MARK: - 事件流内容
@@ -52,8 +54,8 @@ struct CalendarFeedsView: View {
                     Text(String(format: NSLocalizedString("more_events_count", comment: "还有 %d 个日程"), viewModel.events.count - maxEventsToShow))
                         .font(DesignSystem.Typography.caption)
                         .foregroundColor(colorScheme == .dark ? 
-                            DesignSystem.Colors.secondaryText.opacity(0.9) : 
-                            DesignSystem.Colors.secondaryText.opacity(0.7))
+                            DesignSystem.Colors.secondaryText.opacity(0.6) : 
+                            DesignSystem.Colors.secondaryText.opacity(0.6))
                     Spacer()
                 }
                 .padding(.top, 4)
@@ -66,14 +68,14 @@ struct CalendarFeedsView: View {
         VStack(spacing: 8) {
             Image(systemName: "clock")
                 .font(.system(size: 24))
-                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.4))
             
             Text(NSLocalizedString("loading_events", comment: "加载中..."))
                 .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.4))
         }
         .padding()
-        .opacity(0.7)
+        .opacity(0.6)
     }
     
     // MARK: - 空状态视图
@@ -81,14 +83,14 @@ struct CalendarFeedsView: View {
         VStack(spacing: 8) {
             Image(systemName: "calendar.badge.exclamationmark")
                 .font(.system(size: 24))
-                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.4))
             
             Text(NSLocalizedString("no_events_today", comment: ""))
                 .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.4))
         }
         .padding()
-        .opacity(0.7)
+        .opacity(0.6)
     }
     
     // MARK: - 错误状态视图
@@ -96,15 +98,15 @@ struct CalendarFeedsView: View {
         VStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 24))
-                .foregroundColor(DesignSystem.Colors.error.opacity(colorScheme == .dark ? 0.7 : 0.5))
+                .foregroundColor(DesignSystem.Colors.error.opacity(0.4))
             
             Text(NSLocalizedString("calendar_access_required", comment: ""))
                 .font(DesignSystem.Typography.caption)
-                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.7 : 0.5))
+                .foregroundColor(DesignSystem.Colors.secondaryText.opacity(0.4))
                 .multilineTextAlignment(.center)
         }
         .padding()
-        .opacity(0.7)
+        .opacity(0.6)
     }
 }
 
@@ -124,20 +126,20 @@ private struct EventFeedItem: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(event.title)
                     .font(DesignSystem.Typography.bodyMedium)
-                    .foregroundColor(DesignSystem.Colors.primaryText.opacity(colorScheme == .dark ? 1.0 : 0.9))
+                    .foregroundColor(DesignSystem.Colors.primaryText.opacity(colorScheme == .dark ? 0.7 : 0.75))
                     .lineLimit(1)
                 
                 HStack(spacing: 8) {
                     // 日历名称
                     Text(event.calendar)
                         .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.9 : 0.8))
+                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
                     
                     // 时间范围
                     if !event.isAllDay {
                         Text(timeRangeText)
                             .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.9 : 0.8))
+                            .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
                     }
                 }
             }
@@ -157,33 +159,48 @@ private struct EventFeedItem: View {
     private var timeIndicator: some View {
         ZStack {
             Circle()
-                .fill(Color(nsColor: event.calendarColor.withAlphaComponent(colorScheme == .dark ? 0.25 : 0.15)))
+                .fill(Color(nsColor: event.calendarColor.withAlphaComponent(colorScheme == .dark ? 0.1 : 0.1)))
                 .frame(width: 40, height: 40)
             
             if event.isAllDay {
                 Text(NSLocalizedString("all_day", comment: ""))
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(Color(nsColor: event.calendarColor))
+                    .foregroundColor(Color(nsColor: event.calendarColor).opacity(colorScheme == .dark ? 0.6 : 0.7))
             } else {
                 Text(timeText)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(Color(nsColor: event.calendarColor))
+                    .foregroundColor(Color(nsColor: event.calendarColor).opacity(colorScheme == .dark ? 0.6 : 0.7))
             }
         }
     }
     
     // MARK: - 背景渐变
     private var backgroundGradient: LinearGradient {
-        LinearGradient(
-            stops: [
-                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.15 : 0.01), location: 0),
-                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.25 : 0.05), location: 0.4),
-                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.25 : 0.05), location: 0.6),
-                .init(color: backgroundColor.opacity(colorScheme == .dark ? 0.15 : 0.01), location: 1)
-            ],
-            startPoint: .leading,
-            endPoint: .trailing
-        )
+        if colorScheme == .dark {
+            // 深色模式下的渐变 - 更加透明
+            return LinearGradient(
+                stops: [
+                    .init(color: backgroundColor.opacity(0.02), location: 0),
+                    .init(color: backgroundColor.opacity(0.08), location: 0.3),
+                    .init(color: backgroundColor.opacity(0.08), location: 0.7),
+                    .init(color: backgroundColor.opacity(0.02), location: 1)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        } else {
+            // 浅色模式下的渐变 - 更加透明
+            return LinearGradient(
+                stops: [
+                    .init(color: backgroundColor.opacity(0.005), location: 0),
+                    .init(color: backgroundColor.opacity(0.03), location: 0.4),
+                    .init(color: backgroundColor.opacity(0.03), location: 0.6),
+                    .init(color: backgroundColor.opacity(0.005), location: 1)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        }
     }
     
     // MARK: - 辅助计算属性
