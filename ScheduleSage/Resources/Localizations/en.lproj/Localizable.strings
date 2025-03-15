@@ -319,3 +319,6 @@
 "no_events_today" = "No Events Today";
 "calendar_access_required" = "Calendar Access Required";
 "today_events" = "Today's Events";
+
+/* Image Access Error */
+"image_access_failed" = "Failed to access the selected image. Please try again or use drag and drop instead.";

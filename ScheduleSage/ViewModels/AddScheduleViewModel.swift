@@ -1,7 +1,5 @@
 import SwiftUI
-import SwiftWebCrawler
 import OSLog
-import QuestOCR
 
 // MARK: - AddScheduleViewModel 新增日程 ViewModel
 @MainActor
@@ -604,7 +602,24 @@ extension AddScheduleViewModel {
         switch result {
         case .success(let urls):
             if let url = urls.first {
-                handleDropped([url])
+                // 开始访问安全作用域 URL
+                let startedAccessing = url.startAccessingSecurityScopedResource()
+                
+                // 确保在函数结束时停止访问
+                defer {
+                    if startedAccessing {
+                        url.stopAccessingSecurityScopedResource()
+                    }
+                }
+                
+                // 创建一个临时文件副本，解决权限问题
+                do {
+                    let tempURL = try createTempCopy(of: url)
+                    handleDropped([tempURL])
+                } catch {
+                    logger.error("Failed to create temp copy: \(error.localizedDescription)")
+                    showToastMessage(NSLocalizedString("image_access_failed", comment: ""))
+                }
             } else {
                 logger.error("No image selected")
                 showToastMessage(NSLocalizedString("no_image_selected", comment: ""))
@@ -613,6 +628,19 @@ extension AddScheduleViewModel {
             logger.error("Image selection failed: \(error.localizedDescription)")
             showToastMessage(NSLocalizedString("image_selection_failed", comment: ""))
         }
+    }
+    
+    /// 创建文件的临时副本
+    private func createTempCopy(of url: URL) throws -> URL {
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileName = url.lastPathComponent
+        let tempURL = tempDir.appendingPathComponent(UUID().uuidString + "_" + fileName)
+        
+        // 复制文件到临时目录
+        try FileManager.default.copyItem(at: url, to: tempURL)
+        
+        logger.info("Created temporary copy at: \(tempURL.path)")
+        return tempURL
     }
 }
 

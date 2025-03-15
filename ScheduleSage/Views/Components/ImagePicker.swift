@@ -7,7 +7,6 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
-import QuestOCR
 
 // 图片选择器组件，负责图片选择和OCR处理
 // Image picker component, responsible for image selection and OCR processing

@@ -190,9 +190,26 @@ public final class OCRProcessor: ObservableObject {
         if fileExtension == "webp" {
             #if os(iOS) || os(macOS)
             // 使用ImageIO框架处理WebP
-            guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil),
-                  let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil) else {
-                throw OCRError.imageLoadFailed
+            let options = [kCGImageSourceShouldCache: true] as CFDictionary
+            guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, options),
+                  let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, options) else {
+                
+                // 如果直接加载失败，尝试先读取数据再处理
+                do {
+                    let data = try Data(contentsOf: url)
+                    guard let imageSource = CGImageSourceCreateWithData(data as CFData, options),
+                          let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, options) else {
+                        throw OCRError.imageLoadFailed
+                    }
+                    
+                    #if os(iOS)
+                    return UIImage(cgImage: cgImage)
+                    #elseif os(macOS)
+                    return NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
+                    #endif
+                } catch {
+                    throw OCRError.imageLoadFailed
+                }
             }
                 
             #if os(iOS)
@@ -212,10 +229,32 @@ public final class OCRProcessor: ObservableObject {
         }
         return image
         #elseif os(macOS)
-        guard let image = NSImage(contentsOfFile: path) else {
+        // 尝试直接加载图片
+        if let image = NSImage(contentsOfFile: path) {
+            return image
+        }
+        
+        // 如果直接加载失败，尝试通过数据加载
+        do {
+            let data = try Data(contentsOf: url)
+            if let image = NSImage(data: data) {
+                return image
+            }
+        } catch {
+            // 继续尝试其他方法
+        }
+        
+        // 最后尝试使用 ImageIO
+        do {
+            let options = [kCGImageSourceShouldCache: true] as CFDictionary
+            guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, options),
+                  let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, options) else {
+                throw OCRError.imageLoadFailed
+            }
+            return NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
+        } catch {
             throw OCRError.imageLoadFailed
         }
-        return image
         #else
         throw OCRError.imageLoadFailed
         #endif

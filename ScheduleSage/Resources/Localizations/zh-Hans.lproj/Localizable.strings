@@ -321,3 +321,6 @@
 "calendar_access_required" = "需要日历访问权限";
 "today_events" = "今日日程";
 "more_events_count" = "还有 %d 个日程";
+
+/* Image Access Error */
+"image_access_failed" = "无法访问所选图片。请重试或使用拖放方式代替。";

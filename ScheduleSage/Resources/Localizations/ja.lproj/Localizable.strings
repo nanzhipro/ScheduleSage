@@ -320,3 +320,6 @@
 "no_events_today" = "今日の予定はありません";
 "calendar_access_required" = "カレンダーへのアクセスが必要です"; 
 "today_events" = "今日の予定";
+
+/* Image Access Error */
+"image_access_failed" = "選択した画像にアクセスできません。もう一度試すか、ドラッグ＆ドロップを使用してください。";
