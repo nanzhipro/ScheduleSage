@@ -40,6 +40,13 @@ public final class CalendarManager {
     private let eventStore = EKEventStore()
     private let logger = LoggerService.makeCompatible(category: "CalendarManager")
     
+    // 权限缓存
+    private static let accessGrantedKey = "CalendarAccessGranted"
+    private var accessGranted: Bool? {
+        get { UserDefaults.standard.bool(forKey: Self.accessGrantedKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.accessGrantedKey) }
+    }
+    
     public init() {}
 }
 
@@ -47,16 +54,29 @@ public final class CalendarManager {
 public extension CalendarManager {
     /// 请求日历访问权限
     func requestAccess() async throws -> Bool {
+        // 检查缓存的权限状态
+        if let cached = accessGranted, cached {
+            return true
+        }
+        
         let status = EKEventStore.authorizationStatus(for: .event)
         
         switch status {
         case .authorized, .fullAccess:
+            // 缓存权限状态
+            accessGranted = true
             return true
             
         case .notDetermined:
-            return try await requestCalendarAccess()
+            let granted = try await requestCalendarAccess()
+            // 缓存权限状态
+            accessGranted = granted
+            return granted
             
         case .denied, .restricted, .writeOnly:
+            // 清除缓存的权限状态
+            accessGranted = false
+            
             if let settingsUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendar") {
                 await MainActor.run {
                     NSWorkspace.shared.open(settingsUrl)
@@ -65,6 +85,8 @@ public extension CalendarManager {
             throw CalendarError.accessDenied
             
         @unknown default:
+            // 清除缓存的权限状态
+            accessGranted = false
             throw CalendarError.unknownStatus
         }
     }
@@ -132,17 +154,27 @@ public extension CalendarManager {
         let events = eventStore.events(matching: predicate)
         
         // 转换为 CalendarEventSummary 模型
-        return events.map { event in
-            CalendarEventSummary(
-                id: event.eventIdentifier,
+        return events.compactMap { event in
+            // 确保事件有日历，否则跳过此事件
+            guard let eventCalendar = event.calendar else {
+                return nil
+            }
+            
+            return CalendarEventSummary(
+                id: event.eventIdentifier ?? UUID().uuidString,
                 title: event.title ?? NSLocalizedString("untitled_event", comment: ""),
                 startDate: event.startDate ?? today,
                 endDate: event.endDate ?? today,
-                calendar: event.calendar.title,
-                calendarColor: event.calendar.color
+                calendar: eventCalendar.title,
+                calendarColor: eventCalendar.color
             )
         }
         .sorted { $0.startDate < $1.startDate }
+    }
+    
+    /// 清除权限缓存，强制重新请求权限
+    func clearAccessCache() {
+        accessGranted = nil
     }
 }
 

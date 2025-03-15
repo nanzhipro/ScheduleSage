@@ -62,7 +62,7 @@ public final class OnboardingViewModel: ObservableObject {
     
     public init(pages: [OnboardingPage] = OnboardingPage.defaultPages) {
         self.pages = pages
-        setupSubscriptions()
+        // setupSubscriptions()
         checkInitialState()
     }
     
@@ -143,11 +143,6 @@ public final class OnboardingViewModel: ObservableObject {
     private func checkInitialState() {
         // 检查是否需要显示引导页
         isPresented = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
-        
-        // 检查初始权限状态
-        Task {
-            await checkPermissions()
-        }
     }
     
     private func checkPermissions() async {
