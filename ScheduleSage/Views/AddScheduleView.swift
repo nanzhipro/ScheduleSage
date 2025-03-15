@@ -412,7 +412,7 @@ private struct AppTitleView: View {
     
     var body: some View {
         Text(AppInfo.name)
-            .font(.system(size: 36, weight: .bold, design: .rounded))
+            .font(.system(size: 32, weight: .bold, design: .rounded))
             .foregroundStyle(
                 LinearGradient(
                     colors: [

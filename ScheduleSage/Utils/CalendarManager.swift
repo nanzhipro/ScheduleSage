@@ -78,7 +78,7 @@ public extension CalendarManager {
             accessGranted = false
             
             if let settingsUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendar") {
-                await MainActor.run {
+                _ = await MainActor.run {
                     NSWorkspace.shared.open(settingsUrl)
                 }
             }
