@@ -14,7 +14,7 @@ struct CalendarFeedsView: View {
     // MARK: - 属性
     @StateObject private var viewModel = CalendarFeedsViewModel()
     @Environment(\.colorScheme) private var colorScheme
-    private let maxEventsToShow = 2 // 最多显示两条日程
+    private let maxEventsToShow = 3 // 最多显示三条日程
     
     // MARK: - 初始化
     init() {}
