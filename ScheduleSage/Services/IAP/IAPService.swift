@@ -485,11 +485,13 @@ class IAPService: NSObject, ObservableObject {
                         Task {
                             do {
                                 let customerInfo = try await Purchases.shared.customerInfo()
-                                let isPremium = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
+                                let isPremiumSubscribed = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
+                                let canAccess = isPremiumSubscribed || self.appConfig.enablePremiumFeaturesWhenUnsubscribed
                                 DispatchQueue.main.async {
-                                    self.isPremium = isPremium
+                                    self.isPremium = isPremiumSubscribed
                                 }
-                                continuation.resume(returning: isPremium)
+                                self.logger.info("[IAP] Premium access check - Subscribed: \(isPremiumSubscribed), Override enabled: \(self.appConfig.enablePremiumFeaturesWhenUnsubscribed), Can access: \(canAccess)")
+                                continuation.resume(returning: canAccess)
                             } catch {
                                 continuation.resume(throwing: error)
                             }
@@ -501,12 +503,16 @@ class IAPService: NSObject, ObservableObject {
         
         // 已配置完成，直接检查订阅状态
         let customerInfo = try await Purchases.shared.customerInfo()
-        let isPremium = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
+        let isPremiumSubscribed = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
+        let canAccess = isPremiumSubscribed || self.appConfig.enablePremiumFeaturesWhenUnsubscribed
+        
+        self.logger.info("[IAP] Premium access check - Subscribed: \(isPremiumSubscribed), Override enabled: \(self.appConfig.enablePremiumFeaturesWhenUnsubscribed), Can access: \(canAccess)")
+        
         DispatchQueue.main.async {
-            self.isPremium = isPremium
+            self.isPremium = isPremiumSubscribed
         }
-
-        return isPremium || appConfig.enablePremiumFeaturesWhenUnsubscribed
+        
+        return canAccess
     }
     
     private func initializeCustomerInfo() async throws {
