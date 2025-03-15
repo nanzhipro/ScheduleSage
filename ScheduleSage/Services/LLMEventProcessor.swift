@@ -87,8 +87,8 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
     public func processContent(_ content: String) async throws -> [CalendarEvent] {
         logger.info("Processing content with LLM")
         
-        // 检查会员权限
-        guard await IAPService.shared.isPremium else {
+        // 检查会员权限 - 使用 checkPremiumAccess 替代直接检查 isPremium
+        guard try await IAPService.shared.checkPremiumAccess() else {
             logger.info("Premium required for LLM processing")
             throw LLMEventProcessorError.requiresPremium
         }
