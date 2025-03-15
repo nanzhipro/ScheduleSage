@@ -1,5 +1,5 @@
 {
-  "originHash" : "940394a310aedef6c35c3d1cfa7185968309efa7bdaa99fd960cae3cddb798c4",
+  "originHash" : "14ae3bf9c385b6c2fdb5e7cc3c9c897f66dc3c0fa0d6373d6369ed0cd89cd41c",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -83,15 +83,6 @@
       }
     },
     {
-      "identity" : "questocr",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nanzhipro/QuestOCR.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "df482c3c629704a727ad23a5cc28d273930a27a4"
-      }
-    },
-    {
       "identity" : "sentry-cocoa",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/getsentry/sentry-cocoa.git",
@@ -134,15 +125,6 @@
       "state" : {
         "revision" : "0837db354faf9c9deb710dc597046edaadf5360f",
         "version" : "2.7.6"
-      }
-    },
-    {
-      "identity" : "swiftwebcrawler",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nanzhipro/SwiftWebCrawler.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "1fac9bd7a2cbdd9535f8aff2b9331c5c81a3c0d1"
       }
     }
   ],

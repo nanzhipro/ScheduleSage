@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D52B9FFF2D44B65700D74909 /* QuestOCR in Frameworks */ = {isa = PBXBuildFile; productRef = D52B9FFE2D44B65700D74909 /* QuestOCR */; };
 		D53F8FBE2D5A3B0C0081039A /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = D53F8FBD2D5A3B0C0081039A /* SwiftJWT */; };
 		D55454912D3225130086A832 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = D55454902D3225130086A832 /* SwiftDate */; };
 		D5553BD02D68C3AF00EB51BF /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = D5553BCF2D68C3AF00EB51BF /* RevenueCat */; };
@@ -16,7 +15,6 @@
 		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
 		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
-		D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */ = {isa = PBXBuildFile; productRef = D5F11BF32D28C592007A225F /* SwiftWebCrawler */; };
 		D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */; };
 		D5FF61672D60AEDC00FC8AF6 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = D5FF61662D60AEDC00FC8AF6 /* Sentry */; };
 /* End PBXBuildFile section */
@@ -89,9 +87,7 @@
 				D5FF61672D60AEDC00FC8AF6 /* Sentry in Frameworks */,
 				D53F8FBE2D5A3B0C0081039A /* SwiftJWT in Frameworks */,
 				D55454912D3225130086A832 /* SwiftDate in Frameworks */,
-				D5F11BF42D28C592007A225F /* SwiftWebCrawler in Frameworks */,
 				D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */,
-				D52B9FFF2D44B65700D74909 /* QuestOCR in Frameworks */,
 				D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -165,10 +161,8 @@
 				D56686AA2CFC05D800EE1486 /* SwiftSoup */,
 				D56686B42CFC097A00EE1486 /* Kingfisher */,
 				D57A1BC12D275D10000BAC44 /* Alamofire */,
-				D5F11BF32D28C592007A225F /* SwiftWebCrawler */,
 				D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */,
 				D55454902D3225130086A832 /* SwiftDate */,
-				D52B9FFE2D44B65700D74909 /* QuestOCR */,
 				D53F8FBD2D5A3B0C0081039A /* SwiftJWT */,
 				D5FF61662D60AEDC00FC8AF6 /* Sentry */,
 				D5553BCF2D68C3AF00EB51BF /* RevenueCat */,
@@ -262,10 +256,8 @@
 				D56686A82CFC052700EE1486 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				D56686B32CFC096F00EE1486 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */,
-				D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */,
 				D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
 				D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */,
-				D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */,
 				D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 				D5FF61652D60AEDC00FC8AF6 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 				D5553BCE2D68C3AF00EB51BF /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
@@ -642,14 +634,6 @@
 				minimumVersion = 5.10.2;
 			};
 		};
-		D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nanzhipro/QuestOCR.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Kitura/Swift-JWT.git";
@@ -690,14 +674,6 @@
 				minimumVersion = 8.1.1;
 			};
 		};
-		D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nanzhipro/SwiftWebCrawler.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/CocoaLumberjack/CocoaLumberjack.git";
@@ -717,11 +693,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		D52B9FFE2D44B65700D74909 /* QuestOCR */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D52B9FFD2D44B65700D74909 /* XCRemoteSwiftPackageReference "QuestOCR" */;
-			productName = QuestOCR;
-		};
 		D53F8FBD2D5A3B0C0081039A /* SwiftJWT */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */;
@@ -756,11 +727,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
-		};
-		D5F11BF32D28C592007A225F /* SwiftWebCrawler */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5F11BF22D28C592007A225F /* XCRemoteSwiftPackageReference "SwiftWebCrawler" */;
-			productName = SwiftWebCrawler;
 		};
 		D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */ = {
 			isa = XCSwiftPackageProductDependency;

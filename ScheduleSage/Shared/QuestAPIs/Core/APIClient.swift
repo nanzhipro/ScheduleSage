@@ -54,7 +54,7 @@ public final class APIClient {
 
     // 配置URLSession参数
     let configuration = URLSessionConfiguration.default
-    configuration.timeoutIntervalForRequest = 60
+    configuration.timeoutIntervalForRequest = 180 // 大模型比较好使，如果遇到复杂的日程，客户端容易超时。
     configuration.headers = environment.defaultHeaders
 
     // 使用正确的日志方法

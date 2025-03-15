@@ -92,21 +92,12 @@
         }
       },
       {
-        "package": "QuestOCR",
-        "repositoryURL": "https://github.com/nanzhipro/QuestOCR.git",
-        "state": {
-          "branch": "main",
-          "revision": "c8da0fb43af5940252c67af1030b608f92e985a2",
-          "version": null
-        }
-      },
-      {
         "package": "Sentry",
         "repositoryURL": "https://github.com/getsentry/sentry-cocoa.git",
         "state": {
           "branch": null,
-          "revision": "3640aaf7849a9fc39996d777e6df866251bb98d6",
-          "version": "8.45.0"
+          "revision": "21223d1c864db0561d91f48d80f269a363a1625d",
+          "version": "8.47.0"
         }
       },
       {
@@ -123,8 +114,8 @@
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": null,
-          "revision": "96a2f8a0fa41e9e09af4585e2724c4e825410b91",
-          "version": "1.6.2"
+          "revision": "3d8596ed08bd13520157f0355e35caed215ffbfa",
+          "version": "1.6.3"
         }
       },
       {
@@ -141,17 +132,8 @@
         "repositoryURL": "https://github.com/scinfu/SwiftSoup.git",
         "state": {
           "branch": null,
-          "revision": "18ad8b8ff0f03f3c0a5544ffccfa2ea1c051ae6e",
-          "version": "2.8.0"
-        }
-      },
-      {
-        "package": "SwiftWebCrawler",
-        "repositoryURL": "https://github.com/nanzhipro/SwiftWebCrawler.git",
-        "state": {
-          "branch": "main",
-          "revision": "2c283f54b05bd520c621bac750233749a04fd5e1",
-          "version": null
+          "revision": "bba848db50462894e7fc0891d018dfecad4ef11e",
+          "version": "2.8.7"
         }
       }
     ]
