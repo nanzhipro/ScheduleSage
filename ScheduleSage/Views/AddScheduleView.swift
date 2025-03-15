@@ -213,8 +213,8 @@ private struct MainContentView: View {
   @Environment(\.colorScheme) var colorScheme
   
   var body: some View {
-    ZStack(alignment: .bottom) {
-      // 日历事件流背景 - 放在背景之上，主内容之下
+    ZStack(alignment: .center) {
+      // 日历事件流背景 - 放在背景之上，主内容之下，居中显示
       CalendarFeedsBackgroundView()
             .zIndex(Double(ZIndex.midLayer)) // 日历事件流背景在基础背景之上
 
@@ -247,37 +247,43 @@ private struct MainContentView: View {
         FooterView()
       }
       .zIndex(Double(ZIndex.background)) // 主内容在底层
+      .offset(y: -12) // 整体向上移动 12px
       
-      // 悬浮操作面板
-      FloatingActionPanel {
-        HStack(spacing: 48) {
-          // 剪贴板导入按钮
-          FloatingActionButton(
-            iconName: "clipboard.fill",
-            title: NSLocalizedString("clipboard_import", comment: ""),
-            hintKey: "hint.clipboard_import",
-            action: viewModel.checkClipboardContent
-          )
-          
-          // 手动输入按钮
-          FloatingActionButton(
-            iconName: getManualInputIcon(),
-            title: NSLocalizedString("manual_input", comment: ""),
-            hintKey: "hint.manual_input",
-            action: { viewModel.showManualInputSheet = true }
-          )
-          
-          // 图片导入按钮
-          FloatingActionButton(
-            iconName: "photo.fill",
-            title: NSLocalizedString("image_import", comment: ""),
-            hintKey: "hint.image_import",
-            action: viewModel.handleImageSelection
-          )
+      // 使用 VStack 将悬浮操作面板放置在底部
+      VStack {
+        Spacer() // 将面板推到底部
+        
+        // 悬浮操作面板
+        FloatingActionPanel {
+          HStack(spacing: 48) {
+            // 剪贴板导入按钮
+            FloatingActionButton(
+              iconName: "clipboard.fill",
+              title: NSLocalizedString("clipboard_import", comment: ""),
+              hintKey: "hint.clipboard_import",
+              action: viewModel.checkClipboardContent
+            )
+            
+            // 手动输入按钮
+            FloatingActionButton(
+              iconName: getManualInputIcon(),
+              title: NSLocalizedString("manual_input", comment: ""),
+              hintKey: "hint.manual_input",
+              action: { viewModel.showManualInputSheet = true }
+            )
+            
+            // 图片导入按钮
+            FloatingActionButton(
+              iconName: "photo.fill",
+              title: NSLocalizedString("image_import", comment: ""),
+              hintKey: "hint.image_import",
+              action: viewModel.handleImageSelection
+            )
+          }
         }
+        .padding(.horizontal, 80)
+        .padding(.bottom, 60)
       }
-      .padding(.horizontal, 80)
-      .padding(.bottom, 60)
       .zIndex(Double(ZIndex.midLayer)) // 悬浮面板在主内容之上
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -414,6 +420,7 @@ private struct AddScheduleContent: View {
       Spacer(minLength: 0)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .offset(y: -36) // 整体向上移动 64px
   }
 }
 

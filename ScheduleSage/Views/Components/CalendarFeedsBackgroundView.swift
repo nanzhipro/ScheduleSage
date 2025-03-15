@@ -22,8 +22,9 @@ struct CalendarFeedsBackgroundView: View {
     // MARK: - 视图主体
     var body: some View {
         GeometryReader { geometry in
-            VStack {
-                // 日历事件流容器 - 放在顶部而不是底部
+            // 使用 ZStack 和 center 对齐，确保内容居中
+            ZStack(alignment: .center) {
+                // 日历事件流容器 - 居中显示
                 VStack {
                     CalendarFeedsView()
                         .frame(width: min(geometry.size.width * 0.8, 500))
@@ -66,9 +67,6 @@ struct CalendarFeedsBackgroundView: View {
                         )
                 }
                 .opacity(baseOpacity)
-                .padding(.top, 250) // 增加顶部间距，确保不会与顶部元素重叠
-                
-                Spacer() // 将内容推到顶部
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .allowsHitTesting(false) // 禁止交互，确保不会干扰主要内容
