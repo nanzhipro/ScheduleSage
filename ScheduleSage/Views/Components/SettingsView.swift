@@ -32,7 +32,7 @@ struct SettingsView: View {
   private var generalSettings: some View {
     Form {
       appearanceSection
-      systemSection
+      // systemSection // 开机启动，导致jwt token 获取失败，暂时先关闭，后续需要优化
       versionSection
     }
     .formStyle(.grouped)

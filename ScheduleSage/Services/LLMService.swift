@@ -51,7 +51,6 @@ public final class LLMService {
         )
         
         let parameters = try request.asDictionary()
-        logger.info("LLM Chat Request: \(parameters)")
         
         return try await withAPIClient { client in
             try await client.performRequest(

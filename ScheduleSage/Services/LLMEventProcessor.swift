@@ -93,7 +93,7 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
         let calendarNames = await fetchAvailableCalendarNames()
         logger.info("Calendar names: \(calendarNames)")
         let prompt = try await buildPrompt(forContent: content, withCalendars: calendarNames)
-        logger.debug("Prompt: \(prompt)")
+        logger.debug("Prompt: \(prompt.prefix(100))")
         let response = try await llmService.chat(with: prompt)
         
         do {
