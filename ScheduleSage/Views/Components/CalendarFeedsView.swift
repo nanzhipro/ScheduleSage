@@ -193,8 +193,8 @@ private struct EventFeedItem: View {
             return LinearGradient(
                 stops: [
                     .init(color: backgroundColor.opacity(0.005), location: 0),
-                    .init(color: backgroundColor.opacity(0.03), location: 0.4),
-                    .init(color: backgroundColor.opacity(0.03), location: 0.6),
+                    .init(color: backgroundColor.opacity(0.08), location: 0.4),
+                    .init(color: backgroundColor.opacity(0.08), location: 0.6),
                     .init(color: backgroundColor.opacity(0.005), location: 1)
                 ],
                 startPoint: .leading,

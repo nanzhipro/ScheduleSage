@@ -339,7 +339,7 @@ private enum Design {
     static let dragAreaTopPadding: CGFloat = 40
     
     /// 图标到标题的间距
-    static let iconToTitle: CGFloat = 32
+    static let iconToTitle: CGFloat = 0
     /// 标题到副标题的间距
     static let titleToSubtitle: CGFloat = 12
     /// 标题到操作按钮的间距
@@ -385,7 +385,7 @@ private struct AddScheduleContent: View {
           .symbolEffect(.bounce, value: viewModel.isPremium)
           .modifier(DragAnimationModifier(animation: viewModel.dragAnimation))
       }
-      .frame(width: Design.Size.iconContainerSize * 1.5, height: Design.Size.iconContainerSize * 1.5)
+      .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
       .zIndex(Double(viewModel.isDragging ? ZIndex.dragElevated : ZIndex.content))
       
       // 标题 - 直接集成了原来的TitleSection和AppTitleView
@@ -416,7 +416,6 @@ private struct AddScheduleContent: View {
       Spacer(minLength: 0)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .offset(y: -36)
   }
 }
 
