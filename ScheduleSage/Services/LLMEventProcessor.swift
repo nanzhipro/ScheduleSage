@@ -85,7 +85,7 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
     /// - Throws: LLMEventProcessorError 类型的错误
     /// - Complexity: O(n), n 为输入文本的长度
     public func processContent(_ content: String) async throws -> [CalendarEvent] {
-        logger.info("Processing content with LLM")
+        logger.info("Processing content with LLM, content: \(content)")
         
         // 检查会员权限 - 使用 checkPremiumAccess 替代直接检查 isPremium
         guard try await IAPService.shared.checkPremiumAccess() else {
@@ -94,7 +94,9 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
         }
         
         let calendarNames = await fetchAvailableCalendarNames()
+        logger.info("Calendar names: \(calendarNames)")
         let prompt = try await buildPrompt(forContent: content, withCalendars: calendarNames)
+        logger.debug("Prompt: \(prompt)")
         let response = try await llmService.chat(with: prompt)
         
         do {

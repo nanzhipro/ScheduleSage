@@ -116,7 +116,7 @@
 "invalid_image_format" = "Supports PNG, JPEG, HEIC, WebP only";
 
 // Error Messages
-"invalid_clipboard_content" = "Invalid clipboard, copy a link, image, or text";
+"invalid_clipboard_content" = "Invalid clipboard, copy a link or image";
 
 // Drag and Drop
 "drag_drop_hint" = "Drop image here";

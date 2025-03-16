@@ -17,6 +17,7 @@ public final class LLMService {
     public static let shared = LLMService()
     
     private let apiConfig: APIConfig
+    private let logger = LoggerService.makeCompatible(category: "LLMService")
     
     // MARK: - Initialization
     
@@ -50,6 +51,7 @@ public final class LLMService {
         )
         
         let parameters = try request.asDictionary()
+        logger.info("LLM Chat Request: \(parameters)")
         
         return try await withAPIClient { client in
             try await client.performRequest(

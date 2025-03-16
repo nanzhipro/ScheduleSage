@@ -116,7 +116,7 @@
 "invalid_image_format" = "仅支持PNG、JPEG、HEIC、WebP格式";
 
 // Error Messages
-"invalid_clipboard_content" = "剪贴板内容无效，请复制链接、图片或文本";
+"invalid_clipboard_content" = "请复制带有日程信息的网页链接或图片";
 
 // Drag and Drop
 "drag_drop_hint" = "拖动图片至此";
@@ -208,7 +208,7 @@
 "feedback_button_hint" = "你的反馈让ScheduleSage更出色";
 
 // Method Button Hints
-"hint.clipboard_import" = "也可以直接粘贴图片或网址";
+"hint.clipboard_import" = "直接粘贴图片或网址";
 "hint.manual_input" = "自然语言输入";
 "hint.image_import" = "选择图片";
 

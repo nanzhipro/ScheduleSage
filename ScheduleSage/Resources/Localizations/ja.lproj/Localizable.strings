@@ -116,7 +116,7 @@
 "invalid_image_format" = "PNG、JPEG、HEIC、WebPのみ対応";
 
 // エラーメッセージ
-"invalid_clipboard_content" = "無効なクリップボード内容です。リンク、画像、またはテキストをコピーしてください";
+"invalid_clipboard_content" = "クリップボードが空です。リンク、画像をコピーしてください";
 
 // ドラッグアンドドロップ
 "drag_drop_hint" = "ここに画像をドロップ";

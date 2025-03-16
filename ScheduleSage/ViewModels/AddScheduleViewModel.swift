@@ -563,7 +563,7 @@ extension AddScheduleViewModel {
 
 // MARK: - Toast Management
 extension AddScheduleViewModel {
-    func showToastMessage(_ message: String, type: ToastType = .error, duration: TimeInterval = 2.0) {
+    func showToastMessage(_ message: String, type: ToastType = .error, duration: TimeInterval = 3.0) {
         Task { @MainActor in
             showToast = false
             try? await Task.sleep(nanoseconds: 300_000_000) // 300ms
