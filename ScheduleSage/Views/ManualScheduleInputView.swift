@@ -73,7 +73,8 @@ struct ManualScheduleInputView: View {
                     onAdd: { navigateToEventList = false },
                     onImport: { _ in },
                     onBack: { navigateToEventList = false },
-                    onUpdate: viewModel.updateEvent
+                    onUpdate: viewModel.updateEvent,
+                    viewModel: viewModel
                 )
             }
             .onChange(of: viewModel.showEventList) { oldValue, newValue in

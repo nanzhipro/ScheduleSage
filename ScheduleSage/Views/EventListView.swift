@@ -15,6 +15,7 @@ struct EventListView: View {
   let onImport: (Set<String>) -> Void
   let onBack: () -> Void
   let onUpdate: (CalendarEvent) -> Void
+  let viewModel: AddScheduleViewModel
 
   @State private var selectedEventIds: Set<String> = []
   @State private var showToast = false
@@ -26,12 +27,13 @@ struct EventListView: View {
   private var hasSelectedEvents: Bool { !selectedEventIds.isEmpty }
   private var allEventsSelected: Bool { selectedEventIds.count == displayEvents.count && !displayEvents.isEmpty }
 
-  init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping (Set<String>) -> Void, onBack: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void) {
+  init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping (Set<String>) -> Void, onBack: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void, viewModel: AddScheduleViewModel) {
     self.events = events
     self.onAdd = onAdd
     self.onImport = onImport
     self.onBack = onBack
     self.onUpdate = onUpdate
+    self.viewModel = viewModel
     _displayEvents = State(initialValue: events)
   }
 
@@ -65,6 +67,9 @@ struct EventListView: View {
         handleEventUpdate(updatedEvent)
       }
     }
+    .onChange(of: viewModel.importStatus) { newStatus in
+      handleImportStatusChange(newStatus)
+    }
     .id(needsRefresh)
     .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
       needsRefresh.toggle()
@@ -78,6 +83,29 @@ struct EventListView: View {
       toastType = .success
       toastMessage = NSLocalizedString("update_success", comment: "")
       showToast = true
+    }
+  }
+  
+  // MARK: - Import Status Handler
+  private func handleImportStatusChange(_ status: AddScheduleViewModel.ImportStatus) {
+    switch status {
+    case .success:
+      toastType = .success
+      toastMessage = NSLocalizedString("import_success", comment: "")
+      showToast = true
+      
+      Task {
+        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        await MainActor.run {
+          onBack()
+        }
+      }
+    case .failure(let error):
+      toastType = .error
+      toastMessage = error.localizedDescription
+      showToast = true
+    case .importing, .none:
+      break
     }
   }
   
@@ -216,21 +244,7 @@ private extension EventListView {
   private func handleImport() {
     guard hasSelectedEvents else { return }
     
-    // 传递选中的事件ID
     onImport(selectedEventIds)
-    
-    // 显示成功提示
-    toastType = .success
-    toastMessage = NSLocalizedString("import_success", comment: "")
-    showToast = true
-    
-    // 2秒后关闭视图
-    Task {
-      try? await Task.sleep(nanoseconds: 2_000_000_000)
-      await MainActor.run {
-        onBack()  // 关闭视图
-      }
-    }
   }
   
   func toggleSelection(for event: CalendarEvent) {
@@ -248,16 +262,13 @@ private extension EventListView {
       }
       selectedEventIds.remove(eventToDelete.eventIdentifier)
       
-      // 显示删除成功提示
       toastType = .success
       toastMessage = NSLocalizedString("delete_success", comment: "")
       showToast = true
       
-      // 如果删除后列表为空，则返回到主界面
       if displayEvents.isEmpty {
-        // 延迟一小段时间以便用户看到删除成功的提示
         Task {
-          try? await Task.sleep(nanoseconds: 1_000_000_000) // 1秒
+          try? await Task.sleep(nanoseconds: 1_000_000_000)
           await MainActor.run {
             onBack()
           }
@@ -270,6 +281,14 @@ private extension EventListView {
 // MARK: - Preview
 #if DEBUG
 struct EventListView_Previews: PreviewProvider {
+  // 创建一个预览专用的 mock AddScheduleViewModel
+  private class MockAddScheduleViewModel: AddScheduleViewModel {
+    override init() {
+      // 使用空实现避免依赖问题
+      super.init()
+    }
+  }
+  
   static var previews: some View {
     Group {
       // 亮色模式预览
@@ -278,7 +297,8 @@ struct EventListView_Previews: PreviewProvider {
         onAdd: {},
         onImport: { _ in },
         onBack: {},
-        onUpdate: { _ in }
+        onUpdate: { _ in },
+        viewModel: MockAddScheduleViewModel()
       )
       .previewDisplayName("Light Mode")
       
@@ -288,7 +308,8 @@ struct EventListView_Previews: PreviewProvider {
         onAdd: {},
         onImport: { _ in },
         onBack: {},
-        onUpdate: { _ in }
+        onUpdate: { _ in },
+        viewModel: MockAddScheduleViewModel()
       )
       .preferredColorScheme(.dark)
       .previewDisplayName("Dark Mode")
@@ -299,7 +320,8 @@ struct EventListView_Previews: PreviewProvider {
         onAdd: {},
         onImport: { _ in },
         onBack: {},
-        onUpdate: { _ in }
+        onUpdate: { _ in },
+        viewModel: MockAddScheduleViewModel()
       )
       .previewDisplayName("Empty State")
     }

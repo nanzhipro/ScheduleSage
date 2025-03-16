@@ -199,7 +199,8 @@ private struct EventListSheet: View {
         viewModel.importToCalendar(selectedEventIds: selectedEventIds)
       },
       onBack: { viewModel.showEventList = false },
-      onUpdate: viewModel.updateEvent
+      onUpdate: viewModel.updateEvent,
+      viewModel: viewModel
     )
     .presentationDetents([.height(DesignSystem.Dimensions.eventListHeight)])
     .presentationDragIndicator(.visible)
