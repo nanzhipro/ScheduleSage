@@ -255,6 +255,8 @@
 "subscription_feature_yearly_discount" = "早期機能アクセス";
 
 "paywall.button.subscribed" = "購読済み";
+"paywall.button.subscribed.monthly" = "月額プラン購読中";
+"paywall.button.subscribed.yearly" = "年額プラン購読中";
 "paywall.restore.already_subscribed" = "あなたはすでにプレミアムです";
 "paywall.restore.no_subscription" = "購読が見つかりません。購読してください";
 

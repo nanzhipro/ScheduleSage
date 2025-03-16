@@ -89,9 +89,7 @@ struct PaywallView: View {
                 .foregroundColor(.yellow)
                 .padding(.bottom, DesignSystem.Spacing.small)
             
-            Text(iapService.isPremium ? 
-                NSLocalizedString("paywall.button.subscribed", comment: "") :
-                NSLocalizedString("upgrade_to_premium", comment: ""))
+            Text(subscriptionTitleText)
                 .font(DesignSystem.Typography.title)
                 .foregroundColor(iapService.isPremium ? 
                     DesignSystem.Colors.primary :
@@ -105,6 +103,22 @@ struct PaywallView: View {
                 .padding(.horizontal, DesignSystem.Spacing.medium)
         }
         .padding(.top, DesignSystem.Spacing.medium)
+    }
+    
+    /// 根据订阅状态返回对应的标题文本
+    private var subscriptionTitleText: String {
+        if !iapService.isPremium {
+            return NSLocalizedString("upgrade_to_premium", comment: "")
+        }
+        
+        // 根据订阅类型返回不同的标题
+        if iapService.hasSubscription(containing: "year") {
+            return NSLocalizedString("paywall.button.subscribed.yearly", comment: "")
+        } else if iapService.hasSubscription(containing: "month") {
+            return NSLocalizedString("paywall.button.subscribed.monthly", comment: "")
+        } else {
+            return NSLocalizedString("paywall.button.subscribed", comment: "")
+        }
     }
     
     private var subscriptionOptionsSection: some View {
@@ -127,7 +141,12 @@ struct PaywallView: View {
                                 package: package,
                                 isSelected: selectedPackage?.identifier == package.identifier,
                                 isPopular: package.identifier == IAPConfiguration.yearlySubscriptionId,
-                                action: { selectedPackage = package }
+                                isDisabled: shouldDisablePackage(package),
+                                action: { 
+                                    if !shouldDisablePackage(package) {
+                                        selectedPackage = package
+                                    }
+                                }
                             )
                             .transition(
                                 .asymmetric(
@@ -142,6 +161,32 @@ struct PaywallView: View {
         }
         .padding(.vertical, DesignSystem.Spacing.small)
         .animation(.easeInOut(duration: 0.3), value: iapService.offeringsLoadingState)
+    }
+    
+    /// 判断是否应该禁用特定的订阅包
+    /// - Parameter package: 订阅包
+    /// - Returns: 是否应该禁用
+    private func shouldDisablePackage(_ package: Package) -> Bool {
+        // 如果用户没有订阅，所有选项都可用
+        guard iapService.isPremium else {
+            return false
+        }
+        
+        let isMonthlyPackage = package.identifier.lowercased().contains("month")
+        let isYearlyPackage = package.identifier.lowercased().contains("year")
+        
+        // 如果用户已经订阅了年度方案，禁用所有选项
+        if iapService.hasSubscription(containing: "year") {
+            return true
+        }
+        
+        // 如果用户已经订阅了月度方案，只禁用月度选项
+        if iapService.hasSubscription(containing: "month") {
+            return isMonthlyPackage
+        }
+        
+        // 默认情况下不禁用
+        return false
     }
     
     private var purchaseSection: some View {
@@ -319,9 +364,36 @@ struct PaywallView: View {
             return
         }
         
+        // 如果用户已经订阅了年度方案，不需要选择默认方案
+        if iapService.hasSubscription(containing: "year") {
+            return
+        }
+        
+        // 如果用户已经订阅了月度方案，尝试选择年度方案
+        if iapService.hasSubscription(containing: "month") {
+            if let yearlyPackage = iapService.package(withIdentifier: IAPConfiguration.yearlySubscriptionId) {
+                selectedPackage = yearlyPackage
+                return
+            }
+            
+            // 尝试通过包含关键字"yearly"或"year"来查找年度包
+            if let packages = iapService.offerings?.current?.availablePackages {
+                let yearlyPackages = packages.filter { 
+                    $0.identifier.lowercased().contains("year") 
+                }
+                
+                if let firstYearlyPackage = yearlyPackages.first {
+                    selectedPackage = firstYearlyPackage
+                    return
+                }
+            }
+        }
+        
         // 尝试获取月度订阅方案并选中
         if let monthlyPackage = iapService.package(withIdentifier: IAPConfiguration.monthlySubscriptionId) {
-            selectedPackage = monthlyPackage
+            if !shouldDisablePackage(monthlyPackage) {
+                selectedPackage = monthlyPackage
+            }
         } else {
             // 尝试通过包含关键字"monthly"或"month"来查找月度包
             if let packages = iapService.offerings?.current?.availablePackages {
@@ -329,11 +401,25 @@ struct PaywallView: View {
                     $0.identifier.lowercased().contains("month") 
                 }
                 
-                if let firstMonthlyPackage = monthlyPackages.first {
+                if let firstMonthlyPackage = monthlyPackages.first, !shouldDisablePackage(firstMonthlyPackage) {
                     selectedPackage = firstMonthlyPackage
-                } else if !packages.isEmpty {
-                    // 如果找不到月度方案但有其他方案，选择第一个
-                    selectedPackage = packages.first
+                } else {
+                    // 如果找不到月度方案或月度方案被禁用，尝试选择年度方案
+                    let yearlyPackages = packages.filter { 
+                        $0.identifier.lowercased().contains("year") 
+                    }
+                    
+                    if let firstYearlyPackage = yearlyPackages.first, !shouldDisablePackage(firstYearlyPackage) {
+                        selectedPackage = firstYearlyPackage
+                    } else if !packages.isEmpty {
+                        // 如果找不到可用的方案，选择第一个未禁用的方案
+                        for package in packages {
+                            if !shouldDisablePackage(package) {
+                                selectedPackage = package
+                                break
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -346,6 +432,7 @@ struct SubscriptionOptionView: View {
     let package: Package
     let isSelected: Bool
     let isPopular: Bool
+    let isDisabled: Bool
     let action: () -> Void
     
     // MARK: - Body
@@ -361,7 +448,7 @@ struct SubscriptionOptionView: View {
             .padding(DesignSystem.Spacing.medium)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.accentColor.opacity(0.1) : Color.secondary.opacity(0.1))
+                    .fill(backgroundFill)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -369,10 +456,22 @@ struct SubscriptionOptionView: View {
             )
         }
         .buttonStyle(.plain)
+        .disabled(isDisabled)
+        .opacity(isDisabled ? 0.6 : 1.0)
         .padding(.horizontal, DesignSystem.Spacing.small)
     }
     
     // MARK: - Components
+    
+    private var backgroundFill: Color {
+        if isDisabled {
+            return Color.secondary.opacity(0.05)
+        } else if isSelected {
+            return Color.accentColor.opacity(0.1)
+        } else {
+            return Color.secondary.opacity(0.1)
+        }
+    }
     
     private var packageInfoView: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {

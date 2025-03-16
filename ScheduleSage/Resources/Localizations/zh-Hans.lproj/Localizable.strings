@@ -256,6 +256,8 @@
 "subscription_feature_yearly_discount" = "抢先体验新功能";
 
 "paywall.button.subscribed" = "已订阅";
+"paywall.button.subscribed.monthly" = "已订阅月度套餐";
+"paywall.button.subscribed.yearly" = "已订阅年度套餐";
 "paywall.restore.already_subscribed" = "你已是高级会员";
 "paywall.restore.no_subscription" = "未找到订阅，请订阅继续";
 

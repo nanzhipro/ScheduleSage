@@ -447,6 +447,30 @@ class IAPService: NSObject, ObservableObject {
         return expirationDate < Date().addingTimeInterval(30 * 24 * 60 * 60)
     }
     
+    /// 判断用户当前的订阅类型
+    /// - Returns: 当前订阅的产品标识符，如果没有订阅则返回nil
+    func getCurrentSubscriptionIdentifier() -> String? {
+        guard isPremium,
+              let entitlement = customerInfo?.entitlements[IAPConfiguration.premiumEntitlementId],
+              entitlement.isActive else {
+            return nil
+        }
+        
+        // 从产品ID中提取订阅类型
+        return entitlement.productIdentifier
+    }
+    
+    /// 检查用户是否订阅了特定类型的订阅
+    /// - Parameter identifier: 产品标识符或部分标识符（如"monthly"或"yearly"）
+    /// - Returns: 是否订阅了该类型
+    func hasSubscription(containing identifier: String) -> Bool {
+        guard let currentId = getCurrentSubscriptionIdentifier() else {
+            return false
+        }
+        
+        return currentId.lowercased().contains(identifier.lowercased())
+    }
+    
     private func handlePurchaseError(_ error: Error) {
         Task { @MainActor in
             let iapError = (error as? IAPError) ?? .purchaseFailed

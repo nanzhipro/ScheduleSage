@@ -255,6 +255,8 @@
 "subscription_feature_yearly_discount" = "Early feature access";
 
 "paywall.button.subscribed" = "Subscribed";
+"paywall.button.subscribed.monthly" = "Monthly Subscription";
+"paywall.button.subscribed.yearly" = "Yearly Subscription";
 "paywall.restore.already_subscribed" = "You're already Premium";
 "paywall.restore.no_subscription" = "No subscription found, please subscribe";
 

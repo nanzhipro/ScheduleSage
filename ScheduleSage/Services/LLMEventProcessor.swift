@@ -36,7 +36,7 @@ public enum LLMEventProcessorError: LocalizedError {
         case .processingFailed(let error):
             return error.localizedDescription
         case .parsingFailed:
-            return NSLocalizedString("llm_parsing_failed", comment: "")
+            return NSLocalizedString("llm_missing_fields", comment: "")
         case .missingRequiredFields(let fields):
             return NSLocalizedString("llm_missing_fields", comment: "")
         case .requiresPremium:
