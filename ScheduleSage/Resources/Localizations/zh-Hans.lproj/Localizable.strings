@@ -101,7 +101,7 @@
 // LLM Errors
 "llm_invalid_response" = "AI识别失败，请重试";
 "llm_parsing_failed" = "无法识别，请检查输入";
-"llm_missing_fields" = "缺少%@，请补充";
+"llm_missing_fields" = "请输入完整的日程信息";
 
 // Event Fields
 "event_field_title" = "主题";

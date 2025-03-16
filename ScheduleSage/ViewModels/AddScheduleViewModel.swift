@@ -432,7 +432,7 @@ extension AddScheduleViewModel {
     }
 }
 
-// MARK: - Drag and Drop
+// MARK: - Drag and Drop-
 extension AddScheduleViewModel {
     func handleDragEntered() {
         isDragging = true
@@ -663,7 +663,7 @@ enum CalendarError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .accessDenied:
-            return NSLocalizedString("calendar_access_denied", comment: "")
+            return NSLocalizedString("calendar.error.access_denied", comment: "")
         }
     }
 }

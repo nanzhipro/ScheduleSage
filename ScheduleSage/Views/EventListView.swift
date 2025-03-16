@@ -58,9 +58,8 @@ struct EventListView: View {
       duration: 2.0
     )
     .onAppear {
-      if let firstEvent = events.first {
-        selectedEventIds.insert(firstEvent.eventIdentifier)
-      }
+      // 默认全选所有事件
+      selectAllEvents()
     }
     .onReceive(NotificationCenter.default.publisher(for: .eventDidUpdate)) { notification in
       if let updatedEvent = notification.userInfo?["event"] as? CalendarEvent {
