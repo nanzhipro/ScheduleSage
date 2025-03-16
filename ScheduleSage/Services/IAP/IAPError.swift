@@ -11,6 +11,7 @@ enum IAPError: Error {
     case configurationFailed
     case purchaseFailed
     case restoreFailed
+    case syncFailed
     case userCancelled
     case productNotFound
     case networkError
@@ -30,6 +31,8 @@ enum IAPError: Error {
             return NSLocalizedString("iap.error.purchase_failed", comment: "")
         case .restoreFailed:
             return NSLocalizedString("iap.error.restore_failed", comment: "")
+        case .syncFailed:
+            return NSLocalizedString("iap.error.sync_failed", comment: "")
         case .userCancelled:
             return NSLocalizedString("iap.error.user_cancelled", comment: "")
         case .productNotFound:

@@ -128,10 +128,12 @@ class IAPService: NSObject, ObservableObject {
         setupObservers()
         
         do {
+            // 初始化客户信息
             try await initializeCustomerInfo()
-            // 在初始化时调用一次 restorePurchases，确保恢复之前的购买状态
-            let restored = try await restorePurchases()
-            logger.info("[IAP] Service initialization completed - Premium status: \(restored)")
+            
+            // 获取当前订阅状态
+            let hasActiveSubscription = isPremium
+            logger.info("[IAP] Service initialization completed - Premium status: \(hasActiveSubscription)")
             
             await MainActor.run {
                 isInitialized = true
@@ -372,6 +374,10 @@ class IAPService: NSObject, ObservableObject {
     /// 恢复之前的购买
     /// - Returns: 恢复结果，包含是否有活跃订阅
     /// - Throws: IAPError 类型的错误（仅在网络错误等情况下抛出）
+    /// restorePurchases 方法不应通过编程触发，因为这可能会导致操作系统级别的登录提示出现，应该仅在某些用户交互（例如，点击"恢复"按钮）时调用。
+    /// 
+    /// 注意：虽然 syncPurchases 不会触发系统级别的登录提示，但它通常用于迁移订阅，并且存在转移或别名化匿名用户的风险。
+    /// 对于常规的购买状态检查，请使用 Purchases.shared.customerInfo() 方法。
     func restorePurchases() async throws -> Bool {
         logger.info("[IAP] Starting purchase restoration")
         do {
@@ -385,6 +391,32 @@ class IAPService: NSObject, ObservableObject {
         } catch {
             logger.error("[IAP] Purchase restoration failed: \(error.localizedDescription)")
             updateError(.restoreFailed)
+            throw error
+        }
+    }
+    
+    /// 同步购买记录
+    /// - Returns: 同步结果，包含是否有活跃订阅
+    /// - Throws: IAPError 类型的错误
+    /// 此方法适用于编程方式同步购买记录，不会触发系统级别的登录提示
+    /// 
+    /// 警告：
+    /// 1. syncPurchases 通常用于迁移订阅，不应在常规初始化流程中使用
+    /// 2. 由于此方法模拟恢复购买，存在转移或别名化匿名用户的风险
+    /// 3. 仅在特定场景下使用此方法，如用户账户迁移或订阅转移
+    func syncPurchases() async throws -> Bool {
+        logger.info("[IAP] Starting purchase synchronization")
+        do {
+            let customerInfo = try await Purchases.shared.syncPurchases()
+            logger.info("[IAP] Purchase synchronization completed, updating customer info")
+            updateCustomerInfo(customerInfo)
+            
+            let hasActiveSubscription = isPremium
+            logger.info("[IAP] Purchase synchronization result - Has active subscription: \(hasActiveSubscription)")
+            return hasActiveSubscription
+        } catch {
+            logger.error("[IAP] Purchase synchronization failed: \(error.localizedDescription)")
+            updateError(.syncFailed)
             throw error
         }
     }
@@ -470,51 +502,60 @@ class IAPService: NSObject, ObservableObject {
         
         // 如果尚未配置完成，等待配置
         if !isConfigured {
-            return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
-                // 创建一个临时的 Set 来存储 cancellable
-                var subscriptions = Set<AnyCancellable>()
-                
-                configuredSubject
-                    .first()
-                    .sink { [weak self] _ in
-                        guard let self = self else {
-                            continuation.resume(throwing: IAPError.configurationFailed)
-                            return
-                        }
-                        
-                        Task {
-                            do {
-                                let customerInfo = try await Purchases.shared.customerInfo()
-                                let isPremiumSubscribed = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
-                                let canAccess = isPremiumSubscribed || self.appConfig.enablePremiumFeaturesWhenUnsubscribed
-                                DispatchQueue.main.async {
-                                    self.isPremium = isPremiumSubscribed
-                                }
-                                self.logger.info("[IAP] Premium access check - Subscribed: \(isPremiumSubscribed), Override enabled: \(self.appConfig.enablePremiumFeaturesWhenUnsubscribed), Can access: \(canAccess)")
-                                continuation.resume(returning: canAccess)
-                            } catch {
-                                continuation.resume(throwing: error)
-                            }
-                        }
-                    }
-                    .store(in: &subscriptions) // 存储到 Set 中
-            }
+            try await waitForConfiguration()
         }
         
-        // 已配置完成，直接检查订阅状态
-        let customerInfo = try await Purchases.shared.customerInfo()
-        let isPremiumSubscribed = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
-        let canAccess = isPremiumSubscribed || self.appConfig.enablePremiumFeaturesWhenUnsubscribed
-        
-        self.logger.info("[IAP] Premium access check - Subscribed: \(isPremiumSubscribed), Override enabled: \(self.appConfig.enablePremiumFeaturesWhenUnsubscribed), Can access: \(canAccess)")
-        
-        DispatchQueue.main.async {
-            self.isPremium = isPremiumSubscribed
-        }
-        
+        let isPremiumSubscribed = try await checkSubscriptionStatus()
+        let canAccess = isPremiumSubscribed || appConfig.enablePremiumFeaturesWhenUnsubscribed
+        logger.info("[IAP] Premium access check - Subscribed: \(isPremiumSubscribed), Override enabled: \(appConfig.enablePremiumFeaturesWhenUnsubscribed), Can access: \(canAccess)")
         return canAccess
     }
     
+    /// 等待配置完成
+    private func waitForConfiguration() async throws {
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let cancellable = configuredSubject
+                .first()
+                .sink { [weak self] _ in
+                    guard let self = self else {
+                        continuation.resume(throwing: IAPError.configurationFailed)
+                        return
+                    }
+                    continuation.resume(returning: ())
+                }
+            
+            // 将 cancellable 存储到实例变量中，避免内存泄漏
+            cancellables.insert(cancellable)
+        }
+    }
+    
+    /// 检查订阅状态
+    func checkSubscriptionStatus() async throws -> Bool {
+        // 确保服务已初始化
+        if !isInitialized {
+            await waitForInitialization()
+        }
+        
+        // 如果尚未配置完成，等待配置
+        if !isConfigured {
+            try await waitForConfiguration()
+        }
+        
+        let customerInfo = try await Purchases.shared.customerInfo()
+        let isPremiumSubscribed = customerInfo.entitlements[IAPConfiguration.premiumEntitlementId]?.isActive == true
+        logger.info("[IAP] Check subscription status - Subscribed: \(isPremiumSubscribed)")
+        
+        // 在 MainActor 上更新 isPremium 属性
+        await MainActor.run {
+            self.isPremium = isPremiumSubscribed
+        }
+        
+        return isPremiumSubscribed
+    }
+    
+    /// 初始化客户信息
+    /// 通过调用 refreshCustomerInfo 获取最新的客户订阅状态
+    /// 这是初始化过程中的关键步骤，确保应用启动时能获取正确的订阅状态
     private func initializeCustomerInfo() async throws {
         try await refreshCustomerInfo()
     }

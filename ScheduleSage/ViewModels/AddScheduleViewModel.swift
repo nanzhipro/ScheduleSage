@@ -50,7 +50,7 @@ class AddScheduleViewModel: ObservableObject {
             await promptViewModel.refreshPrompt()
             logger.info("Initialization completed")
             
-            await checkPremiumStatus()
+           _ = await checkSubscriptionStatus()
         }
         
         setupNotifications()
@@ -110,21 +110,22 @@ class AddScheduleViewModel: ObservableObject {
             }
         }
     }
-    
-    /// 检查高级会员状态
-    func checkPremiumStatus() async {
+
+    /// 检查订阅状态
+    func checkSubscriptionStatus() async -> Bool {
         do {
-            let isPremium = try await iapService.checkPremiumAccess()
-            logger.info("Premium status: \(isPremium)")
+            let isPremium = try await iapService.checkSubscriptionStatus()
+            logger.info("Subscription status: \(isPremium)")
             await MainActor.run {
                 self.isPremium = isPremium
             }
         } catch {
-            logger.error("Failed to check premium status: \(error.localizedDescription)")
+            logger.error("Failed to check subscription status: \(error.localizedDescription)")
             await MainActor.run {
                 self.isPremium = false
             }
         }
+        return false
     }
     
     /// 打开付费墙
@@ -132,12 +133,6 @@ class AddScheduleViewModel: ObservableObject {
         showPaywall = true
     }
     
-    /// 刷新订阅状态
-    func refreshSubscriptionStatus() async {
-        await checkPremiumStatus()
-    }
-    
-    // 在 deinit 中移除观察者
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
