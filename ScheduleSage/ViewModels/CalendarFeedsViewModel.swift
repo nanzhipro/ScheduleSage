@@ -54,8 +54,8 @@ class CalendarFeedsViewModel: ObservableObject {
                 
                 let currentTime = Date()
                 let futureEvents = allEvents.filter { event in
-                    // 全天事件或者开始时间在当前时间之后的事件
-                    event.isAllDay || event.endDate > currentTime
+                    // 只保留非全天事件，且结束时间在当前时间之后的事件
+                    !event.isAllDay && event.endDate > currentTime
                 }
                 
                 // 按开始时间排序

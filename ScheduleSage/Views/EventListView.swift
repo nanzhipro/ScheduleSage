@@ -55,7 +55,8 @@ struct EventListView: View {
       isPresented: $showToast,
       type: toastType,
       message: toastMessage,
-      duration: 2.0
+      duration: 2.0,
+      position: .center
     )
     .onAppear {
       // 默认全选所有事件

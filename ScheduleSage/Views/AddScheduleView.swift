@@ -65,7 +65,8 @@ struct AddScheduleView: View {
       .toast(
         isPresented: $viewModel.showToast,
         type: viewModel.toastType,
-        message: viewModel.toastMessage
+        message: viewModel.toastMessage,
+        position: .center
       )
       .toast(
         isPresented: .init(
@@ -73,7 +74,8 @@ struct AddScheduleView: View {
           set: { if !$0 { viewModel.importStatus = .none } }
         ),
         type: toastType,
-        message: toastMessage
+        message: toastMessage,
+        position: .center
       )
       .zIndex(Double(ZIndex.content)) // 主内容区域在背景之上
     }

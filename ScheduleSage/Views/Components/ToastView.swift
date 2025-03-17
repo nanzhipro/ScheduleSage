@@ -14,16 +14,30 @@ public enum ToastType {
     case info
 }
 
+// MARK: - Toast Position
+public enum ToastPosition {
+    case center
+    case bottom
+    case top
+}
+
 // MARK: - Toast Configuration
 public struct ToastConfiguration {
     let type: ToastType
     let message: String
     let duration: TimeInterval
+    let position: ToastPosition
     
-    public init(type: ToastType, message: String, duration: TimeInterval = 2.0) {
+    public init(
+        type: ToastType, 
+        message: String, 
+        duration: TimeInterval = 2.0,
+        position: ToastPosition = .center
+    ) {
         self.type = type
         self.message = message
         self.duration = duration
+        self.position = position
     }
 }
 
@@ -138,22 +152,34 @@ public struct ToastContainer<Content: View>: View {
             content
             
             if isPresented {
-                VStack {
-                    Spacer()
-                    ToastView(configuration: configuration)
-                        .transition(.moveAndFade())
-                        .padding(.bottom, 20)
-                        .onAppear {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + configuration.duration) {
-                                withAnimation(.spring(response: 0.3)) {
-                                    isPresented = false
-                                }
-                            }
+                positionedToast
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + configuration.duration) {
+                            isPresented = false
                         }
-                }
+                    }
             }
         }
-        .animation(.spring(response: 0.3), value: isPresented)
+    }
+    
+    @ViewBuilder
+    private var positionedToast: some View {
+        switch configuration.position {
+        case .center:
+            ToastView(configuration: configuration)
+        case .top:
+            VStack {
+                ToastView(configuration: configuration)
+                    .padding(.top, 20)
+                Spacer()
+            }
+        case .bottom:
+            VStack {
+                Spacer()
+                ToastView(configuration: configuration)
+                    .padding(.bottom, 20)
+            }
+        }
     }
 }
 
@@ -163,11 +189,17 @@ public extension View {
         isPresented: Binding<Bool>,
         type: ToastType,
         message: String,
-        duration: TimeInterval = 2.0
+        duration: TimeInterval = 2.0,
+        position: ToastPosition = .center
     ) -> some View {
         ToastContainer(
             isPresented: isPresented,
-            configuration: .init(type: type, message: message, duration: duration)
+            configuration: .init(
+                type: type, 
+                message: message, 
+                duration: duration,
+                position: position
+            )
         ) {
             self
         }
@@ -178,16 +210,17 @@ public extension View {
         type: ToastType,
         key: String,
         comment: String = "",
-        duration: TimeInterval = 2.0
+        duration: TimeInterval = 2.0,
+        position: ToastPosition = .center
     ) -> some View {
         let localizedMessage = NSLocalizedString(key, comment: comment)
-        return toast(isPresented: isPresented, type: type, message: localizedMessage, duration: duration)
-    }
-}
-
-private extension AnyTransition {
-    static func moveAndFade() -> AnyTransition {
-        .move(edge: .bottom).combined(with: .opacity)
+        return toast(
+            isPresented: isPresented, 
+            type: type, 
+            message: localizedMessage, 
+            duration: duration,
+            position: position
+        )
     }
 }
 
@@ -216,20 +249,52 @@ struct ToastView_Previews: PreviewProvider {
 private struct DemoView: View {
     @State private var showToast = false
     @State private var showLocalizedToast = false
+    @State private var showCenterToast = false
+    @State private var showTopToast = false
     
     var body: some View {
         VStack(spacing: 20) {
-            Button("Show Toast") {
+            Button("Show Bottom Toast") {
                 showToast = true
             }
             
             Button("Show Localized Toast") {
                 showLocalizedToast = true
             }
+            
+            Button("Show Center Toast") {
+                showCenterToast = true
+            }
+            
+            Button("Show Top Toast") {
+                showTopToast = true
+            }
         }
-        .frame(width: 300, height: 200)
-        .toast(isPresented: $showToast, type: .success, message: "这是一个测试消息")
-        .localizedToast(isPresented: $showLocalizedToast, type: .error, key: "toast.error.network", comment: "Network error toast message")
+        .frame(width: 300, height: 300)
+        .toast(
+            isPresented: $showToast, 
+            type: .success, 
+            message: "这是底部Toast消息",
+            position: .bottom
+        )
+        .localizedToast(
+            isPresented: $showLocalizedToast, 
+            type: .error, 
+            key: "toast.error.network", 
+            comment: "Network error toast message",
+            position: .bottom
+        )
+        .toast(
+            isPresented: $showCenterToast, 
+            type: .info, 
+            message: "这是中央Toast消息"
+        )
+        .toast(
+            isPresented: $showTopToast, 
+            type: .success, 
+            message: "这是顶部Toast消息",
+            position: .top
+        )
     }
 }
 #endif 

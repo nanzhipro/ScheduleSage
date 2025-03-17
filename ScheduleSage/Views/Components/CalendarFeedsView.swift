@@ -136,11 +136,9 @@ private struct EventFeedItem: View {
                         .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
                     
                     // 时间范围
-                    if !event.isAllDay {
-                        Text(timeRangeText)
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
-                    }
+                    Text(timeRangeText)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
                 }
             }
             
@@ -162,15 +160,9 @@ private struct EventFeedItem: View {
                 .fill(Color(nsColor: event.calendarColor.withAlphaComponent(colorScheme == .dark ? 0.1 : 0.1)))
                 .frame(width: 40, height: 40)
             
-            if event.isAllDay {
-                Text(NSLocalizedString("all_day", comment: ""))
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(Color(nsColor: event.calendarColor).opacity(colorScheme == .dark ? 0.6 : 0.7))
-            } else {
-                Text(timeText)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(Color(nsColor: event.calendarColor).opacity(colorScheme == .dark ? 0.6 : 0.7))
-            }
+            Text(timeText)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(Color(nsColor: event.calendarColor).opacity(colorScheme == .dark ? 0.6 : 0.7))
         }
     }
     

@@ -102,13 +102,24 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
                 throw LLMEventProcessorError.parsingFailed
             }
             
-            // 验证每个事件的必需字段
-            for event in events {
-                try validateRequiredFields(in: event)
+            // 过滤出有效的事件，而不是抛出异常
+            let validEvents = events.filter { event in
+                do {
+                    try validateRequiredFields(in: event)
+                    return true
+                } catch {
+                    logger.warning("Skipping invalid event: \(event.title). Reason: \(error.localizedDescription)")
+                    return false
+                }
             }
             
-            logger.info("Successfully processed \(events.count) events")
-            return events
+            if validEvents.isEmpty && !events.isEmpty {
+                logger.error("All events were invalid")
+                throw LLMEventProcessorError.parsingFailed
+            }
+            
+            logger.info("Successfully processed \(validEvents.count) valid events out of \(events.count) total")
+            return validEvents
             
         } catch let decodingError as DecodingError {
             logger.error("JSON decoding error: \(decodingError.localizedDescription)")

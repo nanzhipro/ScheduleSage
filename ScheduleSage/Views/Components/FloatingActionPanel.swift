@@ -137,7 +137,7 @@ struct FloatingActionButton: View {
                             )
                         )
                         .symbolRenderingMode(.hierarchical)
-                        .scaleEffect(isPressed ? 0.9 : (isHovered ? 1.05 : 1.0))
+                        .scaleEffect(isPressed ? 0.9 : (isHovered ? 1.1 : 1.0))
                 }
                 
                 // 按钮文本

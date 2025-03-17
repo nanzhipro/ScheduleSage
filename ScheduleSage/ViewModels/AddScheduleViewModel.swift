@@ -573,16 +573,27 @@ extension AddScheduleViewModel {
 
 // MARK: - Toast Management
 extension AddScheduleViewModel {
-    func showToastMessage(_ message: String, type: ToastType = .error, duration: TimeInterval = 3.0) {
+    /// 显示Toast消息
+    /// - Parameters:
+    ///   - message: 消息内容
+    ///   - type: Toast类型
+    ///   - duration: 显示时长
+    ///   - position: Toast位置，默认为中央
+    func showToastMessage(
+        _ message: String, 
+        type: ToastType = .error, 
+        duration: TimeInterval = 3.0,
+        position: ToastPosition = .center
+    ) {
         Task { @MainActor in
             showToast = false
-            try? await Task.sleep(nanoseconds: 300_000_000) // 300ms
+            try? await Task.sleep(for: .milliseconds(300))
             
             toastType = type
             toastMessage = message
             showToast = true
             
-            try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+            try? await Task.sleep(for: .seconds(duration))
             
             if toastMessage == message {
                 showToast = false
@@ -590,6 +601,7 @@ extension AddScheduleViewModel {
         }
     }
     
+    /// 隐藏所有Toast
     func hideAllToasts() {
         Task { @MainActor in
             showToast = false

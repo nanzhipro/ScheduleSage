@@ -65,7 +65,8 @@ struct ManualScheduleInputView: View {
             .toast(
                 isPresented: $showToast,
                 type: toastType,
-                message: toastMessage
+                message: toastMessage,
+                position: .center
             )
             .navigationDestination(isPresented: $navigateToEventList) {
                 EventListView(

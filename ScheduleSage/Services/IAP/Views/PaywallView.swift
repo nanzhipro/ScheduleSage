@@ -54,7 +54,12 @@ struct PaywallView: View {
         )
         .background(DesignSystem.Colors.background)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .toast(isPresented: $showToast, type: .success, message: toastMessage)
+        .toast(
+            isPresented: $showToast, 
+            type: .success, 
+            message: toastMessage,
+            position: .center
+        )
         .task {
             await refreshSubscriptionData()
         }
