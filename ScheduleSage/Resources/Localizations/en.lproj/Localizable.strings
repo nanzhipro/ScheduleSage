@@ -247,7 +247,7 @@
 "paywall.feature.early" = "Early Access";
 "paywall.close" = "Close";
 "paywall.purchase.processing" = "Processing...";
-"paywall.footer.terms_privacy" = "By continuing, you agree to our Terms and Privacy Policy";
+"paywall.footer.terms_privacy" = "By continuing, you agree to our Terms of Service and Privacy Policy";
 
 // Subscription Features
 "subscription_feature_unlimited_usage" = "Unlimited features";
@@ -327,3 +327,19 @@
 
 // Copyright
 "copyright" = "Copyright";
+
+// Toast error messages
+"toast.error.network" = "Network connection failed: %@";
+"toast.error.server" = "Server error (%@)";
+"toast.error.auth_required" = "Authentication required";
+"toast.error.auth_failed" = "Authentication failed: %@";
+"toast.error.token_storage" = "Token storage error";
+"toast.error.invalid_data" = "Invalid data: %@";
+"toast.error.decoding" = "Data parsing error: %@";
+"toast.success.operation" = "Operation successful";
+"toast.info.processing" = "Processing...";
+
+// OCR Languages
+"language.chinese" = "Chinese";
+"language.english" = "English";
+"language.japanese" = "Japanese";

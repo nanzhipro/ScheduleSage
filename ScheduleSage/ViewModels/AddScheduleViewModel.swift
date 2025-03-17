@@ -37,6 +37,7 @@ class AddScheduleViewModel: ObservableObject {
     private var promptViewModel: PromptViewModel
     private let minimumLoadingDuration: TimeInterval = 1.2
     private var loadingStartTime: Date?
+    private var tempImageURLs: [URL] = []
     
     // MARK: - Initialization
     init() {
@@ -353,6 +354,9 @@ extension AddScheduleViewModel {
             isOCRProcessing = false
             LoadingManager.shared.hide()
             
+            // 清理临时文件
+            cleanupTempFiles()
+            
             if !allTexts.isEmpty {
                 let combinedText = allTexts.joined(separator: "\n")
                 Task {
@@ -422,6 +426,9 @@ extension AddScheduleViewModel {
             LoadingManager.shared.hide()
             canImport = false
             
+            // 清理临时文件
+            cleanupTempFiles()
+            
             if let llmError = error as? LLMEventProcessorError,
                case .requiresPremium = llmError {
                 showPaywall = true
@@ -473,6 +480,9 @@ extension AddScheduleViewModel {
         parsedEvents.removeAll()
         importStatus = .none
         showManualInputSheet = false
+        
+        // 清理临时文件
+        cleanupTempFiles()
     }
 }
 
@@ -595,6 +605,7 @@ extension AddScheduleViewModel {
     }
     
     func handleImagePickerResult(_ result: Result<[URL], Error>) {
+        logger.info("Image picker result: \(result)")
         switch result {
         case .success(let urls):
             if let url = urls.first {
@@ -636,7 +647,30 @@ extension AddScheduleViewModel {
         try FileManager.default.copyItem(at: url, to: tempURL)
         
         logger.info("Created temporary copy at: \(tempURL.path)")
+        
+        // 添加到临时文件列表中以便后续清理
+        tempImageURLs.append(tempURL)
+        
         return tempURL
+    }
+    
+    /// 清理所有临时文件
+    private func cleanupTempFiles() {
+        let fileManager = FileManager.default
+        
+        for url in tempImageURLs {
+            do {
+                if fileManager.fileExists(atPath: url.path) {
+                    try fileManager.removeItem(at: url)
+                    logger.info("Deleted temporary file: \(url.path)")
+                }
+            } catch {
+                logger.error("Failed to delete temporary file \(url.path): \(error.localizedDescription)")
+            }
+        }
+        
+        // 清空临时文件列表
+        tempImageURLs.removeAll()
     }
 }
 

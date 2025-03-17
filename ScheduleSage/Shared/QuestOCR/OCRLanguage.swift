@@ -18,9 +18,9 @@ public enum OCRLanguage: String, CaseIterable {
   
   public var displayName: String {
     switch self {
-    case .chinese: return "简体中文"
-    case .english: return "English"
-    case .japanese: return "日本語"
+    case .chinese: return NSLocalizedString("language.chinese", comment: "Chinese language name")
+    case .english: return NSLocalizedString("language.english", comment: "English language name")
+    case .japanese: return NSLocalizedString("language.japanese", comment: "Japanese language name")
     }
   }
 }

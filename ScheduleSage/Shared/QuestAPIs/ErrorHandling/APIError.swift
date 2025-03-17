@@ -35,19 +35,19 @@ extension APIError: LocalizedError {
   public var errorDescription: String? {
     switch self {
     case .network(let error):
-      return "网络通信失败: \(error.localizedDescription)"
+      return String(format: NSLocalizedString("toast.error.network", comment: "Network error message"), error.localizedDescription)
     case .decoding(let error):
-      return "数据解析错误: \(error.localizedDescription)"
+      return String(format: NSLocalizedString("toast.error.decoding", comment: "Data decoding error message"), error.localizedDescription)
     case .authRequired:
-      return "需要重新认证"
+      return NSLocalizedString("toast.error.auth_required", comment: "Authentication required error message")
     case .server(let code):
-      return "服务器错误(\(code))"
+      return String(format: NSLocalizedString("toast.error.server", comment: "Server error message with status code"), "\(code)")
     case .authFailed(let error):
-      return "认证失败: \(error.localizedDescription)"
+      return String(format: NSLocalizedString("toast.error.auth_failed", comment: "Authentication failed error message"), error.localizedDescription)
     case .tokenStorageError:
-      return "令牌存储错误"
+      return NSLocalizedString("toast.error.token_storage", comment: "Token storage error message")
     case .invalidData(let reason):
-      return "数据无效: \(reason)"
+      return String(format: NSLocalizedString("toast.error.invalid_data", comment: "Invalid data error message"), reason)
     }
   }
 }

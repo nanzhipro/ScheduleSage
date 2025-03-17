@@ -325,3 +325,19 @@
 
 /* Image Access Error */
 "image_access_failed" = "選択した画像にアクセスできません。もう一度試すか、ドラッグ＆ドロップを使用してください。";
+
+// トーストエラーメッセージ
+"toast.error.network" = "ネットワーク接続に失敗しました: %@";
+"toast.error.server" = "サーバーエラー (%@)";
+"toast.error.auth_required" = "認証が必要です";
+"toast.error.auth_failed" = "認証に失敗しました: %@";
+"toast.error.token_storage" = "トークン保存エラー";
+"toast.error.invalid_data" = "無効なデータ: %@";
+"toast.error.decoding" = "データ解析エラー: %@";
+"toast.success.operation" = "操作が成功しました";
+"toast.info.processing" = "処理中...";
+
+// OCR Languages
+"language.chinese" = "中国語";
+"language.english" = "英語";
+"language.japanese" = "日本語";

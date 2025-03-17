@@ -155,19 +155,13 @@ private extension SettingsView {
   }
   
   var versionSection: some View {
-    SettingsSection(title: "settings_group_about") {
-      SettingsRow(title: "settings_version", icon: "info.circle.fill") {
-        Text(AppInfo.versionWithBuild)
-          .foregroundColor(DesignSystem.Colors.secondaryText)
-          .font(DesignSystem.Typography.caption)
-      }
-      
+    SettingsSection(title: "settings_group_about") {      
       ForEach(AboutLink.allCases) { link in
         SettingsLinkRow(link: link)
       }
 
-      SettingsRow(title: "copyright", icon: "c.circle.fill") {
-        Text("Copyright © 2025年 Hangzhou Quest Technology Co., Ltd. All rights reserved.")
+      SettingsRow(title: "settings_version", icon: "info.circle.fill") {
+        Text(AppInfo.versionWithBuild)
           .foregroundColor(DesignSystem.Colors.secondaryText)
           .font(DesignSystem.Typography.caption)
       }
@@ -257,6 +251,7 @@ private extension SettingsView {
         }
       }
       .buttonStyle(.plain)
+      .withHoverEffect(scale: 1.02, brightness: 0)
     }
   }
 }

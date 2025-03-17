@@ -329,3 +329,19 @@
 
 // Copyright
 "copyright" = "版权信息";
+
+// Toast 错误消息
+"toast.error.network" = "网络连接失败: %@";
+"toast.error.server" = "服务器错误(%@)";
+"toast.error.auth_required" = "需要重新认证";
+"toast.error.auth_failed" = "认证失败: %@";
+"toast.error.token_storage" = "令牌存储错误";
+"toast.error.invalid_data" = "数据无效: %@";
+"toast.error.decoding" = "数据解析错误: %@";
+"toast.success.operation" = "操作成功";
+"toast.info.processing" = "处理中...";
+
+// OCR Languages
+"language.chinese" = "简体中文";
+"language.english" = "英文";
+"language.japanese" = "日语";

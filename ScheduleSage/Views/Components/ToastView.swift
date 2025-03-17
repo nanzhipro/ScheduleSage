@@ -45,7 +45,8 @@ public struct ToastView: View {
             Text(configuration.message)
                 .font(DesignSystem.Typography.bodyRegular)
                 .foregroundColor(textColor)
-                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -57,7 +58,8 @@ public struct ToastView: View {
             x: 0,
             y: 4
         )
-        .frame(maxWidth: 300)
+        .frame(maxWidth: 400)
+        .frame(minWidth: 200)
     }
     
     private var backgroundColor: Color {
@@ -140,6 +142,7 @@ public struct ToastContainer<Content: View>: View {
                     Spacer()
                     ToastView(configuration: configuration)
                         .transition(.moveAndFade())
+                        .padding(.bottom, 20)
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + configuration.duration) {
                                 withAnimation(.spring(response: 0.3)) {
@@ -147,7 +150,6 @@ public struct ToastContainer<Content: View>: View {
                                 }
                             }
                         }
-                    Spacer()
                 }
             }
         }
@@ -170,11 +172,22 @@ public extension View {
             self
         }
     }
+    
+    func localizedToast(
+        isPresented: Binding<Bool>,
+        type: ToastType,
+        key: String,
+        comment: String = "",
+        duration: TimeInterval = 2.0
+    ) -> some View {
+        let localizedMessage = NSLocalizedString(key, comment: comment)
+        return toast(isPresented: isPresented, type: type, message: localizedMessage, duration: duration)
+    }
 }
 
 private extension AnyTransition {
     static func moveAndFade() -> AnyTransition {
-        .move(edge: .top).combined(with: .opacity)
+        .move(edge: .bottom).combined(with: .opacity)
     }
 }
 
@@ -189,6 +202,9 @@ struct ToastView_Previews: PreviewProvider {
             ToastView(configuration: .init(type: .error, message: "发生错误，请重试"))
                 .previewDisplayName("Error Toast")
             
+            ToastView(configuration: .init(type: .info, message: "这是一个非常长的消息，用于测试自适应文本内容的显示效果。现在Toast应该能够正确地显示长文本而不会被截断。"))
+                .previewDisplayName("Long Text Toast")
+            
             DemoView()
                 .previewDisplayName("Toast Container Demo")
         }
@@ -199,15 +215,21 @@ struct ToastView_Previews: PreviewProvider {
 
 private struct DemoView: View {
     @State private var showToast = false
+    @State private var showLocalizedToast = false
     
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             Button("Show Toast") {
                 showToast = true
+            }
+            
+            Button("Show Localized Toast") {
+                showLocalizedToast = true
             }
         }
         .frame(width: 300, height: 200)
         .toast(isPresented: $showToast, type: .success, message: "这是一个测试消息")
+        .localizedToast(isPresented: $showLocalizedToast, type: .error, key: "toast.error.network", comment: "Network error toast message")
     }
 }
 #endif 
