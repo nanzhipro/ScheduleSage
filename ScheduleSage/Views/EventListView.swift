@@ -66,7 +66,7 @@ struct EventListView: View {
         handleEventUpdate(updatedEvent)
       }
     }
-    .onChange(of: viewModel.importStatus) { newStatus in
+    .onChange(of: viewModel.importStatus) { oldStatus, newStatus in
       handleImportStatusChange(newStatus)
     }
     .id(needsRefresh)

@@ -541,7 +541,7 @@ class IAPService: NSObject, ObservableObject {
             let cancellable = configuredSubject
                 .first()
                 .sink { [weak self] _ in
-                    guard let self = self else {
+                    if self == nil {
                         continuation.resume(throwing: IAPError.configurationFailed)
                         return
                     }

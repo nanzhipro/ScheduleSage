@@ -37,6 +37,9 @@ private actor UserDefaultsActor: UserDefaultsProtocol {
     }
 }
 
+// 将UserDefaults标记为@unchecked Sendable
+extension UserDefaults: @unchecked Sendable {}
+
 @MainActor
 public class PromptViewModel: ObservableObject {
     private let promptService: PromptService
@@ -134,7 +137,7 @@ public class PromptViewModel: ObservableObject {
             - **日期时间**：确保每个事件的 `startDate` 和 `endDate` 使用格式：`yyyy-MM-dd HH:mm:ss`。  
             - **日期时间**：确保事件的 `startDate` 比必须存在的，如果不存在startDate，那就忽略这个事件。
             - **URL**：验证 `url` 字段是否为有效的链接格式；若无效或缺失，填空字符串（`""`）。  
-            4. **处理不确定信息**：对于缺失或模糊的信息，尽量推断并在 `remarks` 中注明。例如，“开始时间不明确，推测为 2024 年 5 月”。  
+            4. **处理不确定信息**：对于缺失或模糊的信息，尽量推断并在 `remarks` 中注明。例如，"开始时间不明确，推测为 2024 年 5 月"。  
             5. **字段一致性**：确保所有字段名准确无误，遵循大小写和拼写规范。  
             6. **多语言支持**：提示词和输出内容使用一致的语言，避免语言混杂导致解析错误。  
             7. **处理复杂文本**：  
@@ -148,7 +151,7 @@ public class PromptViewModel: ObservableObject {
                 - 如果开始时间和结束时间都未识别到，则视为全天事件（`startDate` 和 `endDate` 设为当天 00:00:00 和 23:59:59）。  
             12. **异常年份处理**：如果文中未明确说明年份，请使用【用户上下文】中指定的年份： currentYear。  
             13. **总结文本内容**：为每个事件生成不超过 500 字的摘要，填充到 `notes` 字段中。
-            14. 若日历事件文本中未识别到地理位置信息，则自动提取文中出现的线上活动标识（如抖音直播、视频号直播、腾讯会议、钉钉会议、飞书会议、Zoom会议、线上会议等），并将 location 字段设为对应标识。若同时存在多个线上标识，按优先级取首个匹配项；若仅有泛用性词汇（如“线上活动”），则统一记为“线上活动”。
+            14. 若日历事件文本中未识别到地理位置信息，则自动提取文中出现的线上活动标识（如抖音直播、视频号直播、腾讯会议、钉钉会议、飞书会议、Zoom会议、线上会议等），并将 location 字段设为对应标识。若同时存在多个线上标识，按优先级取首个匹配项；若仅有泛用性词汇（如"线上活动"），则统一记为"线上活动"。
             15. 主题很关键，需要明确传递活动或事件的主题，如果文中已经明确提到了活动的主题，那必须提取，组合主题内容后，填充到 `title` 字段。
 
             ## 示例输出 JSON 数组：

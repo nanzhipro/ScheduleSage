@@ -58,7 +58,7 @@ struct PaywallView: View {
         .task {
             await refreshSubscriptionData()
         }
-        .onChange(of: iapService.offeringsLoadingState) { newState in
+        .onChange(of: iapService.offeringsLoadingState) { oldState, newState in
             if newState == .success {
                 selectMonthlySubscription()
             }
@@ -173,7 +173,7 @@ struct PaywallView: View {
         }
         
         let isMonthlyPackage = package.identifier.lowercased().contains("month")
-        let isYearlyPackage = package.identifier.lowercased().contains("year")
+        _ = package.identifier.lowercased().contains("year")
         
         // 如果用户已经订阅了年度方案，禁用所有选项
         if iapService.hasSubscription(containing: "year") {

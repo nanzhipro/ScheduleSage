@@ -67,7 +67,10 @@ actor PromptService {
     }
     
     deinit {
-        Task { await stopPeriodicRefresh() }
+        Task { [weak self] in
+            guard let self = self else { return }
+            await self.stopPeriodicRefresh()
+        }
     }
     
     // MARK: - Public Interface
