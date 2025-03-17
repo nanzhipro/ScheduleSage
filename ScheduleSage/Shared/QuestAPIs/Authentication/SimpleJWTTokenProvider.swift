@@ -37,6 +37,9 @@ public actor SimpleJWTTokenProvider: TokenProvider {
     /// - Note: 在令牌过期前 60 秒开始刷新，避免过期导致的服务中断
     private let refreshThreshold: TimeInterval = 60
     
+    /// 日志服务
+    private let logger = LoggerService.logger(category: "JWTTokenProvider")
+    
     // MARK: - Initialization
     
     /// 创建令牌提供者实例
@@ -46,10 +49,19 @@ public actor SimpleJWTTokenProvider: TokenProvider {
     public init(environment: APIEnvironment, credentials: AuthCredentials = .default) {
         self.environment = environment
         self.credentials = credentials
+        
+        logger.info("[JWTTokenProvider] JWT Token Provider initialized with environment: \(environment.baseURL)")
     }
     
     public var token: String? {
-        get async { jwtToken }
+        get async { 
+            if let jwtToken {
+                logger.info("[JWTTokenProvider] Retrieved current JWT token: \(jwtToken.prefix(8))... (length: \(jwtToken.count))")
+            } else {
+                logger.info("[JWTTokenProvider] No JWT token available")
+            }
+            return jwtToken 
+        }
     }
     
     public var refreshToken: String? {
@@ -66,59 +78,111 @@ public actor SimpleJWTTokenProvider: TokenProvider {
                   let exp = json["exp"] as? TimeInterval
             else {
                 tokenExpirationDate = nil
+                Task {
+                    logger.warning("[JWTTokenProvider] Failed to parse token expiration - invalid token format")
+                }
                 return
             }
             
             tokenExpirationDate = Date(timeIntervalSince1970: exp)
+            
+            Task {
+                if let expirationDate = tokenExpirationDate {
+                    logger.info("[JWTTokenProvider] Token expiration parsed successfully - expires at: \(expirationDate.ISO8601Format())")
+                }
+            }
         } catch {
             tokenExpirationDate = nil
+            Task {
+                logger.error("[JWTTokenProvider] Error parsing token expiration: \(error.localizedDescription)")
+            }
         }
     }
     
     private func isTokenExpired() -> Bool {
         guard let expirationDate = tokenExpirationDate else {
+            Task {
+                logger.info("[JWTTokenProvider] Token considered expired - no expiration date available")
+            }
             return true
         }
-        return Date() >= expirationDate
+        
+        let isExpired = Date() >= expirationDate
+        
+        if isExpired {
+            Task {
+                logger.info("[JWTTokenProvider] Token is expired - current time: \(Date().ISO8601Format()), expiration: \(expirationDate.ISO8601Format())")
+            }
+        }
+        
+        return isExpired
     }
     
     private func isTokenNearExpiration() -> Bool {
         guard let expirationDate = tokenExpirationDate else {
+            Task {
+                logger.info("[JWTTokenProvider] Token considered near expiration - no expiration date available")
+            }
             return true
         }
+        
         let refreshDate = expirationDate.addingTimeInterval(-refreshThreshold)
-        return Date() >= refreshDate
+        let isNearExpiration = Date() >= refreshDate
+        
+        if isNearExpiration {
+            Task {
+                logger.info("[JWTTokenProvider] Token is near expiration - current time: \(Date().ISO8601Format()), refresh threshold: \(refreshThreshold)s, expiration: \(expirationDate.ISO8601Format())")
+            }
+        }
+        
+        return isNearExpiration
     }
     
     public func validateToken() async throws -> Bool {
+        logger.info("[JWTTokenProvider] Validating JWT token")
+        
         guard let token = jwtToken else {
+            logger.info("[JWTTokenProvider] Token validation failed - no token available")
             return false
         }
         
         if isTokenExpired() {
+            logger.info("[JWTTokenProvider] Token validation failed - token is expired")
             return false
         }
         
         if isTokenNearExpiration() {
+            logger.info("[JWTTokenProvider] Token near expiration - attempting refresh")
             let newToken = try await fetchToken()
-            return newToken == token
+            let isValid = newToken == token
+            logger.info("[JWTTokenProvider] Token refresh result: \(isValid ? "unchanged" : "refreshed")")
+            return isValid
         }
         
+        logger.info("[JWTTokenProvider] Token validation successful - token is valid")
         return true
     }
     
     public func refreshToken() async throws {
+        logger.info("[JWTTokenProvider] Refreshing JWT token")
+        
         let newToken = try await fetchToken()
         self.jwtToken = newToken
         parseTokenExpiration(newToken)
+        
+        logger.info("[JWTTokenProvider] JWT token refreshed successfully")
     }
     
     public func updateTokens(access: String, refresh: String) async {
+        logger.info("[JWTTokenProvider] Updating JWT token - new token length: \(access.count)")
+        
         self.jwtToken = access
         parseTokenExpiration(access)
     }
     
     public func fetchToken() async throws -> String {
+        logger.info("[JWTTokenProvider] Fetching new JWT token from server")
+        
         let client = APIClient(
             environment: environment,
             tokenProvider: self
@@ -131,10 +195,12 @@ public actor SimpleJWTTokenProvider: TokenProvider {
         
         switch result {
         case .success(let response):
+            logger.info("[JWTTokenProvider] JWT token fetched successfully - token length: \(response.token.count)")
             self.jwtToken = response.token
             parseTokenExpiration(response.token)
             return response.token
         case .failure(let error):
+            logger.error("[JWTTokenProvider] Failed to fetch JWT token: \(error.localizedDescription)")
             throw error
         }
     }
@@ -169,4 +235,5 @@ private extension String {
         
         return Data(base64Encoded: base64)
     }
-} 
+}
+
