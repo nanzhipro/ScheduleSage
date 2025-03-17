@@ -326,3 +326,6 @@
 
 /* Image Access Error */
 "image_access_failed" = "无法访问所选图片。请重试或使用拖放方式代替。";
+
+// Copyright
+"copyright" = "版权信息";

@@ -165,6 +165,12 @@ private extension SettingsView {
       ForEach(AboutLink.allCases) { link in
         SettingsLinkRow(link: link)
       }
+
+      SettingsRow(title: "copyright", icon: "c.circle.fill") {
+        Text("Copyright © 2025年 Hangzhou Quest Technology Co., Ltd. All rights reserved.")
+          .foregroundColor(DesignSystem.Colors.secondaryText)
+          .font(DesignSystem.Typography.caption)
+      }
     }
   }
 }

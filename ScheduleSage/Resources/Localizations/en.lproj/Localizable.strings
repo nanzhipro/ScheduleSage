@@ -324,3 +324,6 @@
 
 /* Image Access Error */
 "image_access_failed" = "Failed to access the selected image. Please try again or use drag and drop instead.";
+
+// Copyright
+"copyright" = "Copyright";
