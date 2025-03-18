@@ -18,7 +18,6 @@ struct IAPProduct: Identifiable {
     let price: String
     let period: String
     let isPopular: Bool
-    let features: [String]
     let introductoryPrice: String?
     let introductoryPeriod: String?
     let hasFreeTrial: Bool
@@ -31,7 +30,6 @@ struct IAPProduct: Identifiable {
         self.price = package.localizedPriceString
         self.period = Self.formatPeriod(package.storeProduct.subscriptionPeriod)
         self.isPopular = isPopular
-        self.features = Self.getFeaturesForProduct(package.identifier)
         
         if let _ = package.storeProduct.introductoryDiscount {
             self.introductoryPrice = package.storeProduct.introductoryDiscount?.localizedPriceString
@@ -58,26 +56,6 @@ struct IAPProduct: Identifiable {
                 String(format: NSLocalizedString("subscription_period_years", comment: ""), period.value)
         default:
             return ""
-        }
-    }
-    
-    private static func getFeaturesForProduct(_ identifier: String) -> [String] {
-        switch identifier {
-        case IAPConfiguration.monthlySubscriptionId:
-            return [
-                "subscription_feature_unlimited_usage",
-                "subscription_feature_premium_features",
-                "subscription_feature_priority_support"
-            ].map { NSLocalizedString($0, comment: "") }
-        case IAPConfiguration.yearlySubscriptionId:
-            return [
-                "subscription_feature_unlimited_usage",
-                "subscription_feature_premium_features",
-                "subscription_feature_priority_support",
-                "subscription_feature_yearly_discount"
-            ].map { NSLocalizedString($0, comment: "") }
-        default:
-            return []
         }
     }
 } 

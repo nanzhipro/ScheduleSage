@@ -32,7 +32,7 @@
 // Loading
 "loading_ocr" = "Scanning image...";
 "loading_network" = "Loading...";
-"loading_processing" = "Processing...";
+"loading_processing" = "AI thinking...";
 "loading_url" = "Parsing webpage...";
 
 // Image Picker
@@ -101,7 +101,7 @@
 // LLM Errors
 "llm_invalid_response" = "AI scan failed, try again";
 "llm_parsing_failed" = "Can't recognize, check input";
-"llm_missing_fields" = "Missing %@, please add";
+"llm_missing_fields" = "Please input complete event information";
 
 // Event Fields
 "event_field_title" = "Title";
@@ -222,7 +222,7 @@
 
 // Paywall
 "paywall.title" = "Go Premium";
-"paywall.description" = "Unlock top features";
+"paywall.description" = "Smart AI Calendar Assistant|Intelligent Recognition from Web & Images|Natural Language Processing";
 "paywall.restore_purchases" = "Restore Purchases";
 "paywall.subscription.monthly" = "Monthly";
 "paywall.subscription.yearly" = "Yearly";
@@ -235,7 +235,7 @@
 "paywall.restore.failed" = "Restore Failed";
 "paywall.button.subscribe" = "Subscribe";
 "paywall.button.purchase" = "Buy Now";
-"paywall.features.title" = "Premium Perks";
+"paywall.features.title" = "Premium Features";
 "paywall.best_value" = "Best Deal";
 "paywall.save_percent" = "Save %d%%";
 "paywall.terms" = "Terms";
@@ -343,3 +343,9 @@
 "language.chinese" = "Chinese";
 "language.english" = "English";
 "language.japanese" = "Japanese";
+
+// Subscription configuration
+"subscription.monthly.title" = "1 month subscription price";
+"subscription.yearly.title" = "1 year subscription price";
+"subscription.monthly.description" = "Free trial for 7 days";
+"subscription.yearly.description" = "Free trial for 14 days";

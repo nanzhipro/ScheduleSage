@@ -32,7 +32,7 @@
 // Loading
 "loading_ocr" = "图片识别中...";
 "loading_network" = "正在加载...";
-"loading_processing" = "AI处理中...";
+"loading_processing" = "AI 思考中...";
 "loading_url" = "网页解析中...";
 
 // Image Picker
@@ -223,7 +223,7 @@
 
 // 付费墙
 "paywall.title" = "升级到高级版";
-"paywall.description" = "解锁高级功能，体验更佳";
+"paywall.description" = "解锁AI日程管理|支持从网页，图片中智能识别日程|支持对话式智能创建日程";
 "paywall.restore_purchases" = "恢复购买";
 "paywall.subscription.monthly" = "月度订阅";
 "paywall.subscription.yearly" = "年度订阅";
@@ -345,3 +345,9 @@
 "language.chinese" = "简体中文";
 "language.english" = "英文";
 "language.japanese" = "日语";
+
+// 订阅配置
+"subscription.monthly.title" = "1个月订阅价格";
+"subscription.yearly.title" = "1年订阅价格";
+"subscription.monthly.description" = "免费试用7天";
+"subscription.yearly.description" = "免费试用14天";

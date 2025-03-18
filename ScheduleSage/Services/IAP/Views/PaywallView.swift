@@ -29,7 +29,7 @@ struct PaywallView: View {
     // MARK: - Body
     var body: some View {
         ZStack {
-            VStack(spacing: DesignSystem.Spacing.medium) {
+            VStack(spacing: DesignSystem.Spacing.small) {
                 closeButton
                 
                 ScrollView(showsIndicators: false) {
@@ -88,7 +88,7 @@ struct PaywallView: View {
     }
     
     private var headerSection: some View {
-        VStack(spacing: DesignSystem.Spacing.small) {
+        VStack(spacing: DesignSystem.Spacing.medium) {
             Image(systemName: "sparkles")
                 .font(.system(size: 48))
                 .foregroundColor(.yellow)
@@ -99,13 +99,10 @@ struct PaywallView: View {
                 .foregroundColor(iapService.isPremium ? 
                     DesignSystem.Colors.primary :
                     DesignSystem.Colors.primaryText)
-            
-            Text(NSLocalizedString("paywall.description", comment: ""))
-                .font(DesignSystem.Typography.bodyRegular)
                 .multilineTextAlignment(.center)
-                .foregroundColor(DesignSystem.Colors.secondaryText)
-                .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, DesignSystem.Spacing.medium)
+            
+            premiumDescriptionSection
         }
         .padding(.top, DesignSystem.Spacing.medium)
     }
@@ -124,6 +121,41 @@ struct PaywallView: View {
         } else {
             return NSLocalizedString("paywall.button.subscribed", comment: "")
         }
+    }
+    
+    /// 会员描述部分，将一条描述分解为多行显示
+    private var premiumDescriptionSection: some View {
+        VStack(spacing: DesignSystem.Spacing.medium) {
+            Text(NSLocalizedString("paywall.features.title", comment: ""))
+                .font(DesignSystem.Typography.bodyMedium)
+                .foregroundColor(DesignSystem.Colors.secondaryText)
+                .padding(.bottom, 4)
+            
+            ForEach(getDescriptionLines(), id: \.self) { line in
+                Text(line)
+                    .font(DesignSystem.Typography.bodyMedium)
+                    .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.8))
+            }
+        }
+        .padding(.vertical, DesignSystem.Spacing.medium)
+        .padding(.horizontal, DesignSystem.Spacing.medium)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.secondary.opacity(0.03))
+        )
+        .padding(.horizontal, DesignSystem.Spacing.medium)
+    }
+    
+    /// 获取描述文本的多行内容
+    private func getDescriptionLines() -> [String] {
+        let description = NSLocalizedString("paywall.description", comment: "")
+        
+        // 按换行符或指定分隔符分割文本
+        let lines = description.components(separatedBy: "|")
+            .filter { !$0.isEmpty }
+        
+        return lines.isEmpty ? [description] : lines
     }
     
     private var subscriptionOptionsSection: some View {
@@ -145,7 +177,7 @@ struct PaywallView: View {
                             SubscriptionOptionView(
                                 package: package,
                                 isSelected: selectedPackage?.identifier == package.identifier,
-                                isPopular: package.identifier == IAPConfiguration.yearlySubscriptionId,
+                                isPopular: isPopularPackage(package),
                                 isDisabled: shouldDisablePackage(package),
                                 action: { 
                                     if !shouldDisablePackage(package) {
@@ -297,6 +329,7 @@ struct PaywallView: View {
     
     private func refreshSubscriptionData() async {
         do {
+            await Purchases.shared.invalidateCustomerInfoCache()
             await iapService.lazyLoadOfferings()
             try await iapService.refreshCustomerInfo()
         } catch {
@@ -429,6 +462,21 @@ struct PaywallView: View {
             }
         }
     }
+    
+    private func isPopularPackage(_ package: Package) -> Bool {
+        // 如果用户订阅了年度方案，将年度方案高亮显示
+        if iapService.hasSubscription(containing: "year") {
+            return package.identifier.lowercased().contains("year")
+        }
+        
+        // 如果用户订阅了月度方案，将月度方案高亮显示
+        if iapService.hasSubscription(containing: "month") {
+            return package.identifier.lowercased().contains("month")
+        }
+        
+        // 默认情况下，将年度方案高亮显示
+        return package.identifier == IAPConfiguration.yearlySubscriptionId
+    }
 }
 
 // MARK: - Subscription Option View
@@ -457,7 +505,7 @@ struct SubscriptionOptionView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 1)
+                    .stroke(borderColor, lineWidth: borderWidth)
             )
         }
         .buttonStyle(.plain)
@@ -472,28 +520,81 @@ struct SubscriptionOptionView: View {
         if isDisabled {
             return Color.secondary.opacity(0.05)
         } else if isSelected {
-            return Color.accentColor.opacity(0.1)
+            return Color.accentColor.opacity(0.12)
+        } else if isPopular {
+            // 为"最受欢迎"选项添加轻微的主题色背景
+            return DesignSystem.Colors.primary.opacity(0.08)
         } else {
-            return Color.secondary.opacity(0.1)
+            return Color.secondary.opacity(0.08)
+        }
+    }
+    
+    // 边框颜色
+    private var borderColor: Color {
+        if isSelected {
+            return Color.accentColor
+        } else if isPopular && !isDisabled {
+            return DesignSystem.Colors.primary.opacity(0.3)
+        } else {
+            return Color.clear
+        }
+    }
+    
+    // 边框宽度
+    private var borderWidth: CGFloat {
+        if isSelected {
+            return 1.0
+        } else if isPopular && !isDisabled {
+            return 1.0
+        } else {
+            return 0.0
         }
     }
     
     private var packageInfoView: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
             HStack(spacing: DesignSystem.Spacing.small) {
-                Text(package.storeProduct.localizedTitle)
+                Text(localizedTitleForProduct(package.storeProduct))
                     .font(.headline)
                 
                 if isPopular {
-                    bestValueBadge
+                    if isMonthlyPackage() && package.identifier.lowercased().contains("month") {
+                        currentSubscriptionBadge
+                    } else if isYearlyPackage() && package.identifier.lowercased().contains("year") {
+                        currentSubscriptionBadge
+                    } else {
+                        bestValueBadge
+                    }
                 }
             }
             
-            Text(package.storeProduct.localizedDescription)
+            Text(localizedDescriptionForProduct(package.storeProduct))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+    
+    // 判断用户是否订阅了月度套餐
+    private func isMonthlyPackage() -> Bool {
+        return IAPService.shared.hasSubscription(containing: "month")
+    }
+    
+    // 判断用户是否订阅了年度套餐
+    private func isYearlyPackage() -> Bool {
+        return IAPService.shared.hasSubscription(containing: "year")
+    }
+    
+    // 当前订阅标识
+    private var currentSubscriptionBadge: some View {
+        Text(NSLocalizedString("subscribed_status", comment: ""))
+            .font(.caption)
+            .bold()
+            .foregroundColor(DesignSystem.Colors.primary)
+            .padding(.horizontal, DesignSystem.Spacing.small)
+            .padding(.vertical, 2)
+            .background(DesignSystem.Colors.primary.opacity(0.12))
+            .cornerRadius(4)
     }
     
     private var bestValueBadge: some View {
@@ -514,6 +615,33 @@ struct SubscriptionOptionView: View {
             
             SubscriptionSelectionIndicator(isSelected: isSelected)
         }
+    }
+    
+    // 添加自定义本地化函数
+    private func localizedTitleForProduct(_ product: StoreProduct) -> String {
+        // 根据产品 ID 和当前语言环境返回相应的标题
+        let currentLang = Bundle.main.preferredLocalizations.first ?? "en"
+        
+        // 检测产品类型并返回对应的本地化标题
+        if product.productIdentifier.lowercased().contains("month") {
+            return NSLocalizedString("subscription.monthly.title", comment: "")
+        } else if product.productIdentifier.lowercased().contains("year") {
+            return NSLocalizedString("subscription.yearly.title", comment: "")
+        }
+        
+        // 默认回退到 StoreKit 提供的标题
+        return product.localizedTitle
+    }
+    
+    private func localizedDescriptionForProduct(_ product: StoreProduct) -> String {
+        // 类似的处理描述文本
+        if product.productIdentifier.lowercased().contains("month") {
+            return NSLocalizedString("subscription.monthly.description", comment: "")
+        } else if product.productIdentifier.lowercased().contains("year") {
+            return NSLocalizedString("subscription.yearly.description", comment: "")
+        }
+        
+        return product.localizedDescription
     }
 }
 
@@ -629,10 +757,11 @@ private enum PaywallDimensions {
 
 // MARK: - Design System Extensions
 extension DesignSystem.Spacing {
-    static let small: CGFloat = 8
+    static let small: CGFloat = 4
     static let medium: CGFloat = 16
     static let large: CGFloat = 24
     static let extraLarge: CGFloat = 32
+    static let xsmall: CGFloat = 4
 }
 
 #Preview {

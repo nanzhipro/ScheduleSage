@@ -32,7 +32,7 @@
 // 読み込み中
 "loading_ocr" = "画像をスキャン中...";
 "loading_network" = "読み込み中...";
-"loading_processing" = "処理中...";
+"loading_processing" = "AI処理中...";
 "loading_url" = "ウェブページを解析中...";
 
 // 画像選択
@@ -101,7 +101,7 @@
 // LLMエラー
 "llm_invalid_response" = "AIスキャンに失敗しました。もう一度お試しください";
 "llm_parsing_failed" = "認識できません。入力を確認してください";
-"llm_missing_fields" = "%@が不足しています。追加してください";
+"llm_missing_fields" = "予定の詳細を入力してください";
 
 // イベントフィールド
 "event_field_title" = "タイトル";
@@ -222,7 +222,7 @@
 
 // ペイウォール
 "paywall.title" = "プレミアムにアップグレード";
-"paywall.description" = "トップ機能をアンロック";
+"paywall.description" = "スマートAIカレンダーアシスタント|ウェブ・画像からのスケジュール認識|自然言語での入力サポート";
 "paywall.restore_purchases" = "購入を復元";
 "paywall.subscription.monthly" = "月額";
 "paywall.subscription.yearly" = "年額";
@@ -341,3 +341,9 @@
 "language.chinese" = "中国語";
 "language.english" = "英語";
 "language.japanese" = "日本語";
+
+// サブスクリプション設定
+"subscription.monthly.title" = "1ヶ月のサブスクリプション価格";
+"subscription.yearly.title" = "1年のサブスクリプション価格";
+"subscription.monthly.description" = "7 日間無料お試し";
+"subscription.yearly.description" = "14 日間無料トライアル";
