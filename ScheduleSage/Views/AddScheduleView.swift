@@ -142,7 +142,7 @@ private struct BackgroundView: View {
     if colorScheme == .light {
       LinearGradient(
         colors: [
-          DesignSystem.Colors.primary.opacity(0.15),
+          DesignSystem.Colors.primary.opacity(0.1),
           DesignSystem.Colors.background
         ],
         startPoint: .top,

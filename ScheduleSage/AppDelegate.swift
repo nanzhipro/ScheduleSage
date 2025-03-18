@@ -39,6 +39,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let keyboardMonitor { NSEvent.removeMonitor(keyboardMonitor) }
     }
     
+    // 防止关闭最后一个窗口时应用退出
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        // 返回 false 表示即使关闭所有窗口，应用也不会退出
+        return false
+    }
+    
     // MARK: - Setup Methods
     private func initializeServices() async {
         logger.debug("[App] Starting services initialization")
@@ -170,11 +176,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    private func showMainWindow() {
+    // 修改为 public 以便从 App 主文件调用
+    func showMainWindow() {
         if let mainWindow = NSApp.windows.first(where: { $0.isVisible }) {
             NSApp.activate(ignoringOtherApps: true)
             mainWindow.makeKeyAndOrderFront(nil)
             mainWindow.orderFrontRegardless()
+        } else {
+            // 如果没有可见窗口，创建新的主窗口
+            let newWindow = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: DesignSystem.Dimensions.mainViewWidth, height: DesignSystem.Dimensions.mainViewHeight),
+                styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
+                backing: .buffered,
+                defer: false
+            )
+            
+            newWindow.titlebarAppearsTransparent = true
+            newWindow.titleVisibility = .hidden
+            newWindow.center()
+            
+            let contentView = AddScheduleView()
+                .environmentObject(AddScheduleViewModel())
+                .environmentObject(AuthenticationViewModel.shared)
+                .frame(
+                    width: DesignSystem.Dimensions.mainViewWidth,
+                    height: DesignSystem.Dimensions.mainViewHeight
+                )
+            
+            newWindow.contentView = NSHostingView(rootView: contentView)
+            newWindow.title = NSLocalizedString("schedule_add_title", comment: "")
+            newWindow.isReleasedWhenClosed = false
+            
+            let windowController = NSWindowController(window: newWindow)
+            windowController.showWindow(nil)
+            
+            NSApp.activate(ignoringOtherApps: true)
+            newWindow.makeKeyAndOrderFront(nil)
         }
     }
     

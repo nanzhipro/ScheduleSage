@@ -62,6 +62,10 @@
 "settings_window_mode" = "Separate Window";
 "settings_theme" = "Theme";
 
+// Window Menu
+"window.show_main_window" = "Show Main Window";
+"window.minimize" = "Minimize";
+
 // Settings Groups
 "settings_group_notifications" = "Notifications";
 "settings_group_appearance" = "Appearance";

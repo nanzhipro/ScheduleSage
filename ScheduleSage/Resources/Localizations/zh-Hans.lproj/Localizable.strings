@@ -62,6 +62,10 @@
 "settings_window_mode" = "使用独立窗口";
 "settings_theme" = "主题风格";
 
+// Window Menu
+"window.show_main_window" = "显示主窗口";
+"window.minimize" = "最小化";
+
 // Settings Groups
 "settings_group_notifications" = "通知";
 "settings_group_appearance" = "外观";

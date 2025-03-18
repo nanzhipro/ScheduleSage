@@ -37,13 +37,28 @@ struct ScheduleSageApp: App {
     .commands {
       // 禁用新建窗口命令
       CommandGroup(replacing: .newItem) { }
+      
+      // 添加窗口菜单
+      CommandGroup(replacing: .windowSize) {
+        Button(NSLocalizedString("window.show_main_window", comment: "")) {
+          appDelegate.showMainWindow()
+        }
+        .keyboardShortcut("1", modifiers: .command)
+        
+        Divider()
+        
+        Button(NSLocalizedString("window.minimize", comment: "")) {
+          NSApp.mainWindow?.miniaturize(nil)
+        }
+        .keyboardShortcut("m", modifiers: .command)
+      }
     }
     .onChange(of: ScenePhase.active) { _, _ in
       guard hasCompletedOnboarding,
             let window = NSApp.mainWindow else { return }
       
       // // 配置窗口基本属性
-      window.styleMask.remove([.resizable, .miniaturizable, .fullScreen])
+      window.styleMask.remove([.resizable, .fullScreen])
       window.collectionBehavior.remove([.fullScreenPrimary, .fullScreenAuxiliary])
       
       // 设置窗口外观
