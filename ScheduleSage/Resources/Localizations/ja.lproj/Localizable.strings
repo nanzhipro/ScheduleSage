@@ -311,7 +311,8 @@
 "settings_user_agreement" = "ユーザー同意書";
 
 /* ペイウォール購読条件 */
-"paywall.subscription.terms" = "トライアル後、キャンセルしない限り自動更新されます。Apple IDの設定で管理できます。";
+"paywall.subscription.terms" = "トライアル後、キャンセルしない限り自動更新されます。Apple IDの設定で管理できます。[購読をキャンセル](cancel:)するにはクリックしてください。";
+"paywall.cancel_subscription" = "購読をキャンセル";
 
 "premium_required" = "プレミアムが必要です。全機能をアンロックするためにアップグレードしてください。";
 

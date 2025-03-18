@@ -311,7 +311,8 @@
 "settings_user_agreement" = "User Agreement";
 
 /* Paywall Subscription Terms */
-"paywall.subscription.terms" = "After trial, auto-renews unless canceled. Manage in Apple ID settings.";
+"paywall.subscription.terms" = "After trial, auto-renews unless canceled. Manage in Apple ID settings. Click to [cancel subscription](cancel:).";
+"paywall.cancel_subscription" = "Cancel Subscription";
 
 "premium_required" = "Premium needed. Upgrade to unlock all features.";
 

@@ -312,7 +312,8 @@
 "settings_user_agreement" = "用户协议";
 
 /* Paywall Subscription Terms */
-"paywall.subscription.terms" = "试用期后未取消订阅，将自动续订并收费。可在 Apple ID 设置中管理。";
+"paywall.subscription.terms" = "试用期结束后，订阅将自动续订并扣费，可在 Apple ID 设置中管理。点击 [取消订阅](cancel:) 了解如何取消。";
+"paywall.cancel_subscription" = "取消订阅";
 
 "premium_required" = "此功能需高级会员。升级解锁全部功能。";
 
