@@ -348,3 +348,5 @@
 "subscription.yearly.title" = "1年のサブスクリプション価格";
 "subscription.monthly.description" = "7 日間無料お試し";
 "subscription.yearly.description" = "14 日間無料トライアル";
+"subscription.price.format.monthly" = "%@/月";
+"subscription.price.format.yearly" = "%@/年";

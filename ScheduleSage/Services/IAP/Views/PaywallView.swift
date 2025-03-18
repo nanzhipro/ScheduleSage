@@ -61,6 +61,7 @@ struct PaywallView: View {
             position: .center
         )
         .task {
+            // 在刷新订阅数据前确认IAP服务已初始化
             await refreshSubscriptionData()
         }
         .onChange(of: iapService.offeringsLoadingState) { oldState, newState in
@@ -329,6 +330,12 @@ struct PaywallView: View {
     
     private func refreshSubscriptionData() async {
         do {
+            // 等待IAP服务初始化完成
+            if !IAPService.shared.isInitialized {
+                await IAPService.bootstrap()
+            }
+            
+            // 确保SDK已初始化后再调用Purchases相关方法
             await Purchases.shared.invalidateCustomerInfoCache()
             await iapService.lazyLoadOfferings()
             try await iapService.refreshCustomerInfo()
@@ -609,12 +616,30 @@ struct SubscriptionOptionView: View {
     
     private var priceAndSelectionView: some View {
         HStack(spacing: DesignSystem.Spacing.medium) {
-            Text(package.storeProduct.localizedPriceString)
+            Text(formattedPrice())
                 .font(.headline)
                 .foregroundColor(.primary)
             
             SubscriptionSelectionIndicator(isSelected: isSelected)
         }
+    }
+    
+    // 根据产品类型格式化价格显示
+    private func formattedPrice() -> String {
+        // 获取价格基础字符串
+        let priceString = package.storeProduct.localizedPriceString
+        
+        // 根据产品类型使用不同的格式
+        if package.identifier.lowercased().contains("month") {
+            // 月度订阅格式
+            return String(format: NSLocalizedString("subscription.price.format.monthly", comment: ""), priceString)
+        } else if package.identifier.lowercased().contains("year") {
+            // 年度订阅格式
+            return String(format: NSLocalizedString("subscription.price.format.yearly", comment: ""), priceString)
+        }
+        
+        // 其他类型或无法识别时使用原始价格
+        return priceString
     }
     
     // 添加自定义本地化函数

@@ -352,3 +352,5 @@
 "subscription.yearly.title" = "1年订阅价格";
 "subscription.monthly.description" = "免费试用7天";
 "subscription.yearly.description" = "免费试用14天";
+"subscription.price.format.monthly" = "%@/月";
+"subscription.price.format.yearly" = "%@/年";

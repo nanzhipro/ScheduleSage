@@ -749,8 +749,17 @@ enum LoadingState {
 extension IAPService {
     /// 应用启动时调用此方法完成初始化
     static func bootstrap() async {
-        // 服务在初始化时已经自动开始初始化过程
-        // 这里只需等待初始化完成
+        // 确保服务已配置
+        if !shared.isConfigured {
+            do {
+                try await shared.configureSDK()
+            } catch {
+                // 配置失败时记录日志，但继续执行，避免阻塞UI
+                shared.logger.error("[IAP] Failed to configure SDK during bootstrap: \(error.localizedDescription)")
+            }
+        }
+        
+        // 确保已初始化
         await shared.waitForInitialization()
     }
 } 

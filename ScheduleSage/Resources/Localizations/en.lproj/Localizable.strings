@@ -350,3 +350,5 @@
 "subscription.yearly.title" = "1 year subscription price";
 "subscription.monthly.description" = "Free trial for 7 days";
 "subscription.yearly.description" = "Free trial for 14 days";
+"subscription.price.format.monthly" = "%@/month";
+"subscription.price.format.yearly" = "%@/year";
