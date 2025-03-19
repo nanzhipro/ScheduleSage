@@ -279,6 +279,17 @@ public final class OCRProcessor: ObservableObject {
         state = .failed(error)
         delegate?.ocrProcessor(self, didFailWithError: error)
     }
+    
+    /// 清理资源，包括图像缓存和处理状态
+    @MainActor
+    public func cleanup() {
+        // 清理OCR服务资源
+        service.cleanup()
+        
+        // 重置状态
+        state = .idle
+        lastMetrics = nil
+    }
 }
 
 // MARK: - Debug Helpers

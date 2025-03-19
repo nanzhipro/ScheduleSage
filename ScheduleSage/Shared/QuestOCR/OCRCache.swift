@@ -15,6 +15,7 @@ public final class OCRCache {
     
     private init() {
         cache.countLimit = 100 // 最多缓存100个结果
+        cache.totalCostLimit = 50 * 1024 * 1024 // 限制总大小为50MB
     }
     
     public func store(_ result: OCRResult, forKey key: String) {
@@ -33,6 +34,20 @@ public final class OCRCache {
     public func clear() {
         queue.async(flags: .barrier) {
             self.cache.removeAllObjects()
+        }
+    }
+    
+    /// 获取当前缓存中的对象数量
+    public var count: Int {
+        // NSCache没有直接的方法来获取缓存对象数量
+        // 返回countLimit作为近似值，因为我们不能直接获取当前缓存数量
+        return self.cache.countLimit
+    }
+    
+    /// 移除单个缓存项
+    public func remove(forKey key: String) {
+        queue.async(flags: .barrier) {
+            self.cache.removeObject(forKey: key as NSString)
         }
     }
 } 

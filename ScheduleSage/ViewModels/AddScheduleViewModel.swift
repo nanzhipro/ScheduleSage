@@ -29,7 +29,7 @@ class AddScheduleViewModel: ObservableObject {
     private let processor = OCRProcessor()
     private let clipboardManager = ClipboardManager()
     private let calendarManager = CalendarManager()
-    private let webCrawler: WebCrawler
+    private var webCrawler: WebCrawler
     private let llmProcessor: LLMEventProcessor
     private let iapService = IAPService.shared
     
@@ -56,6 +56,35 @@ class AddScheduleViewModel: ObservableObject {
         
         setupNotifications()
         setupSubscriptionObserver()
+    }
+    
+    deinit {
+        // 取消网络任务可以在任何线程执行
+        webCrawler.session.invalidateAndCancel()
+        
+        // 直接清理临时文件，这可以在任何线程上执行
+        let filesToDelete = tempImageURLs
+        cleanupFiles(filesToDelete)
+        
+        // 在主线程上执行其他销毁逻辑
+        // 使用弱引用捕获webCrawler和processor，避免在deinit中的循环引用
+        let weakWebCrawler = webCrawler
+        let weakProcessor = processor
+        let logger = self.logger
+        
+        // 避免在Task中捕获self
+        Task { @MainActor in
+            // 销毁WebCrawler实例，释放资源
+            weakWebCrawler.dispose()
+            
+            // 清理OCR处理器资源
+            weakProcessor.cleanup()
+            
+            logger.info("AddScheduleViewModel resources cleaned up")
+        }
+        
+        // 移除通知观察者可以在任何线程上执行
+        NotificationCenter.default.removeObserver(self)
     }
     
     // TODO: 如果频繁爬取网页，有可能会被封IP，需要使用代理池？
@@ -134,8 +163,37 @@ class AddScheduleViewModel: ObservableObject {
         showPaywall = true
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    /// 获取当前临时文件URL列表的副本
+    /// 这个方法可以在任何线程安全地调用
+    private func currentTempImageURLs() -> [URL] {
+        // 为了线程安全，返回一个副本
+        return tempImageURLs
+    }
+    
+    /// 清理指定的文件列表，可以在任何线程调用
+    nonisolated private func cleanupFiles(_ urls: [URL]) {
+        let fileManager = FileManager.default
+        
+        // 对于每个临时文件尝试删除
+        for url in urls {
+            do {
+                if fileManager.fileExists(atPath: url.path) {
+                    try fileManager.removeItem(at: url)
+                    // 不使用logger，避免在deinit中可能的问题
+                    print("Deleted temporary file: \(url.path)")
+                }
+            } catch {
+                print("Failed to delete temporary file \(url.path): \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// 清理所有临时文件 - 只能在MainActor上调用
+    @MainActor
+    private func cleanupTempFiles() {
+        let filesToDelete = tempImageURLs
+        tempImageURLs.removeAll()
+        cleanupFiles(filesToDelete)
     }
 }
 
@@ -354,6 +412,9 @@ extension AddScheduleViewModel {
             isOCRProcessing = false
             LoadingManager.shared.hide()
             
+            // 清理OCR资源
+            processor.cleanup()
+            
             // 清理临时文件
             cleanupTempFiles()
             
@@ -425,6 +486,9 @@ extension AddScheduleViewModel {
             isLLMProcessing = false
             LoadingManager.shared.hide()
             canImport = false
+            
+            // 清理OCR资源
+            processor.cleanup()
             
             // 清理临时文件
             cleanupTempFiles()
@@ -664,25 +728,6 @@ extension AddScheduleViewModel {
         tempImageURLs.append(tempURL)
         
         return tempURL
-    }
-    
-    /// 清理所有临时文件
-    private func cleanupTempFiles() {
-        let fileManager = FileManager.default
-        
-        for url in tempImageURLs {
-            do {
-                if fileManager.fileExists(atPath: url.path) {
-                    try fileManager.removeItem(at: url)
-                    logger.info("Deleted temporary file: \(url.path)")
-                }
-            } catch {
-                logger.error("Failed to delete temporary file \(url.path): \(error.localizedDescription)")
-            }
-        }
-        
-        // 清空临时文件列表
-        tempImageURLs.removeAll()
     }
 }
 

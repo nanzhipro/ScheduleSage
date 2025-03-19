@@ -24,4 +24,8 @@ public protocol OCRServiceProtocol: OCRServiceConfigurable {
     ) async throws -> [OCRResult]
     
     func collectMetrics() -> OCRMetrics?
+    
+    /// 清理OCR服务使用的资源
+    @MainActor
+    func cleanup()
 } 

@@ -152,4 +152,17 @@ final class OCRService: OCRServiceProtocol {
             confidence: averageConfidence
         )
     }
+    
+    /// 清理OCR服务使用的资源
+    @MainActor
+    func cleanup() {
+        // 重置状态
+        startTime = nil
+        lastMetrics = nil
+        
+        // 清理缓存（如果需要）
+        if configuration.enableCache {
+            OCRCache.shared.clear()
+        }
+    }
 }
