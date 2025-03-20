@@ -84,11 +84,11 @@ struct ManualScheduleInputView: View {
                 }
             }
             .onAppear {
-                viewModel.disableKeyboardMonitor()
+                viewModel.toggleKeyboardMonitor(isEnabled: false)
                 isFocused = true
             }
             .onDisappear {
-                viewModel.enableKeyboardMonitor()
+                viewModel.toggleKeyboardMonitor(isEnabled: true)
             }
         }
     }

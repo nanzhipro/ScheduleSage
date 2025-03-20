@@ -41,9 +41,9 @@ class AddScheduleViewModel: ObservableObject {
     
     // MARK: - Initialization
     init() {
-        self.promptViewModel = PromptViewModel()
-        self.llmProcessor = DefaultLLMEventProcessor(promptViewModel: self.promptViewModel)
-        self.webCrawler = Self.createWebCrawler()
+        promptViewModel = PromptViewModel()
+        llmProcessor = DefaultLLMEventProcessor(promptViewModel: promptViewModel)
+        webCrawler = Self.createWebCrawler()
         
         Task {
             logger.info("Loading initial prompt...")
@@ -51,7 +51,7 @@ class AddScheduleViewModel: ObservableObject {
             await promptViewModel.refreshPrompt()
             logger.info("Initialization completed")
             
-           _ = await checkSubscriptionStatus()
+            _ = await checkSubscriptionStatus()
         }
         
         setupNotifications()
@@ -62,33 +62,26 @@ class AddScheduleViewModel: ObservableObject {
         // 取消网络任务可以在任何线程执行
         webCrawler.session.invalidateAndCancel()
         
-        // 直接清理临时文件，这可以在任何线程上执行
-        let filesToDelete = tempImageURLs
-        cleanupFiles(filesToDelete)
+        // 清理临时文件
+        cleanupFiles(tempImageURLs)
         
-        // 在主线程上执行其他销毁逻辑
-        // 使用弱引用捕获webCrawler和processor，避免在deinit中的循环引用
+        // 使用弱引用避免循环引用
         let weakWebCrawler = webCrawler
         let weakProcessor = processor
         let logger = self.logger
         
         // 避免在Task中捕获self
         Task { @MainActor in
-            // 销毁WebCrawler实例，释放资源
             weakWebCrawler.dispose()
-            
-            // 清理OCR处理器资源
             weakProcessor.cleanup()
-            
             logger.info("AddScheduleViewModel resources cleaned up")
         }
         
-        // 移除通知观察者可以在任何线程上执行
         NotificationCenter.default.removeObserver(self)
     }
     
-    // TODO: 如果频繁爬取网页，有可能会被封IP，需要使用代理池？
-    // 试验表明，如果UserAgent是固定的，比如产品名ScheduleSage，频繁爬取网页，就会被拦截。
+    // MARK: - WebCrawler
+    
     private static func createWebCrawler() -> WebCrawler {
         let config = CrawlerConfiguration(
             obeyRobotsTxt: false,
@@ -99,6 +92,8 @@ class AddScheduleViewModel: ObservableObject {
         )
         return WebCrawler(configuration: config)
     }
+    
+    // MARK: - Notification Setup
     
     private func setupNotifications() {
         NotificationCenter.default.addObserver(
@@ -115,15 +110,13 @@ class AddScheduleViewModel: ObservableObject {
     }
     
     // MARK: - Keyboard Monitor Control
-    func disableKeyboardMonitor() {
-        isKeyboardMonitorEnabled = false
-    }
     
-    func enableKeyboardMonitor() {
-        isKeyboardMonitorEnabled = true
+    func toggleKeyboardMonitor(isEnabled: Bool) {
+        isKeyboardMonitorEnabled = isEnabled
     }
     
     // MARK: - 订阅状态管理
+    
     private func setupSubscriptionObserver() {
         NotificationCenter.default.addObserver(
             self,
@@ -146,16 +139,21 @@ class AddScheduleViewModel: ObservableObject {
         do {
             let isPremium = try await iapService.checkSubscriptionStatus()
             logger.info("Subscription status: \(isPremium)")
+            
             await MainActor.run {
                 self.isPremium = isPremium
             }
+            
+            return isPremium
         } catch {
             logger.error("Failed to check subscription status: \(error.localizedDescription)")
+            
             await MainActor.run {
                 self.isPremium = false
             }
+            
+            return false
         }
-        return false
     }
     
     /// 打开付费墙
@@ -163,23 +161,16 @@ class AddScheduleViewModel: ObservableObject {
         showPaywall = true
     }
     
-    /// 获取当前临时文件URL列表的副本
-    /// 这个方法可以在任何线程安全地调用
-    private func currentTempImageURLs() -> [URL] {
-        // 为了线程安全，返回一个副本
-        return tempImageURLs
-    }
+    // MARK: - 文件管理
     
     /// 清理指定的文件列表，可以在任何线程调用
     nonisolated private func cleanupFiles(_ urls: [URL]) {
         let fileManager = FileManager.default
         
-        // 对于每个临时文件尝试删除
         for url in urls {
             do {
                 if fileManager.fileExists(atPath: url.path) {
                     try fileManager.removeItem(at: url)
-                    // 不使用logger，避免在deinit中可能的问题
                     print("Deleted temporary file: \(url.path)")
                 }
             } catch {
@@ -200,10 +191,7 @@ class AddScheduleViewModel: ObservableObject {
 // MARK: - Models & Enums
 extension AddScheduleViewModel {
     enum ImportStatus: Equatable {
-        case none
-        case importing
-        case success
-        case failure(Error)
+        case none, importing, success, failure(Error)
         
         static func == (lhs: ImportStatus, rhs: ImportStatus) -> Bool {
             switch (lhs, rhs) {
@@ -251,14 +239,7 @@ extension AddScheduleViewModel {
             return
         }
         
-        switch content {
-        case .url(let url):
-            logger.debug("URL content detected: \(url.absoluteString)")
-            handleURLContent(url)
-        case .image(let url):
-            logger.debug("Image content detected: \(url.path)")
-            handleImageContent(url)
-        }
+        handleClipboardContent(content)
     }
     
     private func showInvalidURLToast() {
@@ -276,10 +257,12 @@ extension AddScheduleViewModel {
             await showLoading(.processing)
             
             do {
-                if try await URLHeaderInspector.shared.isImageURL(url) {
+                let urlInspector = URLHeaderInspector.shared
+                
+                if try await urlInspector.isImageURL(url) {
                     logger.info("Processing URL as image: \(url.absoluteString)")
                     await handleImageURL(url)
-                } else if try await URLHeaderInspector.shared.isHTMLPage(url) {
+                } else if try await urlInspector.isHTMLPage(url) {
                     logger.info("Processing URL as webpage: \(url.absoluteString)")
                     await handleWebContent(url)
                 } else {
@@ -320,22 +303,20 @@ extension AddScheduleViewModel {
     
     private func addURLToEvents(_ events: [CalendarEvent], url: URL) -> [CalendarEvent] {
         return events.map { event in
-            var modifiedEvent = event
-            if modifiedEvent.url.isEmpty {
-                modifiedEvent = CalendarEvent(
-                    title: event.title,
-                    location: event.location,
-                    notes: event.notes,
-                    startDate: event.startDate,
-                    endDate: event.endDate,
-                    url: url.absoluteString,
-                    calendar: event.calendar,
-                    status: event.status,
-                    eventIdentifier: event.eventIdentifier,
-                    remarks: event.remarks
-                )
-            }
-            return modifiedEvent
+            guard event.url.isEmpty else { return event }
+            
+            return CalendarEvent(
+                title: event.title,
+                location: event.location,
+                notes: event.notes,
+                startDate: event.startDate,
+                endDate: event.endDate,
+                url: url.absoluteString,
+                calendar: event.calendar,
+                status: event.status,
+                eventIdentifier: event.eventIdentifier,
+                remarks: event.remarks
+            )
         }
     }
     
@@ -377,14 +358,17 @@ extension AddScheduleViewModel {
             return try await llmProcessor.processContent(content)
         } catch {
             logger.error("LLM processing failed: \(error.localizedDescription)")
+            
             await MainActor.run {
                 self.isLLMProcessing = false
                 LoadingManager.shared.hide()
+                
                 self.showToast = false
                 self.toastType = .error
                 self.toastMessage = error.localizedDescription
                 self.showToast = true
             }
+            
             throw error
         }
     }
@@ -401,9 +385,13 @@ extension AddScheduleViewModel {
     }
     
     private func completeOCRProcessing(with results: [OCRLanguage: [OCRResult]]) async {
+        // 确保最小加载时间
         let elapsedTime = Date().timeIntervalSince(loadingStartTime ?? Date())
         let additionalDelay = max(0, minimumLoadingDuration - elapsedTime)
-        try? await Task.sleep(nanoseconds: UInt64(additionalDelay * 1_000_000_000))
+        
+        if additionalDelay > 0 {
+            try? await Task.sleep(for: .seconds(additionalDelay))
+        }
         
         await MainActor.run {
             processor.printDetailedResults(results)
@@ -412,17 +400,13 @@ extension AddScheduleViewModel {
             isOCRProcessing = false
             LoadingManager.shared.hide()
             
-            // 清理OCR资源
+            // 清理资源
             processor.cleanup()
-            
-            // 清理临时文件
             cleanupTempFiles()
             
             if !allTexts.isEmpty {
                 let combinedText = allTexts.joined(separator: "\n")
-                Task {
-                    await processWithLLM(combinedText)
-                }
+                Task { await processWithLLM(combinedText) }
             }
         }
     }
@@ -446,11 +430,7 @@ extension AddScheduleViewModel {
     private func setProcessingState(_ isProcessing: Bool) async {
         await MainActor.run {
             isLLMProcessing = isProcessing
-            if isProcessing {
-                LoadingManager.shared.show(.processing)
-            } else {
-                LoadingManager.shared.hide()
-            }
+            LoadingManager.shared.toggle(show: isProcessing, type: .processing)
         }
     }
     
@@ -460,41 +440,35 @@ extension AddScheduleViewModel {
     
     private func updateUIWithEvents(_ events: [CalendarEvent]) async {
         await MainActor.run {
-            self.parsedEvents = events
-            self.isLLMProcessing = false
+            parsedEvents = events
+            isLLMProcessing = false
             LoadingManager.shared.hide()
-            self.canImport = !events.isEmpty
-            self.showEventList = true
+            canImport = !events.isEmpty
+            showEventList = true
         }
     }
     
     private func updateState(loading: Bool, canImport: Bool) async {
         await MainActor.run {
-            if loading {
-                LoadingManager.shared.show(.processing)
-            } else {
-                LoadingManager.shared.hide()
-            }
+            LoadingManager.shared.toggle(show: loading, type: .processing)
             self.canImport = canImport
         }
     }
     
     private func handleError(_ error: Error) async {
         logger.error("Operation failed: \(error.localizedDescription)")
+        
         await MainActor.run {
             isOCRProcessing = false
             isLLMProcessing = false
             LoadingManager.shared.hide()
             canImport = false
             
-            // 清理OCR资源
+            // 清理资源
             processor.cleanup()
-            
-            // 清理临时文件
             cleanupTempFiles()
             
-            if let llmError = error as? LLMEventProcessorError,
-               case .requiresPremium = llmError {
+            if let llmError = error as? LLMEventProcessorError, case .requiresPremium = llmError {
                 showPaywall = true
             } else {
                 showToastMessage(error.localizedDescription)
@@ -503,7 +477,7 @@ extension AddScheduleViewModel {
     }
 }
 
-// MARK: - Drag and Drop-
+// MARK: - Drag and Drop
 extension AddScheduleViewModel {
     func handleDragEntered() {
         isDragging = true
@@ -516,10 +490,10 @@ extension AddScheduleViewModel {
     }
     
     func handleDropped(_ urls: [URL]) {
-        guard let url = urls.first else { return }
-        
-        guard url.isValidImageFile else {
-            logger.error("Invalid image file dropped: \(url.path)")
+        guard let url = urls.first, url.isValidImageFile else {
+            if let url = urls.first {
+                logger.error("Invalid image file dropped: \(url.path)")
+            }
             showToastMessage(NSLocalizedString("invalid_image_format", comment: ""))
             return
         }
@@ -532,6 +506,7 @@ extension AddScheduleViewModel {
             isDragging = false
             dragAnimation = .none
         }
+        
         handleImageContent(url)
     }
     
@@ -545,7 +520,6 @@ extension AddScheduleViewModel {
         importStatus = .none
         showManualInputSheet = false
         
-        // 清理临时文件
         cleanupTempFiles()
     }
 }
@@ -581,9 +555,13 @@ extension AddScheduleViewModel {
                     throw CalendarError.accessDenied
                 }
                 
-                var lastEventId: String?
-                let eventsToImport = selectedEventIds.isEmpty ? parsedEvents : parsedEvents.filter { selectedEventIds.contains($0.eventIdentifier) }
+                // 筛选要导入的事件
+                let eventsToImport = selectedEventIds.isEmpty 
+                    ? parsedEvents 
+                    : parsedEvents.filter { selectedEventIds.contains($0.eventIdentifier) }
                 
+                // 导入事件
+                var lastEventId: String?
                 for event in eventsToImport {
                     lastEventId = try await calendarManager.createEvent(from: event)
                 }
@@ -614,24 +592,25 @@ extension AddScheduleViewModel {
             }
             
             Task {
-                try? await Task.sleep(nanoseconds: 2_000_000_000)  // 2秒后
-                await MainActor.run {
-                    resetState()
-                }
+                try? await Task.sleep(for: .seconds(2))
+                await MainActor.run { resetState() }
             }
         }
     }
     
     func updateEvent(_ updatedEvent: CalendarEvent) {
-        logger.info("Updating event: \(updatedEvent.title), \(updatedEvent.startDate), \(updatedEvent.endDate), \(updatedEvent.location), \(updatedEvent.calendar)")
-        if let index = parsedEvents.firstIndex(where: { $0.eventIdentifier == updatedEvent.eventIdentifier }) {
-            parsedEvents[index] = updatedEvent
-            NotificationCenter.default.post(
-                name: .eventDidUpdate,
-                object: nil,
-                userInfo: ["event": updatedEvent]
-            )
+        guard let index = parsedEvents.firstIndex(where: { $0.eventIdentifier == updatedEvent.eventIdentifier }) else {
+            return
         }
+        
+        logger.info("Updating event: \(updatedEvent.title), \(updatedEvent.startDate)")
+        parsedEvents[index] = updatedEvent
+        
+        NotificationCenter.default.post(
+            name: .eventDidUpdate,
+            object: nil,
+            userInfo: ["event": updatedEvent]
+        )
     }
 }
 
@@ -650,15 +629,19 @@ extension AddScheduleViewModel {
         position: ToastPosition = .center
     ) {
         Task { @MainActor in
+            // 重置现有toast
             showToast = false
             try? await Task.sleep(for: .milliseconds(300))
             
+            // 显示新toast
             toastType = type
             toastMessage = message
             showToast = true
             
+            // 延时隐藏
             try? await Task.sleep(for: .seconds(duration))
             
+            // 如果仍然是同一个消息，则隐藏
             if toastMessage == message {
                 showToast = false
             }
@@ -682,31 +665,29 @@ extension AddScheduleViewModel {
     
     func handleImagePickerResult(_ result: Result<[URL], Error>) {
         logger.info("Image picker result: \(result)")
+        
         switch result {
         case .success(let urls):
-            if let url = urls.first {
-                // 开始访问安全作用域 URL
-                let startedAccessing = url.startAccessingSecurityScopedResource()
-                
-                // 确保在函数结束时停止访问
-                defer {
-                    if startedAccessing {
-                        url.stopAccessingSecurityScopedResource()
-                    }
-                }
-                
-                // 创建一个临时文件副本，解决权限问题
-                do {
-                    let tempURL = try createTempCopy(of: url)
-                    handleDropped([tempURL])
-                } catch {
-                    logger.error("Failed to create temp copy: \(error.localizedDescription)")
-                    showToastMessage(NSLocalizedString("image_access_failed", comment: ""))
-                }
-            } else {
+            guard let url = urls.first else {
                 logger.error("No image selected")
                 showToastMessage(NSLocalizedString("no_image_selected", comment: ""))
+                return
             }
+            
+            // 安全访问 URL
+            let startedAccessing = url.startAccessingSecurityScopedResource()
+            defer { 
+                if startedAccessing { url.stopAccessingSecurityScopedResource() }
+            }
+            
+            do {
+                let tempURL = try createTempCopy(of: url)
+                handleDropped([tempURL])
+            } catch {
+                logger.error("Failed to create temp copy: \(error.localizedDescription)")
+                showToastMessage(NSLocalizedString("image_access_failed", comment: ""))
+            }
+            
         case .failure(let error):
             logger.error("Image selection failed: \(error.localizedDescription)")
             showToastMessage(NSLocalizedString("image_selection_failed", comment: ""))
@@ -721,10 +702,9 @@ extension AddScheduleViewModel {
         
         // 复制文件到临时目录
         try FileManager.default.copyItem(at: url, to: tempURL)
-        
         logger.info("Created temporary copy at: \(tempURL.path)")
         
-        // 添加到临时文件列表中以便后续清理
+        // 添加到临时文件列表以便后续清理
         tempImageURLs.append(tempURL)
         
         return tempURL
@@ -767,6 +747,17 @@ extension Notification.Name {
 // MARK: - Manual Input Processing
 extension AddScheduleViewModel {
     func processManualInput(_ text: String) async throws -> [CalendarEvent] {
-        return try await llmProcessor.processContent(text)
+        try await llmProcessor.processContent(text)
+    }
+}
+
+// 假设 LoadingManager 的扩展，添加一个便捷方法来切换显示状态
+private extension LoadingManager {
+    func toggle(show: Bool, type: LoadingType) {
+        if show { 
+            self.show(type) 
+        } else { 
+            self.hide() 
+        }
     }
 }
