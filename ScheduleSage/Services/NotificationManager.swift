@@ -32,24 +32,21 @@ public final class NotificationManager: NSObject {
     // MARK: - Private Methods
     
     private func setupNotificationCategories() {
-        // 定义日历事件通知的操作
-        // TODO：暂未找到正确定位到日历事件的方法，实现暂时空置。
-        // let viewAction = UNNotificationAction(
-        //     identifier: "VIEW_EVENT",
-        //     title: NSLocalizedString("view_event", comment: "View Event"),
-        //     options: .foreground
-        // )
+         let viewAction = UNNotificationAction(
+             identifier: "VIEW_EVENT",
+             title: NSLocalizedString("view_event", comment: "View Event"),
+             options: .foreground
+         )
         
-        // let dismissAction = UNNotificationAction(
-        //     identifier: "DISMISS",
-        //     title: NSLocalizedString("dismiss", comment: "Dismiss"),
-        //     options: .destructive
-        // )
+         let dismissAction = UNNotificationAction(
+             identifier: "DISMISS",
+             title: NSLocalizedString("dismiss", comment: "Dismiss"),
+             options: .destructive
+         )
         
-        // 创建通知类别
         let calendarCategory = UNNotificationCategory(
             identifier: "calendar_event",
-            actions: [],
+            actions: [viewAction, dismissAction],
             intentIdentifiers: [],
             options: .customDismissAction
         )

@@ -128,6 +128,8 @@ public extension CalendarManager {
         // 格式：日历ID:事件ID
         // TODO：暂未找到正确定位到日历事件的方法，实现暂时空置。
         logger.info("Opening calendar event: \(eventId)")
+            NSWorkspace.shared.open(url)
+        }
         return true
     }
     
