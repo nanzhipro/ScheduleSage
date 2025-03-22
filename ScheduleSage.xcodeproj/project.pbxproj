@@ -472,6 +472,7 @@
 				INFOPLIST_FILE = ScheduleSage/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Hangzhou Quest Technology Co., Ltd. All rights reserved.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "请求语音权限";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -503,6 +504,7 @@
 				INFOPLIST_FILE = ScheduleSage/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Hangzhou Quest Technology Co., Ltd. All rights reserved.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "请求语音权限";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

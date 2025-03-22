@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>schdulesage</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>schedulesage</string>
-			</array>
-		</dict>
-	</array>
-	<key>NSUserNotificationAlertStyle</key>
-	<string>alert</string>
-	<key>NSUserNotificationsUsageDescription</key>
-	<string>We need to send you notifications about calendar events and updates.</string>
-	<key>UNNotificationExtensionCategory</key>
-	<string>calendar_event</string>
-	<key>UNNotificationExtensionDefaultContentHidden</key>
-	<false/>
-	<key>UNNotificationExtensionDefaultSoundName</key>
-	<string>default</string>
-</dict>
+	<dict>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLName</key>
+				<string>schdulesage</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>schedulesage</string>
+				</array>
+			</dict>
+		</array>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>${PRODUCT_NAME} needs microphone access</string>
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>${PRODUCT_NAME} needs speech recognition access</string>
+		<key>NSUserNotificationAlertStyle</key>
+		<string>alert</string>
+		<key>NSUserNotificationsUsageDescription</key>
+		<string>We need to send you notifications about calendar events and updates.</string>
+		<key>UNNotificationExtensionCategory</key>
+		<string>calendar_event</string>
+		<key>UNNotificationExtensionDefaultContentHidden</key>
+		<false />
+		<key>UNNotificationExtensionDefaultSoundName</key>
+		<string>default</string>
+	</dict>
 </plist>

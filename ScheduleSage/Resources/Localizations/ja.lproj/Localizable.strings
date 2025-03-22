@@ -15,7 +15,7 @@
 // 予定の追加方法
 "add_schedule_title" = "追加方法";
 "clipboard_import" = "クリップボードから";
-"manual_input" = "手動入力";
+"manual_input" = "手動/音声入力";
 "image_import" = "画像から";
 
 // アクション
@@ -354,3 +354,40 @@
 "subscription.yearly.description" = "14 日間無料トライアル";
 "subscription.price.format.monthly" = "%@/月";
 "subscription.price.format.yearly" = "%@/年";
+
+// 音声認識と音声録音
+"speech_recognition_restricted_title" = "音声認識へのアクセスが制限されています";
+"speech_recognition_restricted_message" = "ScheduleSageは音声認識機能を使用する必要があります。システム設定でアクセスを許可してください。";
+"speech_recognition_unavailable" = "音声認識サービスは現在利用できません";
+"speech_recognition_not_authorized" = "音声認識の権限が付与されていません";
+"speech_recognition_unsupported_locale" = "現在の言語はサポートされていません";
+"speech_recognition_siri_disabled" = "音声認識を使用するには、システム設定でSiriを有効にしてください";
+
+"microphone_restricted_title" = "マイクへのアクセスが制限されています";
+"microphone_restricted_message" = "ScheduleSageは音声認識のためにマイクへのアクセスが必要です。システム設定でアクセスを許可してください。";
+"audio_recorder_config_while_recording" = "録音中に設定を変更できません";
+"audio_recorder_buffer_creation_failed" = "オーディオバッファの作成に失敗しました";
+"audio_recorder_engine_start_failed" = "オーディオエンジンの起動に失敗しました";
+"audio_recorder_permission_denied" = "マイクの権限が拒否されました。システム設定でアクセスを許可してください";
+
+"open_system_settings" = "システム設定を開く";
+"cancel" = "キャンセル";
+
+
+/* 语音识别语言选择 */
+"Chinese" = "中国語";
+"English" = "英語";
+"Japanese" = "日本語";
+"language_switched_to" = "%@に切り替えました";
+"language_switch_failed" = "言語の切り替えに失敗しました";
+"speech_recognition_failed" = "音声認識に失敗しました";
+"microphone_access_denied" = "マイクへのアクセスが拒否されました";
+"speech_recognition_denied" = "音声認識の権限が拒否されました";
+"recording_start_failed" = "録音を開始できませんでした";
+
+/* Siri設置相关 */
+"siri_required_title" = "Siriが必要です";
+"siri_required_message" = "英語または日本語の音声認識を使用するには、システム設定でSiriを有効にしてください。\n\n注：中国語の音声認識にはSiriは必要ありません。";
+"siri_required_for_language" = "この言語の音声認識を使用するにはSiriを有効にする必要があります";
+"open_system_settings" = "システム設定を開く";
+"cancel" = "キャンセル"; 

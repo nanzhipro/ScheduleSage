@@ -1,5 +1,8 @@
 import SwiftUI
 import OSLog
+import AVFoundation
+import Speech
+import AVKit
 
 // MARK: - AddScheduleViewModel 新增日程 ViewModel
 @MainActor
@@ -23,6 +26,10 @@ class AddScheduleViewModel: ObservableObject {
     @Published var feedbackButtonScale: CGFloat = 1.0
     @Published var showPaywall = false
     @Published private(set) var isPremium = false
+    @Published var isRecording = false
+    @Published var transcribedText = ""
+    @Published var audioLevel: Float = 0.0
+    @Published var showSpeechRecognitionView = false
     
     // MARK: - Services & Managers
     private let logger = LoggerService.makeCompatible(category: "AddScheduleViewModel")
@@ -32,6 +39,8 @@ class AddScheduleViewModel: ObservableObject {
     private var webCrawler: WebCrawler
     private let llmProcessor: LLMEventProcessor
     private let iapService = IAPService.shared
+    private var audioRecorder: AudioRecorderProtocol
+    private var speechRecognizer: SpeechRecognizerProtocol
     
     // MARK: - Private Properties
     private var promptViewModel: PromptViewModel
@@ -44,6 +53,8 @@ class AddScheduleViewModel: ObservableObject {
         promptViewModel = PromptViewModel()
         llmProcessor = DefaultLLMEventProcessor(promptViewModel: promptViewModel)
         webCrawler = Self.createWebCrawler()
+        audioRecorder = AudioRecorder()
+        speechRecognizer = SpeechRecognizer()
         
         Task {
             logger.info("Loading initial prompt...")
@@ -56,6 +67,7 @@ class AddScheduleViewModel: ObservableObject {
         
         setupNotifications()
         setupSubscriptionObserver()
+        setupSpeechRecognition()
     }
     
     deinit {
@@ -758,6 +770,170 @@ private extension LoadingManager {
             self.show(type) 
         } else { 
             self.hide() 
+        }
+    }
+}
+
+// MARK: - Speech Recognition
+extension AddScheduleViewModel {
+    /// 设置语音识别相关的处理器和回调
+    private func setupSpeechRecognition() {
+        // 设置音频电平变化回调
+        audioRecorder.onLevelChanged = { [weak self] level in
+            self?.audioLevel = level
+        }
+        
+        // 设置音频录制错误处理回调
+        audioRecorder.onErrorOccurred = { [weak self] error in
+            guard let self = self else { return }
+            self.showToastMessage(error.localizedDescription, type: .error)
+            self.isRecording = false
+            self.logger.error("Audio recording error: \(error.localizedDescription)")
+        }
+        
+        // 设置转录文本更新回调
+        speechRecognizer.onTranscriptionUpdated = { [weak self] text in
+            guard let self = self else { return }
+            // 实时更新转录文本，将在视图中显示
+            self.transcribedText = text
+        }
+        
+        // 设置识别完成回调
+        speechRecognizer.onRecognitionFinished = { [weak self] finalText, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                self.logger.error("Speech recognition failed: \(error.localizedDescription)")
+                // self.showToastMessage(NSLocalizedString("speech_recognition_failed", comment: ""), type: .error)
+            } else if let text = finalText, !text.isEmpty {
+                self.logger.info("Speech recognition completed with \(text.count) characters")
+                self.transcribedText = text
+                // 保留文本内容，由用户主动点击识别按钮进行处理
+            }
+        }
+        
+        // 配置音频录制器
+        let settings = AudioRecorderSettings(enableLevelMonitoring: true)
+        audioRecorder.configure(with: settings)
+    }
+    
+    /// 开始语音识别
+    /// 请求必要权限并启动语音识别流程
+    func startSpeechRecognition() {
+        logger.info("Preparing to start speech recognition")
+        
+        // 避免重复启动
+        if isRecording {
+            logger.debug("Speech recognition already in progress, ignoring request")
+            return
+        }
+        
+        // 请求权限并启动语音识别
+        Task {
+            do {
+                // 请求麦克风权限
+                let micPermissionGranted = await requestMicrophonePermission()
+                guard micPermissionGranted else {
+                    logger.notice("Microphone access denied")
+                    await MainActor.run {
+                        showToastMessage(NSLocalizedString("microphone_access_denied", comment: ""), type: .error)
+                    }
+                    return
+                }
+                
+                // 请求语音识别权限
+                let speechPermissionGranted = await requestSpeechRecognitionPermission()
+                guard speechPermissionGranted else {
+                    logger.notice("Speech recognition permission denied")
+                    await MainActor.run {
+                        showToastMessage(NSLocalizedString("speech_recognition_denied", comment: ""), type: .error)
+                    }
+                    return
+                }
+                
+                logger.info("All permissions granted, starting speech recognition")
+                await startSpeechRecognitionSession()
+            } catch {
+                logger.error("Error starting speech recognition: \(error.localizedDescription)")
+                await MainActor.run {
+                    showToastMessage(error.localizedDescription, type: .error)
+                }
+            }
+        }
+    }
+    
+    /// 请求麦克风权限
+    /// - Returns: 是否获得权限
+    private func requestMicrophonePermission() async -> Bool {
+        await withCheckedContinuation { continuation in
+            audioRecorder.requestMicrophoneAccess { granted in
+                continuation.resume(returning: granted)
+            }
+        }
+    }
+    
+    /// 请求语音识别权限
+    /// - Returns: 是否获得权限
+    private func requestSpeechRecognitionPermission() async -> Bool {
+        await withCheckedContinuation { continuation in
+            speechRecognizer.requestAuthorization { granted in
+                continuation.resume(returning: granted)
+            }
+        }
+    }
+    
+    /// 停止语音识别
+    func stopSpeechRecognition() {
+        logger.info("Stopping speech recognition")
+        
+        // 避免重复停止
+        if !isRecording {
+            logger.debug("Speech recognition not active, ignoring stop request")
+            return
+        }
+        
+        // 先更新UI状态，提供即时反馈
+        Task { @MainActor in
+            isRecording = false
+        }
+        
+        // 异步执行停止操作
+        Task {
+            speechRecognizer.stopRecognition()
+            _ = audioRecorder.stopRecording()
+            
+            if !transcribedText.isEmpty {
+                logger.info("Recognition completed with text of length: \(transcribedText.count)")
+            }
+        }
+    }
+    
+    /// 启动语音识别会话
+    /// 配置并启动录音器和语音识别器
+    private func startSpeechRecognitionSession() async {
+        // 配置录音器
+        if let configurable = audioRecorder as? AudioRecorder {
+            await MainActor.run {
+                configurable.configure(with: AudioRecorderSettings(enableLevelMonitoring: true))
+            }
+        }
+        
+        // 启动录音和识别
+        let recordingStarted = audioRecorder.startRecording()
+        let recognitionStarted = speechRecognizer.startLiveRecognition()
+        
+        // 更新UI状态
+        await MainActor.run {
+            if recordingStarted && recognitionStarted {
+                self.isRecording = true
+                logger.info("Speech recognition session started successfully")
+            } else {
+                logger.error("Failed to start recording session")
+                
+                // 如果录音启动失败，停止语音识别
+                self.speechRecognizer.stopRecognition()
+                self.showToastMessage(NSLocalizedString("recording_start_failed", comment: ""), type: .error)
+            }
         }
     }
 }

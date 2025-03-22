@@ -6,3 +6,7 @@ NSCalendarsUsageDescription = "このアプリは、予定の作成と管理の�
 
 /* Notifications Usage Description */
 NSUserNotificationsUsageDescription = "このアプリは、カレンダーイベントの更新を通知するために通知の送信が必要です。"; 
+
+/* Permission Descriptions */
+NSMicrophoneUsageDescription = "ScheduleSageは、あなたの音声をテキストに変換し、スケジュール情報を識別するためにマイクへのアクセスが必要です。この権限はいつでもシステム設定で変更できます。";
+NSSpeechRecognitionUsageDescription = "ScheduleSageは、あなたの音声をテキストに変換し、スケジュール情報を抽出するために音声認識機能を使用する必要があります。私たちはあなたのプライバシーを尊重し、認識プロセスはAppleのプライバシーポリシーに従っています。";

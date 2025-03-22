@@ -15,7 +15,7 @@
 // Add Schedule Methods
 "add_schedule_title" = "选择添加方式";
 "clipboard_import" = "从剪贴板导入";
-"manual_input" = "手动输入";
+"manual_input" = "手动/语音输入";
 "image_import" = "从图片识别";
 
 // Actions
@@ -358,3 +358,28 @@
 "subscription.yearly.description" = "免费试用14天";
 "subscription.price.format.monthly" = "%@/月";
 "subscription.price.format.yearly" = "%@/年";
+
+// Speech Recognition and Audio Recording
+"speech_recognition_restricted_title" = "语音识别访问受限";
+"speech_recognition_restricted_message" = "ScheduleSage需要使用语音识别功能。请在系统设置中允许访问语音识别。";
+"speech_recognition_unavailable" = "语音识别服务当前不可用";
+"speech_recognition_not_authorized" = "未获得语音识别权限";
+"speech_recognition_unsupported_locale" = "不支持当前选择的语言";
+"speech_recognition_siri_disabled" = "请在系统偏好设置中启用Siri以使用语音识别功能";
+
+"microphone_restricted_title" = "麦克风访问受限";
+"microphone_restricted_message" = "ScheduleSage需要使用麦克风进行语音识别。请在系统设置中允许访问麦克风。";
+"audio_recorder_config_while_recording" = "不能在录制过程中修改设置";
+"audio_recorder_buffer_creation_failed" = "无法创建音频缓冲区";
+"audio_recorder_engine_start_failed" = "音频引擎启动失败";
+"audio_recorder_permission_denied" = "麦克风权限被拒绝，请在系统设置中允许访问麦克风";
+
+"open_system_settings" = "打开系统设置";
+"cancel" = "取消";
+
+/* Siri设置相关 */
+"siri_required_title" = "需要启用Siri";
+"siri_required_message" = "要使用英语或日语语音识别功能，请在系统设置中启用Siri。\n\n注意：中文语音识别不需要启用Siri。";
+"siri_required_for_language" = "需要启用Siri才能使用此语言的语音识别";
+"open_system_settings" = "打开系统设置";
+"cancel" = "取消"; 

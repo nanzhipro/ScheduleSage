@@ -6,3 +6,7 @@ NSCalendarsUsageDescription = "此应用需要访问您的日历以创建和管�
 
 /* Notifications Usage Description */
 NSUserNotificationsUsageDescription = "此应用需要发送通知以便及时通知您日历事件的更新。"; 
+
+/* Permission Descriptions */
+NSMicrophoneUsageDescription = "ScheduleSage需要访问你的麦克风，以便将你的语音输入转换为文本并识别日程信息。你可以随时在系统设置中修改此权限。";
+NSSpeechRecognitionUsageDescription = "ScheduleSage需要使用语音识别功能，以便将你的语音内容转换为文本并提取日程信息。我们尊重你的隐私，识别过程遵循苹果隐私政策。";

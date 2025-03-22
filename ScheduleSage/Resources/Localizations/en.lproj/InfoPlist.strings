@@ -5,4 +5,8 @@ CFBundleDisplayName = "ScheduleSage";
 NSCalendarsUsageDescription = "This app needs access to your calendar to create and manage events.";
 
 /* Notifications Usage Description */
-NSUserNotificationsUsageDescription = "This app needs to send notifications to keep you updated about calendar events."; 
+NSUserNotificationsUsageDescription = "This app needs to send notifications to keep you updated about calendar events.";
+
+/* Permission Descriptions */
+NSMicrophoneUsageDescription = "ScheduleSage needs access to your microphone to convert your voice into text and identify schedule information. You can change this permission at any time in system settings.";
+NSSpeechRecognitionUsageDescription = "ScheduleSage needs to use speech recognition to convert your voice content into text and extract schedule information. We respect your privacy, and the recognition process follows Apple's privacy policy."; 

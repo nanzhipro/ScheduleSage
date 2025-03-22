@@ -15,7 +15,7 @@
 // Add Schedule Methods
 "add_schedule_title" = "Add Method";
 "clipboard_import" = "From Clipboard";
-"manual_input" = "Manual Entry";
+"manual_input" = "Manual/Voice Input";
 "image_import" = "From Image";
 
 // Actions
@@ -356,3 +356,39 @@
 "subscription.yearly.description" = "Free trial for 14 days";
 "subscription.price.format.monthly" = "%@/month";
 "subscription.price.format.yearly" = "%@/year";
+
+// Speech Recognition and Audio Recording
+"speech_recognition_restricted_title" = "Speech Recognition Access Restricted";
+"speech_recognition_restricted_message" = "ScheduleSage needs to use speech recognition. Please allow access in System Settings.";
+"speech_recognition_unavailable" = "Speech recognition service is currently unavailable";
+"speech_recognition_not_authorized" = "Speech recognition permission not granted";
+"speech_recognition_unsupported_locale" = "Current language is not supported";
+"speech_recognition_siri_disabled" = "Please enable Siri in System Settings to use speech recognition";
+
+"microphone_restricted_title" = "Microphone Access Restricted";
+"microphone_restricted_message" = "ScheduleSage needs microphone access for speech recognition. Please allow access in System Settings.";
+"audio_recorder_config_while_recording" = "Cannot change settings during recording";
+"audio_recorder_buffer_creation_failed" = "Failed to create audio buffer";
+"audio_recorder_engine_start_failed" = "Audio engine failed to start";
+"audio_recorder_permission_denied" = "Microphone permission denied. Please allow access in System Settings";
+
+"open_system_settings" = "Open System Settings";
+"cancel" = "Cancel";
+
+/* 语音识别语言选择 */
+"Chinese" = "Chinese";
+"English" = "English";
+"Japanese" = "Japanese";
+"language_switched_to" = "Switched to %@";
+"language_switch_failed" = "Failed to switch language";
+"speech_recognition_failed" = "Speech recognition failed";
+"microphone_access_denied" = "Microphone access denied";
+"speech_recognition_denied" = "Speech recognition permission denied";
+"recording_start_failed" = "Failed to start recording";
+
+/* Siri设置相关 */
+"siri_required_title" = "Siri Required";
+"siri_required_message" = "To use English or Japanese speech recognition, please enable Siri in System Settings.\n\nNote: Chinese speech recognition does not require Siri.";
+"siri_required_for_language" = "Siri must be enabled to use speech recognition in this language";
+"open_system_settings" = "Open System Settings";
+"cancel" = "Cancel"; 
