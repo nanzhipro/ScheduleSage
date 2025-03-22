@@ -125,9 +125,11 @@ public extension CalendarManager {
     /// - Returns: 是否成功打开事件
     @discardableResult
     func openCalendarEvent(_ eventId: String) async -> Bool {
-        // 格式：日历ID:事件ID
-        // TODO：暂未找到正确定位到日历事件的方法，实现暂时空置。
+        // ical://occurrence/389C4D53-0D59-4700-BA6A-A49C3D95CF5D?method=show&options=more
         logger.info("Opening calendar event: \(eventId)")
+        let url = URL(string: "ical://occurrence/\(eventId)?method=show&options=more")
+        logger.info("Opening calendar event: \(url?.absoluteString ?? "nil")")
+        if let url = url {
             NSWorkspace.shared.open(url)
         }
         return true
@@ -241,7 +243,9 @@ private extension CalendarManager {
         
         do {
             try eventStore.save(event, span: .thisEvent, commit: true)
-            return event.eventIdentifier
+            // 为了导航到对应日历事件，需要使用calendarItemIdentifier
+            // ical://occurrence/E4BA1EB1-2F9E-4B4E-8C9D-AA3302767FCD?method=show&options=more
+            return event.calendarItemIdentifier
         } catch {
             throw CalendarError.createFailed
         }
