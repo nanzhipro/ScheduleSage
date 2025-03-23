@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 /**
  手动输入日程页
@@ -150,6 +151,7 @@ struct ManualScheduleInputView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: viewModel.isRecording)
+            .withLoading()
         }
     }
     
@@ -161,6 +163,7 @@ struct ManualScheduleInputView: View {
     private func processInputText() async {
         guard !inputText.isEmpty else { return }
         isProcessing = true
+        LoadingManager.shared.show(.processing)
         
         let trimmedInput = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         if let url = URL(string: trimmedInput), url.isValidWebURL {
@@ -179,6 +182,7 @@ struct ManualScheduleInputView: View {
         }
         
         isProcessing = false
+        LoadingManager.shared.hide()
     }
 }
 
@@ -268,14 +272,10 @@ private struct RecognizeButton: View {
             if viewModel.isRecording {
                 viewModel.stopSpeechRecognition()
             }
+            
             action()
         }) {
             HStack {
-                if isProcessing {
-                    ProgressView()
-                        .scaleEffect(0.8)
-                        .tint(DesignSystem.Colors.background)
-                }
                 Text(NSLocalizedString("recognize_button", comment: ""))
                     .font(DesignSystem.Typography.buttonLabel)
                     .foregroundColor(DesignSystem.Colors.background)
