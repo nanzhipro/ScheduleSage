@@ -29,28 +29,22 @@ public final class LLMService {
     
     /// 发送聊天请求到 LLM 服务
     /// - Parameters:
-    ///   - content: 用户输入的聊天内容
-    ///   - temperature: 模型温度参数，控制输出的随机性。默认为 0.7
-    ///   - model: 使用的模型标识符。默认为空字符串，使用服务端默认模型
+    ///   - calendarNamesList: 日历名称列表
+    ///   - userContext: 用户上下文信息
+    ///   - placeholderText: 待处理的占位文本
     /// - Returns: LLM 的响应内容
     /// - Throws: APIError 类型的错误
     /// - Complexity: O(1)，但网络延迟可能显著影响响应时间
     public func chat(
-        with content: String,
-        temperature: Double = 0.3,
-        model: String = ""
+        calendarNamesList: String,
+        userContext: String,
+        placeholderText: String
     ) async throws -> LLMResponse {
-        let message = LLMMessage(role: .user, content: content)
-        let config = LLMConfig(
-            model: model,
-            temperature: temperature
-        )
-        let request = LLMRequest(
-            messages: [message],
-            config: config
-        )
-        
-        let parameters = try request.asDictionary()
+        let parameters: Parameters = [
+            "CALENDAR_NAMES_LIST": calendarNamesList,
+            "USER_CONTEXT": userContext,
+            "PLACEHOLDER_TEXT": placeholderText
+        ]
         
         return try await withAPIClient { client in
             try await client.performRequest(

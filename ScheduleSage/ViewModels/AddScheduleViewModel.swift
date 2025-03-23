@@ -43,23 +43,18 @@ class AddScheduleViewModel: ObservableObject {
     private var speechRecognizer: SpeechRecognizerProtocol
     
     // MARK: - Private Properties
-    private var promptViewModel: PromptViewModel
     private let minimumLoadingDuration: TimeInterval = 1.2
     private var loadingStartTime: Date?
     private var tempImageURLs: [URL] = []
     
     // MARK: - Initialization
     init() {
-        promptViewModel = PromptViewModel()
-        llmProcessor = DefaultLLMEventProcessor(promptViewModel: promptViewModel)
+        llmProcessor = DefaultLLMEventProcessor()
         webCrawler = Self.createWebCrawler()
         audioRecorder = AudioRecorder()
         speechRecognizer = SpeechRecognizer()
         
         Task {
-            logger.info("Loading initial prompt...")
-            await promptViewModel.loadInitialPrompt()
-            await promptViewModel.refreshPrompt()
             logger.info("Initialization completed")
             
             _ = await checkSubscriptionStatus()
@@ -298,7 +293,7 @@ extension AddScheduleViewModel {
             
             let results = await webCrawler.crawlBatch(urls: [url.absoluteString])
             guard let result = results[url.absoluteString] else {
-                throw PromptError.invalidResponse(-1)
+                throw APIError.invalidResponse(description: "Failed to get crawl result for URL")
             }
             
             let contentText = try result.get()
@@ -899,7 +894,7 @@ extension AddScheduleViewModel {
         
         // 异步执行停止操作
         Task {
-            speechRecognizer.stopRecognition()
+            self.speechRecognizer.stopRecognition()
             _ = audioRecorder.stopRecording()
             
             if !transcribedText.isEmpty {

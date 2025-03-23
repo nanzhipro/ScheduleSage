@@ -51,7 +51,6 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
     
     private let logger: LoggerService
     private let llmService: LLMService
-    private let promptViewModel: PromptViewModel
     private let calendarManager: CalendarManager
     
     // MARK: - Initialization
@@ -59,19 +58,31 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
     /// 创建一个新的 LLM 事件处理器
     /// - Parameters:
     ///   - llmService: LLM 服务实例
-    ///   - promptViewModel: 提示词视图模型
     ///   - calendarManager: 日历管理器
     ///   - logger: 日志记录器
     public init(
         llmService: LLMService = .shared,
-        promptViewModel: PromptViewModel,
         calendarManager: CalendarManager = CalendarManager(),
         logger: LoggerService = .makeCompatible(category: "LLMEventProcessor")
     ) {
         self.llmService = llmService
-        self.promptViewModel = promptViewModel
         self.calendarManager = calendarManager
         self.logger = logger
+    }
+    
+    // 保留向后兼容的初始化方法，但不再依赖PromptViewModel
+    @available(*, deprecated, message: "使用不带PromptViewModel的初始化方法")
+    public convenience init(
+        llmService: LLMService = .shared,
+        promptViewModel: Any,
+        calendarManager: CalendarManager = CalendarManager(),
+        logger: LoggerService = .makeCompatible(category: "LLMEventProcessor")
+    ) {
+        self.init(
+            llmService: llmService,
+            calendarManager: calendarManager,
+            logger: logger
+        )
     }
     
     // MARK: - Public Methods
@@ -90,13 +101,23 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
             throw LLMEventProcessorError.requiresPremium
         }
         
+        // 获取可用日历名称
         let calendarNames = await fetchAvailableCalendarNames()
         logger.info("Calendar names: \(calendarNames)")
-        let prompt = try await buildPrompt(forContent: content, withCalendars: calendarNames)
-        logger.debug("Prompt: \(prompt.prefix(100))")
-        let response = try await llmService.chat(with: prompt)
         
+        // 构建请求参数
+        let calendarNamesList = calendarNames.isEmpty ? "Default Calendar" : calendarNames.joined(separator: ", ")
+        let userContext = makeUserContextJSON()
+        
+        // 调用LLM服务
         do {
+            let response = try await llmService.chat(
+                calendarNamesList: calendarNamesList,
+                userContext: userContext,
+                placeholderText: content
+            )
+            
+            // 解析响应
             guard let events = CalendarEvent.from(llmResponse: response.content, logger: logger) else {
                 logger.error("Failed to parse LLM response into calendar events")
                 throw LLMEventProcessorError.parsingFailed
@@ -178,21 +199,6 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
         result += String(format: "%02d:%02d", hours, minutes)
         
         return result
-    }
-    
-    /// 构建完整的提示词
-    /// - Parameters:
-    ///   - content: 用户输入的内容
-    ///   - calendarNames: 可用的日历名称列表
-    /// - Returns: 处理后的完整提示词
-    private func buildPrompt(forContent content: String, withCalendars calendarNames: [String]) async throws -> String {
-        let userContext = makeUserContextJSON()
-        
-        return await promptViewModel.getPromptContent()
-            .replacingOccurrences(of: "CALENDAR_NAMES_LIST", with: calendarNames.isEmpty ? "Default Calendar" : calendarNames.joined(separator: ", "))
-            .replacingOccurrences(of: "CURRENT_TIMEZONE", with: formatCurrentTimezoneInfo())
-            .replacingOccurrences(of: "PLACEHOLDER_TEXT", with: content)
-            .replacingOccurrences(of: "USER_CONTEXT", with: userContext)
     }
     
     /// 创建用户上下文的 JSON 字符串

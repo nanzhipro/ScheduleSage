@@ -38,12 +38,27 @@ private actor UserDefaultsActor: UserDefaultsProtocol {
 }
 
 // 将UserDefaults标记为@unchecked Sendable
+@available(*, deprecated, message: "添加 @retroactive 来消除警告")
 extension UserDefaults: @unchecked Sendable {}
 
+/// 用于管理提示词的视图模型
+/// 负责获取、刷新和存储提示词
+/// 
+/// 注意：此类已被废弃，但由于现有功能依赖，暂时保留。
+/// 在未来版本中，该功能将被移入 LLMService 或新的 PromptManager 类。
+/// 当前的用户应该直接使用底层的 LLMService 进行提示词的管理。
+/// 
+/// 迁移指南：
+/// 1. 对于 DefaultLLMEventProcessor 类的用户，可以直接使用 LLMService 替代
+/// 2. 对于 AddScheduleViewModel 的用户，应该直接使用新的 APIs 获取提示词内容
+/// 3. 建议通过依赖注入的方式传入 LLMService 实例，而不是使用此类
+///
+/// 此类将在下一个主要版本中移除，请尽快迁移到推荐的替代方案。
+@available(*, deprecated, message: "这个类已经废弃，但为保持兼容性暂时保留。请使用 LLMService 代替。")
 @MainActor
 public class PromptViewModel: ObservableObject {
-    private let promptService: PromptService
     private let userDefaultsActor: UserDefaultsActor
+    private let promptKey = "stored_prompt"
     
     @Published private(set) var currentPrompt: StoredPrompt?
     @Published private(set) var isLoading = false
@@ -51,20 +66,11 @@ public class PromptViewModel: ObservableObject {
     @Published var isPresented = false
     
     init(userDefaults: UserDefaults = .standard) {
-        let userDefaultsActor = UserDefaultsActor(defaults: userDefaults)
-        self.userDefaultsActor = userDefaultsActor
-        self.promptService = PromptService(storage: userDefaultsActor)
-    }
-    
-    deinit {
-        let service = promptService
-        Task.detached {
-            await service.stopPeriodicRefresh()
-        }
+        self.userDefaultsActor = UserDefaultsActor(defaults: userDefaults)
     }
     
     func loadInitialPrompt() async {
-        currentPrompt = await promptService.getStoredPrompt()
+        currentPrompt = await getStoredPrompt()
     }
     
     func refreshPrompt() async {
@@ -72,7 +78,16 @@ public class PromptViewModel: ObservableObject {
         error = nil
         
         do {
-            currentPrompt = try await promptService.fetchLatestPrompt()
+            // 使用内置方法获取默认提示词
+            let defaultContent = getDefaultPrompt()
+            let version = (currentPrompt?.version ?? 0) + 1
+            
+            // 创建一个临时的PromptResponse来初始化StoredPrompt
+            let response = PromptResponse(content: defaultContent, version: version)
+            let newPrompt = StoredPrompt(from: response)
+            
+            try await savePrompt(newPrompt)
+            currentPrompt = newPrompt
         } catch {
             self.error = error
         }
@@ -82,10 +97,33 @@ public class PromptViewModel: ObservableObject {
     
     func getPromptContent() async -> String {
         if currentPrompt == nil {
-            currentPrompt = await promptService.getStoredPrompt()
+            currentPrompt = await getStoredPrompt()
         }
 
         return currentPrompt?.content ?? getDefaultPrompt()
+    }
+    
+    // 获取存储的提示词
+    private func getStoredPrompt() async -> StoredPrompt? {
+        guard let data = await userDefaultsActor.data(forKey: promptKey) else {
+            return nil
+        }
+        
+        do {
+            return try JSONDecoder().decode(StoredPrompt.self, from: data)
+        } catch {
+            return nil
+        }
+    }
+    
+    // 保存提示词到本地存储
+    private func savePrompt(_ prompt: StoredPrompt) async throws {
+        do {
+            let data = try JSONEncoder().encode(prompt)
+            await userDefaultsActor.set(data, forKey: promptKey)
+        } catch {
+            throw APIError.storage(description: error.localizedDescription)
+        }
     }
     
     // TODO: 提示词不需要存在在客户端，直接发送content，在服务端来拼接提示词全文

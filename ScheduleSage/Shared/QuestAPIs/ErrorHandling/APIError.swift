@@ -11,6 +11,9 @@ public enum APIError: Error {
   case authFailed(Error)
   case tokenStorageError
   case invalidData(reason: String)
+  case invalidResponse(description: String)
+  case storage(description: String)
+  case general(description: String)
 
   init(error: Error) {
     if let afError = error as? AFError {
@@ -48,6 +51,12 @@ extension APIError: LocalizedError {
       return NSLocalizedString("toast.error.token_storage", comment: "Token storage error message")
     case .invalidData(let reason):
       return String(format: NSLocalizedString("toast.error.invalid_data", comment: "Invalid data error message"), reason)
+    case .invalidResponse(let description):
+      return String(format: NSLocalizedString("toast.error.invalid_response", comment: "Invalid response error message"), description)
+    case .storage(let description):
+      return String(format: NSLocalizedString("toast.error.storage", comment: "Storage error message"), description)
+    case .general(let description):
+      return String(format: NSLocalizedString("toast.error.general", comment: "General error message"), description)
     }
   }
 }
