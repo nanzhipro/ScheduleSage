@@ -391,4 +391,7 @@
 "siri_required_message" = "To use English or Japanese speech recognition, please enable Siri in System Settings.\n\nNote: Chinese speech recognition does not require Siri.";
 "siri_required_for_language" = "Siri must be enabled to use speech recognition in this language";
 "open_system_settings" = "Open System Settings";
-"cancel" = "Cancel"; 
+"cancel" = "Cancel";
+
+// Voice Input
+"voice_processing" = "Processing..."; 

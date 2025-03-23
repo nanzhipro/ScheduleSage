@@ -66,6 +66,7 @@ struct ManualScheduleInputView: View {
                         // 语音按钮居中放置在下方
                         VoiceButton(
                             isRecording: viewModel.isRecording,
+                            isProcessing: isProcessing,
                             action: {
                                 if viewModel.isRecording {
                                     viewModel.stopSpeechRecognition()
@@ -300,6 +301,9 @@ private struct VoiceButton: View {
     /// 外部录音状态
     let isRecording: Bool
     
+    /// 文本处理状态
+    let isProcessing: Bool
+    
     /// 按钮点击事件回调
     let action: () -> Void
     
@@ -318,6 +322,11 @@ private struct VoiceButton: View {
     // 水波纹动画状态
     @State private var ripples: [RippleState] = []
     @State private var hasSound = false
+    
+    /// 计算按钮是否应该被禁用
+    private var isDisabled: Bool {
+        isProcessing
+    }
     
     var body: some View {
         ZStack {
@@ -385,26 +394,28 @@ private struct VoiceButton: View {
         Button(action: handleButtonTap) {
             // 麦克风图标
             ZStack {
-                // 录音中的背景
-                Circle()
-                    .fill(localRecordingState ? Color.red.opacity(0.2) : Color.white)
-                    .frame(width: 45, height: 45)
-                    .shadow(color: Color.black.opacity(0.15), radius: 3, x: 0, y: 1)
-                
-                Image(systemName: localRecordingState ? "mic.fill" : "mic.circle.fill")
-                    .font(.system(size: localRecordingState ? 20 : 24))
+                Image(systemName: "microphone.circle.fill")
+                    .font(.system(size: localRecordingState ? 36 : 36))
                     .foregroundColor(localRecordingState ? Color.red : DesignSystem.Colors.primary)
+                    .opacity(isDisabled ? 0.5 : 1.0)
             }
+            .frame(width: 45, height: 45)
         }
         .buttonStyle(.plain)
         .scaleEffect(buttonScale)
-        .withHoverEffect(scale: isPressing ? 1.0 : 1.05, brightness: 0.05)
+        .withHoverEffect(scale: isDisabled || isPressing ? 1.0 : 1.05, brightness: 0.05)
+        .disabled(isDisabled)
     }
     
     // MARK: - 方法
     
     /// 处理按钮点击
     private func handleButtonTap() {
+        // 当按钮禁用时不响应
+        if isDisabled {
+            return
+        }
+        
         // 轻微触感动画
         withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
             isPressing = true

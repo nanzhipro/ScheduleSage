@@ -13,10 +13,10 @@
 "settings_window_title" = "设置";
 
 // Add Schedule Methods
-"add_schedule_title" = "选择添加方式";
-"clipboard_import" = "从剪贴板导入";
+"add_schedule_title" = "添加方式";
+"clipboard_import" = "从剪贴板";
 "manual_input" = "手动/语音输入";
-"image_import" = "从图片识别";
+"image_import" = "从图片导入";
 
 // Actions
 "import_calendar" = "添加到日历";
@@ -382,4 +382,7 @@
 "siri_required_message" = "要使用英语或日语语音识别功能，请在系统设置中启用Siri。\n\n注意：中文语音识别不需要启用Siri。";
 "siri_required_for_language" = "需要启用Siri才能使用此语言的语音识别";
 "open_system_settings" = "打开系统设置";
-"cancel" = "取消"; 
+"cancel" = "取消";
+
+// Voice Input
+"voice_processing" = "处理中..."; 
