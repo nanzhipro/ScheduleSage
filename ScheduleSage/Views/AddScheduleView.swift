@@ -8,6 +8,7 @@
 import AppKit
 import SwiftUI
 import RevenueCat
+import TipKit
 
 /// 定义应用中的视图层级常量
 enum ZIndex {
@@ -28,6 +29,161 @@ enum ZIndex {
   static let toast = 30
 }
 
+/// TipManager负责管理应用提示的显示顺序与状态
+/// 确保提示按预期的顺序展示给用户
+final class TipManager: ObservableObject {
+    /// 提示是否已被显示的状态记录
+    @Published var clipboardTipDismissed = false
+    @Published var manualTipDismissed = false
+    @Published var imageTipDismissed = false
+    
+    /// 单例实例，方便全局访问
+    static let shared = TipManager()
+    
+    private init() {}
+    
+    /// 重置所有提示状态，使其可再次显示
+    func resetTips() {
+        clipboardTipDismissed = false
+        manualTipDismissed = false
+        imageTipDismissed = false
+        
+        if #available(macOS 14.0, *) {
+            Task {
+                try? await Tips.resetDatastore()
+            }
+        }
+    }
+    
+    /// 标记剪贴板提示为已关闭
+    func markClipboardTipDismissed() {
+        clipboardTipDismissed = true
+    }
+    
+    /// 标记手动输入提示为已关闭
+    func markManualTipDismissed() {
+        manualTipDismissed = true
+    }
+    
+    /// 标记图片导入提示为已关闭
+    func markImageTipDismissed() {
+        imageTipDismissed = true
+    }
+    
+    /// 无效化指定提示
+    @available(macOS 14.0, *)
+    func invalidateTip(for tipType: FloatingActionTipType) {
+        Task {
+            switch tipType {
+            case .clipboard:
+                try? await ClipboardImportTip().invalidate(reason: .actionPerformed)
+            case .manual:
+                try? await ManualInputTip().invalidate(reason: .actionPerformed)
+            case .image:
+                try? await ImageImportTip().invalidate(reason: .actionPerformed)
+            }
+        }
+    }
+}
+
+/// 剪贴板导入功能提示
+/// 向用户介绍如何使用剪贴板导入功能
+@available(macOS 14.0, *)
+struct ClipboardImportTip: Tip {
+    var title: Text {
+        Text("温馨提示")
+            .font(DesignSystem.Typography.bodyMedium)
+            .foregroundStyle(DesignSystem.Colors.primary)
+    }
+    
+    var message: Text? {
+        Text(NSLocalizedString("hint.clipboard_import", comment: "剪贴板导入提示"))
+            .font(DesignSystem.Typography.caption)
+            .foregroundStyle(DesignSystem.Colors.secondaryText)
+    }
+    
+    var image: Image? {
+        Image(systemName: "clipboard.fill")
+    }
+    
+    /// 提示样式配置，符合设计系统规范
+    var options: [TipOption] {
+        [
+            MaxDisplayCount(1)
+        ]
+    }
+}
+
+/// 手动输入功能提示
+/// 向用户介绍如何使用手动输入功能
+@available(macOS 14.0, *)
+struct ManualInputTip: Tip {
+    var title: Text {
+        Text("温馨提示")
+            .font(DesignSystem.Typography.bodyMedium)
+            .foregroundStyle(DesignSystem.Colors.primary)
+    }
+    
+    var message: Text? {
+        Text(NSLocalizedString("hint.manual_input", comment: "手动输入提示"))
+            .font(DesignSystem.Typography.caption)
+            .foregroundStyle(DesignSystem.Colors.secondaryText)
+    }
+    
+    var image: Image? {
+        if #available(macOS 14.0, *) {
+            return Image(systemName: "doc.plaintext.fill")
+        } else {
+            return Image(systemName: "text.page.fill")
+        }
+    }
+    
+    /// 是否显示提示的依赖条件
+    var shouldDisplay: Bool {
+        TipManager.shared.clipboardTipDismissed
+    }
+    
+    /// 提示样式配置，符合设计系统规范
+    var options: [TipOption] {
+        [
+            MaxDisplayCount(1)
+        ]
+    }
+}
+
+/// 图片导入功能提示
+/// 向用户介绍如何使用图片导入功能
+@available(macOS 14.0, *)
+struct ImageImportTip: Tip {
+    var title: Text {
+        Text("温馨提示")
+            .font(DesignSystem.Typography.bodyMedium)
+            .foregroundStyle(DesignSystem.Colors.primary)
+    }
+    
+    var message: Text? {
+        Text(NSLocalizedString("hint.image_import", comment: "图片导入提示"))
+            .font(DesignSystem.Typography.caption)
+            .foregroundStyle(DesignSystem.Colors.secondaryText)
+    }
+    
+    var image: Image? {
+        Image(systemName: "photo.fill")
+    }
+    
+    /// 是否显示提示的依赖条件
+    var shouldDisplay: Bool {
+        TipManager.shared.manualTipDismissed
+    }
+    
+    /// 提示样式配置，符合设计系统规范
+    var options: [TipOption] {
+        [
+            MaxDisplayCount(1)
+        ]
+    }
+}
+
 /// 添加日程主页面 | 首页
 struct AddScheduleView: View {
   @EnvironmentObject private var viewModel: AddScheduleViewModel
@@ -36,6 +192,9 @@ struct AddScheduleView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.openSettings) private var openSettings
   
+  // 使用TipManager管理提示显示
+  @ObservedObject private var tipManager = TipManager.shared
+  
   var body: some View {
     ZStack {
       // 渐变背景，仅在浅色模式下显示
@@ -43,7 +202,7 @@ struct AddScheduleView: View {
             .zIndex(Double(ZIndex.background)) // 背景层级最低
 
       VStack(spacing: 0) {
-        MainContentView(viewModel: viewModel)
+        MainContentView(viewModel: viewModel, tipManager: tipManager)
           .withLoading()
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -90,7 +249,11 @@ struct AddScheduleView: View {
         )
       }
     }
-    .onAppear(perform: viewModel.resetState)
+    .onAppear {
+      viewModel.resetState()
+      // 重置提示状态
+      tipManager.resetTips()
+    }
     .id(needsRefresh)
     .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
       needsRefresh.toggle()
@@ -101,6 +264,13 @@ struct AddScheduleView: View {
       allowsMultipleSelection: false
     ) { result in
       viewModel.handleImagePickerResult(result)
+    }
+    .task {
+      if #available(macOS 14.0, *) {
+        try? Tips.configure([
+          .displayFrequency(.immediate)
+        ])
+      }
     }
   }
   
@@ -132,6 +302,22 @@ struct AddScheduleView: View {
       return ""
     }
   }
+}
+
+/// TipKit配置修饰符
+struct TipKitConfigurationModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 14.0, *) {
+            content
+                .task {
+                    try? Tips.configure([
+                        .displayFrequency(.immediate)
+                    ])
+                }
+        } else {
+            content
+        }
+    }
 }
 
 // MARK: - Background View
@@ -214,6 +400,7 @@ private struct EventListSheet: View {
 private struct MainContentView: View {
   @ObservedObject var viewModel: AddScheduleViewModel
   @Environment(\.colorScheme) var colorScheme
+  var tipManager: TipManager
   
   var body: some View {
     ZStack(alignment: .center) {
@@ -260,27 +447,33 @@ private struct MainContentView: View {
         FloatingActionPanel {
           HStack(spacing: 48) {
             // 剪贴板导入按钮
-            FloatingActionButton(
+            FloatingActionButtonWithTip(
               iconName: "clipboard.fill",
               title: NSLocalizedString("clipboard_import", comment: ""),
               hintKey: "hint.clipboard_import",
-              action: viewModel.checkClipboardContent
+              action: viewModel.checkClipboardContent,
+              tipManager: tipManager,
+              tipType: .clipboard
             )
             
             // 手动输入按钮
-            FloatingActionButton(
+            FloatingActionButtonWithTip(
               iconName: getManualInputIcon(),
               title: NSLocalizedString("manual_input", comment: ""),
               hintKey: "hint.manual_input",
-              action: { viewModel.showManualInputSheet = true }
+              action: { viewModel.showManualInputSheet = true },
+              tipManager: tipManager,
+              tipType: .manual
             )
             
             // 图片导入按钮
-            FloatingActionButton(
+            FloatingActionButtonWithTip(
               iconName: "photo.fill",
               title: NSLocalizedString("image_import", comment: ""),
               hintKey: "hint.image_import",
-              action: viewModel.handleImageSelection
+              action: viewModel.handleImageSelection,
+              tipManager: tipManager,
+              tipType: .image
             )
           }
         }
@@ -296,6 +489,94 @@ private struct MainContentView: View {
       ManualInputSheet(viewModel: viewModel)
     }
   }
+}
+
+/// 操作按钮类型，用于区分不同的提示
+enum FloatingActionTipType {
+    case clipboard
+    case manual
+    case image
+}
+
+/// 带有TipKit提示的浮动操作按钮
+struct FloatingActionButtonWithTip: View {
+    let iconName: String
+    let title: String
+    let hintKey: String
+    let action: () -> Void
+    let tipManager: TipManager
+    let tipType: FloatingActionTipType
+    
+    var body: some View {
+        Group {
+            if #available(macOS 14.0, *) {
+                FloatingActionButton(
+                    iconName: iconName,
+                    title: title,
+                    hintKey: hintKey,
+                    action: {
+                        action()
+                        
+                        // 根据按钮类型标记提示为已关闭
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            switch tipType {
+                            case .clipboard:
+                                tipManager.markClipboardTipDismissed()
+                                tipManager.invalidateTip(for: .clipboard)
+                            case .manual:
+                                tipManager.markManualTipDismissed()
+                                tipManager.invalidateTip(for: .manual)
+                            case .image:
+                                tipManager.markImageTipDismissed()
+                                tipManager.invalidateTip(for: .image)
+                            }
+                        }
+                    }
+                )
+                .tipView(for: tipType, tipManager: tipManager)
+            } else {
+                // 在不支持TipKit的版本中使用普通按钮
+                FloatingActionButton(
+                    iconName: iconName,
+                    title: title,
+                    hintKey: hintKey,
+                    action: action
+                )
+            }
+        }
+    }
+}
+
+// MARK: - TipKit 扩展
+@available(macOS 14.0, *)
+extension View {
+    /// 为视图添加TipKit的弹出提示
+    /// - Parameter tipType: 提示类型，指定要显示的提示
+    /// - Parameter tipManager: 提示管理器，用于控制提示状态
+    /// - Returns: 添加了提示的视图
+    @ViewBuilder
+    func tipView(for tipType: FloatingActionTipType, tipManager: TipManager) -> some View {
+        switch tipType {
+        case .clipboard:
+            if !tipManager.clipboardTipDismissed {
+                self.popoverTip(ClipboardImportTip())
+            } else {
+                self
+            }
+        case .manual:
+            if tipManager.clipboardTipDismissed && !tipManager.manualTipDismissed {
+                self.popoverTip(ManualInputTip())
+            } else {
+                self
+            }
+        case .image:
+            if tipManager.manualTipDismissed && !tipManager.imageTipDismissed {
+                self.popoverTip(ImageImportTip())
+            } else {
+                self
+            }
+        }
+    }
 }
 
 // MARK: - Footer View
