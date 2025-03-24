@@ -41,7 +41,11 @@ struct EventListView: View {
   var body: some View {
     VStack(spacing: 0) {
       compactHeaderView
+      
+      // 使contentArea占用剩余空间并允许滚动
       contentArea
+        .layoutPriority(1)
+      
       listHeader
       importButton
     }
@@ -135,6 +139,7 @@ private extension EventListView {
     }
     .padding(.horizontal, DesignSystem.Spacing.listContentPadding)
     .padding(.vertical, DesignSystem.Dimensions.listVerticalPadding)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Colors.containerGray)
   }
   
@@ -193,9 +198,13 @@ private extension EventListView {
             onUpdate: onUpdate
           )
         }
+        
+        // 移除过大的底部间距，保留适度的空间确保最后一项可滚动到视图中
+        Spacer(minLength: DesignSystem.Spacing.vertical * 0.5)
       }
       .padding(.bottom, DesignSystem.Spacing.vertical)
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
   
   var importButton: some View {
