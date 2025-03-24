@@ -65,11 +65,16 @@ struct CalendarFeedsBackgroundView: View {
                             x: 0,
                             y: 1
                         )
+                        .onHover { hovering in
+                            isHovered = hovering
+                        }
+                        .scaleEffect(isHovered ? 1.005 : 1.0)
+                        .animation(.spring(response: 0.3), value: isHovered)
                 }
-                .opacity(baseOpacity)
+                .opacity(baseOpacity * (isHovered ? 1.1 : 1.0))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .allowsHitTesting(false) // 禁止交互，确保不会干扰主要内容
+            .allowsHitTesting(true) // 允许交互，以支持日期导航
         }
     }
 }

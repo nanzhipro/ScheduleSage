@@ -37,7 +37,7 @@ public struct CalendarEventSummary: Identifiable {
 /// 日历管理器
 public final class CalendarManager { 
     // MARK: - 属性
-    private let eventStore = EKEventStore()
+    private let _eventStore = EKEventStore()
     private let logger = LoggerService.makeCompatible(category: "CalendarManager")
     
     // 权限缓存
@@ -45,6 +45,11 @@ public final class CalendarManager {
     private var accessGranted: Bool? {
         get { UserDefaults.standard.bool(forKey: Self.accessGrantedKey) }
         set { UserDefaults.standard.set(newValue, forKey: Self.accessGrantedKey) }
+    }
+    
+    /// 获取事件存储实例
+    public var eventStore: EKEventStore {
+        return _eventStore
     }
     
     public init() {}
@@ -112,7 +117,7 @@ public extension CalendarManager {
     
     /// 获取所有日历
     func getAllCalendars() -> [EKCalendar] {
-        eventStore.calendars(for: .event)
+        _eventStore.calendars(for: .event)
     }
     
     /// 获取所有日历名称列表
@@ -138,24 +143,30 @@ public extension CalendarManager {
     /// 获取当日日历事件
     /// - Returns: 当日事件列表，按开始时间排序
     func fetchTodayEvents() async throws -> [CalendarEventSummary] {
+        try await fetchEventsForDate(Date())
+    }
+    
+    /// 获取指定日期的日历事件
+    /// - Parameter date: 指定的日期
+    /// - Returns: 指定日期的事件列表，按开始时间排序
+    func fetchEventsForDate(_ date: Date) async throws -> [CalendarEventSummary] {
         guard try await requestAccess() else {
             throw CalendarError.accessDenied
         }
         
-        let today = Date()
         let calendar = Calendar.current
         
-        // 获取今天的开始和结束时间
-        guard let startOfDay = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: today),
-              let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: today) else {
+        // 获取指定日期的开始和结束时间
+        guard let startOfDay = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: date),
+              let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: date) else {
             throw CalendarError.invalidDateFormat
         }
         
         // 创建谓词来过滤事件
-        let predicate = eventStore.predicateForEvents(withStart: startOfDay, end: endOfDay, calendars: nil)
+        let predicate = _eventStore.predicateForEvents(withStart: startOfDay, end: endOfDay, calendars: nil)
         
         // 获取事件
-        let events = eventStore.events(matching: predicate)
+        let events = _eventStore.events(matching: predicate)
         
         // 转换为 CalendarEventSummary 模型
         return events.compactMap { event in
@@ -167,8 +178,8 @@ public extension CalendarManager {
             return CalendarEventSummary(
                 id: event.eventIdentifier ?? UUID().uuidString,
                 title: event.title ?? NSLocalizedString("untitled_event", comment: ""),
-                startDate: event.startDate ?? today,
-                endDate: event.endDate ?? today,
+                startDate: event.startDate ?? date,
+                endDate: event.endDate ?? date,
                 calendar: eventCalendar.title,
                 calendarColor: eventCalendar.color
             )
@@ -188,7 +199,7 @@ private extension CalendarManager {
     func requestCalendarAccess() async throws -> Bool {
         try await withCheckedThrowingContinuation { continuation in
             if #available(macOS 14.0, *) {
-                eventStore.requestFullAccessToEvents { granted, error in
+                _eventStore.requestFullAccessToEvents { granted, error in
                     if let error = error {
                         continuation.resume(throwing: error)
                     } else {
@@ -196,7 +207,7 @@ private extension CalendarManager {
                     }
                 }
             } else {
-                eventStore.requestAccess(to: .event) { granted, error in
+                _eventStore.requestAccess(to: .event) { granted, error in
                     if let error = error {
                         continuation.resume(throwing: error)
                     } else {
@@ -222,7 +233,7 @@ private extension CalendarManager {
             throw CalendarError.invalidDateFormat
         }
         
-        let event = EKEvent(eventStore: eventStore)
+        let event = EKEvent(eventStore: _eventStore)
         event.calendar = calendar
         event.title = model.title
         event.startDate = startDate
@@ -242,7 +253,7 @@ private extension CalendarManager {
         event.addAlarm(EKAlarm(relativeOffset: -1800))
         
         do {
-            try eventStore.save(event, span: .thisEvent, commit: true)
+            try _eventStore.save(event, span: .thisEvent, commit: true)
             // 为了导航到对应日历事件，需要使用calendarItemIdentifier
             // ical://occurrence/E4BA1EB1-2F9E-4B4E-8C9D-AA3302767FCD?method=show&options=more
             return event.calendarItemIdentifier
@@ -257,23 +268,23 @@ private extension CalendarManager {
     /// 获取或创建日历
     func getOrCreateCalendar(named name: String) async throws -> EKCalendar? {
         // 检查是否存在同名日历
-        if let existingCalendar = eventStore.calendars(for: .event).first(where: { $0.title == name }) {
+        if let existingCalendar = _eventStore.calendars(for: .event).first(where: { $0.title == name }) {
             return existingCalendar
         }
         
         // 创建新日历
-        let newCalendar = EKCalendar(for: .event, eventStore: eventStore)
+        let newCalendar = EKCalendar(for: .event, eventStore: _eventStore)
         newCalendar.title = name
         
         // 设置日历源
-        if let source = eventStore.sources.first(where: { $0.sourceType == .local }) 
-            ?? eventStore.defaultCalendarForNewEvents?.source {
+        if let source = _eventStore.sources.first(where: { $0.sourceType == .local }) 
+            ?? _eventStore.defaultCalendarForNewEvents?.source {
             newCalendar.source = source
         } else {
             return nil
         }
         
-        try eventStore.saveCalendar(newCalendar, commit: true)
+        try _eventStore.saveCalendar(newCalendar, commit: true)
         return newCalendar
     }
     
@@ -285,11 +296,11 @@ private extension CalendarManager {
             let hexColor = try await generateColorForCalendar(named: calendar.title)
             if let color = colorFromHex(hexColor) {
                 calendar.cgColor = color.cgColor
-                try eventStore.saveCalendar(calendar, commit: false)
+                try _eventStore.saveCalendar(calendar, commit: false)
             }
         }
         
-        try eventStore.commit()
+        try _eventStore.commit()
     }
 }
 

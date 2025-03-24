@@ -22,6 +22,9 @@ struct CalendarFeedsView: View {
     // MARK: - 视图主体
     var body: some View {
         VStack(spacing: 0) {
+            // 日期导航头部
+            dateNavigationHeader
+            
             // 内容
             if viewModel.isLoading {
                 loadingStateView
@@ -34,10 +37,66 @@ struct CalendarFeedsView: View {
             }
         }
         .onAppear {
-            viewModel.loadTodayEvents()
+            viewModel.loadEventsForCurrentDate()
         }
         // 整体降低不透明度，减少存在感
         .opacity(colorScheme == .dark ? 0.5 : 0.6)
+    }
+    
+    // MARK: - 日期导航头部
+    private var dateNavigationHeader: some View {
+        HStack(spacing: 12) {
+            // 前一天按钮
+            Button(action: {
+                viewModel.goToPreviousDay()
+            }) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
+                    .frame(width: 24, height: 24)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PlainButtonStyle())
+            .help(NSLocalizedString("previous_day", comment: "前一天"))
+            
+            Spacer()
+            
+            // 日期显示
+            VStack(spacing: 2) {
+                Text(viewModel.formattedCurrentDate)
+                    .font(DesignSystem.Typography.bodyMedium)
+                    .foregroundColor(DesignSystem.Colors.primaryText.opacity(colorScheme == .dark ? 0.7 : 0.75))
+                
+                Text(viewModel.weekdayString)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
+            }
+            .onTapGesture {
+                viewModel.goToToday() // 点击日期返回今天
+            }
+            .help(NSLocalizedString("tap_to_today", comment: "点击返回今天"))
+            
+            Spacer()
+            
+            // 后一天按钮
+            Button(action: {
+                viewModel.goToNextDay()
+            }) {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
+                    .frame(width: 24, height: 24)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PlainButtonStyle())
+            .help(NSLocalizedString("next_day", comment: "后一天"))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.clear)
+        )
     }
     
     // MARK: - 事件流内容

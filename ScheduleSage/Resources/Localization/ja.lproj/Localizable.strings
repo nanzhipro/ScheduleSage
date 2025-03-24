@@ -327,6 +327,10 @@
 "no_events_today" = "今日の予定はありません";
 "calendar_access_required" = "カレンダーへのアクセスが必要です"; 
 "today_events" = "今日の予定";
+"more_events_count" = "あと %d 件の予定";
+"previous_day" = "前日";
+"next_day" = "翌日";
+"tap_to_today" = "タップして今日に戻る";
 
 /* Image Access Error */
 "image_access_failed" = "選択した画像にアクセスできません。もう一度試すか、ドラッグ＆ドロップを使用してください。";
