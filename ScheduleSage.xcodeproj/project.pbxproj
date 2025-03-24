@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		D53F8FBE2D5A3B0C0081039A /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = D53F8FBD2D5A3B0C0081039A /* SwiftJWT */; };
+		D546BB462D91A3AF0058F1B3 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = D546BB452D91A3AF0058F1B3 /* LaunchAtLogin */; };
+		D546BB482D91A3B40058F1B3 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = D546BB472D91A3B40058F1B3 /* KeyboardShortcuts */; };
 		D55454912D3225130086A832 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = D55454902D3225130086A832 /* SwiftDate */; };
 		D5553BD02D68C3AF00EB51BF /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = D5553BCF2D68C3AF00EB51BF /* RevenueCat */; };
 		D5553BD22D68C3AF00EB51BF /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = D5553BD12D68C3AF00EB51BF /* RevenueCatUI */; };
@@ -82,7 +84,9 @@
 				D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */,
 				D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */,
 				D5553BD02D68C3AF00EB51BF /* RevenueCat in Frameworks */,
+				D546BB462D91A3AF0058F1B3 /* LaunchAtLogin in Frameworks */,
 				D5553BD42D68C46200EB51BF /* StoreKit.framework in Frameworks */,
+				D546BB482D91A3B40058F1B3 /* KeyboardShortcuts in Frameworks */,
 				D5553BD22D68C3AF00EB51BF /* RevenueCatUI in Frameworks */,
 				D5FF61672D60AEDC00FC8AF6 /* Sentry in Frameworks */,
 				D53F8FBE2D5A3B0C0081039A /* SwiftJWT in Frameworks */,
@@ -167,6 +171,8 @@
 				D5FF61662D60AEDC00FC8AF6 /* Sentry */,
 				D5553BCF2D68C3AF00EB51BF /* RevenueCat */,
 				D5553BD12D68C3AF00EB51BF /* RevenueCatUI */,
+				D546BB452D91A3AF0058F1B3 /* LaunchAtLogin */,
+				D546BB472D91A3B40058F1B3 /* KeyboardShortcuts */,
 			);
 			productName = ScheduleSage;
 			productReference = D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */;
@@ -261,6 +267,8 @@
 				D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 				D5FF61652D60AEDC00FC8AF6 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 				D5553BCE2D68C3AF00EB51BF /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
+				D546BA372D91A1ED0058F1B3 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */,
+				D546BA382D91A2420058F1B3 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -468,6 +476,7 @@
 				DEVELOPMENT_TEAM = YSM8K853CQ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScheduleSage/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -500,6 +509,7 @@
 				DEVELOPMENT_TEAM = YSM8K853CQ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScheduleSage/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -644,6 +654,22 @@
 				minimumVersion = 4.0.2;
 			};
 		};
+		D546BA372D91A1ED0058F1B3 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin-Modern";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		D546BA382D91A2420058F1B3 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.0;
+			};
+		};
 		D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/malcommac/SwiftDate";
@@ -699,6 +725,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D53F8FBC2D5A3B0C0081039A /* XCRemoteSwiftPackageReference "Swift-JWT" */;
 			productName = SwiftJWT;
+		};
+		D546BB452D91A3AF0058F1B3 /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D546BA372D91A1ED0058F1B3 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */;
+			productName = LaunchAtLogin;
+		};
+		D546BB472D91A3B40058F1B3 /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D546BA382D91A2420058F1B3 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
 		};
 		D55454902D3225130086A832 /* SwiftDate */ = {
 			isa = XCSwiftPackageProductDependency;

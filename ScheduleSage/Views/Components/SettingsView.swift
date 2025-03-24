@@ -13,7 +13,6 @@ struct SettingsView: View {
   @AppStorage("appearanceMode") private var appearanceMode = AppearanceMode.auto.rawValue
   @StateObject private var themeManager = ThemeManager.shared
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
-  @State private var showLaunchError = false
   @Environment(\.colorScheme) private var colorScheme
   
   var body: some View {
@@ -32,7 +31,7 @@ struct SettingsView: View {
   private var generalSettings: some View {
     Form {
       appearanceSection
-      // systemSection // 开机启动，导致jwt token 获取失败，暂时先关闭，后续需要优化
+      systemSection
       versionSection
     }
     .formStyle(.grouped)
@@ -135,23 +134,12 @@ private extension SettingsView {
             if success {
               autoStart = newValue
             } else {
-              showLaunchError = true
               autoStart = LaunchManager.shared.isLaunchAtStartupEnabled
             }
           }
         )
       )
     }
-    .alert(
-      NSLocalizedString("settings_launch_error_title", comment: ""),
-      isPresented: $showLaunchError,
-      actions: {
-        Button(NSLocalizedString("settings_ok", comment: ""), role: .cancel) {}
-      },
-      message: {
-        Text(NSLocalizedString("settings_launch_error_message", comment: ""))
-      }
-    )
   }
   
   var versionSection: some View {

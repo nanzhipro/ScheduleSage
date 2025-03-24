@@ -1,5 +1,5 @@
 {
-  "originHash" : "14ae3bf9c385b6c2fdb5e7cc3c9c897f66dc3c0fa0d6373d6369ed0cd89cd41c",
+  "originHash" : "d7fc50454de4a297a301e0bab3a1140b8aa56045e42917c9ff1d3005af0a6b6e",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -47,6 +47,15 @@
       }
     },
     {
+      "identity" : "keyboardshortcuts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sindresorhus/KeyboardShortcuts.git",
+      "state" : {
+        "revision" : "045cf174010beb335fa1d2567d18c057b8787165",
+        "version" : "2.3.0"
+      }
+    },
+    {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
@@ -62,6 +71,15 @@
       "state" : {
         "revision" : "6edf7ac3dd2b3a2c61284778d430bbad7d8a6f23",
         "version" : "2.0.1"
+      }
+    },
+    {
+      "identity" : "launchatlogin-modern",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sindresorhus/LaunchAtLogin-Modern",
+      "state" : {
+        "revision" : "a04ec1c363be3627734f6dad757d82f5d4fa8fcc",
+        "version" : "1.1.0"
       }
     },
     {
