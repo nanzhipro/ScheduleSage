@@ -112,7 +112,8 @@ class AddScheduleViewModel: ObservableObject {
     }
     
     @objc private func handleCommandV() {
-        guard isKeyboardMonitorEnabled else { return }
+        // 当键盘监控被禁用或AI处理中时不响应Command+V
+        guard isKeyboardMonitorEnabled && !isLLMProcessing else { return }
         checkClipboardContent()
     }
     
@@ -265,7 +266,8 @@ extension AddScheduleViewModel {
         }
         
         Task {
-            await showLoading(.processing)
+            // 使用setProcessingState统一处理处理状态和键盘监控
+            await setProcessingState(true)
             
             do {
                 let events = try await processWithLLM(text)
@@ -412,6 +414,8 @@ extension AddScheduleViewModel {
         await MainActor.run {
             loadingStartTime = Date()
             isOCRProcessing = true
+            // OCR处理期间禁用键盘监控
+            isKeyboardMonitorEnabled = false
             LoadingManager.shared.show(.ocr)
         }
     }
@@ -430,6 +434,8 @@ extension AddScheduleViewModel {
             let formattedText = processor.getFormattedText(from: results)
             
             isOCRProcessing = false
+            // OCR处理完成后恢复键盘监控
+            isKeyboardMonitorEnabled = true
             LoadingManager.shared.hide()
             
             // 清理资源
@@ -471,6 +477,8 @@ extension AddScheduleViewModel {
     private func setProcessingState(_ isProcessing: Bool) async {
         await MainActor.run {
             isLLMProcessing = isProcessing
+            // AI处理期间禁用键盘监控
+            isKeyboardMonitorEnabled = !isProcessing
             LoadingManager.shared.toggle(show: isProcessing, type: .processing)
         }
     }
@@ -483,6 +491,8 @@ extension AddScheduleViewModel {
         await MainActor.run {
             parsedEvents = events
             isLLMProcessing = false
+            // 恢复键盘监控
+            isKeyboardMonitorEnabled = true
             LoadingManager.shared.hide()
             canImport = !events.isEmpty
             showEventList = true
@@ -492,6 +502,8 @@ extension AddScheduleViewModel {
     private func updateState(loading: Bool, canImport: Bool) async {
         await MainActor.run {
             LoadingManager.shared.toggle(show: loading, type: .processing)
+            // 处理键盘监控状态
+            isKeyboardMonitorEnabled = !loading
             self.canImport = canImport
         }
     }
@@ -502,6 +514,8 @@ extension AddScheduleViewModel {
         await MainActor.run {
             isOCRProcessing = false
             isLLMProcessing = false
+            // 错误处理时重新启用键盘监控
+            isKeyboardMonitorEnabled = true
             LoadingManager.shared.hide()
             canImport = false
             
