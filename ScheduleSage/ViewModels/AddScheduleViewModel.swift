@@ -237,6 +237,9 @@ extension AddScheduleViewModel {
         case .image(let url):
             logger.debug("Image content detected from keyboard shortcut: \(url.path)")
             handleImageContent(url)
+        case .text(let text):
+            logger.debug("Text content detected from keyboard shortcut: \(text.prefix(30))...")
+            handleTextContent(text)
         }
     }
 
@@ -251,6 +254,28 @@ extension AddScheduleViewModel {
     
     private func showInvalidURLToast() {
         showToastMessage(NSLocalizedString("invalid_clipboard_content", comment: ""))
+    }
+    
+    /// 处理剪贴板中的纯文本内容
+    private func handleTextContent(_ text: String) {
+        guard !text.isEmpty else {
+            logger.error("Empty text content")
+            showToastMessage(NSLocalizedString("empty_text_content", comment: ""))
+            return
+        }
+        
+        Task {
+            await showLoading(.processing)
+            
+            do {
+                let events = try await processWithLLM(text)
+                await updateUIWithEvents(events)
+                logger.info("Text content processing completed successfully with \(events.count) events")
+            } catch {
+                logger.error("Text content processing failed: \(error.localizedDescription)")
+                await handleError(error)
+            }
+        }
     }
     
     func handleURLContent(_ url: URL) {
@@ -402,7 +427,7 @@ extension AddScheduleViewModel {
         
         await MainActor.run {
             processor.printDetailedResults(results)
-            let allTexts = processor.getAllTexts(from: results)
+            let formattedText = processor.getFormattedText(from: results)
             
             isOCRProcessing = false
             LoadingManager.shared.hide()
@@ -411,26 +436,35 @@ extension AddScheduleViewModel {
             processor.cleanup()
             cleanupTempFiles()
             
-            if !allTexts.isEmpty {
-                let combinedText = allTexts.joined(separator: "\n")
-                Task { await processWithLLM(combinedText) }
+            if !formattedText.isEmpty {
+                Task {
+                    do {
+                        let events = try await processWithLLM(formattedText)
+                        await updateUIWithEvents(events)
+                    } catch {
+                        logger.error("Failed to process formatted text: \(error.localizedDescription)")
+                        // 错误已在processWithLLM中处理
+                    }
+                }
             }
         }
     }
     
-    private func processWithLLM(_ content: String) async {
+    private func processWithLLM(_ content: String) async throws -> [CalendarEvent] {
         await setProcessingState(true)
         
         do {
             let events = try await llmProcessor.processContent(content)
-            await updateUIWithEvents(events)
             logger.info("LLM processing completed successfully with \(events.count) events")
+            return events
         } catch let error as LLMEventProcessorError {
             logger.error("LLM processing failed: \(error.localizedDescription)")
             await handleError(error)
+            throw error
         } catch {
             logger.error("Unexpected error: \(error.localizedDescription)")
             await handleError(error)
+            throw error
         }
     }
     
@@ -746,6 +780,18 @@ enum CalendarError: LocalizedError {
     }
 }
 
+// MARK: - Speech Recognition Error
+enum SpeechRecognitionError: LocalizedError {
+    case startFailed
+    
+    var errorDescription: String? {
+        switch self {
+        case .startFailed:
+            return NSLocalizedString("speech_recognition.error.start_failed", comment: "")
+        }
+    }
+}
+
 // MARK: - Notification Name Extension
 extension Notification.Name {
     static let commandVPressed = Notification.Name("commandVPressed")
@@ -847,7 +893,7 @@ extension AddScheduleViewModel {
                 }
                 
                 logger.info("All permissions granted, starting speech recognition")
-                await startSpeechRecognitionSession()
+                try await startSpeechRecognitionSession()
             } catch {
                 logger.error("Error starting speech recognition: \(error.localizedDescription)")
                 await MainActor.run {
@@ -905,7 +951,7 @@ extension AddScheduleViewModel {
     
     /// 启动语音识别会话
     /// 配置并启动录音器和语音识别器
-    private func startSpeechRecognitionSession() async {
+    private func startSpeechRecognitionSession() async throws {
         // 配置录音器
         if let configurable = audioRecorder as? AudioRecorder {
             await MainActor.run {
@@ -918,17 +964,22 @@ extension AddScheduleViewModel {
         let recognitionStarted = speechRecognizer.startLiveRecognition()
         
         // 更新UI状态
-        await MainActor.run {
-            if recordingStarted && recognitionStarted {
+        if recordingStarted && recognitionStarted {
+            await MainActor.run {
                 self.isRecording = true
                 logger.info("Speech recognition session started successfully")
-            } else {
+            }
+        } else {
+            await MainActor.run {
                 logger.error("Failed to start recording session")
                 
                 // 如果录音启动失败，停止语音识别
                 self.speechRecognizer.stopRecognition()
                 self.showToastMessage(NSLocalizedString("recording_start_failed", comment: ""), type: .error)
             }
+            
+            // 抛出错误以便调用者可以处理
+            throw SpeechRecognitionError.startFailed
         }
     }
 }

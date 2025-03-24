@@ -12,7 +12,8 @@ import AppKit
 /// 1. 检测和读取剪贴板中的文件引用（图片文件和 URL）
 /// 2. 检测和读取剪贴板中的图片数据
 /// 3. 检测和读取剪贴板中的 URL 字符串
-/// 4. 将图片数据保存为临时文件
+/// 4. 检测和读取剪贴板中的纯文本内容
+/// 5. 将图片数据保存为临时文件
 @MainActor
 class ClipboardManager: ObservableObject {
     /// 检查剪贴板内容并返回支持的内容类型
@@ -24,6 +25,7 @@ class ClipboardManager: ObservableObject {
         return checkFileURLs(in: pasteboard)    // 1. 检查文件引用
             ?? checkImageData(in: pasteboard)   // 2. 检查图片数据
             ?? checkURLString(in: pasteboard)   // 3. 检查 URL 字符串
+            ?? checkTextContent(in: pasteboard) // 4. 检查纯文本内容
     }
 }
 
@@ -55,6 +57,18 @@ private extension ClipboardManager {
               let url = URL(string: urlString),
               url.isValidWebURL else { return nil }
         return .url(url)
+    }
+    
+    /// 检查剪贴板中的纯文本内容
+    func checkTextContent(in pasteboard: NSPasteboard) -> ClipboardContent? {
+        guard let text = pasteboard.string(forType: .string),
+              !text.isEmpty else { return nil }
+        
+        // 过滤出非空内容
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty else { return nil }
+        
+        return .text(trimmedText)
     }
     
     /// 将图片保存为临时文件

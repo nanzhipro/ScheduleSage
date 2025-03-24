@@ -69,7 +69,24 @@ final class OCRService: OCRServiceProtocol {
             throw OCRError.recognitionFailed("No results available")
         }
         
-        let results = observations.compactMap { observation -> OCRResult? in
+        // 对观察结果进行排序，按从上到下、从左到右的阅读顺序
+        // 注意：Vision框架中的坐标系原点在左下角，minY值较小的观察结果实际上在图片的上方
+        // 因此，我们需要按minY降序排序，相同minY的按minX升序排序
+        let sortedObservations = (observations as! [VNRecognizedTextObservation]).sorted { first, second in
+            // 定义一个误差范围，用于确定两个文本行是否在同一水平线上
+            let yThreshold: CGFloat = 0.03 // 调整此值以适应您的文本行间距
+            
+            // 如果两个观察结果在同一水平线上（y值相近）
+            if abs(first.boundingBox.minY - second.boundingBox.minY) < yThreshold {
+                // 从左到右排序（按minX升序）
+                return first.boundingBox.minX < second.boundingBox.minX
+            } else {
+                // 从上到下排序（minY越大表示越靠上）
+                return first.boundingBox.minY > second.boundingBox.minY
+            }
+        }
+        
+        let results = sortedObservations.compactMap { observation -> OCRResult? in
             return processObservation(observation)
         }
         

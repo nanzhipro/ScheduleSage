@@ -168,6 +168,65 @@ public final class OCRProcessor: ObservableObject {
         results.values.flatMap { $0.map { $0.text } }
     }
     
+    /// 获取格式化的文本结果，保持OCR识别的视觉顺序
+    /// - Parameter results: OCR识别结果
+    /// - Returns: 格式化的文本字符串，包含换行符以保持文本布局
+    public func getFormattedText(from results: [OCRLanguage: [OCRResult]]) -> String {
+        // 合并所有语言的结果
+        let allResults = results.values.flatMap { $0 }
+        
+        // 如果结果为空，直接返回空字符串
+        if allResults.isEmpty {
+            return ""
+        }
+        
+        // 将所有结果按相对位置排序（虽然OCRService已经排序，但这里再次确保）
+        let sortedResults = allResults.sorted { first, second in
+            guard let firstBox = first.boundingBox, let secondBox = second.boundingBox else {
+                return false
+            }
+            
+            // 定义一个误差范围，用于确定两个文本行是否在同一水平线上
+            let yThreshold: CGFloat = 0.03
+            
+            // 如果两个观察结果在同一水平线上（y值相近）
+            if abs(firstBox.minY - secondBox.minY) < yThreshold {
+                // 从左到右排序
+                return firstBox.minX < secondBox.minX
+            } else {
+                // 从上到下排序
+                return firstBox.minY > secondBox.minY
+            }
+        }
+        
+        // 检测何时需要添加换行符
+        var formattedText = ""
+        var previousY: CGFloat? = nil
+        
+        for result in sortedResults {
+            guard let box = result.boundingBox else {
+                if !formattedText.isEmpty {
+                    formattedText += " "
+                }
+                formattedText += result.text
+                continue
+            }
+            
+            if let prevY = previousY, abs(prevY - box.minY) > 0.03 {
+                // 不同的行，添加换行符
+                formattedText += "\n"
+            } else if !formattedText.isEmpty {
+                // 同一行，添加空格
+                formattedText += " "
+            }
+            
+            formattedText += result.text
+            previousY = box.minY
+        }
+        
+        return formattedText
+    }
+    
     /// 获取性能指标
     public func getMetrics() -> OCRMetrics? {
         service.collectMetrics()
@@ -315,6 +374,11 @@ extension OCRProcessor {
                     totalResults += 1
                 }
             }
+            
+            // 打印格式化的文本结果
+            print("\n📄 Formatted Text Result")
+            print("--------------------------------")
+            print(self.getFormattedText(from: results))
             
             print("\n📊 Statistics")
             print("--------------------------------")
