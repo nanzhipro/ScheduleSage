@@ -324,7 +324,8 @@ extension AddScheduleViewModel {
             }
             
             let contentText = try result.get()
-            let events = try await processContentWithLLM(contentText)
+            // 使用统一的processWithLLM方法处理内容
+            let events = try await processWithLLM(contentText)
             let eventsWithURL = addURLToEvents(events, url: url)
             
             await updateUIWithEvents(eventsWithURL)
@@ -387,29 +388,54 @@ extension AddScheduleViewModel {
         }
     }
     
-    private func processContentWithLLM(_ content: String) async throws -> [CalendarEvent] {
-        do {
-            return try await llmProcessor.processContent(content)
-        } catch {
-            logger.error("LLM processing failed: \(error.localizedDescription)")
+    /// 按照开始和结束时间聚合事件，对于时间相同的事件保留第一个
+    /// - Parameter events: 原始事件数组
+    /// - Returns: 聚合后的事件数组
+    private func aggregateEventsByTime(_ events: [CalendarEvent]) -> [CalendarEvent] {
+        // 创建一个字典，键为开始和结束时间的组合，值为对应的事件
+        var eventMap: [String: CalendarEvent] = [:]
+        
+        for event in events {
+            // 创建时间键
+            let timeKey = "\(event.startDate)_\(event.endDate)"
             
-            await MainActor.run {
-                self.isLLMProcessing = false
-                LoadingManager.shared.hide()
-                
-                self.showToast = false
-                self.toastType = .error
-                self.toastMessage = error.localizedDescription
-                self.showToast = true
+            // 如果字典中没有这个时间键，则添加事件
+            if eventMap[timeKey] == nil {
+                eventMap[timeKey] = event
             }
-            
-            throw error
+            // 如果已存在相同时间的事件，保留第一个（不做任何操作）
         }
+        
+        // 将字典中的事件转为数组并返回
+        return Array(eventMap.values)
     }
 }
 
 // MARK: - State Management
 extension AddScheduleViewModel {
+    private func processWithLLM(_ content: String) async throws -> [CalendarEvent] {
+        await setProcessingState(true)
+        
+        do {
+            let events = try await llmProcessor.processContent(content)
+            logger.info("LLM processing completed successfully with \(events.count) events")
+            
+            // 对事件进行聚合处理
+            let aggregatedEvents = aggregateEventsByTime(events)
+            logger.info("Aggregated \(events.count) events to \(aggregatedEvents.count) events")
+            
+            return aggregatedEvents
+        } catch let error as LLMEventProcessorError {
+            logger.error("LLM processing failed: \(error.localizedDescription)")
+            await handleError(error)
+            throw error
+        } catch {
+            logger.error("Unexpected error: \(error.localizedDescription)")
+            await handleError(error)
+            throw error
+        }
+    }
+    
     private func startOCRProcessing() async {
         await MainActor.run {
             loadingStartTime = Date()
@@ -453,24 +479,6 @@ extension AddScheduleViewModel {
                     }
                 }
             }
-        }
-    }
-    
-    private func processWithLLM(_ content: String) async throws -> [CalendarEvent] {
-        await setProcessingState(true)
-        
-        do {
-            let events = try await llmProcessor.processContent(content)
-            logger.info("LLM processing completed successfully with \(events.count) events")
-            return events
-        } catch let error as LLMEventProcessorError {
-            logger.error("LLM processing failed: \(error.localizedDescription)")
-            await handleError(error)
-            throw error
-        } catch {
-            logger.error("Unexpected error: \(error.localizedDescription)")
-            await handleError(error)
-            throw error
         }
     }
     
