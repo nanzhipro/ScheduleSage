@@ -389,3 +389,8 @@
 
 // Voice Input
 "voice_processing" = "处理中..."; 
+
+// 提醒相关
+"create_reminder" = "创建待办提醒";
+"reminder_created_success" = "待办提醒创建成功";
+"calendar.error.reminders_access_denied" = "需要提醒访问权限，请在系统设置中允许访问"; 

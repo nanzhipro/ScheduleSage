@@ -17,7 +17,8 @@ let package = Package(
         .package(url: "https://github.com/RevenueCat/purchases-ios-spm.git", from: "5.19.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.8.7"),
         .package(url: "https://github.com/sindresorhus/KeyboardShortcuts.git", from: "2.3.0"),
-        .package(url: "https://github.com/sindresorhus/LaunchAtLogin-Modern.git", from: "1.1.0")
+        .package(url: "https://github.com/sindresorhus/LaunchAtLogin-Modern.git", from: "1.1.0"),
+        .package(url: "https://github.com/sindresorhus/DockProgress.git", from: "4.3.0")
     ],
     targets: [
         .target(
@@ -33,7 +34,8 @@ let package = Package(
                 "Purchases",
                 "SwiftSoup",
                 "KeyboardShortcuts",
-                "LaunchAtLogin"
+                "LaunchAtLogin",
+                "DockProgress"
             ]
         ),
         .testTarget(

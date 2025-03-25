@@ -269,6 +269,7 @@
 				D5553BCE2D68C3AF00EB51BF /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				D546BA372D91A1ED0058F1B3 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */,
 				D546BA382D91A2420058F1B3 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+				D546BB492D91A6580058F1B3 /* XCRemoteSwiftPackageReference "DockProgress" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -668,6 +669,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.3.0;
+			};
+		};
+		D546BB492D91A6580058F1B3 /* XCRemoteSwiftPackageReference "DockProgress" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/DockProgress";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.3.1;
 			};
 		};
 		D554548F2D3224BD0086A832 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {

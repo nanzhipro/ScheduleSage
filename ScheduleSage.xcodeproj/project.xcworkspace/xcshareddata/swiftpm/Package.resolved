@@ -1,5 +1,5 @@
 {
-  "originHash" : "d7fc50454de4a297a301e0bab3a1140b8aa56045e42917c9ff1d3005af0a6b6e",
+  "originHash" : "200403850b2337cab22a7951a00ab6f85d1089268852ae82d0d64c957c893597",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "4b8714a7fb84d42393314ce897127b3939885ec3",
         "version" : "3.8.5"
+      }
+    },
+    {
+      "identity" : "dockprogress",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sindresorhus/DockProgress",
+      "state" : {
+        "revision" : "d4f23b5a8f5ca0fac393eb7ba78c2fe3e32e52da",
+        "version" : "4.3.1"
       }
     },
     {
