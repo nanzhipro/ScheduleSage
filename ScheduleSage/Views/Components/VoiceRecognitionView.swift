@@ -320,6 +320,15 @@ class VoiceRecognitionViewModel: ObservableObject {
     func cancelRecognition() {
         voiceService.cancel()
     }
+    
+    /// 重置状态
+    func resetState() {
+        if let resetFunc = voiceService as? VoiceRecognitionService {
+            resetFunc.resetState()
+        } else {
+            voiceService.cancel() // 备选方案，使用 cancel
+        }
+    }
 }
 
 // MARK: - 预览

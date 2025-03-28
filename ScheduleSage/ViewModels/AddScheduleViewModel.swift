@@ -835,16 +835,9 @@ extension AddScheduleViewModel {
         voiceRecognitionService.onStateChanged = { [weak self] state in
             guard let self = self else { return }
             
-            switch state {
-            case .recording:
-                self.isRecording = true
-            case .idle, .failure, .success:
-                self.isRecording = false
-            case .processing, .preparing:
-                break // 这些状态不需要更改 isRecording
-            }
+            self.isRecording = state.isActiveRecording
             
-            // 检查识别结果
+            // 处理识别结果
             if case .success(let text) = state, !text.isEmpty {
                 self.transcribedText = text
                 self.logger.info("Voice recognition completed with \(text.count) characters")
@@ -856,12 +849,11 @@ extension AddScheduleViewModel {
     }
     
     /// 开始语音识别
-    /// 请求必要权限并启动语音识别流程
     func startVoiceRecognition() {
         logger.info("Preparing to start voice recognition")
         
         // 避免重复启动
-        if isRecording {
+        guard !isRecording else {
             logger.debug("Voice recognition already in progress, ignoring request")
             return
         }
@@ -870,8 +862,7 @@ extension AddScheduleViewModel {
         Task {
             do {
                 // 请求麦克风权限
-                let micPermissionGranted = await requestMicrophonePermission()
-                guard micPermissionGranted else {
+                guard await requestMicrophonePermission() else {
                     logger.notice("Microphone access denied")
                     await MainActor.run {
                         showToastMessage(NSLocalizedString("microphone_access_denied", comment: ""), type: .error)
@@ -906,12 +897,11 @@ extension AddScheduleViewModel {
         logger.info("Stopping voice recognition")
         
         // 避免重复停止
-        if !isRecording {
+        guard isRecording else {
             logger.debug("Voice recognition not active, ignoring stop request")
             return
         }
         
-        // 异步执行停止操作
         Task {
             do {
                 let recognizedText = try await voiceRecognitionService.stopRecordingAndRecognize()
@@ -919,13 +909,19 @@ extension AddScheduleViewModel {
                 if !recognizedText.isEmpty {
                     await MainActor.run {
                         self.transcribedText = recognizedText
+                        // 发送通知确保UI更新
+                        NotificationCenter.default.post(
+                            name: Notification.Name("voiceRecognitionCompleted"),
+                            object: nil,
+                            userInfo: ["text": recognizedText]
+                        )
                     }
                     logger.info("Recognition completed with text of length: \(recognizedText.count)")
                 }
             } catch {
                 logger.error("Failed to recognize voice: \(error.localizedDescription)")
                 await MainActor.run {
-                    self.showToastMessage(error.localizedDescription, type: .error)
+                    showToastMessage(error.localizedDescription, type: .error)
                 }
             }
         }
@@ -933,9 +929,25 @@ extension AddScheduleViewModel {
     
     /// 启动语音识别会话
     private func startVoiceRecognitionSession() {
+        // 先重置状态，确保可以开始新的录制
+        if let resetableService = voiceRecognitionService as? VoiceRecognitionService {
+            resetableService.resetState()
+        }
+        
         if !voiceRecognitionService.startRecording() {
             logger.error("Failed to start recording session")
             showToastMessage(NSLocalizedString("recording_start_failed", comment: ""), type: .error)
         }
+    }
+}
+
+// 扩展VoiceRecognitionState以简化状态判断
+private extension VoiceRecognitionState {
+    /// 是否为活跃录制状态
+    var isActiveRecording: Bool {
+        if case .recording = self {
+            return true
+        }
+        return false
     }
 }

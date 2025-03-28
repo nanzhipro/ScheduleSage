@@ -422,3 +422,23 @@
 "voice_recognition_permission_denied" = "マイクへのアクセスが拒否されました。システム設定でマイクへのアクセスを許可してください";
 
 // ... existing code ... 
+
+// Audio Recorder
+"microphone_access_denied" = "マイクへのアクセスが拒否されました";
+"recorder_not_ready" = "レコーダーの準備ができていません";
+"recording_failed" = "録音に失敗しました: %@";
+"file_creation_failed" = "ファイル作成に失敗しました";
+"audio_engine_error" = "オーディオエンジンエラー: %@";
+"empty_audio_data" = "音声データが録音されていません";
+
+// ... existing code ... 
+
+// Audio Recorder View
+"Tap to Start Recording" = "タップして録音開始";
+"Preparing..." = "準備中...";
+"Recording..." = "録音中...";
+"Paused" = "一時停止";
+"Processing..." = "処理中...";
+"Recording Complete" = "録音完了";
+
+// ... existing code ... 

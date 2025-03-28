@@ -412,4 +412,20 @@
 "voice_recognition_api_request_failed" = "API请求失败: %@";
 "voice_recognition_invalid_response" = "服务器响应无效: 状态码 %d";
 "voice_recognition_decoding_failed" = "响应数据解析失败: %@";
-"voice_recognition_permission_denied" = "麦克风权限被拒绝，请在系统设置中允许访问麦克风"; 
+"voice_recognition_permission_denied" = "麦克风权限被拒绝，请在系统设置中允许访问麦克风";
+
+// Audio Recorder
+"microphone_access_denied" = "麦克风访问被拒绝";
+"recorder_not_ready" = "录音器未准备好";
+"recording_failed" = "录音失败: %@";
+"file_creation_failed" = "文件创建失败";
+"audio_engine_error" = "音频引擎错误: %@";
+"empty_audio_data" = "未录制到音频数据";
+
+// Audio Recorder View
+"Tap to Start Recording" = "点击开始录音";
+"Preparing..." = "准备中...";
+"Recording..." = "录音中...";
+"Paused" = "已暂停";
+"Processing..." = "处理中...";
+"Recording Complete" = "录音完成"; 

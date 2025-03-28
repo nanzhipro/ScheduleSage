@@ -26,8 +26,8 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
     public var onLevelChanged: ((Float) -> Void)?
     
     // MARK: - Private properties
-    /// 音频录制器
-    private var audioRecorder: AudioRecorderProtocol
+    /// 音频录制服务
+    private var audioRecorder: AudioRecordingService
     
     /// 日志记录器
     private let logger: LoggerService
@@ -48,34 +48,11 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
     ///   - audioRecorder: 音频录制服务，默认使用标准实现
     ///   - logger: 日志记录器，默认使用标准实现
     public init(
-        audioRecorder: AudioRecorderProtocol = AudioRecorder(),
+        audioRecorder: AudioRecordingService = AudioRecorder(),
         logger: LoggerService = .makeCompatible(category: "VoiceRecognitionService")
     ) {
         self.audioRecorder = audioRecorder
         self.logger = logger
-        
-        // 设置回调
-        self.audioRecorder.onLevelChanged = { [weak self] level in
-            guard let self = self else { return }
-            DispatchQueue.main.async {
-                self.onLevelChanged?(level)
-            }
-        }
-        
-        self.audioRecorder.onErrorOccurred = { [weak self] error in
-            guard let self = self else { return }
-            self.logger.error("录音错误: \(error.localizedDescription)")
-            self.state = .failure(error)
-            self.stopRecordingTimer()
-        }
-        
-        // 配置录音器
-        self.audioRecorder.configure(with: AudioRecorderSettings(
-            sampleRate: 16000.0,
-            channels: 1,
-            enableLevelMonitoring: true,
-            useHardwareFormat: true // 使用硬件格式，避免格式不匹配导致的崩溃
-        ))
     }
     
     // MARK: - Public methods
@@ -83,22 +60,20 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
     /// 请求麦克风访问权限
     /// - Parameter completion: 权限请求完成后的回调，参数表示是否获得权限
     public func requestMicrophoneAccess(completion: @escaping (Bool) -> Void) {
-        logger.info("请求麦克风访问权限")
-        audioRecorder.requestMicrophoneAccess { granted in
-            self.logger.info("麦克风权限请求结果: \(granted ? "已授权" : "已拒绝")")
-            completion(granted)
-        }
+        logger.info("Requesting microphone access permission")
+        // 使用 AudioRecorder 的权限状态
+        completion(audioRecorder.hasMicrophonePermission)
     }
     
-    /// 开始语音录制和识别
+    /// 开始语音录制
     /// - Returns: 是否成功开始录制
     @discardableResult
     public func startRecording() -> Bool {
-        logger.info("开始语音录制")
+        logger.info("Starting voice recording")
         
         // 状态检查
         guard case .idle = state else {
-            logger.warning("无法开始录制：当前状态\(state)不允许开始新的录制")
+            logger.warning("Cannot start recording: current state \(state) does not allow new recording session")
             return false
         }
         
@@ -109,10 +84,10 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
             recordingStartTime = Date()
             startRecordingTimer()
             state = .recording(0)
-            logger.info("语音录制已开始")
+            logger.debug("Voice recording started successfully")
             return true
         } else {
-            logger.error("语音录制失败")
+            logger.error("Failed to start voice recording")
             state = .failure(VoiceRecognitionError.recordingFailed)
             return false
         }
@@ -122,71 +97,125 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
     /// - Returns: 识别结果文本
     /// - Throws: VoiceRecognitionError
     public func stopRecordingAndRecognize() async throws -> String {
-        logger.info("停止录制并开始识别")
+        logger.info("Stopping recording and starting recognition")
         
-        // 状态检查
+        // 状态检查和重置
         guard case .recording = state else {
-            logger.warning("无法停止录制：当前状态\(state)不是录制状态")
+            logger.warning("Cannot stop recording: current state \(state) is not recording")
+            
+            // 确保状态重置为 idle
+            if case .success = state {
+                resetState()
+            } else if case .failure = state {
+                resetState()
+            }
+            
             throw VoiceRecognitionError.recordingFailed
         }
         
         // 停止录制计时器
         stopRecordingTimer()
         
-        // 停止录制并获取音频数据
-        guard let buffer = audioRecorder.stopRecording() else {
-            logger.error("获取录音数据失败")
-            state = .failure(VoiceRecognitionError.recordingFailed)
-            throw VoiceRecognitionError.recordingFailed
-        }
-        
-        // 更新状态
-        state = .processing
-        
-        do {
-            // 将PCM数据转换为WAV格式
-            let wavData = try convertPCMBufferToWAV(buffer)
+        // 返回异步任务结果
+        return try await Task<String, Error> { [weak self] in
+            guard let self = self else { throw VoiceRecognitionError.recordingFailed }
             
-            // 将音频数据编码为Base64
-            let base64Audio = wavData.base64EncodedString()
-            
-            // 创建识别请求
-            let request = VoiceRecognitionRequest(
-                audioData: base64Audio,
-                audioFormat: "wav",
-                engineType: "16k_zh", // 使用16kHz中文引擎
-                wordInfo: 0,          // 不需要词级别时间戳
-                filterDirty: 1,       // 过滤脏词
-                filterModal: 1,       // 部分过滤语气词
-                filterPunc: 0,        // 不过滤标点
-                convertNumMode: 1     // 智能转换数字
-            )
-            
-            // 发送识别请求
-            let result = try await sendRecognitionRequest(request)
-            
-            // 更新状态
-            state = .success(result.text)
-            logger.info("语音识别成功，结果：\(result.text)")
-            return result.text
-            
-        } catch {
-            logger.error("语音识别失败: \(error.localizedDescription)")
-            state = .failure(error)
-            throw error
-        }
+            // 获取音频数据并进行识别
+            return try await withCheckedThrowingContinuation { continuation in
+                self.audioRecorder.stopRecording { audioData in
+                    self.handleAudioData(audioData, continuation: continuation)
+                }
+            }
+        }.value
     }
     
     /// 取消当前操作
     public func cancel() {
-        logger.info("取消语音识别")
+        logger.info("Cancelling voice recognition")
         
         stopRecordingTimer()
-        audioRecorder.reset()
+        if audioRecorder.isRecording {
+            audioRecorder.stopRecording(completion: nil)
+        }
+        state = .idle
+    }
+    
+    /// 重置状态为 idle
+    /// 可以在需要手动重置状态时调用此方法
+    public func resetState() {
+        logger.info("Manually resetting state to idle")
         state = .idle
     }
     
     // MARK: - Private methods
+    
+    /// 处理音频数据
+    private func handleAudioData(_ audioData: Data?, continuation: CheckedContinuation<String, Error>) {
+        // 验证音频数据
+        guard let audioData = audioData else {
+            state = .failure(VoiceRecognitionError.recordingFailed)
+            logger.error("Failed to retrieve audio data")
+            continuation.resume(throwing: VoiceRecognitionError.recordingFailed)
+            scheduleStateReset()
+            return
+        }
+        
+        // 更新状态
+        state = .processing
+        logger.debug("Processing audio data: \(audioData.count) bytes")
+        
+        // 创建识别任务
+        Task {
+            do {
+                // 编码音频数据
+                let base64Audio = audioData.base64EncodedString()
+                logger.debug("Audio data encoded to Base64 format")
+                
+                // 创建识别请求
+                let request = createRecognitionRequest(base64Audio: base64Audio)
+                
+                // 发送请求并获取结果
+                logger.info("Sending recognition request to API")
+                let result = try await sendRecognitionRequest(request)
+                
+                // 处理成功结果
+                state = .success(result.text)
+                logger.info("Voice recognition completed successfully: \(result.text.count) characters")
+                continuation.resume(returning: result.text)
+                scheduleStateReset()
+                
+            } catch {
+                // 处理错误
+                logger.error("Voice recognition failed: \(error.localizedDescription)")
+                state = .failure(error)
+                continuation.resume(throwing: error)
+                scheduleStateReset()
+            }
+        }
+    }
+    
+    /// 创建识别请求
+    private func createRecognitionRequest(base64Audio: String) -> VoiceRecognitionRequest {
+        VoiceRecognitionRequest(
+            audioData: base64Audio,
+            audioFormat: "m4a",
+            engineType: "16k_zh",
+            wordInfo: 0,
+            filterDirty: 1,
+            filterModal: 1,
+            filterPunc: 0,
+            convertNumMode: 1
+        )
+    }
+    
+    /// 设置延迟重置状态
+    private func scheduleStateReset(_ delay: UInt64 = 500_000_000) {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: delay) // 等待0.5秒
+            state = .idle
+            logger.debug("State reset to idle, ready for new recording")
+        }
+    }
     
     /// 启动录制时间计时器
     private func startRecordingTimer() {
@@ -204,15 +233,15 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
             
             // 检查是否达到最大录制时长
             if elapsed >= self.recordingDuration {
-                self.logger.info("已达到最大录制时长\(self.recordingDuration)秒，自动停止录制")
+                self.logger.info("Maximum recording duration reached (\(self.recordingDuration)s), automatically stopping")
                 self.stopRecordingTimer()
                 
-                // 异步执行识别，避免在Timer回调中执行异步操作
+                // 异步执行识别
                 Task {
                     do {
                         _ = try await self.stopRecordingAndRecognize()
                     } catch {
-                        self.logger.error("自动停止录制后识别失败: \(error.localizedDescription)")
+                        self.logger.error("Auto-stop recognition failed: \(error.localizedDescription)")
                     }
                 }
             }
@@ -225,56 +254,12 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
         recordingTimer = nil
     }
     
-    /// 将PCM缓冲区转换为WAV格式数据
-    /// - Parameter buffer: PCM音频缓冲区
-    /// - Returns: WAV格式的Data
-    /// - Throws: VoiceRecognitionError
-    private func convertPCMBufferToWAV(_ buffer: AVAudioPCMBuffer) throws -> Data {
-        logger.debug("开始转换PCM数据为WAV格式")
-        
-        // 创建临时文件
-        let tempWavURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString + ".wav")
-        
-        do {
-            // 创建WAV文件写入器
-            let format = buffer.format
-            let bitDepth: Int = format.commonFormat == .pcmFormatInt16 ? 16 : 32
-            let isFloat: Bool = format.commonFormat == .pcmFormatFloat32
-            
-            let settings: [String: Any] = [
-                AVFormatIDKey: kAudioFormatLinearPCM,
-                AVSampleRateKey: format.sampleRate,
-                AVNumberOfChannelsKey: format.channelCount,
-                AVLinearPCMBitDepthKey: bitDepth,
-                AVLinearPCMIsFloatKey: isFloat,
-                AVLinearPCMIsNonInterleaved: !format.isInterleaved
-            ]
-            
-            let audioFile = try AVAudioFile(forWriting: tempWavURL, settings: settings)
-            try audioFile.write(from: buffer)
-            
-            // 从文件中读取数据
-            let wavData = try Data(contentsOf: tempWavURL)
-            
-            // 删除临时文件
-            try FileManager.default.removeItem(at: tempWavURL)
-            
-            logger.debug("PCM转WAV成功，大小：\(wavData.count) 字节")
-            return wavData
-        } catch {
-            logger.error("PCM转WAV失败: \(error.localizedDescription)")
-            // 清理临时文件
-            try? FileManager.default.removeItem(at: tempWavURL)
-            throw VoiceRecognitionError.audioProcessingFailed
-        }
-    }
-    
     /// 发送语音识别请求
     /// - Parameter request: 语音识别请求
     /// - Returns: 识别响应
     /// - Throws: VoiceRecognitionError
     private func sendRecognitionRequest(_ request: VoiceRecognitionRequest) async throws -> VoiceRecognitionResponse {
-        logger.info("发送语音识别请求")
+        logger.debug("Preparing to send recognition request")
         
         let endpoint = VoiceEndpoint.recognizeVoice
         
@@ -285,10 +270,10 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
         
         switch result {
         case .success(let response):
-            logger.info("识别请求成功，音频时长：\(response.audioDuration)毫秒")
+            logger.debug("Recognition request successful, audio duration: \(response.audioDuration)ms")
             return response
         case .failure(let error):
-            logger.error("识别请求失败: \(error.localizedDescription)")
+            logger.error("Recognition request failed: \(error.localizedDescription)")
             throw VoiceRecognitionError.apiRequestFailed(error)
         }
     }

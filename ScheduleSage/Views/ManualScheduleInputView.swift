@@ -27,6 +27,9 @@ struct ManualScheduleInputView: View {
     @State private var navigateToEventList = false
     @State private var processedEvents: [CalendarEvent] = []
     
+    // 添加通知监听状态
+    @State private var voiceRecognitionObserver: NSObjectProtocol?
+    
     // MARK: - 依赖注入
     private let processInput: (String) async throws -> [CalendarEvent]
     private let viewModel: AddScheduleViewModel
@@ -121,7 +124,7 @@ struct ManualScheduleInputView: View {
             }
             .onChange(of: viewModel.transcribedText) { newValue in
                 // 当有新的转录文本时，直接替换现有文本
-                if !newValue.isEmpty && viewModel.isRecording {
+                if !newValue.isEmpty {
                     inputText = newValue
                 }
             }
@@ -142,12 +145,30 @@ struct ManualScheduleInputView: View {
             .onAppear {
                 viewModel.toggleKeyboardMonitor(isEnabled: false)
                 isFocused = true
+                
+                // 添加语音识别完成的通知监听
+                voiceRecognitionObserver = NotificationCenter.default.addObserver(
+                    forName: Notification.Name("voiceRecognitionCompleted"),
+                    object: nil,
+                    queue: .main
+                ) {  notification in
+                    guard
+                          let text = notification.userInfo?["text"] as? String,
+                          !text.isEmpty else { return }
+                    
+                    self.inputText = text
+                }
             }
             .onDisappear {
                 viewModel.toggleKeyboardMonitor(isEnabled: true)
                 // 确保在视图消失时停止录音
                 if viewModel.isRecording {
                     viewModel.stopVoiceRecognition()
+                }
+                
+                // 移除通知监听
+                if let observer = voiceRecognitionObserver {
+                    NotificationCenter.default.removeObserver(observer)
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: viewModel.isRecording)
@@ -318,6 +339,7 @@ private struct VoiceButton: View {
     // MARK: - 动画状态
     @State private var buttonScale: CGFloat = 1.0
     @State private var isPressing = false
+    @State private var pulseAnimation = false
     
     // 水波纹动画状态
     @State private var ripples: [RippleState] = []
@@ -330,6 +352,26 @@ private struct VoiceButton: View {
     
     var body: some View {
         ZStack {
+            // 脉动外圈 - 录音状态下显示
+            if localRecordingState {
+                Circle()
+                    .stroke(Color.red.opacity(0.6), lineWidth: 2)
+                    .frame(width: 60, height: 60)
+                    .scaleEffect(pulseAnimation ? 1.2 : 1.0)
+                    .opacity(pulseAnimation ? 0.5 : 0.8)
+                    .animation(
+                        Animation.easeInOut(duration: 1.0)
+                            .repeatForever(autoreverses: true),
+                        value: pulseAnimation
+                    )
+                    .onAppear {
+                        pulseAnimation = true
+                    }
+                    .onDisappear {
+                        pulseAnimation = false
+                    }
+            }
+            
             // 水波纹动画层
             ForEach(ripples) { ripple in
                 Circle()
@@ -394,8 +436,8 @@ private struct VoiceButton: View {
         Button(action: handleButtonTap) {
             // 麦克风图标
             ZStack {
-                Image(systemName: "microphone.circle.fill")
-                    .font(.system(size: localRecordingState ? 36 : 36))
+                Image(systemName: localRecordingState ? "mic.fill" : "microphone.circle.fill")
+                    .font(.system(size: localRecordingState ? 28 : 36))
                     .foregroundColor(localRecordingState ? Color.red : DesignSystem.Colors.primary)
                     .opacity(isDisabled ? 0.5 : 1.0)
             }
@@ -450,8 +492,13 @@ private struct VoiceButton: View {
             withAnimation(.easeInOut(duration: 0.2)) {
                 localRecordingState = newValue
                 
+                // 如果开始录音，启动脉动动画
+                if newValue {
+                    pulseAnimation = true
+                }
                 // 如果停止录音，清空声音状态和波纹
-                if !newValue {
+                else {
+                    pulseAnimation = false
                     hasSound = false
                     ripples.removeAll()
                 }
