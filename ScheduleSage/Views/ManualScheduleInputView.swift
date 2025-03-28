@@ -70,11 +70,11 @@ struct ManualScheduleInputView: View {
                             isProcessing: isProcessing,
                             action: {
                                 if viewModel.isRecording {
-                                    viewModel.stopSpeechRecognition()
+                                    viewModel.stopVoiceRecognition()
                                 } else {
                                     inputText = ""
                                     viewModel.transcribedText = ""
-                                    viewModel.startSpeechRecognition()
+                                    viewModel.startVoiceRecognition()
                                 }
                             },
                             viewModel: viewModel
@@ -147,7 +147,7 @@ struct ManualScheduleInputView: View {
                 viewModel.toggleKeyboardMonitor(isEnabled: true)
                 // 确保在视图消失时停止录音
                 if viewModel.isRecording {
-                    viewModel.stopSpeechRecognition()
+                    viewModel.stopVoiceRecognition()
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: viewModel.isRecording)
@@ -203,7 +203,7 @@ private struct HeaderView: View {
                 SageCloseButton(action: { 
                     // 关闭按钮点击时停止语音录入
                     if viewModel.isRecording {
-                        viewModel.stopSpeechRecognition()
+                        viewModel.stopVoiceRecognition()
                     }
                     isPresented = false 
                 })
@@ -270,7 +270,7 @@ private struct RecognizeButton: View {
         Button(action: {
             // 点击识别按钮时停止语音录入
             if viewModel.isRecording {
-                viewModel.stopSpeechRecognition()
+                viewModel.stopVoiceRecognition()
             }
             
             action()

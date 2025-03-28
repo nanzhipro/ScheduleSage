@@ -388,9 +388,28 @@
 "cancel" = "取消";
 
 // Voice Input
-"voice_processing" = "处理中..."; 
+"voice_processing" = "处理中...";
 
 // 提醒相关
 "create_reminder" = "创建待办提醒";
 "reminder_created_success" = "待办提醒创建成功";
-"calendar.error.reminders_access_denied" = "需要提醒访问权限，请在系统设置中允许访问"; 
+"calendar.error.reminders_access_denied" = "需要提醒访问权限，请在系统设置中允许访问";
+
+/* 语音识别 */
+"voice_recognition_title" = "语音识别";
+"voice_recognition_preparing" = "准备开始录音...";
+"voice_recognition_listening" = "正在聆听...";
+"voice_recognition_processing" = "正在识别...";
+"voice_recognition_result" = "识别结果";
+"voice_recognition_failed" = "识别失败";
+"voice_recognition_max_duration" = "最长录制时间为60秒";
+"voice_recognition_done" = "完成";
+"voice_recognition_cancel" = "取消";
+
+/* 语音识别错误 */
+"voice_recognition_recording_failed" = "录音失败";
+"voice_recognition_processing_failed" = "音频处理失败";
+"voice_recognition_api_request_failed" = "API请求失败: %@";
+"voice_recognition_invalid_response" = "服务器响应无效: 状态码 %d";
+"voice_recognition_decoding_failed" = "响应数据解析失败: %@";
+"voice_recognition_permission_denied" = "麦克风权限被拒绝，请在系统设置中允许访问麦克风"; 

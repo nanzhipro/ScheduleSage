@@ -1,8 +1,8 @@
 //
-//  LightSpeechRecognitionOverlay.swift
+//  LightVoiceRecognitionOverlay.swift
 //  ScheduleSage
 //
-//  Created by CursorAI on 2025-03-22.
+//  Created by CursorAI on 2024-06-03.
 //
 
 import SwiftUI
@@ -12,7 +12,7 @@ import SwiftUI
  
  提供非侵入式语音识别UI，实时显示语音录入状态和识别内容
  */
-struct LightSpeechRecognitionOverlay: View {
+struct LightVoiceRecognitionOverlay: View {
     @ObservedObject var viewModel: AddScheduleViewModel
     
     // 动画状态
@@ -53,8 +53,8 @@ struct LightSpeechRecognitionOverlay: View {
                 
                 // 停止按钮
                 Button {
-                    viewModel.stopSpeechRecognition()
-                    viewModel.showSpeechRecognitionView = false
+                    viewModel.stopVoiceRecognition()
+                    viewModel.showVoiceRecognitionView = false
                 } label: {
                     Text(NSLocalizedString("完成", comment: ""))
                         .font(.system(size: 14, weight: .medium))
@@ -100,11 +100,11 @@ struct LightSpeechRecognitionOverlay: View {
 }
 
 #if DEBUG
-struct LightSpeechRecognitionOverlay_Previews: PreviewProvider {
+struct LightVoiceRecognitionOverlay_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.gray.opacity(0.3).edgesIgnoringSafeArea(.all)
-            LightSpeechRecognitionOverlay(
+            LightVoiceRecognitionOverlay(
                 viewModel: {
                     let vm = AddScheduleViewModel()
                     vm.isRecording = true

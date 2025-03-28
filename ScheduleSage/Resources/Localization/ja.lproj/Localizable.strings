@@ -401,3 +401,24 @@
 
 // Actions
 // ... existing code ... 
+
+/* 音声認識 */
+"voice_recognition_title" = "音声認識";
+"voice_recognition_preparing" = "録音準備中...";
+"voice_recognition_listening" = "聴いています...";
+"voice_recognition_processing" = "処理中...";
+"voice_recognition_result" = "認識結果";
+"voice_recognition_failed" = "認識失敗";
+"voice_recognition_max_duration" = "最大録音時間は60秒です";
+"voice_recognition_done" = "完了";
+"voice_recognition_cancel" = "キャンセル";
+
+/* 音声認識エラー */
+"voice_recognition_recording_failed" = "録音に失敗しました";
+"voice_recognition_processing_failed" = "音声処理に失敗しました";
+"voice_recognition_api_request_failed" = "APIリクエストに失敗しました: %@";
+"voice_recognition_invalid_response" = "無効なサーバーレスポンス: ステータスコード %d";
+"voice_recognition_decoding_failed" = "レスポンスのデコードに失敗しました: %@";
+"voice_recognition_permission_denied" = "マイクへのアクセスが拒否されました。システム設定でマイクへのアクセスを許可してください";
+
+// ... existing code ... 

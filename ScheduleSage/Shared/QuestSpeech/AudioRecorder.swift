@@ -17,17 +17,27 @@ public final class AudioRecorder: AudioRecorderProtocol {
     public var onErrorOccurred: ((Error) -> Void)?
     public var onLevelChanged: ((Float) -> Void)?
     
+    /// 录音最大持续时间（秒），默认60秒
+    public var maxRecordingDuration: TimeInterval = 60.0
+    
     // MARK: - Private properties
     
     private let audioEngine = AVAudioEngine()
     private var settings = AudioRecorderSettings()
     private var audioBuffer: AVAudioPCMBuffer?
     private var levelMonitorTimer: Timer?
+    private var recordingStartTime: Date?
+    private var recordingDuration: TimeInterval = 0
+    
+    /// 是否启用循环缓冲区模式（保留最新的N秒音频）
+    private var useCircularBuffer = true
+    /// 当前写入位置（帧）
+    private var writePosition: AVAudioFrameCount = 0
+    /// 缓冲区已满标志
+    private var isBufferFilled = false
     
     /// 日志服务
     private let logger = LoggerService.makeCompatible(category: "AudioRecorder")
-    /// 音频录制分类标识符
-    private let logCategory = "AudioRecorder"
     
     // MARK: - Initialization
     
@@ -44,38 +54,9 @@ public final class AudioRecorder: AudioRecorderProtocol {
         logger.info("Requesting microphone access permission")
         
         #if os(iOS)
-        AVAudioSession.sharedInstance().requestRecordPermission { granted in
-            DispatchQueue.main.async {
-                self.logger.info("Microphone permission result: \(granted ? "granted" : "denied")")
-                completion(granted)
-            }
-        }
+        requestIOSMicrophoneAccess(completion: completion)
         #elseif os(macOS)
-        if #available(macOS 10.14, *) {
-            DispatchQueue.main.async {
-                let authStatus = AVCaptureDevice.authorizationStatus(for: .audio)
-                self.logger.debug("Current microphone permission status: \(self.authStatusDescription(for: authStatus))")
-                
-                switch authStatus {
-                case .authorized:
-                    self.logger.info("Microphone access already authorized")
-                    completion(true)
-                case .denied, .restricted:
-                    self.logger.warning("Microphone access denied or restricted")
-                    self.showMicrophonePermissionAlert()
-                    completion(false)
-                case .notDetermined:
-                    self.logger.info("Microphone permission not determined, requesting access")
-                    self.requestMicrophonePermissionMacOS(completion: completion)
-                @unknown default:
-                    self.logger.warning("Unknown microphone permission status")
-                    completion(false)
-                }
-            }
-        } else {
-            logger.info("Using older macOS version without runtime permissions, assuming granted")
-            completion(true)
-        }
+        requestMacOSMicrophoneAccess(completion: completion)
         #endif
     }
     
@@ -83,14 +64,24 @@ public final class AudioRecorder: AudioRecorderProtocol {
     /// - Parameter settings: 音频录制设置
     public func configure(with settings: AudioRecorderSettings) {
         guard !isRecording else {
-            let error = AudioRecorderError.configurationWhileRecording
-            logger.error("Cannot configure while recording: \(error.localizedDescription)")
-            onErrorOccurred?(error)
+            handleError(.configurationWhileRecording)
             return
         }
         
         logger.debug("Configuring audio recorder with settings: \(settings)")
         self.settings = settings
+    }
+    
+    /// 配置是否使用循环缓冲区（保留最新的音频）
+    /// - Parameter enabled: 是否启用循环缓冲区
+    public func configureCircularBuffer(enabled: Bool) {
+        guard !isRecording else {
+            handleError(.configurationWhileRecording)
+            return
+        }
+        
+        logger.debug("Setting circular buffer mode: \(enabled ? "enabled" : "disabled")")
+        self.useCircularBuffer = enabled
     }
     
     /// 开始录制音频
@@ -103,10 +94,8 @@ public final class AudioRecorder: AudioRecorderProtocol {
         }
         
         #if os(macOS)
-        if #available(macOS 10.14, *), AVCaptureDevice.authorizationStatus(for: .audio) != .authorized {
-            let error = AudioRecorderError.microphonePermissionDenied
-            logger.error("Cannot start recording - microphone permission not granted: \(error.localizedDescription)")
-            onErrorOccurred?(error)
+        if !hasMicrophonePermission() {
+            handleError(.microphonePermissionDenied)
             return false
         }
         #endif
@@ -120,22 +109,14 @@ public final class AudioRecorder: AudioRecorderProtocol {
             resetAudioEngineIfNeeded()
             #endif
             
-            audioBuffer = nil
-            let inputNode = audioEngine.inputNode
-            let recordingFormat = createRecordingFormat()
+            try setupAudioBufferAndTap()
             
-            let bufferSize = AVAudioFrameCount(recordingFormat.sampleRate * 10) // 10秒缓冲区
-            guard let buffer = AVAudioPCMBuffer(pcmFormat: recordingFormat, frameCapacity: bufferSize) else {
-                throw AudioRecorderError.bufferCreationFailed
-            }
-            audioBuffer = buffer
+            // 重置录音状态和计时
+            recordingStartTime = Date()
+            recordingDuration = 0
+            writePosition = 0
+            isBufferFilled = false
             
-            logger.debug("Installing audio tap with format: \(recordingFormat.sampleRate)Hz, \(recordingFormat.channelCount) channels")
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] (pcmBuffer, _) in
-                self?.processTapBuffer(pcmBuffer)
-            }
-            
-            audioEngine.prepare()
             try audioEngine.start()
             isRecording = true
             
@@ -168,10 +149,16 @@ public final class AudioRecorder: AudioRecorderProtocol {
         audioEngine.stop()
         stopLevelMonitoring()
         isRecording = false
+        recordingStartTime = nil
         
         #if os(iOS)
         deactivateAudioSession()
         #endif
+        
+        // 处理循环缓冲区数据，确保返回的是有效的音频段
+        if let buffer = audioBuffer, useCircularBuffer && isBufferFilled {
+            return createFinalAudioBuffer(from: buffer)
+        }
         
         logger.debug("Audio recording stopped, buffer length: \(audioBuffer?.frameLength ?? 0) frames")
         return audioBuffer
@@ -184,15 +171,125 @@ public final class AudioRecorder: AudioRecorderProtocol {
             stopRecording()
         }
         audioBuffer = nil
+        recordingStartTime = nil
+        recordingDuration = 0
+        writePosition = 0
+        isBufferFilled = false
     }
     
     // MARK: - Private methods
+    
+    /// 从循环缓冲区创建最终的有序音频缓冲区
+    private func createFinalAudioBuffer(from circularBuffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
+        guard let destBuffer = AVAudioPCMBuffer(
+            pcmFormat: circularBuffer.format,
+            frameCapacity: circularBuffer.frameCapacity
+        ) else {
+            logger.error("Failed to create destination buffer for final audio")
+            return nil
+        }
+        
+        guard let srcData = circularBuffer.floatChannelData, let destData = destBuffer.floatChannelData else {
+            logger.error("Failed to access buffer channel data")
+            return nil
+        }
+        
+        let channels = Int(circularBuffer.format.channelCount)
+        let framesPerBuffer = Int(circularBuffer.frameCapacity)
+        
+        // 循环缓冲区逻辑: 先复制writePosition到结尾的部分，再复制开始到writePosition的部分
+        for channel in 0..<channels {
+            // 1. 复制 writePosition 到结尾的部分 (较旧的数据)
+            let remainingFrames = framesPerBuffer - Int(writePosition)
+            if remainingFrames > 0 {
+                memcpy(
+                    destData[channel],
+                    srcData[channel] + Int(writePosition),
+                    remainingFrames * MemoryLayout<Float>.size
+                )
+            }
+            
+            // 2. 复制开始到 writePosition 的部分 (较新的数据)
+            if writePosition > 0 {
+                memcpy(
+                    destData[channel] + remainingFrames,
+                    srcData[channel],
+                    Int(writePosition) * MemoryLayout<Float>.size
+                )
+            }
+        }
+        
+        destBuffer.frameLength = circularBuffer.frameCapacity
+        return destBuffer
+    }
+    
+    /// 设置音频缓冲区和安装音频Tap
+    private func setupAudioBufferAndTap() throws {
+        audioBuffer = nil
+        let inputNode = audioEngine.inputNode
+        
+        // 使用硬件的输入格式而不是尝试强制设置自定义格式
+        let hardwareFormat = inputNode.inputFormat(forBus: 0)
+        let recordingFormat = settings.useHardwareFormat ? hardwareFormat : createRecordingFormat()
+        
+        logger.debug("Hardware input format: \(hardwareFormat.sampleRate)Hz, \(hardwareFormat.channelCount) channels")
+        logger.debug("Using recording format: \(recordingFormat.sampleRate)Hz, \(recordingFormat.channelCount) channels")
+        
+        // 计算最大录音时长对应的缓冲区大小
+        let bufferSize = AVAudioFrameCount(recordingFormat.sampleRate * maxRecordingDuration)
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: recordingFormat, frameCapacity: bufferSize) else {
+            throw AudioRecorderError.bufferCreationFailed
+        }
+        audioBuffer = buffer
+        
+        // 使用硬件支持的格式安装tap，避免格式不匹配崩溃
+        logger.debug("Installing audio tap with format: \(hardwareFormat.sampleRate)Hz, \(hardwareFormat.channelCount) channels")
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: hardwareFormat) { [weak self] (pcmBuffer, _) in
+            self?.processTapBuffer(pcmBuffer)
+        }
+        
+        audioEngine.prepare()
+    }
+    
+    /// 处理错误并触发回调
+    private func handleError(_ error: AudioRecorderError) {
+        logger.error("Error occurred: \(error.localizedDescription)")
+        onErrorOccurred?(error)
+    }
+    
+    /// 检查是否有麦克风权限（仅macOS）
+    private func hasMicrophonePermission() -> Bool {
+        #if os(macOS)
+        if #available(macOS 10.14, *) {
+            return AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+        }
+        return true
+        #else
+        return true
+        #endif
+    }
     
     /// 处理音频采集缓冲区数据
     private func processTapBuffer(_ pcmBuffer: AVAudioPCMBuffer) {
         guard isRecording, let audioBuffer = self.audioBuffer else { return }
         
-        // 将录制的音频附加到缓冲区
+        // 更新录音持续时间
+        if let startTime = recordingStartTime {
+            recordingDuration = Date().timeIntervalSince(startTime)
+        }
+        
+        // 标准模式：线性追加到缓冲区
+        if !useCircularBuffer {
+            processLinearBuffer(pcmBuffer, audioBuffer: audioBuffer)
+            return
+        }
+        
+        // 循环缓冲区模式：始终保留最新的音频数据
+        processCircularBuffer(pcmBuffer, audioBuffer: audioBuffer)
+    }
+    
+    /// 处理线性缓冲区模式（仅追加不覆盖）
+    private func processLinearBuffer(_ pcmBuffer: AVAudioPCMBuffer, audioBuffer: AVAudioPCMBuffer) {
         let offset = AVAudioFramePosition(audioBuffer.frameLength)
         let remainingCapacity = audioBuffer.frameCapacity - audioBuffer.frameLength
         let copyLength = min(pcmBuffer.frameLength, remainingCapacity)
@@ -209,7 +306,119 @@ public final class AudioRecorder: AudioRecorderProtocol {
         }
     }
     
+    /// 处理循环缓冲区模式（保留最新的N秒音频）
+    private func processCircularBuffer(_ pcmBuffer: AVAudioPCMBuffer, audioBuffer: AVAudioPCMBuffer) {
+        guard let destBuffer = audioBuffer.floatChannelData,
+              let srcBuffer = pcmBuffer.floatChannelData else { return }
+        
+        let channels = Int(audioBuffer.format.channelCount)
+        let bufferCapacity = Int(audioBuffer.frameCapacity)
+        let incomingFrames = Int(pcmBuffer.frameLength)
+        
+        // 复制新数据到循环缓冲区
+        for channel in 0..<channels {
+            var remainingFrames = incomingFrames
+            var srcOffset = 0
+            
+            // 可能需要分两次复制：一部分到缓冲区末尾，一部分回到缓冲区开头
+            while remainingFrames > 0 {
+                // 计算在当前位置可以复制的帧数
+                let framesUntilEnd = bufferCapacity - Int(writePosition)
+                let framesToCopy = min(remainingFrames, framesUntilEnd)
+                
+                // 复制数据
+                memcpy(
+                    destBuffer[channel] + Int(writePosition),
+                    srcBuffer[channel] + srcOffset,
+                    framesToCopy * MemoryLayout<Float>.size
+                )
+                
+                // 更新位置和计数
+                writePosition += AVAudioFrameCount(framesToCopy)
+                if writePosition >= AVAudioFrameCount(bufferCapacity) {
+                    writePosition = 0
+                    isBufferFilled = true
+                }
+                
+                remainingFrames -= framesToCopy
+                srcOffset += framesToCopy
+            }
+        }
+        
+        // 更新frameLength，确保不超过capacity
+        if !isBufferFilled {
+            // 缓冲区未满时，frameLength = writePosition
+            audioBuffer.frameLength = writePosition
+        } else {
+            // 缓冲区已满时，frameLength = capacity
+            audioBuffer.frameLength = audioBuffer.frameCapacity
+        }
+    }
+    
+    // MARK: - iOS Specific Methods
+    
+    #if os(iOS)
+    /// 请求iOS麦克风访问权限
+    private func requestIOSMicrophoneAccess(completion: @escaping (Bool) -> Void) {
+        AVAudioSession.sharedInstance().requestRecordPermission { granted in
+            DispatchQueue.main.async {
+                self.logger.info("Microphone permission result: \(granted ? "granted" : "denied")")
+                completion(granted)
+            }
+        }
+    }
+    
+    /// 配置iOS音频会话
+    private func configureAudioSessionForRecording() throws {
+        let audioSession = AVAudioSession.sharedInstance()
+        logger.debug("Configuring iOS audio session for recording")
+        try audioSession.setCategory(.record, mode: .default)
+        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+    }
+    
+    /// 停用iOS音频会话
+    private func deactivateAudioSession() {
+        do {
+            logger.debug("Deactivating iOS audio session")
+            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        } catch {
+            logger.warning("Failed to deactivate audio session: \(error.localizedDescription)")
+        }
+    }
+    #endif
+    
+    // MARK: - macOS Specific Methods
+    
     #if os(macOS)
+    /// 请求macOS麦克风访问权限
+    private func requestMacOSMicrophoneAccess(completion: @escaping (Bool) -> Void) {
+        if #available(macOS 10.14, *) {
+            DispatchQueue.main.async {
+                let authStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+                self.logger.debug("Current microphone permission status: \(self.authStatusDescription(for: authStatus))")
+                
+                switch authStatus {
+                case .authorized:
+                    self.logger.info("Microphone access already authorized")
+                    completion(true)
+                case .denied, .restricted:
+                    self.logger.warning("Microphone access denied or restricted")
+                    self.showMicrophonePermissionAlert()
+                    completion(false)
+                case .notDetermined:
+                    self.logger.info("Microphone permission not determined, requesting access")
+                    self.requestMicrophonePermissionMacOS(completion: completion)
+                @unknown default:
+                    self.logger.warning("Unknown microphone permission status")
+                    completion(false)
+                }
+            }
+        } else {
+            logger.info("Using older macOS version without runtime permissions, assuming granted")
+            completion(true)
+        }
+    }
+    
     /// 显示麦克风权限提示对话框
     private func showMicrophonePermissionAlert() {
         logger.debug("Showing microphone permission alert")
@@ -232,10 +441,10 @@ public final class AudioRecorder: AudioRecorderProtocol {
     private func requestMicrophonePermissionMacOS(completion: @escaping (Bool) -> Void) {
         logger.debug("Attempting to trigger permission request on macOS")
         
-        // 尝试方法1: 强制触发权限请求
+        // 使用多种方法尝试请求权限
         forceTriggerPermissionPrompt()
         
-        // 尝试方法2: 使用标准API
+        // 使用标准API
         AVCaptureDevice.requestAccess(for: .audio) { granted in
             self.logger.debug("Standard API permission request result: \(granted ? "granted" : "denied")")
             
@@ -244,7 +453,7 @@ public final class AudioRecorder: AudioRecorderProtocol {
                     self.logger.info("Microphone permission granted")
                     completion(true)
                 } else {
-                    self.logger.debug("Standard request failed, trying method 3: actual device usage")
+                    self.logger.debug("Standard request failed, trying actual device usage")
                     self.attemptDeviceAccessForPermission(completion: completion)
                 }
             }
@@ -263,29 +472,23 @@ public final class AudioRecorder: AudioRecorderProtocol {
         
         do {
             let input = try AVCaptureDeviceInput(device: device)
-            logger.debug("Successfully created device input")
-            
             let tmpSession = AVCaptureSession()
-            if tmpSession.canAddInput(input) {
-                logger.debug("Adding microphone input to session")
-                tmpSession.addInput(input)
-                
-                logger.debug("Starting capture session")
-                tmpSession.startRunning()
-                
-                // 短暂运行后停止
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    self.logger.debug("Stopping capture session")
-                    tmpSession.stopRunning()
-                    
-                    // 再次检查权限状态
-                    let newStatus = AVCaptureDevice.authorizationStatus(for: .audio)
-                    self.logger.info("Final permission status: \(self.authStatusDescription(for: newStatus))")
-                    completion(newStatus == .authorized)
-                }
-            } else {
+            
+            guard tmpSession.canAddInput(input) else {
                 logger.warning("Cannot add microphone input to session")
                 completion(false)
+                return
+            }
+            
+            tmpSession.addInput(input)
+            tmpSession.startRunning()
+            
+            // 短暂运行后停止并检查权限
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                tmpSession.stopRunning()
+                let newStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+                self.logger.info("Final permission status: \(self.authStatusDescription(for: newStatus))")
+                completion(newStatus == .authorized)
             }
         } catch {
             logger.error("Error creating device input: \(error.localizedDescription)")
@@ -297,69 +500,39 @@ public final class AudioRecorder: AudioRecorderProtocol {
     private func forceTriggerPermissionPrompt() {
         logger.debug("Force triggering permission prompt")
         
-        let session = AVCaptureSession()
         guard let device = AVCaptureDevice.default(for: .audio) else {
             logger.warning("Cannot get microphone device")
             return
         }
         
-        logger.debug("Found device: \(device.localizedName)")
-        
         do {
+            let session = AVCaptureSession()
             let input = try AVCaptureDeviceInput(device: device)
-            logger.debug("Successfully created device input")
             
             if session.canAddInput(input) {
-                logger.debug("Adding device input to session")
                 session.addInput(input)
-            } else {
-                logger.warning("Cannot add device input to session")
-            }
-            
-            logger.debug("Starting capture session")
-            session.startRunning()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.logger.debug("Stopping capture session")
-                session.stopRunning()
+                session.startRunning()
                 
-                let status = AVCaptureDevice.authorizationStatus(for: .audio)
-                self.logger.debug("Post-trigger permission status: \(self.authStatusDescription(for: status))")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    session.stopRunning()
+                }
             }
         } catch {
             logger.error("Failed to create device input: \(error.localizedDescription)")
         }
     }
     
-    /// 如果需要，重置音频引擎
+    /// 重置音频引擎，避免重复使用导致的问题
     private func resetAudioEngineIfNeeded() {
         if audioEngine.isRunning {
-            logger.debug("Resetting running audio engine")
+            logger.debug("Stopping existing audio engine")
             audioEngine.stop()
             audioEngine.reset()
         }
     }
     #endif
     
-    #if os(iOS)
-    /// 配置iOS音频会话
-    private func configureAudioSessionForRecording() throws {
-        let audioSession = AVAudioSession.sharedInstance()
-        logger.debug("Configuring iOS audio session for recording")
-        try audioSession.setCategory(.record, mode: .default)
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-    }
-    
-    /// 停用iOS音频会话
-    private func deactivateAudioSession() {
-        do {
-            logger.debug("Deactivating iOS audio session")
-            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        } catch {
-            logger.warning("Failed to deactivate audio session: \(error.localizedDescription)")
-        }
-    }
-    #endif
+    // MARK: - Audio Utilities
     
     /// 创建录制格式
     private func createRecordingFormat() -> AVAudioFormat {
@@ -393,6 +566,15 @@ public final class AudioRecorder: AudioRecorderProtocol {
     private func updateAudioLevel() {
         guard isRecording, let onLevelChanged = onLevelChanged else { return }
         
+        let peakPower = calculatePeakPower()
+        
+        DispatchQueue.main.async {
+            onLevelChanged(peakPower)
+        }
+    }
+    
+    /// 计算当前音频峰值电平
+    private func calculatePeakPower() -> Float {
         var peakPower: Float = 0.0
         
         if audioEngine.isRunning {
@@ -404,11 +586,7 @@ public final class AudioRecorder: AudioRecorderProtocol {
         }
         
         // 归一化音频电平值（0.0-1.0）
-        let normalizedLevel = min(1.0, peakPower * 5.0)
-        
-        DispatchQueue.main.async {
-            onLevelChanged(normalizedLevel)
-        }
+        return min(1.0, peakPower * 5.0)
     }
     
     /// 将授权状态转换为描述文本

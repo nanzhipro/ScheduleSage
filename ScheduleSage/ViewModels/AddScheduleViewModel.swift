@@ -1,7 +1,6 @@
 import SwiftUI
 import OSLog
 import AVFoundation
-import Speech
 import AVKit
 
 // MARK: - AddScheduleViewModel 新增日程 ViewModel
@@ -29,7 +28,7 @@ class AddScheduleViewModel: ObservableObject {
     @Published var isRecording = false
     @Published var transcribedText = ""
     @Published var audioLevel: Float = 0.0
-    @Published var showSpeechRecognitionView = false
+    @Published var showVoiceRecognitionView = false
     
     // MARK: - Services & Managers
     private let logger = LoggerService.makeCompatible(category: "AddScheduleViewModel")
@@ -39,8 +38,7 @@ class AddScheduleViewModel: ObservableObject {
     private var webCrawler: WebCrawler
     private let llmProcessor: LLMEventProcessor
     private let iapService = IAPService.shared
-    private var audioRecorder: AudioRecorderProtocol
-    private var speechRecognizer: SpeechRecognizerProtocol
+    private var voiceRecognitionService: VoiceRecognitionServiceProtocol
     
     // MARK: - Private Properties
     private let minimumLoadingDuration: TimeInterval = 1.2
@@ -51,8 +49,7 @@ class AddScheduleViewModel: ObservableObject {
     init() {
         llmProcessor = DefaultLLMEventProcessor()
         webCrawler = Self.createWebCrawler()
-        audioRecorder = AudioRecorder()
-        speechRecognizer = SpeechRecognizer()
+        voiceRecognitionService = VoiceRecognitionService()
         
         Task {
             logger.info("Initialization completed")
@@ -62,7 +59,7 @@ class AddScheduleViewModel: ObservableObject {
         
         setupNotifications()
         setupSubscriptionObserver()
-        setupSpeechRecognition()
+        setupVoiceRecognition()
     }
     
     deinit {
@@ -802,18 +799,6 @@ enum CalendarError: LocalizedError {
     }
 }
 
-// MARK: - Speech Recognition Error
-enum SpeechRecognitionError: LocalizedError {
-    case startFailed
-    
-    var errorDescription: String? {
-        switch self {
-        case .startFailed:
-            return NSLocalizedString("speech_recognition.error.start_failed", comment: "")
-        }
-    }
-}
-
 // MARK: - Notification Name Extension
 extension Notification.Name {
     static let commandVPressed = Notification.Name("commandVPressed")
@@ -837,57 +822,47 @@ private extension LoadingManager {
     }
 }
 
-// MARK: - Speech Recognition
+// MARK: - Voice Recognition
 extension AddScheduleViewModel {
     /// 设置语音识别相关的处理器和回调
-    private func setupSpeechRecognition() {
+    private func setupVoiceRecognition() {
         // 设置音频电平变化回调
-        audioRecorder.onLevelChanged = { [weak self] level in
+        voiceRecognitionService.onLevelChanged = { [weak self] level in
             self?.audioLevel = level
         }
         
-        // 设置音频录制错误处理回调
-        audioRecorder.onErrorOccurred = { [weak self] error in
-            guard let self = self else { return }
-            self.showToastMessage(error.localizedDescription, type: .error)
-            self.isRecording = false
-            self.logger.error("Audio recording error: \(error.localizedDescription)")
-        }
-        
-        // 设置转录文本更新回调
-        speechRecognizer.onTranscriptionUpdated = { [weak self] text in
-            guard let self = self else { return }
-            // 实时更新转录文本，将在视图中显示
-            self.transcribedText = text
-        }
-        
-        // 设置识别完成回调
-        speechRecognizer.onRecognitionFinished = { [weak self] finalText, error in
+        // 设置状态变化回调
+        voiceRecognitionService.onStateChanged = { [weak self] state in
             guard let self = self else { return }
             
-            if let error = error {
-                self.logger.error("Speech recognition failed: \(error.localizedDescription)")
-                // self.showToastMessage(NSLocalizedString("speech_recognition_failed", comment: ""), type: .error)
-            } else if let text = finalText, !text.isEmpty {
-                self.logger.info("Speech recognition completed with \(text.count) characters")
+            switch state {
+            case .recording:
+                self.isRecording = true
+            case .idle, .failure, .success:
+                self.isRecording = false
+            case .processing, .preparing:
+                break // 这些状态不需要更改 isRecording
+            }
+            
+            // 检查识别结果
+            if case .success(let text) = state, !text.isEmpty {
                 self.transcribedText = text
-                // 保留文本内容，由用户主动点击识别按钮进行处理
+                self.logger.info("Voice recognition completed with \(text.count) characters")
+            } else if case .failure(let error) = state {
+                self.logger.error("Voice recognition failed: \(error.localizedDescription)")
+                self.showToastMessage(error.localizedDescription, type: .error)
             }
         }
-        
-        // 配置音频录制器
-        let settings = AudioRecorderSettings(enableLevelMonitoring: true)
-        audioRecorder.configure(with: settings)
     }
     
     /// 开始语音识别
     /// 请求必要权限并启动语音识别流程
-    func startSpeechRecognition() {
-        logger.info("Preparing to start speech recognition")
+    func startVoiceRecognition() {
+        logger.info("Preparing to start voice recognition")
         
         // 避免重复启动
         if isRecording {
-            logger.debug("Speech recognition already in progress, ignoring request")
+            logger.debug("Voice recognition already in progress, ignoring request")
             return
         }
         
@@ -904,20 +879,11 @@ extension AddScheduleViewModel {
                     return
                 }
                 
-                // 请求语音识别权限
-                let speechPermissionGranted = await requestSpeechRecognitionPermission()
-                guard speechPermissionGranted else {
-                    logger.notice("Speech recognition permission denied")
-                    await MainActor.run {
-                        showToastMessage(NSLocalizedString("speech_recognition_denied", comment: ""), type: .error)
-                    }
-                    return
-                }
-                
-                logger.info("All permissions granted, starting speech recognition")
-                try await startSpeechRecognitionSession()
+                // 开始录音和识别
+                logger.info("All permissions granted, starting voice recognition")
+                startVoiceRecognitionSession()
             } catch {
-                logger.error("Error starting speech recognition: \(error.localizedDescription)")
+                logger.error("Error starting voice recognition: \(error.localizedDescription)")
                 await MainActor.run {
                     showToastMessage(error.localizedDescription, type: .error)
                 }
@@ -929,79 +895,47 @@ extension AddScheduleViewModel {
     /// - Returns: 是否获得权限
     private func requestMicrophonePermission() async -> Bool {
         await withCheckedContinuation { continuation in
-            audioRecorder.requestMicrophoneAccess { granted in
-                continuation.resume(returning: granted)
-            }
-        }
-    }
-    
-    /// 请求语音识别权限
-    /// - Returns: 是否获得权限
-    private func requestSpeechRecognitionPermission() async -> Bool {
-        await withCheckedContinuation { continuation in
-            speechRecognizer.requestAuthorization { granted in
+            voiceRecognitionService.requestMicrophoneAccess { granted in
                 continuation.resume(returning: granted)
             }
         }
     }
     
     /// 停止语音识别
-    func stopSpeechRecognition() {
-        logger.info("Stopping speech recognition")
+    func stopVoiceRecognition() {
+        logger.info("Stopping voice recognition")
         
         // 避免重复停止
         if !isRecording {
-            logger.debug("Speech recognition not active, ignoring stop request")
+            logger.debug("Voice recognition not active, ignoring stop request")
             return
-        }
-        
-        // 先更新UI状态，提供即时反馈
-        Task { @MainActor in
-            isRecording = false
         }
         
         // 异步执行停止操作
         Task {
-            self.speechRecognizer.stopRecognition()
-            _ = audioRecorder.stopRecording()
-            
-            if !transcribedText.isEmpty {
-                logger.info("Recognition completed with text of length: \(transcribedText.count)")
+            do {
+                let recognizedText = try await voiceRecognitionService.stopRecordingAndRecognize()
+                
+                if !recognizedText.isEmpty {
+                    await MainActor.run {
+                        self.transcribedText = recognizedText
+                    }
+                    logger.info("Recognition completed with text of length: \(recognizedText.count)")
+                }
+            } catch {
+                logger.error("Failed to recognize voice: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.showToastMessage(error.localizedDescription, type: .error)
+                }
             }
         }
     }
     
     /// 启动语音识别会话
-    /// 配置并启动录音器和语音识别器
-    private func startSpeechRecognitionSession() async throws {
-        // 配置录音器
-        if let configurable = audioRecorder as? AudioRecorder {
-            await MainActor.run {
-                configurable.configure(with: AudioRecorderSettings(enableLevelMonitoring: true))
-            }
-        }
-        
-        // 启动录音和识别
-        let recordingStarted = audioRecorder.startRecording()
-        let recognitionStarted = speechRecognizer.startLiveRecognition()
-        
-        // 更新UI状态
-        if recordingStarted && recognitionStarted {
-            await MainActor.run {
-                self.isRecording = true
-                logger.info("Speech recognition session started successfully")
-            }
-        } else {
-            await MainActor.run {
-                logger.error("Failed to start recording session")
-                
-                // 如果录音启动失败，停止语音识别
-                self.speechRecognizer.stopRecognition()
-                self.showToastMessage(NSLocalizedString("recording_start_failed", comment: ""), type: .error)
-            }
-            
-            // 抛出错误以便调用者可以处理
-            throw SpeechRecognitionError.startFailed
+    private func startVoiceRecognitionSession() {
+        if !voiceRecognitionService.startRecording() {
+            logger.error("Failed to start recording session")
+            showToastMessage(NSLocalizedString("recording_start_failed", comment: ""), type: .error)
         }
     }
 }

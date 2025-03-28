@@ -398,4 +398,23 @@
 "cancel" = "Cancel";
 
 // Voice Input
-"voice_processing" = "Processing..."; 
+"voice_processing" = "Processing...";
+
+/* Voice Recognition */
+"voice_recognition_title" = "Voice Recognition";
+"voice_recognition_preparing" = "Preparing to record...";
+"voice_recognition_listening" = "Listening...";
+"voice_recognition_processing" = "Processing...";
+"voice_recognition_result" = "Recognition Result";
+"voice_recognition_failed" = "Recognition Failed";
+"voice_recognition_max_duration" = "Maximum recording time is 60 seconds";
+"voice_recognition_done" = "Done";
+"voice_recognition_cancel" = "Cancel";
+
+/* Voice Recognition Errors */
+"voice_recognition_recording_failed" = "Recording failed";
+"voice_recognition_processing_failed" = "Audio processing failed";
+"voice_recognition_api_request_failed" = "API request failed: %@";
+"voice_recognition_invalid_response" = "Invalid server response: status code %d";
+"voice_recognition_decoding_failed" = "Failed to decode response: %@";
+"voice_recognition_permission_denied" = "Microphone access denied. Please allow microphone access in System Settings"; 

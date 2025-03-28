@@ -51,18 +51,24 @@ public struct AudioRecorderSettings {
     /// 是否需要音频电平监测
     public let enableLevelMonitoring: Bool
     
+    /// 是否使用硬件格式（避免格式转换导致的崩溃）
+    public let useHardwareFormat: Bool
+    
     /// 初始化录制设置
     /// - Parameters:
     ///   - sampleRate: 采样率，默认为44100 Hz
     ///   - channels: 声道数，默认为1（单声道）
     ///   - enableLevelMonitoring: 是否需要音频电平监测，默认为false
+    ///   - useHardwareFormat: 是否使用硬件格式，默认为true（推荐）
     public init(
         sampleRate: Double = 44100.0,
         channels: Int = 1,
-        enableLevelMonitoring: Bool = false
+        enableLevelMonitoring: Bool = false,
+        useHardwareFormat: Bool = true
     ) {
         self.sampleRate = sampleRate
         self.channels = channels
         self.enableLevelMonitoring = enableLevelMonitoring
+        self.useHardwareFormat = useHardwareFormat
     }
 }
