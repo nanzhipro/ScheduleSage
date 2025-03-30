@@ -137,12 +137,16 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
                 _audioData = try Data(contentsOf: url)
                 hasRecording = true
                 
-                // 计算音频时长
-                updateAudioDuration(from: url)
-                
-                // 删除临时文件
-                try FileManager.default.removeItem(at: url)
-                logger.debug("Temporary audio file removed: \(url.lastPathComponent)")
+                // 先更新音频时长，确保文件不会被提前删除
+                updateAudioDuration(from: url) { [weak self] in
+                    // 在时长更新完成后删除临时文件
+                    do {
+                        try FileManager.default.removeItem(at: url)
+                        self?.logger.debug("Temporary audio file removed: \(url.lastPathComponent)")
+                    } catch {
+                        self?.logger.error("Failed to remove temporary file: \(error.localizedDescription)")
+                    }
+                }
                 
                 // 调用完成回调
                 completion?(_audioData)
@@ -218,8 +222,10 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
     }
     
     /// 更新音频文件的持续时间
-    /// - Parameter url: 音频文件URL
-    private func updateAudioDuration(from url: URL) {
+    /// - Parameters:
+    ///   - url: 音频文件URL
+    ///   - completion: 时长更新完成的回调
+    private func updateAudioDuration(from url: URL, completion: (() -> Void)? = nil) {
         let asset = AVURLAsset(url: url)
         
         if #available(macOS 13.0, *) {
@@ -231,21 +237,21 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
                     await MainActor.run {
                         self.duration = seconds
                         self.logger.debug("Audio duration updated: \(String(format: "%.2f", seconds))s")
+                        completion?()
                     }
                 } catch {
                     logger.error("Failed to get audio duration: \(error.localizedDescription)")
+                    completion?()
                 }
             }
         } else {
-            DispatchQueue.global().async { [weak self] in
-                let durationTime = asset.duration
-                let seconds = CMTimeGetSeconds(durationTime)
-                
-                DispatchQueue.main.async {
-                    self?.duration = seconds
-                    self?.logger.debug("Audio duration updated: \(String(format: "%.2f", seconds))s")
-                }
-            }
+            // 对于较旧的 macOS 版本，使用同步方法
+            let durationTime = asset.duration
+            let seconds = CMTimeGetSeconds(durationTime)
+            
+            self.duration = seconds
+            self.logger.debug("Audio duration updated: \(String(format: "%.2f", seconds))s")
+            completion?()
         }
     }
 }

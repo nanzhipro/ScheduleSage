@@ -19,16 +19,8 @@ struct ManualScheduleInputView: View {
     @FocusState private var isFocused: Bool
     
     // MARK: - 状态管理
-    @State private var inputText = ""
-    @State private var isProcessing = false
+    @StateObject private var viewState = ManualInputViewState()
     @State private var showToast = false
-    @State private var toastType: ToastType = .error
-    @State private var toastMessage = ""
-    @State private var navigateToEventList = false
-    @State private var processedEvents: [CalendarEvent] = []
-    
-    // 添加通知监听状态
-    @State private var voiceRecognitionObserver: NSObjectProtocol?
     
     // MARK: - 依赖注入
     private let processInput: (String) async throws -> [CalendarEvent]
@@ -64,22 +56,12 @@ struct ManualScheduleInputView: View {
                     HeaderView(isPresented: $isPresented, viewModel: viewModel)
                     
                     ZStack(alignment: .bottom) {
-                        // 输入区域
-                        InputArea(text: $inputText, isFocused: _isFocused)
+                        InputArea(text: $viewState.inputText, isFocused: _isFocused)
                         
-                        // 语音按钮居中放置在下方
                         VoiceButton(
                             isRecording: viewModel.isRecording,
-                            isProcessing: isProcessing,
-                            action: {
-                                if viewModel.isRecording {
-                                    viewModel.stopVoiceRecognition()
-                                } else {
-                                    inputText = ""
-                                    viewModel.transcribedText = ""
-                                    viewModel.startVoiceRecognition()
-                                }
-                            },
+                            isProcessing: viewState.isProcessing,
+                            action: handleVoiceButtonTap,
                             viewModel: viewModel
                         )
                         .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
@@ -89,30 +71,27 @@ struct ManualScheduleInputView: View {
                     Spacer()
                     
                     RecognizeButton(
-                        isProcessing: isProcessing,
-                        isDisabled: isProcessing || inputText.isEmpty,
+                        isProcessing: viewState.isProcessing,
+                        isDisabled: viewState.isProcessing || viewState.inputText.isEmpty,
                         action: { Task { await processInputText() } },
                         viewModel: viewModel
                     )
                 }
-                .frame(
-                    width: viewSize.width,
-                    height: viewSize.height
-                )
+                .frame(width: viewSize.width, height: viewSize.height)
                 .background(DesignSystem.Colors.background)
             }
             .toast(
                 isPresented: $showToast,
-                type: toastType,
-                message: toastMessage,
+                type: viewState.toastType,
+                message: viewState.toastMessage,
                 position: .center
             )
-            .navigationDestination(isPresented: $navigateToEventList) {
+            .navigationDestination(isPresented: $viewState.navigateToEventList) {
                 EventListView(
-                    events: processedEvents,
-                    onAdd: { navigateToEventList = false },
+                    events: viewState.processedEvents,
+                    onAdd: { viewState.navigateToEventList = false },
                     onImport: { _ in },
-                    onBack: { navigateToEventList = false },
+                    onBack: { viewState.navigateToEventList = false },
                     onUpdate: viewModel.updateEvent,
                     viewModel: viewModel
                 )
@@ -123,82 +102,135 @@ struct ManualScheduleInputView: View {
                 }
             }
             .onChange(of: viewModel.transcribedText) { newValue in
-                // 当有新的转录文本时，直接替换现有文本
-                if !newValue.isEmpty {
-                    inputText = newValue
-                }
+                viewState.updateInputText(with: newValue)
             }
             .onChange(of: viewModel.isRecording) { newValue in
-                if !newValue && !viewModel.transcribedText.isEmpty {
-                    // 停止录音后保留文本，但不自动识别
-                    if !inputText.contains(viewModel.transcribedText) {
-                        if !inputText.isEmpty {
-                            inputText += "\n" + viewModel.transcribedText
-                        } else {
-                            inputText = viewModel.transcribedText
-                        }
-                    }
-                    // 聚焦到输入框，方便用户编辑
+                viewState.handleRecordingStateChange(newValue, transcribedText: viewModel.transcribedText)
+                if !newValue {
                     isFocused = true
                 }
             }
-            .onAppear {
-                viewModel.toggleKeyboardMonitor(isEnabled: false)
-                isFocused = true
-                
-                // 添加语音识别完成的通知监听
-                voiceRecognitionObserver = NotificationCenter.default.addObserver(
-                    forName: Notification.Name("voiceRecognitionCompleted"),
-                    object: nil,
-                    queue: .main
-                ) {  notification in
-                    guard
-                          let text = notification.userInfo?["text"] as? String,
-                          !text.isEmpty else { return }
-                    
-                    self.inputText = text
-                }
-            }
-            .onDisappear {
-                viewModel.toggleKeyboardMonitor(isEnabled: true)
-                // 确保在视图消失时停止录音
-                if viewModel.isRecording {
-                    viewModel.stopVoiceRecognition()
-                }
-                
-                // 移除通知监听
-                if let observer = voiceRecognitionObserver {
-                    NotificationCenter.default.removeObserver(observer)
-                }
-            }
+            .onAppear(perform: setupView)
+            .onDisappear(perform: cleanupView)
             .animation(.easeInOut(duration: 0.2), value: viewModel.isRecording)
             .withLoading()
         }
     }
     
-    // MARK: - 事件处理
+    private func setupView() {
+        viewModel.toggleKeyboardMonitor(isEnabled: false)
+        isFocused = true
+        viewState.setupVoiceRecognitionObserver()
+    }
     
-    /// 处理输入文本并执行相应操作
-    /// - 如果输入为URL，则直接处理URL内容
-    /// - 否则，尝试解析输入文本并生成日历事件
+    private func cleanupView() {
+        viewModel.toggleKeyboardMonitor(isEnabled: true)
+        if viewModel.isRecording {
+            viewModel.stopVoiceRecognition()
+        }
+        viewState.removeVoiceRecognitionObserver()
+    }
+    
+    private func handleVoiceButtonTap() {
+        if viewModel.isRecording {
+            viewModel.stopVoiceRecognition()
+        } else {
+            viewState.inputText = ""
+            viewModel.transcribedText = ""
+            viewModel.startVoiceRecognition()
+        }
+    }
+    
     private func processInputText() async {
-        guard !inputText.isEmpty else { return }
+        guard !viewState.inputText.isEmpty else { return }
+        await viewState.processInput(
+            inputText: viewState.inputText,
+            processInput: processInput,
+            handleURLContent: { url in
+                viewModel.handleURLContent(url)
+                isPresented = false
+            },
+            onEventsProcessed: { events in
+                onEventsProcessed(events)
+                isPresented = false
+            },
+            showToast: { type, message in
+                viewState.toastType = type
+                viewState.toastMessage = message
+                showToast = true
+            }
+        )
+    }
+}
+
+@MainActor
+final class ManualInputViewState: ObservableObject {
+    @Published var inputText = ""
+    @Published var isProcessing = false
+    @Published var navigateToEventList = false
+    @Published var processedEvents: [CalendarEvent] = []
+    @Published var toastType: ToastType = .error
+    @Published var toastMessage = ""
+    
+    private var voiceRecognitionObserver: NSObjectProtocol?
+    
+    func updateInputText(with newValue: String) {
+        if !newValue.isEmpty {
+            inputText = newValue
+        }
+    }
+    
+    func handleRecordingStateChange(_ isRecording: Bool, transcribedText: String) {
+        if !isRecording && !transcribedText.isEmpty {
+            if !inputText.contains(transcribedText) {
+                if !inputText.isEmpty {
+                    inputText += "\n" + transcribedText
+                } else {
+                    inputText = transcribedText
+                }
+            }
+        }
+    }
+    
+    func setupVoiceRecognitionObserver() {
+        voiceRecognitionObserver = NotificationCenter.default.addObserver(
+            forName: Notification.Name("voiceRecognitionCompleted"),
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard
+                let text = notification.userInfo?["text"] as? String,
+                !text.isEmpty else { return }
+            
+            self?.inputText = text
+        }
+    }
+    
+    func removeVoiceRecognitionObserver() {
+        if let observer = voiceRecognitionObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+    
+    func processInput(
+        inputText: String,
+        processInput: (String) async throws -> [CalendarEvent],
+        handleURLContent: (URL) -> Void,
+        onEventsProcessed: ([CalendarEvent]) -> Void,
+        showToast: (ToastType, String) -> Void
+    ) async {
         isProcessing = true
         LoadingManager.shared.show(.processing)
         
         let trimmedInput = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         if let url = URL(string: trimmedInput), url.isValidWebURL {
-            viewModel.handleURLContent(url)
-            isPresented = false
+            handleURLContent(url)
         } else {
             do {
                 processedEvents = try await processInput(inputText)
                 onEventsProcessed(processedEvents)
-                isPresented = false
             } catch {
-                toastType = .error
-                toastMessage = error.localizedDescription
-                showToast = true
+                showToast(.error, error.localizedDescription)
             }
         }
         
