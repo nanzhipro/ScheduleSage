@@ -39,7 +39,7 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
     private var recordingTimer: Timer?
     
     /// 录制时长限制（秒）
-    private let recordingDuration: TimeInterval = 60
+    private let recordingDuration: TimeInterval = 300
     
     // MARK: - Initialization
     

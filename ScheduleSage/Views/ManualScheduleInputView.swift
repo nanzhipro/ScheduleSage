@@ -96,15 +96,15 @@ struct ManualScheduleInputView: View {
                     viewModel: viewModel
                 )
             }
-            .onChange(of: viewModel.showEventList) { newValue in
+            .onChange(of: viewModel.showEventList) { _, newValue in
                 if newValue {
                     isPresented = false
                 }
             }
-            .onChange(of: viewModel.transcribedText) { newValue in
+            .onChange(of: viewModel.transcribedText) { _, newValue in
                 viewState.updateInputText(with: newValue)
             }
-            .onChange(of: viewModel.isRecording) { newValue in
+            .onChange(of: viewModel.isRecording) { _, newValue in
                 viewState.handleRecordingStateChange(newValue, transcribedText: viewModel.transcribedText)
                 if !newValue {
                     isFocused = true
@@ -134,6 +134,12 @@ struct ManualScheduleInputView: View {
     private func handleVoiceButtonTap() {
         if viewModel.isRecording {
             viewModel.stopVoiceRecognition()
+            // 当停止录制时，如果有录制内容，则自动开始处理
+            if !viewModel.transcribedText.isEmpty {
+                Task {
+                    await processInputText()
+                }
+            }
         } else {
             viewState.inputText = ""
             viewModel.transcribedText = ""
@@ -377,9 +383,22 @@ private struct VoiceButton: View {
     @State private var ripples: [RippleState] = []
     @State private var hasSound = false
     
+    // 倒计时相关状态
+    private let maxRecordingTime: TimeInterval = 60 // 1分钟 = 60秒
+    @State private var recordingTimer: Timer?
+    @State private var currentRecordingTime: TimeInterval = 0
+    
     /// 计算按钮是否应该被禁用
     private var isDisabled: Bool {
         isProcessing
+    }
+    
+    /// 格式化剩余时间为 "分:秒" 格式
+    private var formattedRemainingTime: String {
+        let remaining = Int(maxRecordingTime - currentRecordingTime)
+        let minutes = remaining / 60
+        let seconds = remaining % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
     
     var body: some View {
@@ -415,29 +434,43 @@ private struct VoiceButton: View {
             // 录音中的视觉效果
             if localRecordingState {
                 recordingEffects
+                
+                // 倒计时文本
+                VStack {
+                    Spacer(minLength: 70)
+                    Text(formattedRemainingTime)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.red)
+                        .padding(4)
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(4)
+                }
             }
             
             // 按钮
             actionButton
         }
         .frame(width: 60, height: 60)
-        .onChange(of: isRecording) { newValue in
+        .onChange(of: isRecording) { oldValue, newValue in
             synchronizeExternalState(newValue)
         }
         .onAppear(perform: initializeState)
-        .onChange(of: viewModel.audioLevel) { newLevel in
+        .onChange(of: viewModel.audioLevel) { oldValue, newValue in
             // 根据声音级别更新hasSound状态
             if localRecordingState {
-                let hasVoiceInput = newLevel > 0.15
+                let hasVoiceInput = newValue > 0.15
                 if hasVoiceInput != hasSound {
                     hasSound = hasVoiceInput
                 }
                 
                 // 只有当有声音输入时创建新的水波纹
                 if hasVoiceInput {
-                    createRipple(strength: newLevel)
+                    createRipple(strength: newValue)
                 }
             }
+        }
+        .onDisappear {
+            stopTimer()
         }
     }
     
@@ -499,8 +532,14 @@ private struct VoiceButton: View {
         // 立即切换本地UI状态
         withAnimation(.easeInOut(duration: 0.2)) {
             localRecordingState.toggle()
-            // 如果停止录音，清空声音状态
-            if !localRecordingState {
+            
+            if localRecordingState {
+                // 如果开始录音，启动计时器
+                startTimer()
+            } else {
+                // 如果停止录音，停止计时器
+                stopTimer()
+                currentRecordingTime = 0
                 hasSound = false
             }
         }
@@ -517,6 +556,29 @@ private struct VoiceButton: View {
         }
     }
     
+    /// 启动计时器
+    private func startTimer() {
+        currentRecordingTime = 0
+        stopTimer()
+        
+        recordingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            if currentRecordingTime < maxRecordingTime {
+                currentRecordingTime += 1
+                
+                // 如果达到最大时间，则自动停止录制
+                if currentRecordingTime >= maxRecordingTime {
+                    handleButtonTap() // 自动触发按钮点击以停止录制
+                }
+            }
+        }
+    }
+    
+    /// 停止计时器
+    private func stopTimer() {
+        recordingTimer?.invalidate()
+        recordingTimer = nil
+    }
+    
     /// 与外部状态同步
     private func synchronizeExternalState(_ newValue: Bool) {
         // 只有在外部状态与本地状态不一致时才更新
@@ -524,13 +586,16 @@ private struct VoiceButton: View {
             withAnimation(.easeInOut(duration: 0.2)) {
                 localRecordingState = newValue
                 
-                // 如果开始录音，启动脉动动画
+                // 如果开始录音，启动计时器和脉动动画
                 if newValue {
                     pulseAnimation = true
+                    startTimer()
                 }
-                // 如果停止录音，清空声音状态和波纹
+                // 如果停止录音，停止计时器、清空声音状态和波纹
                 else {
                     pulseAnimation = false
+                    stopTimer()
+                    currentRecordingTime = 0
                     hasSound = false
                     ripples.removeAll()
                 }
@@ -542,6 +607,11 @@ private struct VoiceButton: View {
     private func initializeState() {
         if localRecordingState != isRecording {
             localRecordingState = isRecording
+            
+            // 如果初始状态是录音中，启动计时器
+            if localRecordingState {
+                startTimer()
+            }
         }
     }
     
@@ -590,3 +660,4 @@ struct ManualScheduleInputView_Previews: PreviewProvider {
     }
 }
 #endif 
+

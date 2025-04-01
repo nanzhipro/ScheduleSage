@@ -56,6 +56,8 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
     @Published public private(set) var hasRecording = false
     @Published public private(set) var duration: TimeInterval = 0
     @Published public private(set) var hasMicrophonePermission = false
+    @Published public private(set) var currentRecordingTime: TimeInterval = 0
+    @Published public private(set) var estimatedFileSize: Int = 0
     
     // MARK: - Private Properties
     
@@ -67,6 +69,9 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
     
     // 临时文件的唯一标识符
     private let tempFileName = "temp_recording_\(UUID().uuidString).m4a"
+    
+    private var recordingTimer: Timer?
+    private let maxRecordingDuration: TimeInterval = 300 // 5分钟 = 300秒
     
     // MARK: - Public Properties
     
@@ -88,6 +93,10 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
         // 停止任何播放中的音频
         stopPlaying()
         
+        // 重置录制计时器
+        currentRecordingTime = 0
+        estimatedFileSize = 0
+        
         // 检查麦克风权限
         if !requestMicrophonePermissionIfNeeded() {
             logger.warning("Cannot start recording: microphone permission not granted")
@@ -99,11 +108,13 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
             let tempDirectory = FileManager.default.temporaryDirectory
             tempURL = tempDirectory.appendingPathComponent(tempFileName)
             
+            // 优化音频设置以减小文件大小
             let settings: [String: Any] = [
                 AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-                AVSampleRateKey: 44100,
-                AVNumberOfChannelsKey: 2,
-                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+                AVSampleRateKey: 22050, // 降低采样率（从44100降至22050）
+                AVNumberOfChannelsKey: 1, // 使用单声道而非立体声
+                AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue, // 降低质量
+                AVEncoderBitRateKey: 16000 // 设置低比特率 (16kbps)
             ]
             
             audioRecorder = try AVAudioRecorder(url: tempURL!, settings: settings)
@@ -111,7 +122,11 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
             audioRecorder?.record()
             
             isRecording = true
-            logger.info("Recording started successfully")
+            
+            // 设置录制时长限制和计时器
+            startRecordingTimer()
+            
+            logger.info("Recording started successfully with optimized settings")
             return true
         } catch {
             logger.error("Failed to start recording: \(error.localizedDescription)")
@@ -120,6 +135,9 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
     }
     
     public func stopRecording(completion: ((Data?) -> Void)? = nil) {
+        // 停止计时器
+        stopRecordingTimer()
+        
         guard isRecording, let recorder = audioRecorder else {
             logger.debug("No active recording to stop")
             completion?(nil)
@@ -141,7 +159,7 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
                 updateAudioDuration(from: url) { [weak self] in
                     // 在时长更新完成后删除临时文件
                     do {
-                        try FileManager.default.removeItem(at: url)
+                       try FileManager.default.removeItem(at: url)
                         self?.logger.debug("Temporary audio file removed: \(url.lastPathComponent)")
                     } catch {
                         self?.logger.error("Failed to remove temporary file: \(error.localizedDescription)")
@@ -253,6 +271,42 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
             self.logger.debug("Audio duration updated: \(String(format: "%.2f", seconds))s")
             completion?()
         }
+    }
+    
+    // 添加新方法来管理录制计时器
+    private func startRecordingTimer() {
+        // 停止现有计时器
+        stopRecordingTimer()
+        
+        // 创建新计时器，每秒更新一次
+        recordingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self, self.isRecording else { return }
+            
+            self.currentRecordingTime += 1
+            
+            // 估算文件大小 (根据当前测试数据换算)
+            // 使用优化后的设置，估计大约是原始大小的1/4
+            let estimatedBytesPerSecond = 422 * 1024 / 28 / 4 // 约 3.75 KB/s
+            self.estimatedFileSize = Int(self.currentRecordingTime * Double(estimatedBytesPerSecond))
+            
+            // 检查是否达到最大录制时长
+            if self.currentRecordingTime >= self.maxRecordingDuration {
+                self.logger.info("Maximum recording duration reached (5 minutes)")
+                self.stopRecording(completion: nil)
+            }
+            
+            // 检查文件大小是否接近 3MB 限制 (留一点余量)
+            let maxFileSize = 2.9 * 1024 * 1024 // 2.9MB in bytes
+            if Double(self.estimatedFileSize) >= maxFileSize {
+                self.logger.info("Maximum file size approached (3MB)")
+                self.stopRecording(completion: nil)
+            }
+        }
+    }
+    
+    private func stopRecordingTimer() {
+        recordingTimer?.invalidate()
+        recordingTimer = nil
     }
 }
 
