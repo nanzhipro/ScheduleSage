@@ -308,6 +308,15 @@ public class AudioRecorder: NSObject, AudioRecordingService, ObservableObject {
         recordingTimer?.invalidate()
         recordingTimer = nil
     }
+    
+    /// 更新麦克风权限状态
+    /// - Parameter granted: 是否授予权限
+    public func updateMicrophonePermissionState(_ granted: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            self?.hasMicrophonePermission = granted
+            self?.logger.info("Microphone permission state updated: \(granted ? "granted" : "denied")")
+        }
+    }
 }
 
 // MARK: - AVAudioRecorderDelegate

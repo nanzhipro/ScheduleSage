@@ -8,6 +8,8 @@
 import Foundation
 import AVFoundation
 import Alamofire
+import UserNotifications
+import AppKit
 
 /// 语音识别服务实现
 public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
@@ -61,8 +63,77 @@ public final class VoiceRecognitionService: VoiceRecognitionServiceProtocol {
     /// - Parameter completion: 权限请求完成后的回调，参数表示是否获得权限
     public func requestMicrophoneAccess(completion: @escaping (Bool) -> Void) {
         logger.info("Requesting microphone access permission")
-        // 使用 AudioRecorder 的权限状态
-        completion(audioRecorder.hasMicrophonePermission)
+        
+        // 检查当前授权状态
+        let currentStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+        
+        switch currentStatus {
+        case .authorized:
+            // 已授权，直接回调
+            logger.info("Microphone access already authorized")
+            completion(true)
+            
+        case .notDetermined:
+            // 权限未确定，请求权限
+            logger.info("Requesting microphone permission from user")
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                self.logger.info("Microphone permission \(granted ? "granted" : "denied") by user")
+                
+                // 更新音频记录器的权限状态
+                if let recorder = self.audioRecorder as? AudioRecorder {
+                    recorder.updateMicrophonePermissionState(granted)
+                }
+                
+                DispatchQueue.main.async {
+                    completion(granted)
+                }
+            }
+            
+        case .denied, .restricted:
+            // 权限被拒绝或受限
+            logger.info("Microphone access denied or restricted")
+            
+            // 通知用户需要在系统设置中启用麦克风权限
+            DispatchQueue.main.async {
+                self.showMicrophonePermissionAlert()
+                completion(false)
+            }
+        
+        @unknown default:
+            // 处理未来可能的新状态
+            logger.warning("Unknown microphone permission status: \(currentStatus.rawValue)")
+            completion(false)
+        }
+    }
+    
+    /// 显示麦克风权限提示
+    private func showMicrophonePermissionAlert() {
+        // 使用现代的UserNotifications框架而非过时的NSUserNotification
+        let content = UNMutableNotificationContent()
+        content.title = NSLocalizedString("microphone_permission_required", comment: "")
+        content.body = NSLocalizedString("microphone_permission_instructions", comment: "")
+        content.sound = UNNotificationSound.default
+        
+        // 创建请求
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil  // 立即触发
+        )
+        
+        // 发送通知
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                self.logger.error("Failed to deliver notification: \(error.localizedDescription)")
+            }
+        }
+        
+        // 打开系统偏好设置的安全性与隐私面板
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") {
+            DispatchQueue.main.async {
+                NSWorkspace.shared.open(url)
+            }
+        }
     }
     
     /// 开始语音录制

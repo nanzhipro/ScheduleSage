@@ -518,4 +518,12 @@
 "Recording..." = "Recording...";
 "Paused" = "Paused";
 "Processing..." = "Processing...";
-"Recording Complete" = "Recording Complete"; 
+"Recording Complete" = "Recording Complete";
+
+// Microphone Permissions
+"microphone_access_denied" = "Microphone access denied";
+"microphone_permission_required" = "Microphone Permission Required";
+"microphone_permission_instructions" = "Please enable microphone access in System Settings to use voice recognition";
+"recording_start_failed" = "Failed to start recording";
+
+// ... existing code ... 

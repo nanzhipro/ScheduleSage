@@ -442,3 +442,9 @@
 "Recording Complete" = "録音完了";
 
 // ... existing code ... 
+
+// マイク権限
+"microphone_access_denied" = "マイクのアクセスが拒否されました";
+"microphone_permission_required" = "マイク権限が必要です";
+"microphone_permission_instructions" = "音声認識を使用するには、システム設定でマイクアクセスを有効にしてください";
+"recording_start_failed" = "録音の開始に失敗しました";
