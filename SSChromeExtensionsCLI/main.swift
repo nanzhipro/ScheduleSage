@@ -2,10 +2,11 @@
 //  main.swift
 //  SSChromeExtensionsCLI
 //
-//  Created by 南朋友 on 2025/4/2.
+//  Created by CursorAI on 2024/4/2.
 //
 
 import Foundation
+import AppKit
 
 /// Chrome扩展通信错误
 enum ChromeExtensionError: Error, CustomStringConvertible {
@@ -14,7 +15,6 @@ enum ChromeExtensionError: Error, CustomStringConvertible {
     case incompleteMessageData(got: Int, expected: Int)
     case invalidJSONFormat
     case invalidURL(String)
-    case fileWriteError(String)
     
     var description: String {
         switch self {
@@ -28,8 +28,6 @@ enum ChromeExtensionError: Error, CustomStringConvertible {
             return "无效的JSON格式"
         case .invalidURL(let url):
             return "无效的URL格式: \(url)"
-        case .fileWriteError(let path):
-            return "文件写入错误: \(path)"
         }
     }
 }
@@ -39,25 +37,23 @@ struct ChromeExtensionHandler {
     /// 最大允许的消息尺寸 (10MB)
     private static let maxMessageSize: UInt32 = 10_000_000
     
-    /// 日志文件名
-    private static let urlLogFilename = "schedulesage_urls.txt"
-    private static let errorLogFilename = "schedulesage_errors.txt"
-    
-    /// 时间戳格式器
-    private static let timestampFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter
-    }()
-    
     /// 处理Chrome扩展发送的消息
     static func processMessage() {
         do {
             let messageData = try readMessageFromStdin()
             let url = try parseURL(from: messageData)
-            try logURL(url)
             
-            // 可以在这里添加代码通知ScheduleSage应用程序
+            // 唤起 ScheduleSage 应用
+            let appURL = URL(fileURLWithPath: "/Applications/ScheduleSage.app")
+            NSWorkspace.shared.open([appURL], withAppBundleIdentifier: "com.schedulesage.app", options: [], additionalEventParamDescriptor: nil, launchIdentifiers: nil)
+            
+            // 发送分布式通知
+            let notificationCenter = DistributedNotificationCenter.default()
+            notificationCenter.post(
+                name: Notification.Name("com.schedulesage.chromex.url"),
+                object: nil,
+                userInfo: ["url": url]
+            )
             
             sendSuccessResponse()
         } catch {
@@ -66,15 +62,13 @@ struct ChromeExtensionHandler {
     }
     
     /// 从标准输入读取消息
-    /// - 返回值: 消息数据
-    /// - 抛出: 读取错误
     private static func readMessageFromStdin() throws -> Data {
         // 读取长度字段 (4字节)
         let lengthData = FileHandle.standardInput.readData(ofLength: 4)
         
         // 验证长度数据
         if lengthData.isEmpty {
-            exit(0) // 标准输入已关闭
+            exit(0)
         }
         
         guard lengthData.count == 4 else {
@@ -103,9 +97,6 @@ struct ChromeExtensionHandler {
     }
     
     /// 从消息数据中解析URL
-    /// - 参数 data: 消息数据
-    /// - 返回值: 解析出的URL字符串
-    /// - 抛出: 解析错误
     private static func parseURL(from data: Data) throws -> String {
         // 解析JSON
         guard let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -121,48 +112,13 @@ struct ChromeExtensionHandler {
         return url
     }
     
-    /// 将URL记录到日志文件
-    /// - 参数 url: 要记录的URL
-    /// - 抛出: 写入错误
-    private static func logURL(_ url: String) throws {
-        let timestamp = timestampFormatter.string(from: Date())
-        let logEntry = "[\(timestamp)] \(url)\n"
-        
-        let logPath = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(urlLogFilename)
-        
-        try appendToFile(at: logPath, content: logEntry)
-    }
-    
-    /// 向文件追加内容
-    /// - 参数:
-    ///   - path: 文件路径
-    ///   - content: 要追加的内容
-    /// - 抛出: 写入错误
-    private static func appendToFile(at path: URL, content: String) throws {
-        guard let data = content.data(using: .utf8) else { return }
-        
-        if FileManager.default.fileExists(atPath: path.path) {
-            let fileHandle = try FileHandle(forWritingTo: path)
-            defer { fileHandle.closeFile() }
-            
-            fileHandle.seekToEndOfFile()
-            fileHandle.write(data)
-        } else {
-            try data.write(to: path, options: .atomic)
-        }
-    }
-    
     /// 发送成功响应
     private static func sendSuccessResponse() {
         sendResponse(["status": "success"])
     }
     
     /// 处理错误
-    /// - 参数 error: 捕获的错误
     private static func handleError(_ error: Error) {
-        logError(error)
-        
         let errorMessage: String
         if let chromeError = error as? ChromeExtensionError {
             errorMessage = chromeError.description
@@ -176,24 +132,7 @@ struct ChromeExtensionHandler {
         ])
     }
     
-    /// 记录错误到日志文件
-    /// - 参数 error: 要记录的错误
-    private static func logError(_ error: Error) {
-        let timestamp = timestampFormatter.string(from: Date())
-        let errorMessage = "[\(timestamp)] Error: \(error)\n"
-        
-        let errorLogPath = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(errorLogFilename)
-        
-        do {
-            try appendToFile(at: errorLogPath, content: errorMessage)
-        } catch {
-            // 如果错误日志无法写入，我们无法做更多处理
-        }
-    }
-    
     /// 向Chrome扩展发送响应
-    /// - 参数 responseDict: 响应数据字典
     private static func sendResponse(_ responseDict: [String: Any]) {
         do {
             // 序列化响应
@@ -213,8 +152,8 @@ struct ChromeExtensionHandler {
             // 刷新输出缓冲区
             fflush(stdout)
         } catch {
-            // 响应发送失败，只能记录错误
-            logError(error)
+            // 如果发送响应失败，直接退出
+            exit(1)
         }
     }
 }

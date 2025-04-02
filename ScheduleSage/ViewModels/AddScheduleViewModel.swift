@@ -2,6 +2,7 @@ import SwiftUI
 import OSLog
 import AVFoundation
 import AVKit
+import AppKit
 
 // MARK: - AddScheduleViewModel 新增日程 ViewModel
 @MainActor
@@ -106,12 +107,31 @@ class AddScheduleViewModel: ObservableObject {
             name: .commandVPressed,
             object: nil
         )
+        
+        // 监听来自 AppDelegate 的 URL 处理通知
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleChromeExtensionURL(_:)),
+            name: Notification.Name("handleChromeExtensionURL"),
+            object: nil
+        )
     }
     
     @objc private func handleCommandV() {
         // 当键盘监控被禁用或AI处理中时不响应Command+V
         guard isKeyboardMonitorEnabled && !isLLMProcessing else { return }
         checkClipboardContent()
+    }
+    
+    @objc private func handleChromeExtensionURL(_ notification: Notification) {
+        guard let url = notification.userInfo?["url"] as? URL else {
+            logger.error("Invalid URL received from AppDelegate")
+            showInvalidURLToast()
+            return
+        }
+        
+        logger.info("Processing URL from Chrome extension: \(url.absoluteString)")
+        handleURLContent(url)
     }
     
     // MARK: - Keyboard Monitor Control

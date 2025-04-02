@@ -75,6 +75,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         configureKeyboardMonitor()
         configureSentry()
+        setupChromeExtensionNotification()
     }
     
     private func configureSentry() {
@@ -227,6 +228,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defaults.set(defaultTheme.rawValue, forKey: themeKey)
             DesignSystem.switchTheme(to: defaultTheme)
         }
+    }
+    
+    private func setupChromeExtensionNotification() {
+        DistributedNotificationCenter.default().addObserver(
+            self,
+            selector: #selector(handleChromeExtensionURL(_:)),
+            name: Notification.Name("com.schedulesage.chromex.url"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleChromeExtensionURL(_ notification: Notification) {
+        guard let urlString = notification.userInfo?["url"] as? String,
+              let url = URL(string: urlString) else {
+            logger.error("[App] Invalid URL received from Chrome extension")
+            return
+        }
+        
+        logger.info("[App] Received URL from Chrome extension: \(url.absoluteString)")
+        
+        // 显示主窗口
+        showMainWindow()
+        
+        // 通知 ViewModel 处理 URL
+        NotificationCenter.default.post(
+            name: Notification.Name("handleChromeExtensionURL"),
+            object: nil,
+            userInfo: ["url": url]
+        )
     }
     
     // MARK: - Logging
