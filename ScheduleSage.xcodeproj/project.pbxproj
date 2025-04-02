@@ -17,6 +17,7 @@
 		D56686AB2CFC05D800EE1486 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = D56686AA2CFC05D800EE1486 /* SwiftSoup */; };
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
 		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
+		D5A3444B2D9CB8C3001CC442 /* SSChromeExtensionsCLI in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5A344402D9CB809001CC442 /* SSChromeExtensionsCLI */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */; };
 		D5FF61672D60AEDC00FC8AF6 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = D5FF61662D60AEDC00FC8AF6 /* Sentry */; };
 /* End PBXBuildFile section */
@@ -36,13 +37,43 @@
 			remoteGlobalIDString = D57ADFC52CF54D34000D9DB1;
 			remoteInfo = ScheduleSage;
 		};
+		D5A344482D9CB869001CC442 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D57ADFBE2CF54D34000D9DB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5A3443F2D9CB809001CC442;
+			remoteInfo = SSChromeExtensionsCLI;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D5A3443E2D9CB809001CC442 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		D5A3444A2D9CB8B7001CC442 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				D5A3444B2D9CB8C3001CC442 /* SSChromeExtensionsCLI in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D5553BD32D68C46200EB51BF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduleSage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D57ADFD92CF54D36000D9DB1 /* ScheduleSageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleSageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D57ADFE32CF54D36000D9DB1 /* ScheduleSageUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleSageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5A344402D9CB809001CC442 /* SSChromeExtensionsCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SSChromeExtensionsCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -72,6 +103,11 @@
 		D57ADFE62CF54D36000D9DB1 /* ScheduleSageUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ScheduleSageUITests;
+			sourceTree = "<group>";
+		};
+		D5A344412D9CB809001CC442 /* SSChromeExtensionsCLI */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SSChromeExtensionsCLI;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -110,6 +146,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D5A3443D2D9CB809001CC442 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -127,6 +170,7 @@
 				D57ADFC82CF54D34000D9DB1 /* ScheduleSage */,
 				D57ADFDC2CF54D36000D9DB1 /* ScheduleSageTests */,
 				D57ADFE62CF54D36000D9DB1 /* ScheduleSageUITests */,
+				D5A344412D9CB809001CC442 /* SSChromeExtensionsCLI */,
 				D56686A92CFC05D800EE1486 /* Frameworks */,
 				D57ADFC72CF54D34000D9DB1 /* Products */,
 			);
@@ -138,6 +182,7 @@
 				D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */,
 				D57ADFD92CF54D36000D9DB1 /* ScheduleSageTests.xctest */,
 				D57ADFE32CF54D36000D9DB1 /* ScheduleSageUITests.xctest */,
+				D5A344402D9CB809001CC442 /* SSChromeExtensionsCLI */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -152,10 +197,12 @@
 				D57ADFC22CF54D34000D9DB1 /* Sources */,
 				D57ADFC32CF54D34000D9DB1 /* Frameworks */,
 				D57ADFC42CF54D34000D9DB1 /* Resources */,
+				D5A3444A2D9CB8B7001CC442 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D5A344492D9CB869001CC442 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D57ADFC82CF54D34000D9DB1 /* ScheduleSage */,
@@ -224,6 +271,28 @@
 			productReference = D57ADFE32CF54D36000D9DB1 /* ScheduleSageUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D5A3443F2D9CB809001CC442 /* SSChromeExtensionsCLI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D5A344462D9CB809001CC442 /* Build configuration list for PBXNativeTarget "SSChromeExtensionsCLI" */;
+			buildPhases = (
+				D5A3443C2D9CB809001CC442 /* Sources */,
+				D5A3443D2D9CB809001CC442 /* Frameworks */,
+				D5A3443E2D9CB809001CC442 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D5A344412D9CB809001CC442 /* SSChromeExtensionsCLI */,
+			);
+			name = SSChromeExtensionsCLI;
+			packageProductDependencies = (
+			);
+			productName = SSChromeExtensionsCLI;
+			productReference = D5A344402D9CB809001CC442 /* SSChromeExtensionsCLI */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -244,6 +313,9 @@
 					D57ADFE22CF54D36000D9DB1 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = D57ADFC52CF54D34000D9DB1;
+					};
+					D5A3443F2D9CB809001CC442 = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -280,6 +352,7 @@
 				D57ADFC52CF54D34000D9DB1 /* ScheduleSage */,
 				D57ADFD82CF54D36000D9DB1 /* ScheduleSageTests */,
 				D57ADFE22CF54D36000D9DB1 /* ScheduleSageUITests */,
+				D5A3443F2D9CB809001CC442 /* SSChromeExtensionsCLI */,
 			);
 		};
 /* End PBXProject section */
@@ -330,6 +403,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D5A3443C2D9CB809001CC442 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -342,6 +422,11 @@
 			isa = PBXTargetDependency;
 			target = D57ADFC52CF54D34000D9DB1 /* ScheduleSage */;
 			targetProxy = D57ADFE42CF54D36000D9DB1 /* PBXContainerItemProxy */;
+		};
+		D5A344492D9CB869001CC442 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D5A3443F2D9CB809001CC442 /* SSChromeExtensionsCLI */;
+			targetProxy = D5A344482D9CB869001CC442 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -608,6 +693,32 @@
 			};
 			name = Release;
 		};
+		D5A344442D9CB809001CC442 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YSM8K853CQ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = com.tiwenlab.sschromeextensioncli;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D5A344452D9CB809001CC442 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YSM8K853CQ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = com.tiwenlab.sschromeextensioncli;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -643,6 +754,15 @@
 			buildConfigurations = (
 				D57ADFF42CF54D36000D9DB1 /* Debug */,
 				D57ADFF52CF54D36000D9DB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D5A344462D9CB809001CC442 /* Build configuration list for PBXNativeTarget "SSChromeExtensionsCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D5A344442D9CB809001CC442 /* Debug */,
+				D5A344452D9CB809001CC442 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

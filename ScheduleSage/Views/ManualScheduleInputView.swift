@@ -64,8 +64,8 @@ struct ManualScheduleInputView: View {
                             action: handleVoiceButtonTap,
                             viewModel: viewModel
                         )
-                        .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
-                        .offset(y: 30)
+                        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                        .offset(y: 10)
                     }
                     
                     Spacer()
@@ -105,7 +105,6 @@ struct ManualScheduleInputView: View {
                 viewState.updateInputText(with: newValue)
             }
             .onChange(of: viewModel.isRecording) { _, newValue in
-                viewState.handleRecordingStateChange(newValue, transcribedText: viewModel.transcribedText)
                 if !newValue {
                     isFocused = true
                 }
@@ -141,7 +140,7 @@ struct ManualScheduleInputView: View {
                 }
             }
         } else {
-            viewState.inputText = ""
+            // 不再清除 inputText，仅清除 transcribedText 以准备新的语音识别
             viewModel.transcribedText = ""
             viewModel.startVoiceRecognition()
         }
@@ -182,17 +181,19 @@ final class ManualInputViewState: ObservableObject {
     
     func updateInputText(with newValue: String) {
         if !newValue.isEmpty {
-            inputText = newValue
-        }
-    }
-    
-    func handleRecordingStateChange(_ isRecording: Bool, transcribedText: String) {
-        if !isRecording && !transcribedText.isEmpty {
-            if !inputText.contains(transcribedText) {
+            // 更精确地检查是否已包含此文本
+            // 1. 检查完整匹配
+            // 2. 检查作为行的匹配 (前后有换行符或在开始/结束)
+            if !inputText.contains(newValue) && 
+               !inputText.contains("\n" + newValue + "\n") &&
+               !inputText.hasSuffix("\n" + newValue) && 
+               !inputText.hasPrefix(newValue + "\n") && 
+               inputText != newValue {
+                
                 if !inputText.isEmpty {
-                    inputText += "\n" + transcribedText
+                    inputText += "\n" + newValue
                 } else {
-                    inputText = transcribedText
+                    inputText = newValue
                 }
             }
         }
@@ -205,10 +206,12 @@ final class ManualInputViewState: ObservableObject {
             queue: .main
         ) { [weak self] notification in
             guard
+                let self = self,
                 let text = notification.userInfo?["text"] as? String,
                 !text.isEmpty else { return }
             
-            self?.inputText = text
+            // 使用统一的文本更新方法
+            self.updateInputText(with: text)
         }
     }
     
@@ -406,7 +409,7 @@ private struct VoiceButton: View {
             // 脉动外圈 - 录音状态下显示
             if localRecordingState {
                 Circle()
-                    .stroke(Color.red.opacity(0.6), lineWidth: 2)
+                    .stroke(Color.red.opacity(0.6), lineWidth: 1)
                     .frame(width: 60, height: 60)
                     .scaleEffect(pulseAnimation ? 1.2 : 1.0)
                     .opacity(pulseAnimation ? 0.5 : 0.8)
@@ -434,8 +437,13 @@ private struct VoiceButton: View {
             // 录音中的视觉效果
             if localRecordingState {
                 recordingEffects
-                
-                // 倒计时文本
+            }
+            
+            // 按钮
+            actionButton
+            
+            // 倒计时文本 - 移至ZStack最后，确保显示在最上层
+            if localRecordingState {
                 VStack {
                     Spacer(minLength: 70)
                     Text(formattedRemainingTime)
@@ -444,11 +452,9 @@ private struct VoiceButton: View {
                         .padding(4)
                         .background(Color.white.opacity(0.8))
                         .cornerRadius(4)
+                        .shadow(color: Color.black.opacity(0.2), radius: 1, x: 0, y: 1)
                 }
             }
-            
-            // 按钮
-            actionButton
         }
         .frame(width: 60, height: 60)
         .onChange(of: isRecording) { oldValue, newValue in
