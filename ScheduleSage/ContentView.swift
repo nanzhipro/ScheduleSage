@@ -19,10 +19,11 @@ struct ContentView: View {
         }) {
           Image(systemName: "gear")
             .imageScale(.large)
-            .foregroundColor(.secondary)
+            .foregroundColor(DesignSystem.Colors.primary)
         }
         .buttonStyle(.plain)
         .padding(.trailing, 8)
+        .withHoverEffect(scale: 1.1, brightness: 0)
         .help("设置")
       }
 
@@ -44,8 +45,20 @@ private struct WindowBackground: View {
   @Environment(\.colorScheme) private var colorScheme
 
   var body: some View {
-    Color(nsColor: .windowBackgroundColor)
-      .ignoresSafeArea()
+    ZStack {
+      // 使用WindowBackgroundView保持一致的视觉效果
+      WindowBackgroundView()
+
+      // 磨砂玻璃效果层
+      Rectangle()
+        .withVibrancy(
+          materialType: .thin,
+          cornerRadius: 0,
+          addBorder: false,
+          opacity: 0.85
+        )
+    }
+    .ignoresSafeArea()
   }
 }
 

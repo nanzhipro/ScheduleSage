@@ -2,33 +2,33 @@ import SwiftUI
 
 /// 外观模式
 enum AppearanceMode: String, CaseIterable, Identifiable {
-    case light = "light"
-    case dark = "dark"
-    case auto = "auto"
-    
-    var id: String { rawValue }
-    
-    var localizedName: String {
-        switch self {
-        case .light:
-            return NSLocalizedString("appearance_light", comment: "Light mode")
-        case .dark:
-            return NSLocalizedString("appearance_dark", comment: "Dark mode")
-        case .auto:
-            return NSLocalizedString("appearance_auto", comment: "Auto mode")
-        }
+  case light = "light"
+  case dark = "dark"
+  case auto = "auto"
+
+  var id: String { rawValue }
+
+  var localizedName: String {
+    switch self {
+    case .light:
+      return NSLocalizedString("appearance_light", comment: "Light mode")
+    case .dark:
+      return NSLocalizedString("appearance_dark", comment: "Dark mode")
+    case .auto:
+      return NSLocalizedString("appearance_auto", comment: "Auto mode")
     }
-    
-    var systemImage: String {
-        switch self {
-        case .light:
-            return "sun.max"
-        case .dark:
-            return "moon.stars"
-        case .auto:
-            return "circle.lefthalf.filled"
-        }
+  }
+
+  var systemImage: String {
+    switch self {
+    case .light:
+      return "sun.max"
+    case .dark:
+      return "moon.stars"
+    case .auto:
+      return "circle.lefthalf.filled"
     }
+  }
 }
 
 /// 主题类型
@@ -36,9 +36,9 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
 /// - wechat: 微信风格，偏绿色调
 /// - airbnb: Airbnb风格，活力红色调
 enum ThemeType: String, CaseIterable, Identifiable {
-    case apple, wechat, airbnb
-    
-    var id: String { rawValue }
+  case apple, wechat, airbnb
+
+  var id: String { rawValue }
 }
 
 /// ScheduleSage 应用的设计系统
@@ -54,15 +54,17 @@ enum DesignSystem {
     /// 用于主要容器的渐变背景效果，支持深色模式
     static func containerBackground(colorScheme: ColorScheme) -> LinearGradient {
       LinearGradient(
-        colors: colorScheme == .dark ? [
-          Colors.darkGradientTop,      // 深色模式顶部色
-          Colors.darkGradientMiddle,   // 深色模式中间色
-          Colors.background            // 深色模式底部色
-        ] : [
-          Colors.lightGradientTop,     // 浅色模式顶部色
-          Colors.lightGradientMiddle,  // 浅色模式中间色
-          Colors.background            // 浅色模式底部色
-        ],
+        colors: colorScheme == .dark
+          ? [
+            Colors.darkGradientTop,  // 深色模式顶部色
+            Colors.darkGradientMiddle,  // 深色模式中间色
+            Colors.background,  // 深色模式底部色
+          ]
+          : [
+            Colors.lightGradientTop,  // 浅色模式顶部色
+            Colors.lightGradientMiddle,  // 浅色模式中间色
+            Colors.background,  // 浅色模式底部色
+          ],
         startPoint: .top,
         endPoint: .bottom
       )
@@ -107,8 +109,9 @@ enum DesignSystem {
     /// 基础背景色
     /// 用于卡片、弹窗等组件的背景
     static var background: Color {
-      let (light, dark) = currentTheme == .airbnb 
-        ? ("FFFFFF", "222222") 
+      let (light, dark) =
+        currentTheme == .airbnb
+        ? ("FFFFFF", "222222")
         : ("FFFFFF", "1E1E1E")
       return Color(light: light, dark: dark)
     }
@@ -156,8 +159,8 @@ enum DesignSystem {
     /// 成功状态颜色
     /// 用于成功提示、完成状态等
     static var success: Color {
-      currentTheme == .airbnb 
-        ? Color(light: "008A05", dark: "00A306") 
+      currentTheme == .airbnb
+        ? Color(light: "008A05", dark: "00A306")
         : primary
     }
 
@@ -260,29 +263,29 @@ enum DesignSystem {
     }
 
     // MARK: - Gradient Colors
-    
+
     /// 深色模式渐变色 - 顶部
     static let darkGradientTop = Color(
       light: "F5F5F7",  // 浅色模式下不使用
-      dark: "151516"    // rgb(21, 21, 22)
+      dark: "151516"  // rgb(21, 21, 22)
     )
-    
+
     /// 深色模式渐变色 - 中间
     static let darkGradientMiddle = Color(
       light: "F7F7F7",  // 浅色模式下不使用
-      dark: "181819"    // rgb(24, 24, 25)
+      dark: "181819"  // rgb(24, 24, 25)
     )
-    
+
     /// 浅色模式渐变色 - 顶部
     static let lightGradientTop = Color(
       light: "F5F7F8",  // rgb(245, 247, 248)
-      dark: "242424"    // 深色模式下不使用
+      dark: "242424"  // 深色模式下不使用
     )
-    
+
     /// 浅色模式渐变色 - 中间
     static let lightGradientMiddle = Color(
       light: "F7F8F9",  // rgb(247, 248, 249)
-      dark: "242424"    // 深色模式下不使用
+      dark: "242424"  // 深色模式下不使用
     )
   }
 
@@ -292,69 +295,69 @@ enum DesignSystem {
     /// 页面标题字体
     /// 用于页面主标题，17pt 中等粗细
     static let headerTitle = Font.system(size: 17, weight: .medium)
-    
+
     /// 大号正文字体
     /// 用于重要内容，15pt 常规粗细
     static let bodyLarge = Font.system(size: 15)
-    
+
     /// 常规正文字体
     /// apple主题13pt，其他14pt
     static var bodyRegular: Font {
       .system(size: currentTheme == .apple ? 13 : 14)
     }
-    
+
     /// 中等正文字体
     /// 用于重要的正文内容，14pt 中等粗细
     static let bodyMedium = Font.system(size: 14, weight: .medium)
-    
+
     /// 表单标签字体
     /// 用于表单字段标签，14pt
     static let formLabel = Font.system(size: 14)
-    
+
     /// 按钮文字字体
     /// 用于按钮文字，15pt
     static let buttonLabel = Font.system(size: 15)
-    
+
     /// 事件标题字体
     /// 用于事件卡片标题，16pt 中等粗细
     static let eventTitle = Font.system(size: 16, weight: .medium)
-    
+
     /// 事件时间字体
     /// 用于显示事件时间，14pt
     static let eventTime = Font.system(size: 14)
-    
+
     /// 事件计数字体
     /// 用于显示事件数量，13pt
     static let eventCount = Font.system(size: 13)
-    
+
     /// 状态文本字体
     /// 用于显示状态信息，13pt
     static let statusText = Font.system(size: 13)
-    
+
     /// 空状态标题字体
     /// 用于空列表等状态的标题，15pt 中等粗细
     static let emptyStateTitle = Font.system(size: 15, weight: .medium)
-    
+
     /// 方法标签字体
     /// 用于显示方法名称，13pt
     static let methodLabel = Font.system(size: 13)
-    
+
     /// 说明文本字体
     /// 用于辅助说明文本，12pt
     static let caption = Font.system(size: 12)
-    
+
     /// 大标题字体
     /// 用于主要标题，24pt 半粗体
     static let title = Font.system(size: 24, weight: .semibold)
-    
+
     /// 导航文本字体
     /// 用于导航栏文本，13pt 中等粗细
     static let navigationText = Font.system(size: 13, weight: .medium)
-    
+
     /// 大页面标题字体
     /// 用于宽页面(640px)的主标题，20pt 半粗体
     static let largeHeaderTitle = Font.system(size: 20, weight: .semibold)
-    
+
     /// 大页面副标题字体
     /// 用于宽页面的副标题，14pt
     static let largeHeaderSubtitle = Font.system(size: 14)
@@ -413,7 +416,7 @@ enum DesignSystem {
     static let listVerticalPadding: CGFloat = 20
     /// 设置按钮尺寸
     static let settingsButtonSize: CGFloat = 22
-    
+
     /// 主页面宽度
     static let mainViewWidth: CGFloat = 800
     /// 主页面高度
@@ -422,10 +425,10 @@ enum DesignSystem {
     static let eventListWidth: CGFloat = mainViewWidth * 0.8  // 640
     /// 事件列表页高度
     static let eventListHeight: CGFloat = mainViewHeight * 0.8  // 512
-    
+
     /// 大尺寸方法按钮图标
     static let largeMethodIconSize: CGFloat = 40  // 增大图标尺寸
-    
+
     /// 大尺寸按钮高度
     static let largeButtonHeight: CGFloat = 52  // 增大按钮高度
   }
@@ -461,10 +464,10 @@ enum DesignSystem {
     static let listContentPadding: CGFloat = 24
     /// 大页面标题间距
     static let largeHeaderSpacing: CGFloat = 12
-    
+
     /// 大尺寸内容间距
     static let largeContentSpacing: CGFloat = 32  // 增大内容间距
-    
+
     /// 大尺寸按钮间距
     static let largeButtonSpacing: CGFloat = 24  // 增大按钮间距
   }
@@ -490,7 +493,7 @@ enum DesignSystem {
     static func containerShadow(colorScheme: ColorScheme) -> Shadow {
       let isDark = colorScheme == .dark
       let opacity = shadowOpacity(for: currentTheme, isDark: isDark)
-      
+
       return Shadow(
         color: .black.opacity(opacity),
         radius: currentTheme == .airbnb ? 15 : (currentTheme == .apple ? 8 : 6),
@@ -503,9 +506,10 @@ enum DesignSystem {
     /// 用于卡片组件的阴影效果
     static func cardShadow(colorScheme: ColorScheme) -> Shadow {
       let isDark = colorScheme == .dark
-      let opacity = currentTheme == .airbnb ? (isDark ? 0.35 : 0.06) :
-                   (currentTheme == .apple ? (isDark ? 0.3 : 0.05) : (isDark ? 0.3 : 0.03))
-      
+      let opacity =
+        currentTheme == .airbnb
+        ? (isDark ? 0.35 : 0.06) : (currentTheme == .apple ? (isDark ? 0.3 : 0.05) : (isDark ? 0.3 : 0.03))
+
       return Shadow(
         color: .black.opacity(opacity),
         radius: currentTheme == .airbnb ? 8 : 2,
@@ -560,9 +564,11 @@ extension Color {
   ///   - light: 浅色模式下的十六进制颜色值
   ///   - dark: 深色模式下的十六进制颜色值
   init(light: String, dark: String) {
-    self.init(nsColor: NSColor(name: nil) { appearance in
-      NSColor(hex: appearance.name.rawValue.contains("Dark") ? dark : light)
-    })
+    self.init(
+      nsColor: NSColor(name: nil) { appearance in
+        NSColor(hex: appearance.name.rawValue.contains("Dark") ? dark : light)
+      }
+    )
   }
 
   /// 通过十六进制字符串创建颜色
@@ -579,7 +585,7 @@ extension NSColor {
     let hex = hex.trimmingCharacters(in: .alphanumerics.inverted)
     var int: UInt64 = 0
     Scanner(string: hex).scanHexInt64(&int)
-    
+
     let (a, r, g, b): (UInt64, UInt64, UInt64, UInt64) = {
       switch hex.count {
       case 3: return (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
@@ -609,6 +615,52 @@ extension View {
       .modifier(CardShadowModifier())
   }
 
+  /// 应用带有磨砂玻璃效果的卡片样式
+  /// 包括磨砂玻璃背景、圆角和阴影
+  func vibrancyCardStyle() -> some View {
+    self
+      .background(
+        ZStack {
+          // 基础背景
+          RoundedRectangle(cornerRadius: DesignSystem.Dimensions.cardCornerRadius)
+            .fill(DesignSystem.Colors.background.opacity(0.85))
+
+          // 磨砂玻璃效果
+          if #available(macOS 12.0, *) {
+            RoundedRectangle(cornerRadius: DesignSystem.Dimensions.cardCornerRadius)
+              .fill(Material.thinMaterial)
+          }
+        }
+      )
+      .cornerRadius(DesignSystem.Dimensions.cardCornerRadius)
+      .modifier(CardShadowModifier())
+  }
+
+  /// 应用磨砂玻璃效果的容器样式
+  /// 用于较大的内容区域，提供磨砂玻璃效果
+  func vibrancyContainerStyle(cornerRadius: CGFloat = DesignSystem.Dimensions.containerCornerRadius) -> some View {
+    self
+      .background(
+        ZStack {
+          if #available(macOS 12.0, *) {
+            RoundedRectangle(cornerRadius: cornerRadius)
+              .fill(Material.regularMaterial)
+              .opacity(0.85)
+          } else {
+            RoundedRectangle(cornerRadius: cornerRadius)
+              .fill(DesignSystem.Colors.background)
+          }
+        }
+      )
+      .cornerRadius(cornerRadius)
+      .shadow(
+        color: Color.black.opacity(0.05),
+        radius: 10,
+        x: 0,
+        y: 5
+      )
+  }
+
   /// 应用表单字段样式
   /// 包括高度、内边距、背景色、圆角和边框
   func scheduleFormFieldStyle() -> some View {
@@ -627,7 +679,7 @@ extension View {
 /// 卡片阴影修饰符
 private struct CardShadowModifier: ViewModifier {
   @Environment(\.colorScheme) var colorScheme
-  
+
   func body(content: Content) -> some View {
     let shadow = DesignSystem.Shadows.cardShadow(colorScheme: colorScheme)
     content.shadow(

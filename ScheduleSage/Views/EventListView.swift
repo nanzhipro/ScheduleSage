@@ -27,7 +27,14 @@ struct EventListView: View {
   private var hasSelectedEvents: Bool { !selectedEventIds.isEmpty }
   private var allEventsSelected: Bool { selectedEventIds.count == displayEvents.count && !displayEvents.isEmpty }
 
-  init(events: [CalendarEvent], onAdd: @escaping () -> Void, onImport: @escaping (Set<String>) -> Void, onBack: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void, viewModel: AddScheduleViewModel) {
+  init(
+    events: [CalendarEvent],
+    onAdd: @escaping () -> Void,
+    onImport: @escaping (Set<String>) -> Void,
+    onBack: @escaping () -> Void,
+    onUpdate: @escaping (CalendarEvent) -> Void,
+    viewModel: AddScheduleViewModel
+  ) {
     self.events = events
     self.onAdd = onAdd
     self.onImport = onImport
@@ -41,20 +48,25 @@ struct EventListView: View {
   var body: some View {
     VStack(spacing: 0) {
       compactHeaderView
-      
+
       // 使contentArea占用剩余空间并允许滚动
       contentArea
         .layoutPriority(1)
-      
+
       listHeader
       importButton
     }
     .frame(
-      width: DesignSystem.Dimensions.mainViewWidth * 0.8,   // 800 * 0.8 = 640
+      width: DesignSystem.Dimensions.mainViewWidth * 0.8,  // 800 * 0.8 = 640
       height: DesignSystem.Dimensions.mainViewHeight * 0.8  // 640 * 0.8 = 512
     )
-    .background(DesignSystem.Colors.background)
-    .cornerRadius(DesignSystem.Dimensions.containerCornerRadius)
+    // 使用withVibrancy修饰符提供毛玻璃效果
+    .withVibrancy(
+      materialType: .standard,
+      cornerRadius: DesignSystem.Dimensions.containerCornerRadius,
+      addBorder: true,
+      opacity: 0.95
+    )
     .toast(
       isPresented: $showToast,
       type: toastType,
@@ -89,7 +101,7 @@ struct EventListView: View {
       showToast = true
     }
   }
-  
+
   // MARK: - Import Status Handler
   private func handleImportStatusChange(_ status: AddScheduleViewModel.ImportStatus) {
     switch status {
@@ -97,7 +109,7 @@ struct EventListView: View {
       toastType = .success
       toastMessage = NSLocalizedString("import_success", comment: "")
       showToast = true
-      
+
       Task {
         try? await Task.sleep(nanoseconds: 2_000_000_000)
         await MainActor.run {
@@ -112,7 +124,7 @@ struct EventListView: View {
       break
     }
   }
-  
+
   // MARK: - Compact Header View
   private var compactHeaderView: some View {
     HStack {
@@ -120,14 +132,25 @@ struct EventListView: View {
         .font(DesignSystem.Typography.largeHeaderTitle)
         .foregroundColor(DesignSystem.Colors.primaryText)
         .padding(.leading, 20)
-      
+
       Spacer()
-      
+
       SageCloseButton(action: onBack)
         .padding(.trailing, 20)
     }
     .padding(.vertical, 16)
-    .background(DesignSystem.Colors.background)
+    .background(
+      // 标题区域使用更明显的玻璃效果
+      ZStack {
+        if #available(macOS 12.0, *) {
+          Rectangle()
+            .fill(Material.ultraThinMaterial)
+        } else {
+          Rectangle()
+            .fill(DesignSystem.Colors.background)
+        }
+      }
+    )
   }
 }
 
@@ -140,9 +163,25 @@ private extension EventListView {
     .padding(.horizontal, DesignSystem.Spacing.listContentPadding)
     .padding(.vertical, DesignSystem.Dimensions.listVerticalPadding)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Colors.containerGray)
+    .background(
+      ZStack {
+        // 内容区域背景
+        DesignSystem.Colors.containerGray.opacity(0.9)
+
+        // 磨砂玻璃效果 - 轻微的，不影响内容可读性
+        if #available(macOS 12.0, *) {
+          Rectangle()
+            .fill(Material.thinMaterial)
+            .opacity(0.4)
+        } else {
+          Rectangle()
+            .fill(DesignSystem.Colors.containerGray)
+            .opacity(0.4)
+        }
+      }
+    )
   }
-  
+
   var listHeader: some View {
     HStack {
       // 左侧：事件计数信息
@@ -150,7 +189,7 @@ private extension EventListView {
         Text(String(format: NSLocalizedString("detected_events", comment: ""), displayEvents.count))
           .font(DesignSystem.Typography.eventCount)
           .foregroundColor(DesignSystem.Colors.secondaryText)
-        
+
         if hasSelectedEvents {
           Text("·").foregroundColor(DesignSystem.Colors.secondaryText)
           Text(String(format: NSLocalizedString("selected_events", comment: ""), selectedEventIds.count))
@@ -158,9 +197,9 @@ private extension EventListView {
             .foregroundColor(DesignSystem.Colors.secondaryText)
         }
       }
-      
+
       Spacer()
-      
+
       // 右侧：全选/全不选按钮
       HStack(spacing: 12) {
         // 全选按钮
@@ -171,7 +210,7 @@ private extension EventListView {
         }
         .buttonStyle(.plain)
         .disabled(allEventsSelected || displayEvents.isEmpty)
-        
+
         // 全不选按钮
         Button(action: deselectAllEvents) {
           Text(NSLocalizedString("deselect_all", comment: ""))
@@ -185,7 +224,7 @@ private extension EventListView {
     .frame(height: DesignSystem.Dimensions.listHeaderHeight)
     .padding(.horizontal, DesignSystem.Spacing.listContentPadding)
   }
-  
+
   var eventListView: some View {
     ScrollView {
       LazyVStack(spacing: DesignSystem.Dimensions.eventCardSpacing) {
@@ -198,7 +237,7 @@ private extension EventListView {
             onUpdate: onUpdate
           )
         }
-        
+
         // 移除过大的底部间距，保留适度的空间确保最后一项可滚动到视图中
         Spacer(minLength: DesignSystem.Spacing.vertical * 0.5)
       }
@@ -206,7 +245,7 @@ private extension EventListView {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
-  
+
   var importButton: some View {
     Button(action: handleImport) {
       Text(NSLocalizedString("import_calendar", comment: ""))
@@ -227,21 +266,21 @@ private extension EventListView {
     .disabled(!hasSelectedEvents)
     .padding(DesignSystem.Layout.containerPadding)
   }
-  
+
   var buttonBackground: some View {
     DesignSystem.Colors.primary
       .opacity(hasSelectedEvents ? 1 : 0.5)
   }
-  
+
   // MARK: - Selection Actions
-  
+
   /// 全选所有事件
   func selectAllEvents() {
     for event in displayEvents {
       selectedEventIds.insert(event.eventIdentifier)
     }
   }
-  
+
   /// 取消选择所有事件
   func deselectAllEvents() {
     selectedEventIds.removeAll()
@@ -252,10 +291,10 @@ private extension EventListView {
 private extension EventListView {
   private func handleImport() {
     guard hasSelectedEvents else { return }
-    
+
     onImport(selectedEventIds)
   }
-  
+
   func toggleSelection(for event: CalendarEvent) {
     if selectedEventIds.contains(event.eventIdentifier) {
       selectedEventIds.remove(event.eventIdentifier)
@@ -263,18 +302,18 @@ private extension EventListView {
       selectedEventIds.insert(event.eventIdentifier)
     }
   }
-  
+
   func deleteEvent(_ eventToDelete: CalendarEvent) {
     withAnimation(.easeInOut(duration: 0.3)) {
       displayEvents.removeAll { existingEvent in
         existingEvent.eventIdentifier == eventToDelete.eventIdentifier
       }
       selectedEventIds.remove(eventToDelete.eventIdentifier)
-      
+
       toastType = .success
       toastMessage = NSLocalizedString("delete_success", comment: "")
       showToast = true
-      
+
       if displayEvents.isEmpty {
         Task {
           try? await Task.sleep(nanoseconds: 1_000_000_000)
@@ -297,7 +336,7 @@ struct EventListView_Previews: PreviewProvider {
       super.init()
     }
   }
-  
+
   static var previews: some View {
     Group {
       // 亮色模式预览
@@ -310,7 +349,7 @@ struct EventListView_Previews: PreviewProvider {
         viewModel: MockAddScheduleViewModel()
       )
       .previewDisplayName("Light Mode")
-      
+
       // 暗色模式预览
       EventListView(
         events: PreviewData.mockCalendarEvents,
@@ -322,7 +361,7 @@ struct EventListView_Previews: PreviewProvider {
       )
       .preferredColorScheme(.dark)
       .previewDisplayName("Dark Mode")
-      
+
       // 空列表预览
       EventListView(
         events: [],

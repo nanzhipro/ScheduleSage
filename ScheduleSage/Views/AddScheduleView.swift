@@ -6,8 +6,8 @@
 //
 
 import AppKit
-import SwiftUI
 import RevenueCat
+import SwiftUI
 
 /// 定义应用中的视图层级常量
 enum ZIndex {
@@ -19,7 +19,7 @@ enum ZIndex {
   static let content = 3
   /// 顶层 - 最高优先级元素
   static let topLayer = 4
-  
+
   /// 拖拽状态下的提升层级
   static let dragElevated = 10
   /// 弹窗层级
@@ -35,12 +35,13 @@ struct AddScheduleView: View {
   @State private var needsRefresh = false
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.openSettings) private var openSettings
-  
+
   var body: some View {
     ZStack {
-      // 渐变背景，仅在浅色模式下显示
-      BackgroundView(colorScheme: colorScheme)
-            .zIndex(Double(ZIndex.background)) // 背景层级最低
+      // // 轻微的内容背景 - 提高内容区域的可见度
+      // RoundedRectangle(cornerRadius: DesignSystem.Dimensions.containerCornerRadius)
+      //   .fill(colorScheme == .dark ? Color.black.opacity(0.15) : Color.white.opacity(0.25))
+      //   .zIndex(Double(ZIndex.background))
 
       VStack(spacing: 0) {
         MainContentView(viewModel: viewModel)
@@ -61,7 +62,7 @@ struct AddScheduleView: View {
           SettingsView()
         }
       }
-      
+
       .toast(
         isPresented: $viewModel.showToast,
         type: viewModel.toastType,
@@ -77,7 +78,7 @@ struct AddScheduleView: View {
         message: toastMessage,
         position: .center
       )
-      .zIndex(Double(ZIndex.content)) // 主内容区域在背景之上
+      .zIndex(Double(ZIndex.content))  // 主内容区域在背景之上
     }
     .toolbar {
       ToolbarItemGroup(placement: .automatic) {
@@ -103,14 +104,14 @@ struct AddScheduleView: View {
       viewModel.handleImagePickerResult(result)
     }
   }
-  
+
   private var isModernMacOS: Bool {
     if #available(macOS 14.0, *) {
       return true
     }
     return false
   }
-  
+
   private var toastType: ToastType {
     switch viewModel.importStatus {
     case .success:
@@ -121,7 +122,7 @@ struct AddScheduleView: View {
       return .success
     }
   }
-  
+
   private var toastMessage: String {
     switch viewModel.importStatus {
     case .success:
@@ -137,30 +138,43 @@ struct AddScheduleView: View {
 // MARK: - Background View
 private struct BackgroundView: View {
   let colorScheme: ColorScheme
-  
+
   var body: some View {
-    if colorScheme == .light {
-      LinearGradient(
-        colors: [
-          DesignSystem.Colors.primary.opacity(0.1),
-          DesignSystem.Colors.background
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-      )
-      .ignoresSafeArea()
-    } else {
-      // 深色模式下的背景
-      LinearGradient(
-        colors: [
-          DesignSystem.Colors.primary.opacity(0.05),
-          DesignSystem.Colors.background
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-      )
-      .ignoresSafeArea()
+    ZStack {
+      // 基础背景渐变 - 保留现有渐变但调整透明度
+      // if colorScheme == .light {
+      //   LinearGradient(
+      //     colors: [
+      //       DesignSystem.Colors.primary.opacity(0.08),
+      //       DesignSystem.Colors.background.opacity(0.7),
+      //     ],
+      //     startPoint: .top,
+      //     endPoint: .bottom
+      //   )
+      // } else {
+      //   // 深色模式下的背景
+      //   LinearGradient(
+      //     colors: [
+      //       DesignSystem.Colors.primary.opacity(0.04),
+      //       DesignSystem.Colors.background.opacity(0.8),
+      //     ],
+      //     startPoint: .top,
+      //     endPoint: .bottom
+      //   )
+      // }
+
+      // 磨砂玻璃效果层 - 使用超薄材质
+      if #available(macOS 12.0, *) {
+        Rectangle()
+          .fill(Material.ultraThinMaterial)
+          .opacity(colorScheme == .dark ? 0.6 : 0.4)
+      } else {
+        Rectangle()
+          .fill(DesignSystem.Colors.background)
+          .opacity(colorScheme == .dark ? 0.6 : 0.4)
+      }
     }
+    .ignoresSafeArea()
   }
 }
 
@@ -169,7 +183,7 @@ private struct SettingsButton: View {
   let isModernMacOS: Bool
   let openSettings: OpenSettingsAction
   @Binding var showSettings: Bool
-  
+
   var body: some View {
     Button(action: {
       if isModernMacOS {
@@ -192,7 +206,7 @@ private struct SettingsButton: View {
 // MARK: - Event List Sheet
 private struct EventListSheet: View {
   @ObservedObject var viewModel: AddScheduleViewModel
-  
+
   var body: some View {
     EventListView(
       events: viewModel.parsedEvents,
@@ -214,12 +228,12 @@ private struct EventListSheet: View {
 private struct MainContentView: View {
   @ObservedObject var viewModel: AddScheduleViewModel
   @Environment(\.colorScheme) var colorScheme
-  
+
   var body: some View {
     ZStack(alignment: .center) {
       // 日历事件流背景 - 放在背景之上，主内容之下，居中显示
       CalendarFeedsBackgroundView()
-            .zIndex(Double(ZIndex.midLayer)) // 日历事件流背景在基础背景之上
+        .zIndex(Double(ZIndex.midLayer))  // 日历事件流背景在基础背景之上
 
       // 主内容区域
       VStack(spacing: 0) {
@@ -233,29 +247,44 @@ private struct MainContentView: View {
           VStack(spacing: 0) {
             Spacer()
               .frame(height: Design.Spacing.windowTopPadding)
-            
+
             AddScheduleContent(viewModel: viewModel)
               .padding(Design.Spacing.contentPadding)
-            
+            // // 为内容添加磨砂玻璃效果，提升视觉层次感
+            // .if(!viewModel.isDragging) { view in
+            //   view.withVibrancy(
+            //     materialType: .thin,
+            //     cornerRadius: DesignSystem.Dimensions.containerCornerRadius,
+            //     opacity: colorScheme == .dark ? 0.8 : 0.9
+            //   )
+            // }
+
             Spacer()
           }
         }
         .frame(maxHeight: .infinity)
         .padding(.top, 8)
-        
+
         // 底部留出空间给悬浮面板
         Spacer()
           .frame(height: 16)
-        
+
         FooterView()
+          // 为底部视图添加轻微的磨砂玻璃效果
+          .withVibrancy(
+            materialType: .ultraThin,
+            cornerRadius: DesignSystem.Dimensions.cardCornerRadius,
+            addBorder: false,
+            opacity: 0.7
+          )
       }
-      .zIndex(Double(ZIndex.background)) // 主内容在底层
-      .offset(y: -12) // 整体向上移动 12px
-      
+      .zIndex(Double(ZIndex.background))  // 主内容在底层
+      .offset(y: -12)  // 整体向上移动 12px
+
       // 使用 VStack 将悬浮操作面板放置在底部
       VStack {
-        Spacer() // 将面板推到底部
-        
+        Spacer()  // 将面板推到底部
+
         // 悬浮操作面板
         FloatingActionPanel {
           HStack(spacing: 48) {
@@ -266,7 +295,7 @@ private struct MainContentView: View {
               hintKey: "hint.clipboard_import",
               action: viewModel.checkClipboardContent
             )
-            
+
             // 手动输入按钮
             FloatingActionButton(
               iconName: getManualInputIcon(),
@@ -274,7 +303,7 @@ private struct MainContentView: View {
               hintKey: "hint.manual_input",
               action: { viewModel.showManualInputSheet = true }
             )
-            
+
             // 图片导入按钮
             FloatingActionButton(
               iconName: "photo.fill",
@@ -287,7 +316,7 @@ private struct MainContentView: View {
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
       }
-      .zIndex(Double(ZIndex.midLayer)) // 悬浮面板在主内容之上
+      .zIndex(Double(ZIndex.midLayer))  // 悬浮面板在主内容之上
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     // 移除深色模式下的不透明背景，改为使用透明背景
@@ -310,7 +339,7 @@ private struct FooterView: View {
           .padding(.vertical, 8)
       }
       .frame(maxWidth: .infinity)
-      
+
       // 帮助中心按钮靠右对齐
       HStack {
         Spacer()
@@ -328,19 +357,19 @@ private enum Design {
   enum Spacing {
     /// 窗口顶部间距
     static let windowTopPadding: CGFloat = 16
-    
+
     /// 底部工具栏内边距
     static let bottomBarPadding = (
       horizontal: 16.0,
       bottom: 24.0
     )
-    
+
     /// 内容整体内边距
     static let contentPadding: CGFloat = 12
-    
+
     /// 拖拽区域顶部到图标的间距
     static let dragAreaTopPadding: CGFloat = 40
-    
+
     /// 图标到标题的间距
     static let iconToTitle: CGFloat = 0
     /// 标题到副标题的间距
@@ -354,7 +383,7 @@ private enum Design {
     /// 内容区底部间距
     static let contentBottomPadding: CGFloat = 32
   }
-  
+
   enum Size {
     /// 图标容器尺寸
     static let iconContainerSize: CGFloat = 80
@@ -368,7 +397,7 @@ private struct AddScheduleContent: View {
   @ObservedObject var viewModel: AddScheduleViewModel
   @Environment(\.colorScheme) private var colorScheme
   @State private var isTitleHovered = false
-  
+
   var body: some View {
     VStack(spacing: 0) {
       // 日历图标 - 直接集成了原来的CalendarIcon和BaseIconView
@@ -379,7 +408,7 @@ private struct AddScheduleContent: View {
             LinearGradient(
               colors: [
                 DesignSystem.Colors.primary,
-                DesignSystem.Colors.primary
+                DesignSystem.Colors.primary,
               ],
               startPoint: .topLeading,
               endPoint: .bottomTrailing
@@ -390,7 +419,7 @@ private struct AddScheduleContent: View {
       }
       .frame(width: Design.Size.iconContainerSize, height: Design.Size.iconContainerSize)
       .zIndex(Double(viewModel.isDragging ? ZIndex.dragElevated : ZIndex.content))
-      
+
       // 标题 - 直接集成了原来的TitleSection和AppTitleView
       Text(AppInfo.name)
         .font(.system(size: 32, weight: .bold, design: .rounded))
@@ -398,16 +427,14 @@ private struct AddScheduleContent: View {
           LinearGradient(
             colors: [
               DesignSystem.Colors.primary,
-              DesignSystem.Colors.primary.opacity(0.8)
+              DesignSystem.Colors.primary.opacity(0.8),
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
           )
         )
         .shadow(
-          color: colorScheme == .dark ? 
-            DesignSystem.Colors.primary.opacity(0.3) : 
-            .clear,
+          color: colorScheme == .dark ? DesignSystem.Colors.primary.opacity(0.3) : .clear,
           radius: isTitleHovered ? 15 : 10
         )
         .scaleEffect(isTitleHovered ? 1.05 : 1.0)
@@ -424,25 +451,25 @@ private struct AddScheduleContent: View {
 
 // MARK: - Manual Input Sheet
 private struct ManualInputSheet: View {
-    @ObservedObject var viewModel: AddScheduleViewModel
-    
-    var body: some View {
-        ManualScheduleInputView(
-            isPresented: $viewModel.showManualInputSheet,
-            processInput: viewModel.processManualInput,
-            viewModel: viewModel,
-            onEventsProcessed: { events in
-                viewModel.parsedEvents = events
-                viewModel.showEventList = true
-            }
-        )
-    }
+  @ObservedObject var viewModel: AddScheduleViewModel
+
+  var body: some View {
+    ManualScheduleInputView(
+      isPresented: $viewModel.showManualInputSheet,
+      processInput: viewModel.processManualInput,
+      viewModel: viewModel,
+      onEventsProcessed: { events in
+        viewModel.parsedEvents = events
+        viewModel.showEventList = true
+      }
+    )
+  }
 }
 
 // MARK: - Drag Animation Modifier
 struct DragAnimationModifier: ViewModifier {
   let animation: AddScheduleViewModel.DragAnimation
-  
+
   func body(content: Content) -> some View {
     content.modifier(
       AnimatedContentModifier(animation: animation)
@@ -452,7 +479,7 @@ struct DragAnimationModifier: ViewModifier {
 
 private struct AnimatedContentModifier: ViewModifier {
   let animation: AddScheduleViewModel.DragAnimation
-  
+
   func body(content: Content) -> some View {
     content
       .scaleEffect(animation == .pulse ? 1.1 : (animation == .scale ? 1.2 : 1.0))
@@ -468,7 +495,7 @@ private struct AnimatedContentModifier: ViewModifier {
 // MARK: - Close Button
 private struct CloseXButton: View {
   let action: () -> Void
-  
+
   var body: some View {
     VStack(spacing: 8) {
       Button(action: action) {
@@ -484,7 +511,7 @@ private struct CloseXButton: View {
       }
       .buttonStyle(.plain)
       .withHoverEffect(scale: 1.02, brightness: 0)
-      
+
       Text(NSLocalizedString("powered_by_tencent", comment: ""))
         .font(DesignSystem.Typography.caption)
         .foregroundColor(DesignSystem.Colors.tertiaryText)
@@ -497,11 +524,11 @@ private struct CloseXButton: View {
 // MARK: - Upgrade Premium Button
 private struct UpgradePremiumButton: View {
   @ObservedObject var viewModel: AddScheduleViewModel
-  
+
   private var buttonText: LocalizedStringKey {
     viewModel.isPremium ? "subscribed_status" : "upgrade_to_premium"
   }
-  
+
   var body: some View {
     Button(action: {
       viewModel.showPaywallView()
@@ -527,12 +554,12 @@ private struct HelpCenterButton: View {
   @Environment(\.colorScheme) private var colorScheme
   @State private var isHovered = false
   @State private var isPressed = false
-  
+
   var body: some View {
     Button {
       // 添加触感反馈
       NSHapticFeedbackManager.defaultPerformer.perform(.generic, performanceTime: .default)
-      
+
       // 打开 FAQ 页面
       if let url = URL(string: AppConstants.URLs.faq) {
         NSWorkspace.shared.open(url)
@@ -546,16 +573,19 @@ private struct HelpCenterButton: View {
         isHovered = hovering
       }
     }
-    .pressEvents(onPress: {
-      withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
-        isPressed = true
+    .pressEvents(
+      onPress: {
+        withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+          isPressed = true
+        }
+      },
+      onRelease: {
+        withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+          isPressed = false
+        }
       }
-    }, onRelease: {
-      withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
-        isPressed = false
-      }
-    })
-    .zIndex(Double(ZIndex.topLayer)) // 确保帮助按钮始终可点击
+    )
+    .zIndex(Double(ZIndex.topLayer))  // 确保帮助按钮始终可点击
   }
 }
 
@@ -564,7 +594,7 @@ private struct HelpButtonLabel: View {
   let isHovered: Bool
   let isPressed: Bool
   @Environment(\.colorScheme) private var colorScheme
-  
+
   var body: some View {
     Image(systemName: "questionmark.circle.fill")
       .font(.system(size: 20))
@@ -572,7 +602,7 @@ private struct HelpButtonLabel: View {
         LinearGradient(
           colors: [
             DesignSystem.Colors.primary,
-            DesignSystem.Colors.primary.opacity(0.8)
+            DesignSystem.Colors.primary.opacity(0.8),
           ],
           startPoint: .topLeading,
           endPoint: .bottomTrailing
@@ -580,13 +610,11 @@ private struct HelpButtonLabel: View {
       )
       .background(
         Circle()
-          .fill(colorScheme == .dark ? 
-              Color.black.opacity(0.3) : 
-              Color.white.opacity(0.8))
+          .fill(colorScheme == .dark ? Color.black.opacity(0.3) : Color.white.opacity(0.8))
           .shadow(
-            color: colorScheme == .dark ?
-              DesignSystem.Colors.primary.opacity(isHovered ? 0.4 : 0.3) :
-              DesignSystem.Colors.primary.opacity(isHovered ? 0.3 : 0.2),
+            color: colorScheme == .dark
+              ? DesignSystem.Colors.primary.opacity(isHovered ? 0.4 : 0.3)
+              : DesignSystem.Colors.primary.opacity(isHovered ? 0.3 : 0.2),
             radius: isHovered ? 8 : 6,
             x: 0,
             y: colorScheme == .dark ? 1 : 2
@@ -601,7 +629,7 @@ private struct HelpButtonLabel: View {
 private struct PressEventsModifier: ViewModifier {
   var onPress: () -> Void
   var onRelease: () -> Void
-  
+
   func body(content: Content) -> some View {
     content
       .simultaneousGesture(
@@ -627,14 +655,16 @@ extension View {
 
 // MARK: - View Extension
 extension View {
-    @ViewBuilder
-    fileprivate func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
-        if condition {
-            transform(self)
-        } else {
-            self
-        }
+  /* 这个扩展方法已经在VibrancyModifier中定义，需要删除
+  @ViewBuilder
+  fileprivate func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+    if condition {
+      transform(self)
+    } else {
+      self
     }
+  }
+  */
 }
 
 // MARK: - Helper Functions

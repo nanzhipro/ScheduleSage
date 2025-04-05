@@ -14,7 +14,7 @@ private enum Design {
     static let padding = EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
     static let cornerRadius: CGFloat = 8
   }
-  
+
   enum Layout {
     static let iconSpacing: CGFloat = 6
     static let iconLabelSpacing: CGFloat = 6
@@ -26,7 +26,7 @@ private enum Design {
     static let selectionSize: CGFloat = 14
     static let selectionInnerSize: CGFloat = 7
   }
-  
+
   enum Time {
     static let separatorWidth: CGFloat = 1
     static let separatorHeight: CGFloat = 24
@@ -41,7 +41,7 @@ struct EventCard: View {
   let onSelect: () -> Void
   let onDelete: () -> Void
   let onUpdate: (CalendarEvent) -> Void
-  
+
   var body: some View {
     HStack(alignment: .center, spacing: Design.Layout.iconSpacing) {
       CardContent(event: calendarEvent)
@@ -63,7 +63,7 @@ struct EventCard: View {
 // MARK: - Card Content
 private struct CardContent: View {
   let event: CalendarEvent
-  
+
   var body: some View {
     VStack(alignment: .leading, spacing: Design.Layout.titleSpacing) {
       titleView
@@ -72,14 +72,14 @@ private struct CardContent: View {
       iconLabels
     }
   }
-  
+
   private var titleView: some View {
     Text(event.title)
       .font(.system(size: 17, weight: .medium))
       .foregroundColor(DesignSystem.Colors.primaryText)
       .lineLimit(1)
   }
-  
+
   private var timeSection: some View {
     TimeSection(
       startDate: event.parsedStartDate ?? Date(),
@@ -87,7 +87,7 @@ private struct CardContent: View {
     )
     .padding(.bottom, Design.Layout.timeSectionSpacing)
   }
-  
+
   private var iconLabels: some View {
     HStack(spacing: Design.Layout.iconSpacing) {
       if !event.location.isEmpty {
@@ -104,13 +104,13 @@ private struct CardContent: View {
 private struct TimeSection: View {
   let startDate: Date
   let endDate: Date
-  
+
   var body: some View {
     HStack(alignment: .center, spacing: Design.Layout.iconSpacing) {
       Image(systemName: "clock")
         .font(.system(size: Design.Layout.timeIconSize, weight: .regular))
         .foregroundColor(DesignSystem.Colors.iconGray)
-      
+
       Text(DateFormatters.formatDateRange(start: startDate, end: endDate))
         .font(DesignSystem.Typography.bodyRegular)
         .foregroundColor(DesignSystem.Colors.primaryText)
@@ -122,14 +122,14 @@ private struct TimeSection: View {
 private struct EventIconLabel: View {
   let icon: String
   let text: String
-  
+
   var body: some View {
     HStack(spacing: Design.Layout.iconLabelSpacing) {
       ZStack {
         Circle()
           .fill(DesignSystem.Colors.lightGray.opacity(0.8))
           .frame(width: Design.Layout.iconSize, height: Design.Layout.iconSize)
-        
+
         Image(systemName: icon)
           .font(.system(size: 14, weight: .light))
           .foregroundColor(DesignSystem.Colors.iconGray)
@@ -154,12 +154,18 @@ private struct RightControls: View {
   let onDelete: () -> Void
   let onUpdate: (CalendarEvent) -> Void
   let event: CalendarEvent
-  
+
   @State private var isHovering = false
   @State private var showingEditSheet = false
   @State private var currentEvent: CalendarEvent
-  
-  init(isSelected: Bool, onSelect: @escaping () -> Void, onDelete: @escaping () -> Void, onUpdate: @escaping (CalendarEvent) -> Void, event: CalendarEvent) {
+
+  init(
+    isSelected: Bool,
+    onSelect: @escaping () -> Void,
+    onDelete: @escaping () -> Void,
+    onUpdate: @escaping (CalendarEvent) -> Void,
+    event: CalendarEvent
+  ) {
     self.isSelected = isSelected
     self.onSelect = onSelect
     self.onDelete = onDelete
@@ -167,7 +173,7 @@ private struct RightControls: View {
     self.event = event
     _currentEvent = State(initialValue: event)
   }
-  
+
   var body: some View {
     VStack(alignment: .center) {
       Spacer()
@@ -178,7 +184,7 @@ private struct RightControls: View {
         Button(action: { showingEditSheet = true }) {
           Label(NSLocalizedString("edit_event", comment: ""), systemImage: "pencil")
         }
-        
+
         Button(role: .destructive, action: onDelete) {
           Label(NSLocalizedString("delete_event", comment: ""), systemImage: "trash")
         }
@@ -219,13 +225,13 @@ private struct RightControls: View {
 // MARK: - Selection Indicator
 private struct SelectionIndicator: View {
   let isSelected: Bool
-  
+
   var body: some View {
     ZStack {
       Circle()
         .fill(DesignSystem.Colors.primary.opacity(0.1))
         .frame(width: Design.Layout.selectionSize, height: Design.Layout.selectionSize)
-      
+
       if isSelected {
         Circle()
           .fill(DesignSystem.Colors.primary)
@@ -239,15 +245,7 @@ private struct SelectionIndicator: View {
 private extension View {
   func cardStyle() -> some View {
     self
-      .background(DesignSystem.Colors.background)
-      .cornerRadius(Design.Card.cornerRadius)
-      .shadow(
-        color: Color.black.opacity(0.05),
-        radius: 8,
-        x: 0,
-        y: 2
-      )
-      .scheduleCardStyle()
+      .vibrancyCardStyle()
   }
 }
 
@@ -258,7 +256,7 @@ struct EventCard_Previews: PreviewProvider {
     Group {
       makePreview()
         .previewDisplayName("Light Mode")
-      
+
       makePreview()
         .preferredColorScheme(.dark)
         .previewDisplayName("Dark Mode")
@@ -266,7 +264,7 @@ struct EventCard_Previews: PreviewProvider {
     .padding()
     .previewLayout(.sizeThatFits)
   }
-  
+
   private static func makePreview() -> some View {
     EventCard(
       calendarEvent: CalendarEvent(
