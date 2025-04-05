@@ -1,4 +1,5 @@
 import AppKit
+import Foundation
 import Sentry
 import SwiftUI
 
@@ -53,6 +54,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     logger.info("[App] Initializing IAP service")
     await IAPService.bootstrap()
     logger.info("[App] IAP service initialization completed")
+
+    // 设置Chrome原生消息主机文件
+    setupChromeNativeMessagingHost()
 
     logger.notice("[App] Services initialization completed")
   }
@@ -265,6 +269,53 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       =====================================================
       """
     logger.info("\(logMessage)")
+  }
+
+  // MARK: - Chrome Extension Integration
+  // 问题： 写入失败，因为沙盒无法访问Chrome目录
+  private func setupChromeNativeMessagingHost() {
+    logger.info("[App] Setting up Chrome Native Messaging Host")
+
+    // 定义常量
+    let manifestFileName = "com.tiwenlab.schedulesage.json"
+    let manifestContent = """
+      {
+          "name": "com.tiwenlab.schedulesage",
+          "description": "ScheduleSage Native Host",
+          "path": "/Applications/ScheduleSage.app/Contents/MacOS/SSChromeExtensionsCLI",
+          "type": "stdio",
+          "allowed_origins": [
+              "chrome-extension://jphemoehpamhbkpmkpbflfdghobchnhk/"
+          ]
+      }
+      """
+
+    do {
+      // 获取目标路径
+      let fileManager = FileManager.default
+      let hostDirectory = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(
+        "Library/Application Support/Google/Chrome/NativeMessagingHosts"
+      )
+      let manifestPath = hostDirectory.appendingPathComponent(manifestFileName)
+
+      // 如果文件已存在，直接返回
+      guard !fileManager.fileExists(atPath: manifestPath.path) else {
+        logger.info("[App] Chrome Native Messaging Host manifest already exists")
+        return
+      }
+
+      // 确保目录存在
+      try fileManager.createDirectory(
+        at: hostDirectory,
+        withIntermediateDirectories: true
+      )
+
+      // 写入配置文件
+      try manifestContent.write(to: manifestPath, atomically: true, encoding: .utf8)
+      logger.info("[App] Successfully created Chrome Native Messaging Host manifest")
+    } catch {
+      logger.error("[App] Chrome Native Messaging Host setup failed: \(error)")
+    }
   }
 }
 
