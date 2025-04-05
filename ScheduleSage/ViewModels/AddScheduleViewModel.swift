@@ -819,11 +819,6 @@ enum CalendarError: LocalizedError {
     }
 }
 
-// MARK: - Notification Name Extension
-extension Notification.Name {
-    static let commandVPressed = Notification.Name("commandVPressed")
-}
-
 // MARK: - Manual Input Processing
 extension AddScheduleViewModel {
     func processManualInput(_ text: String) async throws -> [CalendarEvent] {
