@@ -53,6 +53,7 @@
 "settings_quit" = "退出";
 "settings_tab_general" = "通用";
 "settings_tab_advanced" = "高级";
+"settings_tab_support" = "支持";
 "settings_notifications" = "接收通知";
 "settings_dark_mode" = "深色模式";
 "settings_auto_start" = "开机自启";
@@ -61,6 +62,7 @@
 "settings_version" = "版本";
 "settings_window_mode" = "使用独立窗口";
 "settings_theme" = "主题风格";
+"settings_support_info" = "支持信息";
 
 // Window Menu
 "window.show_main_window" = "显示主窗口";
@@ -431,4 +433,15 @@
 "Recording..." = "录音中...";
 "Paused" = "已暂停";
 "Processing..." = "处理中...";
-"Recording Complete" = "录音完成"; 
+"Recording Complete" = "录音完成";
+
+// Support Info View
+"support_info.title" = "支持信息";
+"support_info.support_id" = "支持ID:";
+"support_info.serial_number" = "序列号:";
+"support_info.hardware_id" = "硬件ID:";
+"support_info.device_model" = "设备型号:";
+"support_info.os_version" = "系统版本:";
+"support_info.app_version" = "应用版本:";
+"support_info.copy_tooltip" = "复制支持ID";
+"support_info.help_text" = "如果您需要[技术支持](https://schedulesage.featurebase.app/)，请提供上述支持ID，以便我们更好地帮助您解决问题。"; 

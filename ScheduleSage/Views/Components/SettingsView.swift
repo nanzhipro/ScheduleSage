@@ -5,8 +5,8 @@
 //  Created by CursorAI on 2024-03-20.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct SettingsView: View {
   @AppStorage("currentTheme") private var currentTheme = ThemeType.wechat.rawValue
@@ -14,12 +14,17 @@ struct SettingsView: View {
   @StateObject private var themeManager = ThemeManager.shared
   @State private var autoStart: Bool = LaunchManager.shared.isLaunchAtStartupEnabled
   @Environment(\.colorScheme) private var colorScheme
-  
+
   var body: some View {
     TabView {
       generalSettings
         .tabItem {
           Label(NSLocalizedString("settings_tab_general", comment: ""), systemImage: "gear")
+        }
+
+      supportView
+        .tabItem {
+          Label(NSLocalizedString("settings_tab_support", comment: ""), systemImage: "questionmark.circle")
         }
     }
     .frame(width: 375, height: 500)
@@ -27,7 +32,7 @@ struct SettingsView: View {
     .accentColor(DesignSystem.Colors.primary)
     .onAppear(perform: onAppear)
   }
-  
+
   private var generalSettings: some View {
     Form {
       appearanceSection
@@ -38,17 +43,19 @@ struct SettingsView: View {
     .scrollContentBackground(.hidden)
     .background(DesignSystem.Colors.primaryBackground)
   }
-  
+
   private var appearanceSection: some View {
     SettingsSection(title: "settings_group_appearance") {
       // 外观模式选择器
-      Picker(selection: Binding(
-        get: { AppearanceMode(rawValue: appearanceMode) ?? .auto },
-        set: { newValue in
-          appearanceMode = newValue.rawValue
-          updateAppearance(to: newValue)
-        }
-      )) {
+      Picker(
+        selection: Binding(
+          get: { AppearanceMode(rawValue: appearanceMode) ?? .auto },
+          set: { newValue in
+            appearanceMode = newValue.rawValue
+            updateAppearance(to: newValue)
+          }
+        )
+      ) {
         ForEach(AppearanceMode.allCases) { mode in
           Label {
             Text(mode.localizedName)
@@ -71,7 +78,7 @@ struct SettingsView: View {
       .padding(.vertical, 4)
     }
   }
-  
+
   private func updateAppearance(to mode: AppearanceMode) {
     switch mode {
     case .light:
@@ -81,21 +88,21 @@ struct SettingsView: View {
       NSApp.appearance = NSAppearance(named: .darkAqua)
       themeManager.setDarkMode(true)
     case .auto:
-      NSApp.appearance = nil // 重置为系统默认
+      NSApp.appearance = nil  // 重置为系统默认
       // 根据当前系统外观设置
       if let isDark = NSApp.effectiveAppearance.isDarkMode {
         themeManager.setDarkMode(isDark)
       }
     }
-    
+
     // 发送主题变更通知
     NotificationCenter.default.post(name: .themeDidChange, object: nil)
   }
-  
+
   private func observeSystemAppearanceChanges() {
     // 移除旧的观察者
     DistributedNotificationCenter.default().removeObserver(self)
-    
+
     // 添加新的观察者
     DistributedNotificationCenter.default().addObserver(
       forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
@@ -103,10 +110,21 @@ struct SettingsView: View {
       queue: .main
     ) { _ in
       guard AppearanceMode(rawValue: self.appearanceMode) == .auto,
-            let isDark = NSApp.effectiveAppearance.isDarkMode else { return }
-      
+        let isDark = NSApp.effectiveAppearance.isDarkMode
+      else { return }
+
       self.themeManager.setDarkMode(isDark)
     }
+  }
+
+  private var supportView: some View {
+    ScrollView {
+      VStack(spacing: 16) {
+        SupportInfoView()
+      }
+      .padding()
+    }
+    .background(DesignSystem.Colors.primaryBackground)
   }
 }
 
@@ -141,9 +159,9 @@ private extension SettingsView {
       )
     }
   }
-  
+
   var versionSection: some View {
-    SettingsSection(title: "settings_group_about") {      
+    SettingsSection(title: "settings_group_about") {
       ForEach(AboutLink.allCases) { link in
         SettingsLinkRow(link: link)
       }
@@ -162,12 +180,12 @@ private extension SettingsView {
   private struct SettingsSection<Content: View>: View {
     let title: LocalizedStringKey
     let content: Content
-    
+
     init(title: LocalizedStringKey, @ViewBuilder content: () -> Content) {
       self.title = title
       self.content = content()
     }
-    
+
     var body: some View {
       Section {
         content
@@ -184,7 +202,7 @@ private extension SettingsView {
     let title: LocalizedStringKey
     let icon: String
     let isOn: Binding<Bool>
-    
+
     var body: some View {
       Toggle(isOn: isOn) {
         Label {
@@ -203,13 +221,13 @@ private extension SettingsView {
     let title: LocalizedStringKey
     let icon: String
     let content: Content
-    
+
     init(title: LocalizedStringKey, icon: String, @ViewBuilder content: () -> Content) {
       self.title = title
       self.icon = icon
       self.content = content()
     }
-    
+
     var body: some View {
       HStack {
         Label {
@@ -227,7 +245,7 @@ private extension SettingsView {
 
   private struct SettingsLinkRow: View {
     let link: AboutLink
-    
+
     var body: some View {
       Button(action: { link.open() }) {
         Label {
@@ -247,7 +265,7 @@ private extension SettingsView {
 // MARK: - Theme Picker
 private struct ThemePicker: View {
   @Binding var currentTheme: ThemeType
-  
+
   var body: some View {
     HStack {
       Label {
@@ -257,9 +275,9 @@ private struct ThemePicker: View {
         Image(systemName: "paintpalette.fill")
           .foregroundStyle(DesignSystem.Colors.primary)
       }
-      
+
       Spacer()
-      
+
       HStack(spacing: 12) {
         ForEach(ThemeType.allCases) { theme in
           ThemeColorButton(
@@ -278,10 +296,10 @@ private struct ThemeColorButton: View {
   let theme: ThemeType
   let isSelected: Bool
   let action: () -> Void
-  
+
   @Environment(\.colorScheme) private var colorScheme
   @State private var isHovered = false
-  
+
   var body: some View {
     Button(action: action) {
       Circle()
@@ -332,7 +350,7 @@ private extension ThemeType {
     case .airbnb: return Color(light: "FF5A5F", dark: "FF5A5F")
     }
   }
-  
+
   var localizedName: LocalizedStringKey {
     switch self {
     case .apple: return "theme_apple"
@@ -348,9 +366,9 @@ private enum AboutLink: String, CaseIterable, Identifiable {
   case privacyPolicy
   case userAgreement
   case faq
-  
+
   var id: String { rawValue }
-  
+
   var title: String {
     switch self {
     case .feedback: return "settings_feedback"
@@ -359,7 +377,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
     case .faq: return "settings_faq"
     }
   }
-  
+
   var icon: String {
     switch self {
     case .feedback: return "megaphone.fill"
@@ -368,7 +386,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
     case .faq: return "questionmark.circle.fill"
     }
   }
-  
+
   var url: String {
     switch self {
     case .feedback: return AppConstants.URLs.feedback
@@ -377,7 +395,7 @@ private enum AboutLink: String, CaseIterable, Identifiable {
     case .faq: return AppConstants.URLs.faq
     }
   }
-  
+
   func open() {
     if let url = URL(string: url) {
       NSWorkspace.shared.open(url)

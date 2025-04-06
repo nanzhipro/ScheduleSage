@@ -53,6 +53,7 @@
 "settings_quit" = "Quit";
 "settings_tab_general" = "General";
 "settings_tab_advanced" = "Advanced";
+"settings_tab_support" = "Support";
 "settings_notifications" = "Notifications";
 "settings_dark_mode" = "Dark Mode";
 "settings_auto_start" = "Start at Login";
@@ -61,6 +62,7 @@
 "settings_version" = "Version";
 "settings_window_mode" = "Separate Window";
 "settings_theme" = "Theme";
+"settings_support_info" = "Support Information";
 
 // Window Menu
 "window.show_main_window" = "Show Main Window";
@@ -436,7 +438,6 @@
 "toast.error.auth_required" = "Authentication required";
 "toast.error.auth_failed" = "Authentication failed: %@";
 "toast.error.token_storage" = "Token storage error";
-"toast.error.invalid_data" = "Invalid data: %@";
 "toast.error.decoding" = "Data parsing error: %@";
 "toast.success.operation" = "Operation successful";
 "toast.info.processing" = "Processing...";
@@ -526,4 +527,13 @@
 "microphone_permission_instructions" = "Please enable microphone access in System Settings to use voice recognition";
 "recording_start_failed" = "Failed to start recording";
 
-// ... existing code ... 
+// Support Info View
+"support_info.title" = "Support Information";
+"support_info.support_id" = "Support ID:";
+"support_info.serial_number" = "Serial Number:";
+"support_info.hardware_id" = "Hardware ID:";
+"support_info.device_model" = "Device Model:";
+"support_info.os_version" = "System Version:";
+"support_info.app_version" = "App Version:";
+"support_info.copy_tooltip" = "Copy Support ID";
+"support_info.help_text" = "If you need [technical support](https://schedulesage.featurebase.app/), please provide the support ID above to help us better assist you."; 
