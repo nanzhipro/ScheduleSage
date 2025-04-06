@@ -18,6 +18,8 @@
 		D56686B52CFC097A00EE1486 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D56686B42CFC097A00EE1486 /* Kingfisher */; };
 		D57A1BC22D275D10000BAC44 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D57A1BC12D275D10000BAC44 /* Alamofire */; };
 		D5A3444B2D9CB8C3001CC442 /* SSChromeExtensionsCLI in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5A344402D9CB809001CC442 /* SSChromeExtensionsCLI */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		D5A5A5772DA25F3600910C11 /* MCP in Frameworks */ = {isa = PBXBuildFile; productRef = D5A5A5762DA25F3600910C11 /* MCP */; };
+		D5A5A5782DA25F4500910C11 /* mcp-server in CopyFiles */ = {isa = PBXBuildFile; fileRef = D52EC19A2DA25DB00034C592 /* mcp-server */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D5F41BE92D2A17F100CB844E /* CocoaLumberjackSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */; };
 		D5FF61672D60AEDC00FC8AF6 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = D5FF61662D60AEDC00FC8AF6 /* Sentry */; };
 /* End PBXBuildFile section */
@@ -44,9 +46,25 @@
 			remoteGlobalIDString = D5A3443F2D9CB809001CC442;
 			remoteInfo = SSChromeExtensionsCLI;
 		};
+		D5A5A5792DA25F4900910C11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D57ADFBE2CF54D34000D9DB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D52EC1992DA25DB00034C592;
+			remoteInfo = "mcp-server";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		D52EC1982DA25DB00034C592 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		D5A3443E2D9CB809001CC442 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -62,6 +80,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				D5A5A5782DA25F4500910C11 /* mcp-server in CopyFiles */,
 				D5A3444B2D9CB8C3001CC442 /* SSChromeExtensionsCLI in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -69,6 +88,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D52EC19A2DA25DB00034C592 /* mcp-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "mcp-server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5553BD32D68C46200EB51BF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		D57ADFC62CF54D34000D9DB1 /* ScheduleSage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScheduleSage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D57ADFD92CF54D36000D9DB1 /* ScheduleSageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScheduleSageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -87,6 +107,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		D52EC19B2DA25DB00034C592 /* mcp-server */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "mcp-server";
+			sourceTree = "<group>";
+		};
 		D57ADFC82CF54D34000D9DB1 /* ScheduleSage */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -113,6 +138,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		D52EC1972DA25DB00034C592 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5A5A5772DA25F3600910C11 /* MCP in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D57ADFC32CF54D34000D9DB1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -171,6 +204,7 @@
 				D57ADFDC2CF54D36000D9DB1 /* ScheduleSageTests */,
 				D57ADFE62CF54D36000D9DB1 /* ScheduleSageUITests */,
 				D5A344412D9CB809001CC442 /* SSChromeExtensionsCLI */,
+				D52EC19B2DA25DB00034C592 /* mcp-server */,
 				D56686A92CFC05D800EE1486 /* Frameworks */,
 				D57ADFC72CF54D34000D9DB1 /* Products */,
 			);
@@ -183,6 +217,7 @@
 				D57ADFD92CF54D36000D9DB1 /* ScheduleSageTests.xctest */,
 				D57ADFE32CF54D36000D9DB1 /* ScheduleSageUITests.xctest */,
 				D5A344402D9CB809001CC442 /* SSChromeExtensionsCLI */,
+				D52EC19A2DA25DB00034C592 /* mcp-server */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -190,6 +225,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		D52EC1992DA25DB00034C592 /* mcp-server */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D52EC1A02DA25DB00034C592 /* Build configuration list for PBXNativeTarget "mcp-server" */;
+			buildPhases = (
+				D52EC1962DA25DB00034C592 /* Sources */,
+				D52EC1972DA25DB00034C592 /* Frameworks */,
+				D52EC1982DA25DB00034C592 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D52EC19B2DA25DB00034C592 /* mcp-server */,
+			);
+			name = "mcp-server";
+			packageProductDependencies = (
+				D5A5A5762DA25F3600910C11 /* MCP */,
+			);
+			productName = "mcp-server";
+			productReference = D52EC19A2DA25DB00034C592 /* mcp-server */;
+			productType = "com.apple.product-type.tool";
+		};
 		D57ADFC52CF54D34000D9DB1 /* ScheduleSage */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D57ADFED2CF54D36000D9DB1 /* Build configuration list for PBXNativeTarget "ScheduleSage" */;
@@ -202,6 +260,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D5A5A57A2DA25F4900910C11 /* PBXTargetDependency */,
 				D5A344492D9CB869001CC442 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -303,6 +362,9 @@
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					D52EC1992DA25DB00034C592 = {
+						CreatedOnToolsVersion = 16.0;
+					};
 					D57ADFC52CF54D34000D9DB1 = {
 						CreatedOnToolsVersion = 16.0;
 					};
@@ -343,6 +405,7 @@
 				D546BA382D91A2420058F1B3 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 				D546BB492D91A6580058F1B3 /* XCRemoteSwiftPackageReference "DockProgress" */,
 				D59808922D96225300A2D376 /* XCRemoteSwiftPackageReference "AudioKit" */,
+				D5A5A5752DA25F3600910C11 /* XCRemoteSwiftPackageReference "swift-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D57ADFC72CF54D34000D9DB1 /* Products */;
@@ -353,6 +416,7 @@
 				D57ADFD82CF54D36000D9DB1 /* ScheduleSageTests */,
 				D57ADFE22CF54D36000D9DB1 /* ScheduleSageUITests */,
 				D5A3443F2D9CB809001CC442 /* SSChromeExtensionsCLI */,
+				D52EC1992DA25DB00034C592 /* mcp-server */,
 			);
 		};
 /* End PBXProject section */
@@ -382,6 +446,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		D52EC1962DA25DB00034C592 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D57ADFC22CF54D34000D9DB1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -428,9 +499,36 @@
 			target = D5A3443F2D9CB809001CC442 /* SSChromeExtensionsCLI */;
 			targetProxy = D5A344482D9CB869001CC442 /* PBXContainerItemProxy */;
 		};
+		D5A5A57A2DA25F4900910C11 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D52EC1992DA25DB00034C592 /* mcp-server */;
+			targetProxy = D5A5A5792DA25F4900910C11 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		D52EC19E2DA25DB00034C592 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YSM8K853CQ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D52EC19F2DA25DB00034C592 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YSM8K853CQ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		D57ADFEB2CF54D36000D9DB1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -722,6 +820,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		D52EC1A02DA25DB00034C592 /* Build configuration list for PBXNativeTarget "mcp-server" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D52EC19E2DA25DB00034C592 /* Debug */,
+				D52EC19F2DA25DB00034C592 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D57ADFC12CF54D34000D9DB1 /* Build configuration list for PBXProject "ScheduleSage" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -850,6 +957,14 @@
 				minimumVersion = 5.6.5;
 			};
 		};
+		D5A5A5752DA25F3600910C11 /* XCRemoteSwiftPackageReference "swift-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/modelcontextprotocol/swift-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.7.1;
+			};
+		};
 		D5F41BE72D2A17E000CB844E /* XCRemoteSwiftPackageReference "CocoaLumberjack" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/CocoaLumberjack/CocoaLumberjack.git";
@@ -913,6 +1028,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D52770E12D2611BB00738094 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		D5A5A5762DA25F3600910C11 /* MCP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5A5A5752DA25F3600910C11 /* XCRemoteSwiftPackageReference "swift-sdk" */;
+			productName = MCP;
 		};
 		D5F41BE82D2A17F100CB844E /* CocoaLumberjackSwift */ = {
 			isa = XCSwiftPackageProductDependency;

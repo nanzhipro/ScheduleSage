@@ -1,5 +1,5 @@
 {
-  "originHash" : "52219909e2f85579440a01a12a96891cd45087df652ce443d2bfde0483bca67e",
+  "originHash" : "65d8dd9b1ea3cde8e394060f05cd729160cbcb03890b19ef20a4b0ce4664126f",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -143,6 +143,24 @@
       "state" : {
         "revision" : "96a2f8a0fa41e9e09af4585e2724c4e825410b91",
         "version" : "1.6.2"
+      }
+    },
+    {
+      "identity" : "swift-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/modelcontextprotocol/swift-sdk.git",
+      "state" : {
+        "revision" : "cfcead8121de466624a1357e02894616b0057805",
+        "version" : "0.7.1"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system.git",
+      "state" : {
+        "revision" : "a34201439c74b53f0fd71ef11741af7e7caf01e1",
+        "version" : "1.4.2"
       }
     },
     {
