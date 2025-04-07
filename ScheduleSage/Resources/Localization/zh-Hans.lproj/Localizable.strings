@@ -102,7 +102,7 @@
 "manual_input_title" = "手动添加";
 "manual_input_subtitle" = "支持自然语言输入";
 "recognize_button" = "识别";
-"schedule_input_placeholder" = "输入日程内容";
+"schedule_input_placeholder" = "在这里输入您的日程安排，例如：明天下午3点开产品评审会";
 
 // LLM Errors
 "llm_invalid_response" = "AI识别失败，请重试";

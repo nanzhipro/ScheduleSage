@@ -102,7 +102,7 @@
 "manual_input_title" = "手動で追加";
 "manual_input_subtitle" = "自然言語を使用";
 "recognize_button" = "スキャン";
-"schedule_input_placeholder" = "予定の詳細を入力";
+"schedule_input_placeholder" = "予定を入力してください。例：明日の午後3時にプロダクトレビュー会議";
 
 // LLMエラー
 "llm_invalid_response" = "AIスキャンに失敗しました。もう一度お試しください";

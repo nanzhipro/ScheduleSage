@@ -20,10 +20,7 @@ struct ScheduleSageApp: App {
         AddScheduleView()
           .environmentObject(viewModel)
           .environmentObject(authViewModel)
-          .frame(
-            width: DesignSystem.Dimensions.mainViewWidth,
-            height: DesignSystem.Dimensions.mainViewHeight
-          )
+          .frame(minHeight: DesignSystem.Dimensions.mainViewHeight)
           .onAppear {
             // 确保只创建一个主窗口
           }
@@ -55,10 +52,6 @@ struct ScheduleSageApp: App {
       guard hasCompletedOnboarding,
         let window = NSApp.mainWindow
       else { return }
-
-      // // 配置窗口基本属性
-      window.styleMask.remove([.resizable, .fullScreen])
-      window.collectionBehavior.remove([.fullScreenPrimary, .fullScreenAuxiliary])
 
       // 设置窗口外观
       window.titlebarAppearsTransparent = true

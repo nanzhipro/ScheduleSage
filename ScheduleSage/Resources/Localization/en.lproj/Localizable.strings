@@ -102,7 +102,7 @@
 "manual_input_title" = "Manual Add";
 "manual_input_subtitle" = "Use natural language";
 "recognize_button" = "Scan";
-"schedule_input_placeholder" = "Enter event details";
+"schedule_input_placeholder" = "Enter your schedule here, e.g.: Product review meeting tomorrow at 3 PM";
 
 // LLM Errors
 "llm_invalid_response" = "AI scan failed, try again";
