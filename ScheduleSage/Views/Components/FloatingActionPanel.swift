@@ -252,11 +252,19 @@ struct FloatingActionPanel: View {
     isProcessing = true
     LoadingManager.shared.show(.processing)
 
-    do {
-      try await onSendText(inputText)
+    let trimmedInput = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let url = URL(string: trimmedInput), url.isValidWebURL {
+      // 处理URL
+      viewModel.handleURLContent(url)
       inputText = ""
-    } catch {
-      viewModel.showToastMessage(error.localizedDescription, type: .error)
+    } else {
+      // 处理普通文本
+      do {
+        try await onSendText(inputText)
+        inputText = ""
+      } catch {
+        viewModel.showToastMessage(error.localizedDescription, type: .error)
+      }
     }
 
     isProcessing = false

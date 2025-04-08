@@ -250,7 +250,6 @@ private struct MainContentView: View {
         FooterView()
       }
       .zIndex(Double(ZIndex.background))  // 主内容在底层
-      .offset(y: -12)  // 整体向上移动 12px
 
       // 使用 VStack 将悬浮操作面板放置在底部
       VStack {

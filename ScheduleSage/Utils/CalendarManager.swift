@@ -5,399 +5,414 @@
 //  Created by CursorAI on 2024-03-20.
 //
 
+import AppKit
 import EventKit
 import Foundation
-import AppKit
 import SwiftDate
 
 /// 日历事件模型
 public struct CalendarEventSummary: Identifiable {
-    public let id: String
-    public let title: String
-    public let startDate: Date
-    public let endDate: Date
-    public let calendar: String
-    public let calendarColor: NSColor
-    
-    public var duration: TimeInterval {
-        endDate.timeIntervalSince(startDate)
-    }
-    
-    public var isAllDay: Bool {
-        // 判断是否为全天事件的简单逻辑
-        let calendar = Calendar.current
-        return calendar.isDate(startDate, equalTo: endDate, toGranularity: .day) &&
-               calendar.component(.hour, from: startDate) == 0 &&
-               calendar.component(.minute, from: startDate) == 0 &&
-               calendar.component(.hour, from: endDate) == 23 &&
-               calendar.component(.minute, from: endDate) == 59
-    }
+  public let id: String
+  public let title: String
+  public let startDate: Date
+  public let endDate: Date
+  public let calendar: String
+  public let calendarColor: NSColor
+  public let calendarItemIdentifier: String
+
+  public var duration: TimeInterval {
+    endDate.timeIntervalSince(startDate)
+  }
+
+  public var isAllDay: Bool {
+    // 判断是否为全天事件的简单逻辑
+    let calendar = Calendar.current
+    return calendar.isDate(startDate, equalTo: endDate, toGranularity: .day)
+      && calendar.component(.hour, from: startDate) == 0 && calendar.component(.minute, from: startDate) == 0
+      && calendar.component(.hour, from: endDate) == 23 && calendar.component(.minute, from: endDate) == 59
+  }
 }
 
 /// 日历管理器
-public final class CalendarManager { 
-    // MARK: - 属性
-    private let _eventStore = EKEventStore()
-    private let logger = LoggerService.makeCompatible(category: "CalendarManager")
-    
-    // 权限缓存
-    private static let accessGrantedKey = "CalendarAccessGranted"
-    private var accessGranted: Bool? {
-        get { UserDefaults.standard.bool(forKey: Self.accessGrantedKey) }
-        set { UserDefaults.standard.set(newValue, forKey: Self.accessGrantedKey) }
-    }
-    
-    /// 获取事件存储实例
-    public var eventStore: EKEventStore {
-        return _eventStore
-    }
-    
-    public init() {}
+public final class CalendarManager {
+  // MARK: - 属性
+  private let _eventStore = EKEventStore()
+  private let logger = LoggerService.makeCompatible(category: "CalendarManager")
+
+  // 权限缓存
+  private static let accessGrantedKey = "CalendarAccessGranted"
+  private var accessGranted: Bool? {
+    get { UserDefaults.standard.bool(forKey: Self.accessGrantedKey) }
+    set { UserDefaults.standard.set(newValue, forKey: Self.accessGrantedKey) }
+  }
+
+  /// 获取事件存储实例
+  public var eventStore: EKEventStore {
+    return _eventStore
+  }
+
+  public init() {}
 }
 
 // MARK: - 公共接口
 public extension CalendarManager {
-    /// 请求日历访问权限
-    func requestAccess() async throws -> Bool {
-        // 检查缓存的权限状态
-        if let cached = accessGranted, cached {
-            return true
+  /// 请求日历访问权限
+  func requestAccess() async throws -> Bool {
+    // 检查缓存的权限状态
+    if let cached = accessGranted, cached {
+      return true
+    }
+
+    let status = EKEventStore.authorizationStatus(for: .event)
+
+    switch status {
+    case .authorized, .fullAccess:
+      // 缓存权限状态
+      accessGranted = true
+      return true
+
+    case .notDetermined:
+      let granted = try await requestCalendarAccess()
+      // 缓存权限状态
+      accessGranted = granted
+      return granted
+
+    case .denied, .restricted, .writeOnly:
+      // 清除缓存的权限状态
+      accessGranted = false
+
+      if let settingsUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendar") {
+        _ = await MainActor.run {
+          NSWorkspace.shared.open(settingsUrl)
         }
-        
-        let status = EKEventStore.authorizationStatus(for: .event)
-        
-        switch status {
-        case .authorized, .fullAccess:
-            // 缓存权限状态
-            accessGranted = true
-            return true
-            
-        case .notDetermined:
-            let granted = try await requestCalendarAccess()
-            // 缓存权限状态
-            accessGranted = granted
-            return granted
-            
-        case .denied, .restricted, .writeOnly:
-            // 清除缓存的权限状态
-            accessGranted = false
-            
-            if let settingsUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendar") {
-                _ = await MainActor.run {
-                    NSWorkspace.shared.open(settingsUrl)
-                }
-            }
-            throw CalendarError.accessDenied
-            
-        @unknown default:
-            // 清除缓存的权限状态
-            accessGranted = false
-            throw CalendarError.unknownStatus
-        }
+      }
+      throw CalendarError.accessDenied
+
+    @unknown default:
+      // 清除缓存的权限状态
+      accessGranted = false
+      throw CalendarError.unknownStatus
     }
-    
-    /// 创建日历事件
-    @discardableResult
-    func createEvent(from model: CalendarEvent) async throws -> String {
-        guard try await requestAccess() else {
-            throw CalendarError.accessDenied
-        }
-        
-        return try await createEventInternal(from: model)
+  }
+
+  /// 创建日历事件
+  @discardableResult
+  func createEvent(from model: CalendarEvent) async throws -> String {
+    guard try await requestAccess() else {
+      throw CalendarError.accessDenied
     }
-    
-    /// 为所有日历设置自动生成的颜色
-    func setAutoGeneratedColorsForAllCalendars() async throws {
-        guard try await requestAccess() else {
-            throw CalendarError.accessDenied
-        }
-        
-        try await setColorsInternal()
+
+    return try await createEventInternal(from: model)
+  }
+
+  /// 为所有日历设置自动生成的颜色
+  func setAutoGeneratedColorsForAllCalendars() async throws {
+    guard try await requestAccess() else {
+      throw CalendarError.accessDenied
     }
-    
-    /// 获取所有日历
-    func getAllCalendars() -> [EKCalendar] {
-        _eventStore.calendars(for: .event)
+
+    try await setColorsInternal()
+  }
+
+  /// 获取所有日历
+  func getAllCalendars() -> [EKCalendar] {
+    _eventStore.calendars(for: .event)
+  }
+
+  /// 获取所有日历名称列表
+  func getAllCalendarNames() -> [String] {
+    getAllCalendars().map(\.title)
+  }
+
+  /// 打开系统日历并定位到指定事件
+  /// - Parameter eventId: 事件标识符
+  /// - Returns: 是否成功打开事件
+  @discardableResult
+  func openCalendarEvent(_ eventId: String) async -> Bool {
+    // ical://occurrence/389C4D53-0D59-4700-BA6A-A49C3D95CF5D?method=show&options=more
+    logger.info("Opening calendar event: \(eventId)")
+    let url = URL(string: "ical://occurrence/\(eventId)?method=show&options=more")
+    logger.info("Opening calendar event: \(url?.absoluteString ?? "nil")")
+    if let url = url {
+      NSWorkspace.shared.open(url)
     }
-    
-    /// 获取所有日历名称列表
-    func getAllCalendarNames() -> [String] {
-        getAllCalendars().map(\.title)
+    return true
+  }
+
+  /// 获取当日日历事件
+  /// - Returns: 当日事件列表，按开始时间排序
+  func fetchTodayEvents() async throws -> [CalendarEventSummary] {
+    try await fetchEventsForDate(Date())
+  }
+
+  /// 获取指定日期的日历事件
+  /// - Parameter date: 指定的日期
+  /// - Returns: 指定日期的事件列表，按开始时间排序
+  func fetchEventsForDate(_ date: Date) async throws -> [CalendarEventSummary] {
+    guard try await requestAccess() else {
+      throw CalendarError.accessDenied
     }
-    
-    /// 打开系统日历并定位到指定事件
-    /// - Parameter eventId: 事件标识符
-    /// - Returns: 是否成功打开事件
-    @discardableResult
-    func openCalendarEvent(_ eventId: String) async -> Bool {
-        // ical://occurrence/389C4D53-0D59-4700-BA6A-A49C3D95CF5D?method=show&options=more
-        logger.info("Opening calendar event: \(eventId)")
-        let url = URL(string: "ical://occurrence/\(eventId)?method=show&options=more")
-        logger.info("Opening calendar event: \(url?.absoluteString ?? "nil")")
-        if let url = url {
-            NSWorkspace.shared.open(url)
-        }
-        return true
+
+    let calendar = Calendar.current
+
+    // 获取指定日期的开始和结束时间
+    guard let startOfDay = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: date),
+      let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: date)
+    else {
+      throw CalendarError.invalidDateFormat
     }
-    
-    /// 获取当日日历事件
-    /// - Returns: 当日事件列表，按开始时间排序
-    func fetchTodayEvents() async throws -> [CalendarEventSummary] {
-        try await fetchEventsForDate(Date())
+
+    // 创建谓词来过滤事件
+    let predicate = _eventStore.predicateForEvents(withStart: startOfDay, end: endOfDay, calendars: nil)
+
+    // 获取事件
+    let events = _eventStore.events(matching: predicate)
+
+    // 转换为 CalendarEventSummary 模型
+    return events.compactMap { event in
+      // 确保事件有日历，否则跳过此事件
+      guard let eventCalendar = event.calendar else {
+        return nil
+      }
+
+      return CalendarEventSummary(
+        id: event.eventIdentifier ?? UUID().uuidString,
+        title: event.title ?? NSLocalizedString("untitled_event", comment: ""),
+        startDate: event.startDate ?? date,
+        endDate: event.endDate ?? date,
+        calendar: eventCalendar.title,
+        calendarColor: eventCalendar.color,
+        calendarItemIdentifier: event.calendarItemIdentifier ?? event.eventIdentifier ?? UUID().uuidString
+      )
     }
-    
-    /// 获取指定日期的日历事件
-    /// - Parameter date: 指定的日期
-    /// - Returns: 指定日期的事件列表，按开始时间排序
-    func fetchEventsForDate(_ date: Date) async throws -> [CalendarEventSummary] {
-        guard try await requestAccess() else {
-            throw CalendarError.accessDenied
-        }
-        
-        let calendar = Calendar.current
-        
-        // 获取指定日期的开始和结束时间
-        guard let startOfDay = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: date),
-              let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: date) else {
-            throw CalendarError.invalidDateFormat
-        }
-        
-        // 创建谓词来过滤事件
-        let predicate = _eventStore.predicateForEvents(withStart: startOfDay, end: endOfDay, calendars: nil)
-        
-        // 获取事件
-        let events = _eventStore.events(matching: predicate)
-        
-        // 转换为 CalendarEventSummary 模型
-        return events.compactMap { event in
-            // 确保事件有日历，否则跳过此事件
-            guard let eventCalendar = event.calendar else {
-                return nil
-            }
-            
-            return CalendarEventSummary(
-                id: event.eventIdentifier ?? UUID().uuidString,
-                title: event.title ?? NSLocalizedString("untitled_event", comment: ""),
-                startDate: event.startDate ?? date,
-                endDate: event.endDate ?? date,
-                calendar: eventCalendar.title,
-                calendarColor: eventCalendar.color
-            )
-        }
-        .sorted { $0.startDate < $1.startDate }
-    }
-    
-    /// 清除权限缓存，强制重新请求权限
-    func clearAccessCache() {
-        accessGranted = nil
-    }
+    .sorted { $0.startDate < $1.startDate }
+  }
+
+  /// 清除权限缓存，强制重新请求权限
+  func clearAccessCache() {
+    accessGranted = nil
+  }
 }
 
 // MARK: - 权限处理
 private extension CalendarManager {
-    /// 请求日历访问权限的内部方法
-    func requestCalendarAccess() async throws -> Bool {
-        try await withCheckedThrowingContinuation { continuation in
-            if #available(macOS 14.0, *) {
-                _eventStore.requestFullAccessToEvents { granted, error in
-                    if let error = error {
-                        continuation.resume(throwing: error)
-                    } else {
-                        continuation.resume(returning: granted)
-                    }
-                }
-            } else {
-                _eventStore.requestAccess(to: .event) { granted, error in
-                    if let error = error {
-                        continuation.resume(throwing: error)
-                    } else {
-                        continuation.resume(returning: granted)
-                    }
-                }
-            }
+  /// 请求日历访问权限的内部方法
+  func requestCalendarAccess() async throws -> Bool {
+    try await withCheckedThrowingContinuation { continuation in
+      if #available(macOS 14.0, *) {
+        _eventStore.requestFullAccessToEvents { granted, error in
+          if let error = error {
+            continuation.resume(throwing: error)
+          } else {
+            continuation.resume(returning: granted)
+          }
         }
+      } else {
+        _eventStore.requestAccess(to: .event) { granted, error in
+          if let error = error {
+            continuation.resume(throwing: error)
+          } else {
+            continuation.resume(returning: granted)
+          }
+        }
+      }
     }
+  }
 }
 
 // MARK: - 事件处理
 private extension CalendarManager {
-    /// 创建事件的内部实现
-    @discardableResult
-    func createEventInternal(from model: CalendarEvent) async throws -> String {
-        guard let calendar = try await getOrCreateCalendar(named: model.calendar) else {
-            throw CalendarError.createFailed
-        }
-        
-        guard let startDate = model.parsedStartDate,
-              let endDate = model.parsedEndDate else {
-            throw CalendarError.invalidDateFormat
-        }
-        
-        let event = EKEvent(eventStore: _eventStore)
-        event.calendar = calendar
-        event.title = model.title
-        event.startDate = startDate
-        event.endDate = endDate
-        event.location = model.location
-        event.timeZone = TimeZone.current
-        
-        if !model.url.isEmpty, let url = URL(string: model.url) {
-            event.url = url
-        }
-        
-        if !model.notes.isEmpty {
-            event.notes = model.notes
-        }
-        
-        // 添加默认提醒（30分钟前）
-        event.addAlarm(EKAlarm(relativeOffset: -1800))
-        
-        do {
-            try _eventStore.save(event, span: .thisEvent, commit: true)
-            // 为了导航到对应日历事件，需要使用calendarItemIdentifier
-            // ical://occurrence/E4BA1EB1-2F9E-4B4E-8C9D-AA3302767FCD?method=show&options=more
-            return event.calendarItemIdentifier
-        } catch {
-            throw CalendarError.createFailed
-        }
+  /// 创建事件的内部实现
+  @discardableResult
+  func createEventInternal(from model: CalendarEvent) async throws -> String {
+    guard let calendar = try await getOrCreateCalendar(named: model.calendar) else {
+      throw CalendarError.createFailed
     }
+
+    guard let startDate = model.parsedStartDate,
+      let endDate = model.parsedEndDate
+    else {
+      throw CalendarError.invalidDateFormat
+    }
+
+    let event = EKEvent(eventStore: _eventStore)
+    event.calendar = calendar
+    event.title = model.title
+    event.startDate = startDate
+    event.endDate = endDate
+    event.location = model.location
+    event.timeZone = TimeZone.current
+
+    if !model.url.isEmpty, let url = URL(string: model.url) {
+      event.url = url
+    }
+
+    if !model.notes.isEmpty {
+      event.notes = model.notes
+    }
+
+    // 添加默认提醒（30分钟前）
+    event.addAlarm(EKAlarm(relativeOffset: -1800))
+
+    do {
+      try _eventStore.save(event, span: .thisEvent, commit: true)
+      // 为了导航到对应日历事件，需要使用calendarItemIdentifier
+      // ical://occurrence/E4BA1EB1-2F9E-4B4E-8C9D-AA3302767FCD?method=show&options=more
+      return event.calendarItemIdentifier
+    } catch {
+      throw CalendarError.createFailed
+    }
+  }
 }
 
 // MARK: - 日历处理
 private extension CalendarManager {
-    /// 获取或创建日历
-    func getOrCreateCalendar(named name: String) async throws -> EKCalendar? {
-        // 检查是否存在同名日历
-        if let existingCalendar = _eventStore.calendars(for: .event).first(where: { $0.title == name }) {
-            return existingCalendar
-        }
-        
-        // 创建新日历
-        let newCalendar = EKCalendar(for: .event, eventStore: _eventStore)
-        newCalendar.title = name
-        
-        // 设置日历源
-        if let source = _eventStore.sources.first(where: { $0.sourceType == .local }) 
-            ?? _eventStore.defaultCalendarForNewEvents?.source {
-            newCalendar.source = source
-        } else {
-            return nil
-        }
-        
-        try _eventStore.saveCalendar(newCalendar, commit: true)
-        return newCalendar
+  /// 获取或创建日历
+  func getOrCreateCalendar(named name: String) async throws -> EKCalendar? {
+    // 检查是否存在同名日历
+    if let existingCalendar = _eventStore.calendars(for: .event).first(where: { $0.title == name }) {
+      return existingCalendar
     }
-    
-    /// 设置日历颜色的内部实现
-    func setColorsInternal() async throws {
-        let calendars = getAllCalendars()
-        
-        for calendar in calendars {
-            let hexColor = try await generateColorForCalendar(named: calendar.title)
-            if let color = colorFromHex(hexColor) {
-                calendar.cgColor = color.cgColor
-                try _eventStore.saveCalendar(calendar, commit: false)
-            }
-        }
-        
-        try _eventStore.commit()
+
+    // 创建新日历
+    let newCalendar = EKCalendar(for: .event, eventStore: _eventStore)
+    newCalendar.title = name
+
+    // 设置日历源
+    if let source = _eventStore.sources.first(where: { $0.sourceType == .local })
+      ?? _eventStore.defaultCalendarForNewEvents?.source
+    {
+      newCalendar.source = source
+    } else {
+      return nil
     }
+
+    try _eventStore.saveCalendar(newCalendar, commit: true)
+    return newCalendar
+  }
+
+  /// 设置日历颜色的内部实现
+  func setColorsInternal() async throws {
+    let calendars = getAllCalendars()
+
+    for calendar in calendars {
+      let hexColor = try await generateColorForCalendar(named: calendar.title)
+      if let color = colorFromHex(hexColor) {
+        calendar.cgColor = color.cgColor
+        try _eventStore.saveCalendar(calendar, commit: false)
+      }
+    }
+
+    try _eventStore.commit()
+  }
 }
 
 // MARK: - 颜色处理
 private extension CalendarManager {
-    /// 根据日历名生成颜色
-    func generateColorForCalendar(named name: String) async throws -> String {
-        // TODO: 这里应该调用 LLM API 来生成颜色
-        let hash = name.hash
-        let hue = abs(Double(hash % 360)) / 360.0
-        let saturation = 0.7 + Double(abs(hash % 30)) / 100.0
-        let brightness = 0.8 + Double(abs(hash % 20)) / 100.0
-        
-        let color = NSColor(hue: hue, saturation: saturation, brightness: brightness, alpha: 1.0)
-        return String(
-            format: "#%02X%02X%02X",
-            Int(color.redComponent * 255),
-            Int(color.greenComponent * 255),
-            Int(color.blueComponent * 255)
-        )
+  /// 根据日历名生成颜色
+  func generateColorForCalendar(named name: String) async throws -> String {
+    // TODO: 这里应该调用 LLM API 来生成颜色
+    let hash = name.hash
+    let hue = abs(Double(hash % 360)) / 360.0
+    let saturation = 0.7 + Double(abs(hash % 30)) / 100.0
+    let brightness = 0.8 + Double(abs(hash % 20)) / 100.0
+
+    let color = NSColor(hue: hue, saturation: saturation, brightness: brightness, alpha: 1.0)
+    return String(
+      format: "#%02X%02X%02X",
+      Int(color.redComponent * 255),
+      Int(color.greenComponent * 255),
+      Int(color.blueComponent * 255)
+    )
+  }
+
+  /// 从十六进制字符串创建颜色
+  func colorFromHex(_ hex: String) -> NSColor? {
+    var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+    hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+
+    var rgb: UInt64 = 0
+    guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else {
+      return nil
     }
-    
-    /// 从十六进制字符串创建颜色
-    func colorFromHex(_ hex: String) -> NSColor? {
-        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
-        
-        var rgb: UInt64 = 0
-        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else {
-            return nil
-        }
-        
-        return NSColor(
-            red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
-            green: CGFloat((rgb & 0x00FF00) >> 8) / 255.0,
-            blue: CGFloat(rgb & 0x0000FF) / 255.0,
-            alpha: 1.0
-        )
-    }
+
+    return NSColor(
+      red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
+      green: CGFloat((rgb & 0x00FF00) >> 8) / 255.0,
+      blue: CGFloat(rgb & 0x0000FF) / 255.0,
+      alpha: 1.0
+    )
+  }
 }
 
 // MARK: - 错误类型
 extension CalendarManager {
-    enum CalendarError: LocalizedError {
-        case accessDenied
-        case writeOnlyAccess
-        case unknownStatus
-        case colorGenerationFailed
-        case createFailed
-        case invalidDateFormat
-        
-        var errorDescription: String? {
-            switch self {
-            case .accessDenied:
-                return NSLocalizedString("calendar.error.access_denied",
-                                       comment: "需要日历访问权限，请在系统设置中允许访问")
-            case .writeOnlyAccess:
-                return NSLocalizedString("calendar.error.write_only_access",
-                                       comment: "需要完整的日历访问权限，请在系统设置中修改权限")
-            case .unknownStatus:
-                return NSLocalizedString("calendar.error.unknown_status",
-                                       comment: "日历权限状态未知，请检查系统设置")
-            case .colorGenerationFailed:
-                return NSLocalizedString("calendar.error.color_generation_failed",
-                                       comment: "生成日历颜色失败")
-            case .createFailed:
-                return NSLocalizedString("calendar.error.create_failed",
-                                       comment: "创建日历失败")
-            case .invalidDateFormat:
-                return NSLocalizedString("calendar.error.invalid_date_format",
-                                       comment: "日期格式无效")
-            }
-        }
+  enum CalendarError: LocalizedError {
+    case accessDenied
+    case writeOnlyAccess
+    case unknownStatus
+    case colorGenerationFailed
+    case createFailed
+    case invalidDateFormat
+
+    var errorDescription: String? {
+      switch self {
+      case .accessDenied:
+        return NSLocalizedString(
+          "calendar.error.access_denied",
+          comment: "需要日历访问权限，请在系统设置中允许访问"
+        )
+      case .writeOnlyAccess:
+        return NSLocalizedString(
+          "calendar.error.write_only_access",
+          comment: "需要完整的日历访问权限，请在系统设置中修改权限"
+        )
+      case .unknownStatus:
+        return NSLocalizedString(
+          "calendar.error.unknown_status",
+          comment: "日历权限状态未知，请检查系统设置"
+        )
+      case .colorGenerationFailed:
+        return NSLocalizedString(
+          "calendar.error.color_generation_failed",
+          comment: "生成日历颜色失败"
+        )
+      case .createFailed:
+        return NSLocalizedString(
+          "calendar.error.create_failed",
+          comment: "创建日历失败"
+        )
+      case .invalidDateFormat:
+        return NSLocalizedString(
+          "calendar.error.invalid_date_format",
+          comment: "日期格式无效"
+        )
+      }
     }
+  }
 }
 
 // MARK: - Private Methods
 
 private extension CalendarManager {
-    private func openCalendarApp() {
-        // 使用新的 API 打开日历应用
-        if let calendarURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") {
-            let configuration = NSWorkspace.OpenConfiguration()
-            NSWorkspace.shared.openApplication(at: calendarURL, configuration: configuration) { _, error in
-                if let error = error {
-                    self.logger.error("Failed to open Calendar app: \(error.localizedDescription)")
-                }
-            }
+  private func openCalendarApp() {
+    // 使用新的 API 打开日历应用
+    if let calendarURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") {
+      let configuration = NSWorkspace.OpenConfiguration()
+      NSWorkspace.shared.openApplication(at: calendarURL, configuration: configuration) { _, error in
+        if let error = error {
+          self.logger.error("Failed to open Calendar app: \(error.localizedDescription)")
         }
+      }
     }
-    
-    private func fallbackToURLScheme(_ event: EKEvent) {
-        guard let startDate = event.startDate else { return }
-        // 使用时间戳打开日历
-        let timestamp = Int(startDate.timeIntervalSince1970)
-        if let url = URL(string: "calshow://\(timestamp)") {
-            NSWorkspace.shared.open(url)
-        }
+  }
+
+  private func fallbackToURLScheme(_ event: EKEvent) {
+    guard let startDate = event.startDate else { return }
+    // 使用时间戳打开日历
+    let timestamp = Int(startDate.timeIntervalSince1970)
+    if let url = URL(string: "calshow://\(timestamp)") {
+      NSWorkspace.shared.open(url)
     }
+  }
 }
