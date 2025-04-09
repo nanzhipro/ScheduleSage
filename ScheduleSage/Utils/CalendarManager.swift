@@ -188,6 +188,13 @@ public extension CalendarManager {
     .sorted { $0.startDate < $1.startDate }
   }
 
+  /// 获取当日全天日历事件
+  /// - Returns: 当日全天事件列表，按开始时间排序
+  func fetchTodayAllDayEvents() async throws -> [CalendarEventSummary] {
+    let todayEvents = try await fetchTodayEvents()
+    return todayEvents.filter { $0.isAllDay }
+  }
+
   /// 清除权限缓存，强制重新请求权限
   func clearAccessCache() {
     accessGranted = nil

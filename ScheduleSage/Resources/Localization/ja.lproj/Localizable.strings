@@ -461,3 +461,10 @@
 "support_info.app_version" = "アプリバージョン:";
 "support_info.copy_tooltip" = "サポートIDをコピー";
 "support_info.help_text" = "[技術サポート](https://schedulesage.featurebase.app/)が必要な場合は、上記のサポートIDをご提供ください。より良いサポートをご提供できます。";
+
+/* Menu Bar */
+"today_all_day_events" = "今日の最重要タスク";
+"no_all_day_events" = "今日の重要なタスクはありません";
+"loading_events" = "イベントを読み込んでいます...";
+"error_loading_events" = "イベントの読み込みエラー";
+"refresh" = "更新";

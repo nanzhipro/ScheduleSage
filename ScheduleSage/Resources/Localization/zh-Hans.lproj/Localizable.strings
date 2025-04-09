@@ -444,4 +444,11 @@
 "support_info.os_version" = "系统版本:";
 "support_info.app_version" = "应用版本:";
 "support_info.copy_tooltip" = "复制支持ID";
-"support_info.help_text" = "如果您需要[技术支持](https://schedulesage.featurebase.app/)，请提供上述支持ID，以便我们更好地帮助您解决问题。"; 
+"support_info.help_text" = "如果您需要[技术支持](https://schedulesage.featurebase.app/)，请提供上述支持ID，以便我们更好地帮助您解决问题。";
+
+/* Menu Bar */
+"today_all_day_events" = "今日最重要的事项";
+"no_all_day_events" = "今日无重要事项";
+"loading_events" = "正在加载事件...";
+"error_loading_events" = "加载事件出错";
+"refresh" = "刷新"; 

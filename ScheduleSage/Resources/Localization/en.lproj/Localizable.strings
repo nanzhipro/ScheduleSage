@@ -536,4 +536,11 @@
 "support_info.os_version" = "System Version:";
 "support_info.app_version" = "App Version:";
 "support_info.copy_tooltip" = "Copy Support ID";
-"support_info.help_text" = "If you need [technical support](https://schedulesage.featurebase.app/), please provide the support ID above to help us better assist you."; 
+"support_info.help_text" = "If you need [technical support](https://schedulesage.featurebase.app/), please provide the support ID above to help us better assist you.";
+
+/* Menu Bar */
+"today_all_day_events" = "Today's Most Important Tasks";
+"no_all_day_events" = "No important tasks today";
+"loading_events" = "Loading events...";
+"error_loading_events" = "Error loading events";
+"refresh" = "Refresh"; 

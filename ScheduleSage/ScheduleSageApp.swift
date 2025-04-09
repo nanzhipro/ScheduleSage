@@ -15,6 +15,7 @@ struct ScheduleSageApp: App {
   @StateObject private var authViewModel = AuthenticationViewModel.shared
 
   var body: some Scene {
+    // 主窗口
     Window("ScheduleSage", id: "main") {
       if hasCompletedOnboarding {
         AddScheduleView()
@@ -74,6 +75,17 @@ struct ScheduleSageApp: App {
         }
       }
     }
+
+    #if false
+    // 菜单栏额外内容 - 当日全天事件视图
+    MenuBarExtra(
+      NSLocalizedString("today_all_day_events", comment: "Today's Most Important Tasks"),
+      systemImage: "list.star"
+    ) {
+      MenuBarEventView()
+    }
+    .menuBarExtraStyle(.window)
+    #endif
 
     Settings {
       SettingsView()
