@@ -40,24 +40,58 @@ struct CalendarFeedsView: View {
       viewModel.loadEventsForCurrentDate()
     }
     // 整体降低不透明度，减少存在感
-    .opacity(colorScheme == .dark ? 0.5 : 0.6)
+    .opacity(colorScheme == .dark ? 0.6 : 0.7)
+  }
+
+  // MARK: - 导航按钮
+  private struct NavigationButton: View {
+    let systemName: String
+    let action: () -> Void
+    let helpText: String
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var isHovered = false
+
+    var body: some View {
+      Button(action: action) {
+        Image(systemName: systemName)
+          .font(.system(size: 14, weight: .medium))
+          .foregroundColor(
+            DesignSystem.Colors.secondaryText.opacity(
+              colorScheme == .dark
+                ? (isHovered ? 0.8 : 0.5)
+                : (isHovered ? 0.9 : 0.6)
+            )
+          )
+          .frame(width: 24, height: 24)
+          .background(
+            Circle()
+              .fill(
+                DesignSystem.Colors.secondaryText.opacity(
+                  isHovered ? (colorScheme == .dark ? 0.1 : 0.08) : 0
+                )
+              )
+          )
+          .contentShape(Rectangle())
+      }
+      .buttonStyle(PlainButtonStyle())
+      .onHover { hovering in
+        withAnimation(.easeInOut(duration: 0.2)) {
+          isHovered = hovering
+        }
+      }
+      .help(helpText)
+    }
   }
 
   // MARK: - 日期导航头部
   private var dateNavigationHeader: some View {
     HStack(spacing: 12) {
       // 前一天按钮
-      Button(action: {
-        viewModel.goToPreviousDay()
-      }) {
-        Image(systemName: "chevron.left")
-          .font(.system(size: 14, weight: .medium))
-          .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
-          .frame(width: 24, height: 24)
-          .contentShape(Rectangle())
-      }
-      .buttonStyle(PlainButtonStyle())
-      .help(NSLocalizedString("previous_day", comment: "前一天"))
+      NavigationButton(
+        systemName: "chevron.left",
+        action: { viewModel.goToPreviousDay() },
+        helpText: NSLocalizedString("previous_day", comment: "前一天")
+      )
 
       Spacer()
 
@@ -79,24 +113,14 @@ struct CalendarFeedsView: View {
       Spacer()
 
       // 后一天按钮
-      Button(action: {
-        viewModel.goToNextDay()
-      }) {
-        Image(systemName: "chevron.right")
-          .font(.system(size: 14, weight: .medium))
-          .foregroundColor(DesignSystem.Colors.secondaryText.opacity(colorScheme == .dark ? 0.5 : 0.6))
-          .frame(width: 24, height: 24)
-          .contentShape(Rectangle())
-      }
-      .buttonStyle(PlainButtonStyle())
-      .help(NSLocalizedString("next_day", comment: "后一天"))
+      NavigationButton(
+        systemName: "chevron.right",
+        action: { viewModel.goToNextDay() },
+        helpText: NSLocalizedString("next_day", comment: "后一天")
+      )
     }
     .padding(.horizontal, 16)
-    .padding(.vertical, 12)
-    .background(
-      RoundedRectangle(cornerRadius: 12)
-        .fill(Color.clear)
-    )
+    .padding(.vertical, 36)
   }
 
   // MARK: - 事件流内容
@@ -180,6 +204,7 @@ private struct EventFeedItem: View {
   // MARK: - 属性
   let event: CalendarEventSummary
   @Environment(\.colorScheme) private var colorScheme
+  @State private var isHovered = false
 
   // 日历管理器依赖注入
   private let calendarManager = CalendarManager()
@@ -218,7 +243,12 @@ private struct EventFeedItem: View {
       RoundedRectangle(cornerRadius: 12)
         .fill(backgroundGradient)
     )
+    .scaleEffect(isHovered ? 1.01 : 1.0)
+    .animation(.spring(response: 0.2), value: isHovered)
     .contentShape(Rectangle())
+    .onHover { hovering in
+      isHovered = hovering
+    }
     .onTapGesture(count: 2) {
       // 双击时打开日历事件
       Task {
