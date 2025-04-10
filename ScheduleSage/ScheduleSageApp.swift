@@ -18,7 +18,7 @@ struct ScheduleSageApp: App {
     // 主窗口
     Window("ScheduleSage", id: "main") {
       if hasCompletedOnboarding {
-        AddScheduleView()
+        MainNavigationView()
           .environmentObject(viewModel)
           .environmentObject(authViewModel)
           .frame(minHeight: DesignSystem.Dimensions.mainViewHeight)

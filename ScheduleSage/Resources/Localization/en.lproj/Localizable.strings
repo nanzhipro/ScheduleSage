@@ -543,4 +543,9 @@
 "no_all_day_events" = "No important tasks today";
 "loading_events" = "Loading events...";
 "error_loading_events" = "Error loading events";
-"refresh" = "Refresh"; 
+"refresh" = "Refresh";
+
+/* Calendar Settings */
+"calendar_settings_title" = "Calendar Settings";
+"calendar_settings_subtitle" = "Manage your calendar preferences";
+"app_name" = "ScheduleSage"; 

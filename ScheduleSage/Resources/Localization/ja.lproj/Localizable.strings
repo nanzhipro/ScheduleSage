@@ -468,3 +468,8 @@
 "loading_events" = "イベントを読み込んでいます...";
 "error_loading_events" = "イベントの読み込みエラー";
 "refresh" = "更新";
+
+/* Calendar Settings */
+"calendar_settings_title" = "カレンダー設定";
+"calendar_settings_subtitle" = "カレンダーの設定を管理";
+"app_name" = "ScheduleSage";

@@ -451,4 +451,9 @@
 "no_all_day_events" = "今日无重要事项";
 "loading_events" = "正在加载事件...";
 "error_loading_events" = "加载事件出错";
-"refresh" = "刷新"; 
+"refresh" = "刷新";
+
+/* Calendar Settings */
+"calendar_settings_title" = "日历设置";
+"calendar_settings_subtitle" = "管理您的日历偏好设置";
+"app_name" = "ScheduleSage"; 
