@@ -165,6 +165,9 @@ public final class DefaultLLMEventProcessor: LLMEventProcessor {
         if event.startDate.isEmpty {
             missingFields.append(CalendarEvent.displayName(for: "startDate"))
         }
+        if event.endDate.isEmpty {
+            missingFields.append(CalendarEvent.displayName(for: "endDate"))
+        }
         
         guard missingFields.isEmpty else {
             logger.error("Missing required fields: \(missingFields.joined(separator: ", "))")

@@ -386,7 +386,7 @@ private struct VoiceButton: View {
   @State private var hasSound = false
 
   // 倒计时相关状态
-  private let maxRecordingTime: TimeInterval = 60  // 1分钟 = 60秒
+  private let maxRecordingTime: TimeInterval = 59  // 1分钟 = 60秒
   @State private var recordingTimer: Timer?
   @State private var currentRecordingTime: TimeInterval = 0
 

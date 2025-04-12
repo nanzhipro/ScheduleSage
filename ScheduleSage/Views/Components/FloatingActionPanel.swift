@@ -27,7 +27,7 @@ struct FloatingActionPanel: View {
   // MARK: - Layout Constants
   private enum Layout {
     static let cornerRadius: CGFloat = 20
-    static let panelWidth: CGFloat = 500
+    static let panelWidth: CGFloat = 600
     static let minHeight: CGFloat = 80
     static let maxHeight: CGFloat = 120
     static let buttonSize: CGFloat = 32
@@ -290,7 +290,7 @@ private struct ActionButton: View {
   @State private var ripples: [RippleState] = []
 
   // 倒计时相关状态
-  private let maxRecordingTime: TimeInterval = 60  // 1分钟 = 60秒
+  private let maxRecordingTime: TimeInterval = 59  // 1分钟 = 60秒
   @State private var recordingTimer: Timer?
   @State private var currentRecordingTime: TimeInterval = 0
 
