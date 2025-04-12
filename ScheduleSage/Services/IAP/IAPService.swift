@@ -24,6 +24,7 @@ class IAPService: NSObject, ObservableObject {
 
   private let logger = LoggerService.makeCompatible(category: "IAPService")
   private let configService = ConfigService()
+  private let deviceAccessService = DeviceAccessService()
   private var appConfig: AppConfig = AppConfig(revenuecatApiKey: "", enablePremiumFeaturesWhenUnsubscribed: false)
 
   // MARK: - Published Properties
@@ -564,12 +565,23 @@ class IAPService: NSObject, ObservableObject {
       try await waitForConfiguration()
     }
 
+    // 首先检查用户是否有已付费的订阅
     let isPremiumSubscribed = try await checkSubscriptionStatus()
-    let canAccess = isPremiumSubscribed || appConfig.enablePremiumFeaturesWhenUnsubscribed
+
+    // 如果已订阅，直接返回true
+    if isPremiumSubscribed {
+      logger.info("[IAP] 用户已订阅，允许访问高级功能")
+      return true
+    }
+
+    // 如果未订阅，检查设备是否被授权访问高级功能
+    let hasDeviceAccess = await deviceAccessService.checkPremiumAccess()
+
     logger.info(
-      "[IAP] Premium access check - Subscribed: \(isPremiumSubscribed), Override enabled: \(appConfig.enablePremiumFeaturesWhenUnsubscribed), Can access: \(canAccess)"
+      "[IAP] 高级功能访问检查 - 已订阅: \(isPremiumSubscribed), 设备授权访问: \(hasDeviceAccess), 最终结果: \(isPremiumSubscribed || hasDeviceAccess)"
     )
-    return canAccess
+
+    return isPremiumSubscribed || hasDeviceAccess
   }
 
   /// 等待配置完成
