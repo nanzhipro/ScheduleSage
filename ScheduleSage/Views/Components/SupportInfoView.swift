@@ -50,29 +50,6 @@ struct SupportInfoView: View {
           .buttonStyle(BorderlessButtonStyle())
           .help(NSLocalizedString("support_info.copy_tooltip", comment: ""))
         }
-
-        Divider()
-
-        deviceInfoRow(
-          title: NSLocalizedString("support_info.device_model", comment: ""),
-          value: DeviceInfoService.getDeviceModel()
-        )
-        deviceInfoRow(
-          title: NSLocalizedString("support_info.os_version", comment: ""),
-          value: DeviceInfoService.getOSVersion()
-        )
-        deviceInfoRow(
-          title: NSLocalizedString("support_info.app_version", comment: ""),
-          value: "\(DeviceInfoService.getAppVersion()) (\(DeviceInfoService.getAppBuildNumber()))"
-        )
-        deviceInfoRow(
-          title: NSLocalizedString("support_info.hardware_id", comment: ""),
-          value: DeviceInfoService.getHardwareID()
-        )
-        deviceInfoRow(
-          title: NSLocalizedString("support_info.serial_number", comment: ""),
-          value: DeviceInfoService.getSerialNumber()
-        )
       }
       .padding()
       .background(Color(NSColor.controlBackgroundColor))
