@@ -83,7 +83,7 @@ actor APIConfig {
             self.environment = Self.ngrokEnvironment
             logger.debug("Using ngrok environment: \(Self.ngrokEnvironment)")
         } else {
-            self.environment = Self.developmentEnvironment
+            self.environment = Self.productionEnvironment
             logger.debug("Using development environment: \(Self.developmentEnvironment)")
         }
         #else

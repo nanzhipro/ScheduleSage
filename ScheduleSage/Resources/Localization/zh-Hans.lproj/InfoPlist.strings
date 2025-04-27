@@ -2,7 +2,7 @@
 CFBundleDisplayName = "ScheduleSage";
 
 /* Calendar Usage Description */
-NSCalendarsUsageDescription = "此应用需要访问您的日历以创建和管理事件。";
+NSCalendarsUsageDescription = "ScheduleSage需要日历权限来帮助您轻松添加、查看和管理您的日程事件。这使应用能够根据您的输入创建新事件，并高效地组织您的日程安排。";
 
 /* Notifications Usage Description */
 NSUserNotificationsUsageDescription = "此应用需要发送通知以便及时通知您日历事件的更新。"; 

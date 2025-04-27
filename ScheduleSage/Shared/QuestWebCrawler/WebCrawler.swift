@@ -13,7 +13,7 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
   private let semaphore: AsyncSemaphore
   private let resultsActor = ResultsActor()
   private var webView: WKWebView?
-  
+
   // 将isDisposed改为actor隔离
   @MainActor private var isDisposed = false
 
@@ -71,37 +71,45 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
     self.logger = logger
     super.init()
   }
-  
+
   deinit {
-    // 在deinit中不能直接调用@MainActor方法，使用非隔离版本的清理
-    cleanupOnDeinit()
-  }
-  
-  /// 非MainActor隔离的清理方法，专用于deinit
-  private func cleanupOnDeinit() {
-    // 取消会话中的任务
+    // 在deinit中不能直接调用@MainActor方法
+    // 在deinit中尽量避免异步操作，只进行必要的资源释放
     session.invalidateAndCancel()
-    
-    // 发送一个任务到主线程执行UI相关的清理
-    Task { @MainActor [weak self] in
-      guard let self = self else { return }
-      
-      // 标记为已处置
-      self.isDisposed = true
-      
-      // 取消任何挂起的continuation
-      if let continuation = self.pendingContinuation {
-        continuation.resume(throwing: WebCrawlerError.parsingFailed)
-        self.pendingContinuation = nil
+
+    // 使用dispatchMain同步处理UI相关资源
+    if Thread.isMainThread {
+      // 已经在主线程，直接执行清理
+      cleanupWebViewSynchronously()
+
+      // 注意：我们不直接设置isDisposed，因为它是@MainActor隔离的
+      // 在deinit中，对象已经被销毁，所以这个标志已经不重要了
+    } else {
+      // 在主线程同步执行WebView清理
+      DispatchQueue.main.sync {
+        cleanupWebViewSynchronously()
       }
-      
-      // 清理WebView
-      self.webView?.stopLoading()
-      self.webView?.navigationDelegate = nil
-      self.webView = nil
-      
-      self.logger?.log("WebCrawler resources cleaned up from deinit")
     }
+  }
+
+  /// 在主线程同步清理WebView资源
+  private func cleanupWebViewSynchronously() {
+    // 取消任何挂起的continuation
+    if let continuation = pendingContinuation {
+      continuation.resume(throwing: WebCrawlerError.parsingFailed)
+      pendingContinuation = nil
+    }
+
+    // 清理WebView
+    webView?.stopLoading()
+    webView?.navigationDelegate = nil
+    webView = nil
+  }
+
+  /// 非MainActor隔离的清理方法，专用于deinit - 已废弃不用
+  @available(*, deprecated, message: "使用deinit直接清理")
+  private func cleanupOnDeinit() {
+    // 该方法已不再使用，由deinit直接实现
   }
 
   /// Crawl a single URL and return the extracted text
@@ -109,11 +117,12 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
   /// - Returns: Result containing extracted text or an error
   public func crawl(urlString: String) async -> Result<String, WebCrawlerError> {
     // 检查是否已处置
-    guard await !isDisposed else {
+    let isCurrentlyDisposed = await isDisposed
+    guard !isCurrentlyDisposed else {
       logger?.log("WebCrawler instance is disposed")
       return .failure(.parsingFailed)
     }
-    
+
     guard let url = URL(string: urlString) else {
       logger?.log("Invalid URL: \(urlString)")
       return .failure(.invalidURL)
@@ -129,7 +138,9 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
     if configuration.obeyRobotsTxt {
       do {
         let rule = try await robotsParser.fetchAndParse(
-          for: url, userAgent: configuration.userAgent)
+          for: url,
+          userAgent: configuration.userAgent
+        )
         if !robotsParser.isAllowed(url: url, rule: rule) {
           logger?.log("Crawling disallowed by robots.txt for URL: \(urlString)")
           return .failure(.robotsTxtDisallowed)
@@ -162,7 +173,8 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
         !(200...299).contains(httpResponse.statusCode)
       {
         logger?.log(
-          "Request failed for URL: \(urlString) with status code: \(httpResponse.statusCode)")
+          "Request failed for URL: \(urlString) with status code: \(httpResponse.statusCode)"
+        )
         return .failure(.requestFailed(statusCode: httpResponse.statusCode))
       }
 
@@ -203,15 +215,15 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
       logger?.log("WebCrawler instance is disposed")
       return urls.reduce(into: [:]) { $0[$1] = .failure(.parsingFailed) }
     }
-    
+
     var results: [String: Result<String, WebCrawlerError>] = [:]
 
     await withTaskGroup(of: (String, Result<String, WebCrawlerError>).self) { group in
       for url in urls {
-        group.addTask { [weak self] in
-          guard let self = self, 
-                // 使用await检查actor隔离属性
-                await !self.isDisposed else {
+        group.addTask { [self] in
+          // 不使用weak self，直接捕获self，任务会自动取消当self被释放时
+          // 再次检查是否已处置
+          if await self.isDisposed {
             return (url, .failure(.parsingFailed))
           }
 
@@ -219,6 +231,7 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
 
           let result = await self.crawl(urlString: url)
 
+          // 完成后释放信号量
           await self.semaphore.signal()
 
           return (url, result)
@@ -241,20 +254,20 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
   private func extractText(from html: String) throws -> String {
     do {
       let document: Document = try SwiftSoup.parse(html)
-      
+
       // 1. 移除无用标签
       try document.select("script, style, noscript").remove()
-      
+
       // 2. 提取关键内容区域
       let content = try document.select("#js_content").first()
-      
+
       // 3. 处理特殊属性
       try content?.select("[data-src]").forEach { element in
         if let src = try? element.attr("data-src") {
           try element.attr("src", src)
         }
       }
-      
+
       // 4. 格式化文本
       let text = try content?.text() ?? ""
       return text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -266,102 +279,136 @@ public class WebCrawler: NSObject, WKNavigationDelegate {
 
   func crawl(url: URL) async throws -> String {
     // 检查是否已处置
-    guard await !isDisposed else {
+    let isCurrentlyDisposed = await isDisposed
+    guard !isCurrentlyDisposed else {
       throw WebCrawlerError.parsingFailed
     }
-    
-    // 按需创建webView
-    if webView == nil {
-      let config = WKWebViewConfiguration()
-      self.webView = WKWebView(frame: .zero, configuration: config)
+
+    // 在主线程上按需创建webView
+    let webViewToUse: WKWebView = await MainActor.run {
+      // 按需创建webView
+      if webView == nil {
+        let config = WKWebViewConfiguration()
+        self.webView = WKWebView(frame: .zero, configuration: config)
+      }
+
+      return self.webView!
     }
-    
-    guard let webView = self.webView else {
-      throw WebCrawlerError.parsingFailed
-    }
-    
+
     return try await withCheckedThrowingContinuation { continuation in
-      webView.navigationDelegate = self
-      webView.load(URLRequest(url: url))
-      
-      // 存储continuation以便在页面加载完成后使用
-      self.pendingContinuation = continuation
+      // 在主线程上设置导航代理和加载URL
+      Task { @MainActor in
+        // 再次检查是否已被disposed，以防在创建webView后状态改变
+        if self.isDisposed {
+          continuation.resume(throwing: WebCrawlerError.parsingFailed)
+          return
+        }
+
+        webViewToUse.navigationDelegate = self
+        webViewToUse.load(URLRequest(url: url))
+
+        // 存储continuation以便在页面加载完成后使用
+        self.pendingContinuation = continuation
+      }
     }
   }
-  
+
   // 添加一个属性来存储continuation
   private var pendingContinuation: CheckedContinuation<String, Error>?
-  
+
   // 实现WKNavigationDelegate方法
   public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-    webView.evaluateJavaScript("""
-      document.querySelector('#js_content').innerText
-    """) { [weak self] result, error in
+    // 在主线程上运行的检查
+    let localContinuation = pendingContinuation
+
+    // 如果没有挂起的continuation，直接返回
+    guard localContinuation != nil else { return }
+
+    webView.evaluateJavaScript(
+      """
+        document.querySelector('#js_content').innerText
+      """
+    ) { [weak self] result, error in
+      // 弱引用self以避免循环引用
       guard let self = self else { return }
-      
+
+      // 获取当前的continuation，而不是捕获的那个
+      // 因为在执行回调之前，pendingContinuation可能已被设为nil
+      guard let currentContinuation = self.pendingContinuation else { return }
+
       if let error = error {
-        self.pendingContinuation?.resume(throwing: error)
+        currentContinuation.resume(throwing: error)
       } else if let text = result as? String {
-        self.pendingContinuation?.resume(returning: text)
+        currentContinuation.resume(returning: text)
       } else {
-        self.pendingContinuation?.resume(throwing: WebCrawlerError.parsingFailed)
+        currentContinuation.resume(throwing: WebCrawlerError.parsingFailed)
       }
-      
+
+      // 清空pendingContinuation，表示已处理
       self.pendingContinuation = nil
     }
   }
-  
+
   // 处理导航失败的情况
   public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-    pendingContinuation?.resume(throwing: error)
+    // 获取当前的continuation的副本
+    guard let currentContinuation = pendingContinuation else { return }
+
+    // 清空pendingContinuation
     pendingContinuation = nil
+
+    // 恢复continuation
+    currentContinuation.resume(throwing: error)
   }
-  
-  public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-    pendingContinuation?.resume(throwing: error)
+
+  public func webView(
+    _ webView: WKWebView,
+    didFailProvisionalNavigation navigation: WKNavigation!,
+    withError error: Error
+  ) {
+    // 获取当前的continuation的副本
+    guard let currentContinuation = pendingContinuation else { return }
+
+    // 清空pendingContinuation
     pendingContinuation = nil
+
+    // 恢复continuation
+    currentContinuation.resume(throwing: error)
   }
 
   private func createRequest(for urlString: String) throws -> URLRequest {
     guard let url = URL(string: urlString) else {
       throw WebCrawlerError.invalidURL
     }
-    
+
     var request = URLRequest(url: url)
     request.allHTTPHeaderFields = [
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1"
+      "User-Agent":
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.5",
+      "Connection": "keep-alive",
+      "Upgrade-Insecure-Requests": "1",
     ]
     return request
   }
-  
+
   /// 清理资源，防止内存泄漏
   @MainActor
   public func cleanup() {
     guard !isDisposed else { return }
-    
+
     isDisposed = true
-    
-    // 取消任何挂起的continuation
-    if let continuation = pendingContinuation {
-      continuation.resume(throwing: WebCrawlerError.parsingFailed)
-      pendingContinuation = nil
-    }
-    
-    // 清理WebView - 已经在主线程，无需再次分发
-    webView?.stopLoading()
-    webView?.navigationDelegate = nil
-    webView = nil
-    
+
+    // 复用WebView清理逻辑
+    cleanupWebViewSynchronously()
+
     // 取消会话中的任务
     session.invalidateAndCancel()
-    
+
     logger?.log("WebCrawler resources cleaned up")
   }
-  
+
   /// 销毁实例并释放资源
   @MainActor
   public func dispose() {

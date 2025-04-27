@@ -2,7 +2,7 @@
 CFBundleDisplayName = "スケジュールセージ";
 
 /* Calendar Usage Description */
-NSCalendarsUsageDescription = "このアプリは、予定の作成と管理のためにカレンダーへのアクセスが必要です。";
+NSCalendarsUsageDescription = "ScheduleSageはイベントの追加、表示、管理を簡単に行うためにカレンダーへのアクセスが必要です。これにより、あなたの入力に基づいて新しいイベントを作成し、スケジュールを効率的に整理することができます。";
 
 /* Notifications Usage Description */
 NSUserNotificationsUsageDescription = "このアプリは、カレンダーイベントの更新を通知するために通知の送信が必要です。"; 

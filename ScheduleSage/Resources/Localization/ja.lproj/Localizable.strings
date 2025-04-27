@@ -194,7 +194,8 @@
 
 "onboarding.permission.calendar.title" = "カレンダー";
 "onboarding.permission.calendar.description" = "予定を管理するためにアクセスを許可";
-"onboarding.permission.calendar.button" = "許可";
+"onboarding.permission.calendar.button" = "続ける";
+"onboarding.permission.calendar.purpose" = "カレンダーアクセスはイベントの追加と管理に必要です";
 
 "onboarding.permission.notification.title" = "通知";
 "onboarding.permission.notification.description" = "リマインダーを有効に";

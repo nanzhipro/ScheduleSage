@@ -194,7 +194,8 @@
 
 "onboarding.permission.calendar.title" = "Calendar";
 "onboarding.permission.calendar.description" = "Allow access to manage events";
-"onboarding.permission.calendar.button" = "Allow";
+"onboarding.permission.calendar.button" = "Continue";
+"onboarding.permission.calendar.purpose" = "Calendar access is needed to add and manage your events";
 
 "onboarding.permission.notification.title" = "Notifications";
 "onboarding.permission.notification.description" = "Enable reminders";

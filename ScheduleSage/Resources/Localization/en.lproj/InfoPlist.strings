@@ -2,7 +2,7 @@
 CFBundleDisplayName = "ScheduleSage";
 
 /* Calendar Usage Description */
-NSCalendarsUsageDescription = "This app needs access to your calendar to create and manage events.";
+NSCalendarsUsageDescription = "ScheduleSage needs calendar access to help you add, view and manage your events easily. This allows the app to create new events based on your input and organize your schedule efficiently.";
 
 /* Notifications Usage Description */
 NSUserNotificationsUsageDescription = "This app needs to send notifications to keep you updated about calendar events.";

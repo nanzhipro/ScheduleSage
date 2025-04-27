@@ -194,7 +194,8 @@
 
 "onboarding.permission.calendar.title" = "日历访问";
 "onboarding.permission.calendar.description" = "允许访问以管理日程";
-"onboarding.permission.calendar.button" = "允许访问";
+"onboarding.permission.calendar.button" = "继续";
+"onboarding.permission.calendar.purpose" = "日历访问权限用于添加和管理您的日程事件";
 
 "onboarding.permission.notification.title" = "通知";
 "onboarding.permission.notification.description" = "开启以接收提醒";
